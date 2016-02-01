@@ -14,8 +14,11 @@
 !var/SymfonyRequirements.php
 /vendor/
 /web/bundles/
+/web/bower/
 
 # eclipse files
 /.settings/
 /.project
 /.buildpath
+/.sass-cache/
+/npm-debug.log
