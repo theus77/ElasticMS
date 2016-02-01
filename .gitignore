@@ -38,3 +38,8 @@
 
 # Composer PHAR
 /composer.phar
+
+# eclipse files
+/.settings/
+/.project
+/.buildpath
