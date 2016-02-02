@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 class IndexController extends Controller
 {
 	/**
-	 * @Route("/index/create")
+	 * @Route("/index/create", name="index.create"))
 	 */
 	public function createAction()
 	{

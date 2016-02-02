@@ -18,4 +18,13 @@ class DefaultController extends Controller
             'base_dir' => realpath($this->container->getParameter('kernel.root_dir').'/..'),
         ]);
     }
+    
+    /**
+     * @Route("/documentation", name="documentation")
+     */
+    public function documentationAction(Request $request)
+    {
+    	// replace this example code with whatever you need
+    	return $this->render('default/documentation.html.twig');
+    }
 }
