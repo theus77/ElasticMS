@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %}Elasticsearch cluster's status{% endblock %}
+{% block pagetitle %}Status of the cluster{% endblock %} 
+{% block subtitle %}Life inside a cluster{% endblock %} 
+{% block elasticsearch_status_active %}active{% endblock %}
+{% block elasticsearch_active %}active{% endblock %}
+{% block body %}
+<div class="col-md-12">
+	<div class="box box box-solid">
+		<div class="box-header with-border bg-{{ status.status }}">
+			<h3 class="box-title">
+				<h4>
+					<i class="icon fa fa-{% if 'yellow' in status.status %}warning{% elseif 'green' in status.status %}check{% else %}ban{% endif %} fa-2x"></i>  {{ status.cluster_name }}
+				</h4>
+				{{ status.status }}	
+			</h3>
+		</div>
+			<div class="box-body ">
+			<ul class="list-group">
+					<li class="list-group-item">Number of nodes <span class=" badge bg-{{ status.status }}">{{ status.number_of_nodes }}</span></li>
+					<li class="list-group-item">Number of data nodes <span class=" badge bg-{{ status.status }}">{{ status.number_of_data_nodes }}</span></li>
+					<li class="list-group-item">Active primary shards <span class=" badge bg-{{ status.status }}">{{ status.active_primary_shards }}</span></li>
+					<li class="list-group-item">Active shards <span class=" badge bg-{{ status.status }}">{{ status.active_shards }}</span></li>
+					<li class="list-group-item">Relocating shards <span class=" badge bg-{{ status.status }}">{{ status.relocating_shards }}</span></li>
+					<li class="list-group-item">Initializing shards <span class=" badge bg-{{ status.status }}">{{ status.initializing_shards }}</span></li>
+					<li class="list-group-item">Unassigned shards <span class=" badge bg-{{ status.status }}">{{ status.unassigned_shards }}</span></li>
+					<li class="list-group-item">Delayed unassigned shards <span class=" badge bg-{{ status.status }}">{{ status.delayed_unassigned_shards }}</span></li>
+					<li class="list-group-item">Number of pending tasks <span class=" badge bg-{{ status.status }}">{{ status.number_of_pending_tasks }}</span></li>
+					<li class="list-group-item">Number of in flight fetch <span class=" badge bg-{{ status.status }}">{{ status.number_of_in_flight_fetch }}</span></li>
+					<li class="list-group-item">Task max waiting in queue <span class=" badge bg-{{ status.status }}">{{ status.task_max_waiting_in_queue_millis }} ms</span></li>
+					<li class="list-group-item">Active shards percent as number <span class=" badge bg-{{ status.status }}">{{ status.active_shards_percent_as_number }}</span></li>
+	
+				</ul>
+			</div>
+	</div>
+
+	{# 	<div class="box box box-solid">#}
+{# 		<div class="box-body">#}
+{# 		<div class="box box-widget widget-user-2">#}
+{# 			<!-- Add the bg color to the header using any of the bg-* classes -->#}
+{# 			<div class="widget-user-header bg-{{ status.status }}">#}
+{# 				<h4>#}
+{# 					<i class="icon fa fa-{% if 'yellow' in status.status %}warning{% elseif 'green' in status.status %}check{% else %}ban{% endif %} fa-2x"></i>  {{ status.cluster_name }}#}
+{# 				</h4>#}
+{# 				{{ status.status }}	#}
+				
+{# 			</div>#}
+
+{# 		</div>#}
+{# 		</div>#}
+
+{# 	</div>#}
+
+</div>
+{% endblock %}

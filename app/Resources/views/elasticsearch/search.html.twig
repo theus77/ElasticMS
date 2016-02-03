@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Search for "{{ query }}"{% endblock %}
+{% block pagetitle %}Search result for {{ query }}{% endblock %} 
+{% block subtitle %} <span class=" badge">{{ results.hits.total }}</span>{% endblock %} 
+
+
+
+{% block body %}
+    {% for result in results.hits.hits %}
+       <div>{{ result._index }} / {{ result._type }} / {{ result._id }} {{ result._score }}</div>
+    {% endfor %}
+{% endblock %} 
