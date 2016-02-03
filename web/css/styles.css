@@ -8796,3 +8796,7 @@ button.close {
     display: none !important;
   }
 }
+/* line 3, ../../sass/_elasticsearch_search.scss */
+#search-page em {
+  background-color: yellow;
+}

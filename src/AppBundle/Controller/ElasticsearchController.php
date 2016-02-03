@@ -35,28 +35,40 @@ class ElasticsearchController extends Controller
 		
 		
 		if(! isset($query)){
-			$es_query = json_decode('{
-				"size": 50,
+			$es_query = '{
 			    "query": {
 			    	"match_all" : { }
-			    } }', true);
+			    },
+			    "highlight" : {
+			        "fields" : {
+			            "_all" : {}
+			        }
+			    } }';
 		}
 		else {
-			$es_query = json_decode('
+			$es_query = '
 			{
-			   "size": 50,
 			   "query": {
 			      "match": {
 			         "_all": {
 			            "query": '.json_encode($query).',
 			            "operator": "and"
-			}}}}', true);	
+			         }
+			      }
+			   },
+			    "highlight" : {
+			        "fields" : {
+			            "_all" : {}
+			        }
+			    }
+			}';	
 		}
 		
 		$client = ClientBuilder::create()->build();
-		$results = $client->search(['body' => $es_query]);
+		$results = $client->search(['body' => $es_query, 'version' => true, 'size' => 50]);
 
-// 		dump($results);
+		dump($results);
+		dump(json_decode($es_query,true));
 	
 		return $this->render( 'elasticsearch/search.html.twig', [
  				'query' => $query,
