@@ -32,14 +32,21 @@
   <!-- /.login-logo -->
   <div class="login-box-body">
     <p class="login-box-msg">Sign in to start your session</p>
+{% if error %}
 
-    <form action="../../index2.html" method="post">
+	<div class="callout callout-warning">
+		<p>{{ error.messageKey|trans(error.messageData, 'security') }}</p>
+	</div>
+
+{% endif %}
+
+    <form action="{{ path('login_check') }}" method="post">
       <div class="form-group has-feedback">
-        <input type="email" class="form-control" placeholder="Email">
-        <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
+        <input type="text" id="username" name="_username" value="{{ last_username }}"  class="form-control" placeholder="Username">
+        <span class="fa fa-user-secret form-control-feedback"></span>
       </div>
       <div class="form-group has-feedback">
-        <input type="password" class="form-control" placeholder="Password">
+        <input type="password" id="password" name="_password" class="form-control" placeholder="Password">
         <span class="glyphicon glyphicon-lock form-control-feedback"></span>
       </div>
       <div class="row">

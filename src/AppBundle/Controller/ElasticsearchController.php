@@ -9,7 +9,7 @@ use Elasticsearch\ClientBuilder;
 class ElasticsearchController extends Controller
 {
 	/**
-	 * @Route("/elasticsearch/status.{_format}", defaults={"_format": "html"}, name="elasticsearch.status"))
+	 * @Route("/status.{_format}", defaults={"_format": "html"}, name="elasticsearch.status"))
 	 */
 	public function statusAction($_format)
 	{
@@ -27,7 +27,7 @@ class ElasticsearchController extends Controller
 	}
 	
 	/**
-	 * @Route("/search/{query}", defaults={"query"=null}, name="elasticsearch.search"))
+	 * @Route("/search/{query}/{page}", defaults={"query"=null, "page"=1}, name="elasticsearch.search"))
 	 */
 	public function searchAction($query, Request $request)
 	{
