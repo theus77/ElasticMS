@@ -300,11 +300,10 @@ desired effect
     <section class="content-header">
       <h1>
         {% block pagetitle %}elasticMS{% endblock %}
-        <small>{% block subtitle %}Optional description{% endblock %}</small>
+        {% block subtitle %}{% endblock %}
       </h1>
-      <ol class="breadcrumb">
+      
       	{% block breadcrumb %}{% endblock %}
-      </ol>
     </section>
 
     <!-- Main content -->

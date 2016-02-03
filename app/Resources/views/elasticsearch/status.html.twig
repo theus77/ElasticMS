@@ -3,12 +3,14 @@
 
 {% block title %}Elasticsearch cluster's status{% endblock %}
 {% block pagetitle %}Status of the cluster{% endblock %} 
-{% block subtitle %}Life inside a cluster{% endblock %} 
+{% block subtitle %}<small>Life inside a cluster</small>{% endblock %} 
 {% block elasticsearch_status_active %}active{% endblock %}
 {% block elasticsearch_active %}active{% endblock %}
 {% block breadcrumb %}
-	<li><i class="fa fa-cubes"></i> Elasticsearch</li>
-    <li class="active">Status</li>
+	<ol class="breadcrumb">
+		<li><i class="fa fa-cubes"></i> Elasticsearch</li>
+   		<li class="active">Status</li>
+   	</ol>
 {% endblock %}
 
 
