@@ -9,16 +9,21 @@ use Elasticsearch\ClientBuilder;
 class ElasticsearchController extends Controller
 {
 	/**
-	 * @Route("/elasticsearch/status", name="elasticsearch.status"))
+	 * @Route("/elasticsearch/status.{_format}", defaults={"_format": "html"}, name="elasticsearch.status"))
 	 */
-	public function statusAction()
+	public function statusAction($_format)
 	{
-		$client = ClientBuilder::create()->build();
-		$status = $client->cluster()->health();
-		
-		return $this->render( 'elasticsearch/status.html.twig', [
-				'status' => $status
-		] );
+		try {
+			$client = ClientBuilder::create()->build();
+			$status = $client->cluster()->health();
+			
+			return $this->render( 'elasticsearch/status.'.$_format.'.twig', [
+					'status' => $status
+			] );			
+		}
+		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){
+			return $this->render( 'elasticsearch/no-nodes-available.'.$_format.'.twig');
+		}
 	}
 	
 	/**

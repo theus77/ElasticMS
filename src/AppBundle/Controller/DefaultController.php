@@ -27,4 +27,14 @@ class DefaultController extends Controller
     	// replace this example code with whatever you need
     	return $this->render('default/documentation.html.twig');
     }
+    
+
+    /**
+     * @Route("/coming-soon", name="coming-soon")
+     */
+    public function comingSoonAction()
+    {
+    	// replace this example code with whatever you need
+    	return $this->render('default/coming-soon.html.twig');
+    }
 }

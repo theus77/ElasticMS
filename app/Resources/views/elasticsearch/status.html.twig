@@ -6,6 +6,12 @@
 {% block subtitle %}Life inside a cluster{% endblock %} 
 {% block elasticsearch_status_active %}active{% endblock %}
 {% block elasticsearch_active %}active{% endblock %}
+{% block breadcrumb %}
+	<li><i class="fa fa-cubes"></i> Elasticsearch</li>
+    <li class="active">Status</li>
+{% endblock %}
+
+
 {% block body %}
 <div class="col-md-12">
 	<div class="box box box-solid">
@@ -35,23 +41,6 @@
 				</ul>
 			</div>
 	</div>
-
-	{# 	<div class="box box box-solid">#}
-{# 		<div class="box-body">#}
-{# 		<div class="box box-widget widget-user-2">#}
-{# 			<!-- Add the bg color to the header using any of the bg-* classes -->#}
-{# 			<div class="widget-user-header bg-{{ status.status }}">#}
-{# 				<h4>#}
-{# 					<i class="icon fa fa-{% if 'yellow' in status.status %}warning{% elseif 'green' in status.status %}check{% else %}ban{% endif %} fa-2x"></i>  {{ status.cluster_name }}#}
-{# 				</h4>#}
-{# 				{{ status.status }}	#}
-				
-{# 			</div>#}
-
-{# 		</div>#}
-{# 		</div>#}
-
-{# 	</div>#}
 
 </div>
 {% endblock %}
