@@ -271,6 +271,17 @@ desired effect
 
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
+        <li class="header">WEBMASTER</li>
+        <!-- Optionally, you can add icons to the links -->
+        <li class="treeview {% block contenttype_active %}{% endblock %}">
+          <a href="#"><i class="fa fa-sitemap"></i> <span>Content Type</span> <i class="fa fa-angle-left pull-right"></i></a>
+          <ul class="treeview-menu">
+            <li class="{% block contenttype_new_active %}{% endblock %}"><a href="{{ url('contenttype.add') }}">New content type</a></li>
+          </ul>
+        </li>
+	  </ul>
+      <!-- Sidebar Menu -->
+      <ul class="sidebar-menu">
         <li class="header">ADMIN</li>
         <!-- Optionally, you can add icons to the links -->
         <li class="treeview {% block elasticsearch_active %}{% endblock %}">
