@@ -15,34 +15,74 @@
 
 
 {% block body %}
-<div class="col-md-12">
-	<div class="box box box-solid">
-		<div class="box-header with-border bg-{{ status.status }}">
-			<h3 class="box-title">
-				<h4>
-					<i class="icon fa fa-{% if 'yellow' in status.status %}warning{% elseif 'green' in status.status %}check{% else %}ban{% endif %} fa-2x"></i>  {{ status.cluster_name }}
+<div class="row">
+	<div class="col-md-12">
+		<div class="box box box-solid">
+			<div class="box-header with-border bg-{{ status.status }}">
+				<h4 class="box-title">
+						<i
+							class="icon fa fa-cubes fa-2x"></i>
+						Cluster name: <strong>{{ status.cluster_name }}</strong>
 				</h4>
-				{{ status.status }}	
-			</h3>
-		</div>
+			</div>
 			<div class="box-body ">
-			<ul class="list-group">
-					<li class="list-group-item">Number of nodes <span class=" badge bg-{{ status.status }}">{{ status.number_of_nodes }}</span></li>
-					<li class="list-group-item">Number of data nodes <span class=" badge bg-{{ status.status }}">{{ status.number_of_data_nodes }}</span></li>
-					<li class="list-group-item">Active primary shards <span class=" badge bg-{{ status.status }}">{{ status.active_primary_shards }}</span></li>
-					<li class="list-group-item">Active shards <span class=" badge bg-{{ status.status }}">{{ status.active_shards }}</span></li>
-					<li class="list-group-item">Relocating shards <span class=" badge bg-{{ status.status }}">{{ status.relocating_shards }}</span></li>
-					<li class="list-group-item">Initializing shards <span class=" badge bg-{{ status.status }}">{{ status.initializing_shards }}</span></li>
-					<li class="list-group-item">Unassigned shards <span class=" badge bg-{{ status.status }}">{{ status.unassigned_shards }}</span></li>
-					<li class="list-group-item">Delayed unassigned shards <span class=" badge bg-{{ status.status }}">{{ status.delayed_unassigned_shards }}</span></li>
-					<li class="list-group-item">Number of pending tasks <span class=" badge bg-{{ status.status }}">{{ status.number_of_pending_tasks }}</span></li>
-					<li class="list-group-item">Number of in flight fetch <span class=" badge bg-{{ status.status }}">{{ status.number_of_in_flight_fetch }}</span></li>
-					<li class="list-group-item">Task max waiting in queue <span class=" badge bg-{{ status.status }}">{{ status.task_max_waiting_in_queue_millis }} ms</span></li>
-					<li class="list-group-item">Active shards percent as number <span class=" badge bg-{{ status.status }}">{{ status.active_shards_percent_as_number }}</span></li>
-	
+				{% if 'yellow' in status.status %}
+					<div class="alert alert-warning alert-dismissible">
+		                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+		                <h4><i class="icon fa fa-warning"></i> Warning! </h4>
+		                There is something wrong with the cluster. Status: <strong>{{ status.status }}</strong>.
+		            </div>
+		        {% elseif 'green' in status.status %}
+		        {% else %}
+				<div class="alert alert-danger alert-dismissible">
+					<button type="button" class="close" data-dismiss="alert"
+						aria-hidden="true">×</button>
+					<h4>
+						<i class="icon fa fa-ban"></i> Alert!
+					</h4>
+					There is something wrong with the cluster! Actions are required now. Status: <strong>{{ status.status }}</strong>.
+				</div>
+				{% endif %}
+				<ul class="list-group">
+					<li class="list-group-item">Number of nodes <span
+						class=" badge bg-{{ status.status }}">{{ status.number_of_nodes }}</span></li>
+					<li class="list-group-item">Number of data nodes <span
+						class=" badge bg-{{ status.status }}">{{
+							status.number_of_data_nodes }}</span></li>
+					<li class="list-group-item">Active primary shards <span
+						class=" badge bg-{{ status.status }}">{{
+							status.active_primary_shards }}</span></li>
+					<li class="list-group-item">Active shards <span
+						class=" badge bg-{{ status.status }}">{{ status.active_shards }}</span></li>
+					<li class="list-group-item">Relocating shards <span
+						class=" badge bg-{{ status.status }}">{{ status.relocating_shards
+							}}</span></li>
+					<li class="list-group-item">Initializing shards <span
+						class=" badge bg-{{ status.status }}">{{
+							status.initializing_shards }}</span></li>
+					<li class="list-group-item">Unassigned shards <span
+						class=" badge bg-{{ status.status }}">{{ status.unassigned_shards
+							}}</span></li>
+					<li class="list-group-item">Delayed unassigned shards <span
+						class=" badge bg-{{ status.status }}">{{
+							status.delayed_unassigned_shards }}</span></li>
+					<li class="list-group-item">Number of pending tasks <span
+						class=" badge bg-{{ status.status }}">{{
+							status.number_of_pending_tasks }}</span></li>
+					<li class="list-group-item">Number of in flight fetch <span
+						class=" badge bg-{{ status.status }}">{{
+							status.number_of_in_flight_fetch }}</span></li>
+					<li class="list-group-item">Task max waiting in queue <span
+						class=" badge bg-{{ status.status }}">{{
+							status.task_max_waiting_in_queue_millis }} ms</span></li>
+					<li class="list-group-item">Active shards percent as number <span
+						class=" badge bg-{{ status.status }}">{{
+							status.active_shards_percent_as_number }}</span></li>
+
 				</ul>
 			</div>
-	</div>
+		</div>
 
+	</div>
 </div>
 {% endblock %}

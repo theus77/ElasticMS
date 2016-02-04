@@ -52,6 +52,13 @@ class ContentType
     /**
      * @var string
      *
+     * @ORM\Column(name="draftindex", type="string", length=255)
+     */
+    private $draftindex;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="description", type="text", nullable=true)
      */
     private $description;
@@ -148,11 +155,11 @@ class ContentType
      */
     public function setIcon($icon)
     {
-        $this->icon = $icon;
-
-        return $this;
+    	$this->icon = $icon;
+    
+    	return $this;
     }
-
+    
     /**
      * Get icon
      *
@@ -160,9 +167,33 @@ class ContentType
      */
     public function getIcon()
     {
-        return $this->icon;
+    	return $this->icon;
     }
 
+    /**
+     * Set draftindex
+     *
+     * @param string $draftindex
+     *
+     * @return ContentType
+     */
+    public function setDraftindex($draftindex)
+    {
+    	$this->draftindex = $draftindex;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get draftindex
+     *
+     * @return string
+     */
+    public function getDraftindex()
+    {
+    	return $this->draftindex;
+    }
+    
     /**
      * Set description
      *

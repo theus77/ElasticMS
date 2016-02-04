@@ -7,37 +7,30 @@
 
 
 {% block body %}
+<div class="row">
 	<div id="search-page" class="col-xs-12">
-    {% for result in results.hits.hits %}
-       <div class="col-md-12">
-          <div class="box box-solid">
-            <div class="box-header with-border">
-              <i class="fa fa-question"></i>
+		{% for result in results.hits.hits %}
+		<div class="col-md-12">
+			<div class="box box-solid">
+				<div class="box-header with-border">
+					<i class="fa fa-question"></i>
 
-              <h3 class="box-title">{{ result._index }} / {{ result._type }} / {{ result._id }}</h3> <span class=" badge pull-right">{{ (result._score*100)|round }}</span>
-            </div>
-            <!-- /.box-header -->
-            {% if result.highlight  is defined %}
-	            <div class="box-body">
-	              {{ result.highlight._all.0|raw }}
-	            </div>
-	            <!-- /.box-body -->
-            {% endif %}
-          </div>
-          <!-- /.box -->
-        </div>
-       
-{#        <div>#}
-{#        		{{ result._index }} / {{ result._type }} / {{ result._id }} {{ result._score }}<br>#}
-       		
-{#        		{% if result.highlight  is defined %}#}
- 
-{#        			{{ result.highlight._all.0|raw }}#}
-{#        		{% endif %}#}
-       
-       
-       
-{#        </div>#}
-    {% endfor %}
-    </div>
+					<h3 class="box-title">{{ result._index }} / {{ result._type }} / {{
+						result._id }}</h3>
+					<span class=" badge pull-right">{{ (result._score*100)|round }}</span>
+				</div>
+				<!-- /.box-header -->
+				{% if result.highlight is defined %}
+				<div class="box-body">{{ result.highlight._all.0|raw }}</div>
+				<!-- /.box-body -->
+				{% endif %}
+			</div>
+			<!-- /.box -->
+		</div>
+		{# <div>#} {# {{ result._index }} / {{ result._type }} / {{ result._id
+		}} {{ result._score }}<br>#} {# {% if result.highlight is defined %}#}
+
+		{# {{ result.highlight._all.0|raw }}#} {# {% endif %}#} {% endfor %}
+	</div>
+</div>
 {% endblock %} 
