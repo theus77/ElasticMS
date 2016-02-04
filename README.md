@@ -13,3 +13,7 @@ The first is the author. The author is able to create and edit a document. He is
 The admin is able to do all previous action but also to manage Elasticsearch iondexes, such as:
 - define index aliases
 - create/delete an elasticsearch index
+
+The Webmaster
+
+The Author
