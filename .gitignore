@@ -12,7 +12,6 @@
 /var/sessions/*
 !var/sessions/.gitkeep
 !var/SymfonyRequirements.php
-/vendor/
 /web/bundles/
 /web/bower/
 
@@ -22,3 +21,7 @@
 /.buildpath
 /.sass-cache/
 /npm-debug.log
+
+# composer files
+/vendor/
+/composer.lock
