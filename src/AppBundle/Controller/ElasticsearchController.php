@@ -14,7 +14,7 @@ class ElasticsearchController extends Controller
 	public function statusAction($_format)
 	{
 		try {
-			$client = ClientBuilder::create()->build();
+			$client = $this->get('app.elasticsearch');
 			$status = $client->cluster()->health();
 			
 			return $this->render( 'elasticsearch/status.'.$_format.'.twig', [
@@ -69,7 +69,7 @@ class ElasticsearchController extends Controller
 			}';	
 		}
 		
-		$client = ClientBuilder::create()->build();
+		$client = $this->get('app.elasticsearch');
 		$results = $client->search(['body' => $es_query, 'version' => true, 'size' => 50]);
 
 		dump($results);
