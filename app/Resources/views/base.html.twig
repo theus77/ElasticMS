@@ -273,6 +273,14 @@ desired effect
       <ul class="sidebar-menu">
         <li class="header">Content Management</li>
         <!-- Optionally, you can add icons to the links -->
+        {% for contentType in contentTypes %}
+          <li class="">
+          	<a href="{{ url('documentation') }}">
+          		<i class="fa fa-book"></i> <span>{{ contentType.name }}</span>
+          	</a>
+          </li>
+         {% endfor %}
+
         <li class="treeview {% block data_active %}{% endblock %}">
           <a href="#"><i class="fa fa-database"></i> <span>Data</span> <i class="fa fa-angle-left pull-right"></i></a>
           <ul class="treeview-menu">
