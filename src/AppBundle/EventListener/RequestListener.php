@@ -19,7 +19,12 @@ class RequestListener
     public function onKernelRequest(GetResponseEvent $event)
     {
     	$repository = $this->doctrine->getRepository('AppBundle:ContentType');
-    	$contentTypes = $repository->findAll();
+    	$contentTypes = $repository->findBy([
+    			'deleted' => false,
+    			'rootContentType' => true,
+    	],[
+    			'orderKey' => 'ASC'
+    	]);
     	
     	
         $this->twig->addGlobal('contentTypes', $contentTypes);
