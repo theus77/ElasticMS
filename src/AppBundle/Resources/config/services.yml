@@ -2,3 +2,5 @@ services:
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
         factory: [AppBundle\Factories\ElasticsearchClientBuilderFactory, build]
+        arguments:
+            - %elasticsearch_hosts%
