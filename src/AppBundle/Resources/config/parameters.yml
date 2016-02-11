@@ -1,4 +1,4 @@
 # This file is auto-generated during the composer install
 parameters:
     elasticsearch_hosts:
-      -127.0.0.1:9200
+      - 127.0.0.1:9201
