@@ -13,4 +13,21 @@ class AppController extends Controller
 	{
 		return $this->render( 'app/app.js.twig' );
 	}
+
+	/**
+	 * @return \Elasticsearch\ClientBuilder
+	 */
+	protected function getElasticsearch()
+	{
+		return $this->get('app.elasticsearch');
+	}
+
+	/**
+	 * @return \Twig_Environment
+	 */
+	protected function getTwig()
+	{
+		return $this->container->get('twig');
+	}
+	
 }
