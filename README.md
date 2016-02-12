@@ -38,6 +38,7 @@ Add the end you will get a list of questions to configure user database and data
 You should also install the bower plugins:
 > bower install
 
+Verify the project's elasticsearch configuration in `src\AppBundle\Resources\config\parameters.yml`.
 And now we can launch Symfony's build in server:
 > php bin/console server:run
 

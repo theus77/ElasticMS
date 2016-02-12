@@ -8,12 +8,28 @@ use Elasticsearch\ClientBuilder;
  * elasticSearch Factory.
  */
 class ElasticsearchClientBuilderFactory
-{
-	public static function build($cluster){
-		$client = ClientBuilder::create()	// Instantiate a new ClientBuilder			
-				->setHosts($cluster)      // Set the hosts
-				->build();              // Build the client object
 
-		return $client;
-	}	
+{	
+
+	//TODO consider the following configurations (most won't be usefull):
+	//=== Authorization and Encryption
+	//=== Set retries (defaults to the number of nodes)
+	//=== Enabling the Logger (requires "monolog/monolog": "~1.0")
+	//=== Configure the HTTP Handler
+	//=== Setting the Connection Pool
+	//=== Setting the Connection Selector
+	//=== Setting the Serializer
+	//=== Setting a custom ConnectionFactory
+	//=== Set the Endpoint closure
+	
+	public static function build($hosts){
+		$params = [];
+		
+		if (isset($hosts)){
+			$params['hosts'] = $hosts;
+		}
+		
+		
+		return ClientBuilder::fromConfig($params);
+	}
 }
