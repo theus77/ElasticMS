@@ -296,7 +296,7 @@ desired effect
             	{% if contentType.imageField %}
             	  <li class=""><a href="#">Galerie view</a></li>
             	{% endif%}
-            	<li class=""><a href="#">New {{ contentType.name }}</a></li>
+            	<li class=""><a href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name }}</a></li>
           	</ul>
           </li>
          {% endfor %}
