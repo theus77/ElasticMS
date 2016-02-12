@@ -7,36 +7,33 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use AppBundle\Controller\AppController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Entity\ContentType;
+use AppBundle;
 
 class IndexController extends AppController
 {
 	/**
-	 * @Route("/data/{contentType}/index/{page}.{_format}", defaults={"page": 1, "_format": "html"}, name="data.index"))
+	 * @Route("/data/index/{contentTypeId}/{page}.{_format}", defaults={"page": 1, "_format": "html"}, name="data.index"))
 	 */
-	public function indexAction($contentType, $_format, $page)
+	public function indexAction($contentTypeId, $_format, $page)
 	{
-		
 		$repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:ContentType');
-		$contentTypes = $repository->findBy([
-				'deleted' => false,
-				'rootContentType' => true,
-				'name' => $contentType
-		]);
+		/** @var ContentType $contentType */
+		$contentType = $repository->find($contentTypeId);
 		
 		
-		if($contentTypes && count($contentTypes) > 0){
+		if($contentType){
 			$client = $this->getElasticsearch();
 			$results = $client->search([
-					'index' => $contentTypes[0]->getAlias(),
+					'index' => $contentType->getAlias(),
 					'version' => true, 
 					'size' => $this->container->getParameter('paging_size'), 
 					'from' => ($page-1)*$this->container->getParameter('paging_size'),
-						'type' => $contentType
+					'type' => $contentType->getName(),
 			]);
 			
-			if( null != $contentTypes[0]->getIndexTwig() ) {
+			if( null != $contentType->getIndexTwig() ) {
 				$twig = $this->getTwig();
-				$template = $twig->createTemplate($contentTypes[0]->getIndexTwig());
+				$template = $twig->createTemplate($contentType->getIndexTwig());
 				foreach ($results['hits']['hits'] as &$hit){	
 					try {
 						
@@ -56,11 +53,11 @@ class IndexController extends AppController
 					'lastPage' => ceil($results['hits']['total']/$this->container->getParameter('paging_size')),
 					'paginationPath' => 'data.index',
 					'currentFilters' => [
-							'contentType' => $contentType,
+							'contentTypeId' => $contentTypeId,
 							'page' =>  $page,
 							'_format' => $_format
 					],
-					'contentType' =>  $contentTypes[0]
+					'contentType' =>  $contentType
 			] );
 			
 		}
