@@ -29,7 +29,7 @@ class ElasticsearchController extends Controller
 	/**
 	 * @Route("/search/{query}/{page}", defaults={"query"=null, "page"=1}, name="elasticsearch.search"))
 	 */
-	public function searchAction($query, Request $request)
+	public function searchAction($query, Request $request, $page)
 	{
 		
 		$q = $request->query->get('q');
@@ -70,14 +70,17 @@ class ElasticsearchController extends Controller
 		}
 		
 		$client = $this->get('app.elasticsearch');
-		$results = $client->search(['body' => $es_query, 'version' => true, 'size' => 50]);
+		$results = $client->search(['body' => $es_query, 'version' => true, 'size' => $this->container->getParameter('paging_size'), 'from' => ($page-1)*$this->container->getParameter('paging_size')]);
 
-		dump($results);
-		dump(json_decode($es_query,true));
 	
 		return $this->render( 'elasticsearch/search.html.twig', [
- 				'query' => $query,
-				'results' => $results
+				'results' => $results,
+				'lastPage' => ceil($results['hits']['total']/$this->container->getParameter('paging_size')),
+				'paginationPath' => 'elasticsearch.search',
+				'currentFilters' => [
+						'query' => $query,
+						'page' =>  $page
+				]
 		] );
 	}
 	

@@ -275,7 +275,7 @@ desired effect
         <!-- Optionally, you can add icons to the links -->
         {% for contentType in contentTypes %}
           <li class="">
-          	<a href="#" class="text-{{ contentType.color }}">
+          	<a href="/data/{{ contentType.name }}" class="text-{{ contentType.color }}">
           		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName }}</span>
           		<i class="fa fa-angle-left pull-right"></i>
           	</a>
@@ -297,7 +297,7 @@ desired effect
             	  <li class=""><a href="#">Galerie view</a></li>
             	{% endif%}
             	<li class=""><a href="#">New {{ contentType.name }}</a></li>
-            	<li class=""><a href="#">All {{ contentType.pluralName }}</a></li>
+            	<li class=""><a href="{{ path('data.index', { contentType: contentType.name }) }}">All {{ contentType.pluralName }}</a></li>
           	</ul>
           </li>
          {% endfor %}

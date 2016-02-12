@@ -1,14 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Search for "{{ currentFilters.query }}"{% endblock %}
-{% block pagetitle %}Search result for <em>{{ currentFilters.query }}</em>{% endblock %} 
+{% block title %}Index of {{ contentType.pluralName }}{% endblock %}
+{% block pagetitle %}Index of {{ contentType.pluralName }}{% endblock %} 
 {% block subtitle %}<small><span class=" badge">{{ results.hits.total }}</span></small>{% endblock %} 
 
 
 
 {% block body %}
 <div class="row">
-	<div id="search-page" class="col-xs-12">
+	<div class="col-xs-12">
 		<div class="box">
 			<div class="box-header">
 			{% include 'elements/pagination.html.twig' with {
@@ -20,17 +20,22 @@
 			} %}
 			</div>
 			<div class="box-body">
-			{% for result in results.hits.hits %}
+			{% for object in results.hits.hits %}
 			
 			<div class="panel panel-default">
-			  <div class="panel-heading">
-			  	<i class="fa fa-question"></i> 
-			  	{{ result._index }} / {{ result._type }} / {{ result._id }}
-			  	<span class=" badge pull-right">{{ (result._score*100)|round }}</span>
+			  <div class="panel-heading text-{{ contentType.color }}">
+			  	<i class="{% if contentType.icon %}{{ contentType.icon }} {% else %} fa fa-question {% endif %} "></i> 
+				{% if (contentType.labelField) and (attribute(attribute(object, '_source'), contentType.labelField)  is defined ) %}
+					{{ attribute(attribute(object, '_source'), contentType.labelField) }}
+				{% else %}
+					{{ object._id }}
+				{% endif %}
 			  </div>
+			  {% if contentType.indexTwig %}
 			  <div class="panel-body">
-			    {{ result.highlight._all.0|raw }}
+				{{ object._ems_twig_rendering|raw }}
 			  </div>
+			  {% endif %}
 			</div>			
 
 			{% endfor %}

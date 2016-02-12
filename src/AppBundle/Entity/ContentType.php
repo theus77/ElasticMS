@@ -58,9 +58,9 @@ class ContentType
     /**
      * @var string
      *
-     * @ORM\Column(name="defaultEnvironmentId", type="bigint")
+     * @ORM\Column(name="alias", length=100)
      */
-    private $defaultEnvironmentId;
+    private $alias;
 
     /**
      * @var string
@@ -68,6 +68,15 @@ class ContentType
      * @ORM\Column(name="description", type="text", nullable=true)
      */
     private $description;
+    
+
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="indexTwig", type="text", nullable=true)
+     */
+    private $indexTwig;
 
     /**
      * @var string
@@ -107,63 +116,70 @@ class ContentType
     /**
      * @var int
      *
-     * @ORM\Column(name="labelField", type="bigint")
+     * @ORM\Column(name="labelField", type="string", length=100, nullable=true)
      */
     private $labelField;
-    
+
     /**
      * @var int
      *
-     * @ORM\Column(name="parentField", type="bigint")
+     * @ORM\Column(name="parentField", type="string", length=100, nullable=true)
      */
     private $parentField;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="userField", type="string", length=100, nullable=true)
+     */
+    private $userField;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="dateField", type="bigint")
+     * @ORM\Column(name="dateField", type="string", length=100, nullable=true)
      */
     private $dateField;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="startDateField", type="bigint")
+     * @ORM\Column(name="startDateField", type="string", length=100, nullable=true)
      */
     private $startDateField;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="endDateField", type="bigint")
+     * @ORM\Column(name="endDateField", type="string", length=100, nullable=true)
      */
     private $endDateField;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="locationField", type="bigint")
+     * @ORM\Column(name="locationField", type="string", length=100, nullable=true)
      */
     private $locationField;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="ouuidField", type="bigint")
+     * @ORM\Column(name="ouuidField", type="string", length=100, nullable=true)
      */
     private $ouuidField;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="imageField", type="bigint")
+     * @ORM\Column(name="imageField", type="string", length=100, nullable=true)
      */
     private $imageField;
     
     /**
      * @var int
      *
-     * @ORM\Column(name="videoField", type="bigint")
+     * @ORM\Column(name="videoField", type="string", length=100, nullable=true)
      */
     private $videoField;
     
@@ -743,5 +759,101 @@ class ContentType
     public function getStartDateField()
     {
         return $this->startDateField;
+    }
+
+    /**
+     * Set userField
+     *
+     * @param string $userField
+     *
+     * @return ContentType
+     */
+    public function setUserField($userField)
+    {
+        $this->userField = $userField;
+
+        return $this;
+    }
+
+    /**
+     * Get userField
+     *
+     * @return string
+     */
+    public function getUserField()
+    {
+        return $this->userField;
+    }
+
+    /**
+     * Set defaultEnvironment
+     *
+     * @param string $defaultEnvironment
+     *
+     * @return ContentType
+     */
+    public function setDefaultEnvironment($defaultEnvironment)
+    {
+        $this->defaultEnvironment = $defaultEnvironment;
+
+        return $this;
+    }
+
+    /**
+     * Get defaultEnvironment
+     *
+     * @return string
+     */
+    public function getDefaultEnvironment()
+    {
+        return $this->defaultEnvironment;
+    }
+
+    /**
+     * Set alias
+     *
+     * @param string $alias
+     *
+     * @return ContentType
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
+
+        return $this;
+    }
+
+    /**
+     * Get alias
+     *
+     * @return string
+     */
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+
+    /**
+     * Set indexTwig
+     *
+     * @param string $indexTwig
+     *
+     * @return ContentType
+     */
+    public function setIndexTwig($indexTwig)
+    {
+        $this->indexTwig = $indexTwig;
+
+        return $this;
+    }
+
+    /**
+     * Get indexTwig
+     *
+     * @return string
+     */
+    public function getIndexTwig()
+    {
+        return $this->indexTwig;
     }
 }

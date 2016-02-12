@@ -26,7 +26,6 @@ class RequestListener
     			'orderKey' => 'ASC'
     	]);
     	
-    	
         $this->twig->addGlobal('contentTypes', $contentTypes);
     }
 	
