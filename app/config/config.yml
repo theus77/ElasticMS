@@ -7,6 +7,8 @@ imports:
 # http://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
     locale: en
+    paging_size: 50
+    elasticsearch_cluster: ["toto:9200"]
 
 framework:
     #esi:             ~

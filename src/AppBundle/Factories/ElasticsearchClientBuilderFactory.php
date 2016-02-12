@@ -9,10 +9,11 @@ use Elasticsearch\ClientBuilder;
  */
 class ElasticsearchClientBuilderFactory
 {
-	public static function build(){
-		$client = ClientBuilder::create();
-		//TODO instead of hardcoding a default configuration, use parameters from config.yml which can be different for dev / prod
-		$client = $client->build();
+	public static function build($cluster){
+		$client = ClientBuilder::create()	// Instantiate a new ClientBuilder			
+				->setHosts($cluster)      // Set the hosts
+				->build();              // Build the client object
+
 		return $client;
-	}
+	}	
 }
