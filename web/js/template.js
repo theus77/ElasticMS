@@ -16,7 +16,7 @@ $(document).ready(function() {
 		updateStatusFct();
 	}, 5000);
 	
-	
+
 });
 
 /**
