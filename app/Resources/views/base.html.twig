@@ -280,7 +280,7 @@ desired effect
           		<i class="fa fa-angle-left pull-right"></i>
           	</a>
           	<ul class="treeview-menu">
-          		<li class=""><a href="#">Paging view</a></li>
+            	<li class=""><a href="{{ path('data.index', { contentType: contentType.name }) }}">Index all {{ contentType.pluralName }}</a></li>
             	{% if contentType.locationField %}
             	  <li class=""><a href="#">Google map view</a></li>
             	{% endif%}
@@ -297,7 +297,6 @@ desired effect
             	  <li class=""><a href="#">Galerie view</a></li>
             	{% endif%}
             	<li class=""><a href="#">New {{ contentType.name }}</a></li>
-            	<li class=""><a href="{{ path('data.index', { contentType: contentType.name }) }}">All {{ contentType.pluralName }}</a></li>
           	</ul>
           </li>
          {% endfor %}
