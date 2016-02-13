@@ -9,6 +9,7 @@ parameters:
     locale: en
     paging_size: 50
     elasticsearch_cluster: ["toto:9200"]
+    lock_time: "+5 minutes"
 
 framework:
     #esi:             ~
