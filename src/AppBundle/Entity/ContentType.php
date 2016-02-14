@@ -114,6 +114,12 @@ class ContentType
     private $color;
     
     /**
+     * @ORM\OneToMany(targetEntity="FieldType", mappedBy="contentType")
+     * @ORM\OrderBy({"orderKey" = "ASC"})
+     */
+    private $fieldTypes;
+    
+    /**
      * @var int
      *
      * @ORM\Column(name="labelField", type="string", length=100, nullable=true)
@@ -855,5 +861,47 @@ class ContentType
     public function getIndexTwig()
     {
         return $this->indexTwig;
+    }
+    
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->fieldTypes = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add fieldType
+     *
+     * @param \AppBundle\Entity\FieldType $fieldType
+     *
+     * @return ContentType
+     */
+    public function addFieldType(\AppBundle\Entity\FieldType $fieldType)
+    {
+        $this->fieldTypes[] = $fieldType;
+
+        return $this;
+    }
+
+    /**
+     * Remove fieldType
+     *
+     * @param \AppBundle\Entity\FieldType $fieldType
+     */
+    public function removeFieldType(\AppBundle\Entity\FieldType $fieldType)
+    {
+        $this->fieldTypes->removeElement($fieldType);
+    }
+
+    /**
+     * Get fieldTypes
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getFieldTypes()
+    {
+        return $this->fieldTypes;
     }
 }
