@@ -8,4 +8,32 @@
 {% block body %}
 
 
+<div class="box box-primary">
+	<div class="box-header with-border">
+		<h3 class="box-title text-{{ revision.contentType.color }}"><i class="{% if revision.contentType.icon %}{{ revision.contentType.icon }} {% else %} fa fa-question {% endif %} "></i> {{ revision.contentType.name }}</h3>
+	</div>
+	<!-- /.box-header -->
+	<!-- form start -->
+	{{ form_start(form) }}
+{# 		<div class="box-body">#}
+{# 			{% for object in revision.contentType.fieldTypes %}#}
+{# 				{% include 'types/' ~ object.type ~ '.html.twig' with {#}
+{# 					'fieldType': object,#}
+{# 					'revision': revision#}
+{# 				} %}#}
+{# 			{% endfor %}#}
+{# 		<!-- /.box-body -->#}
+
+{# 		<div class="box-footer">#}
+{# 			<div class="btn-group pull-right" role="group" aria-label="">#}
+{# 				{{ form_widget(form.discard) }}#}
+{# 				{{ form_widget(form.save) }}#}
+{# 			</div>#}
+{# 		</div>#}
+	{{ form_end(form) }}
+</div>
+
+
+
+
 {% endblock %}

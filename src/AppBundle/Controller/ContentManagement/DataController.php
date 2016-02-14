@@ -5,14 +5,19 @@ namespace AppBundle\Controller\ContentManagement;
 use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
 use AppBundle;
+use AppBundle\Entity\DataField;
+use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Revision;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use AppBundle\Form\RevisionType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Elasticsearch\ClientBuilder;
+use Elasticsearch\Client;
 
 class DataController extends AppController
 {
@@ -31,10 +36,88 @@ class DataController extends AppController
 			throw new NotFoundHttpException('Unknown revision');
 		}
 		
-		dump($revision);
+		/** @var FieldType $field */
+		foreach ($revision->getContentType()->getFieldTypes() as $field){
+			$found = false;
+			/** @var DataField $data */
+			foreach ($revision->getDataFields() as $data){
+				if ($data->getFieldTypes()->getId() === $field->getId()) {
+					$found = true;
+					break;
+				}
+			}
+			
+			if(!$found){
+				$newDataField = new DataField();
+				$newDataField->setFieldTypes($field);
+				$newDataField->setRevision($revision);
+				$newDataField->setOrderKey($field->getOrderKey());
+				$revision->addDataField($newDataField);
+			}
+			
+		}
+
+		$form = $this->createForm(RevisionType::class, $revision);
+		
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && ($request->request->has('discard') || $form->isValid() )) {
+			$now = new \DateTime('now');
+			/** @var Revision $revision */
+			$revision = $form->getData();
+			
+			
+			/** @var DataField $data */
+			foreach ($revision->getDataFields() as $data){
+				if(null == $data->getCreated()){
+					$data->setCreated($now);
+				}
+				$data->setModified($now);
+			}
+// 			dump($revision);
+			$em->persist($revision);
+			$em->flush();
+			
+			/** @var Client $client */
+			$client = $this->get('app.elasticsearch'); 
+			
+			try{
+				if( null == $revision->getOuuid() ) {
+					$status = $client->create([
+						'index' => $revision->getContentType()->getAlias(),
+						'type' => $revision->getContentType()->getName(),
+						'body' => $revision->getObjectArray()
+					]);
+					$revision->setOuuid($status['_id']);
+				}
+				else {
+					$status = $client->index([
+							'id' => $revision->getOuuid(),
+							'index' => $revision->getContentType()->getAlias(),
+							'type' => $revision->getContentType()->getName(),
+							'body' => $revision->getObjectArray()
+					]);
+				}	
+				
+				$revision->setDraft(false);
+				$revision->setModified(new \DateTime('now'));
+				$em->persist($revision);
+				$em->flush();
+			}
+			catch (\Exception $e){
+				//TODO
+				dump($e);
+			}
+			
+		
+			//dump($revision);
+			
+			return $this->redirectToRoute('homepage');	
+		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [
 				'revision' =>  $revision,
+				'form' => $form->createView(),
 		] );		
 	}
 		

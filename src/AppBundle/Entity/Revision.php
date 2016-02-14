@@ -49,6 +49,12 @@ class Revision
     private $contentType;
     
     /**
+     * @ORM\OneToMany(targetEntity="DataField", mappedBy="revision", cascade={"persist"})
+     * @ORM\OrderBy({"orderKey" = "ASC"})
+     */
+    private $dataFields;
+    
+    /**
      * @var string
      *
      * @ORM\Column(name="ouuid", type="string", length=255, nullable=true)
@@ -339,4 +345,65 @@ class Revision
     {
         return $this->contentType;
     }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->dataFields = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add dataField
+     *
+     * @param \AppBundle\Entity\DataField $dataField
+     *
+     * @return Revision
+     */
+    public function addDataField(\AppBundle\Entity\DataField $dataField)
+    {
+        $this->dataFields[] = $dataField;
+
+        return $this;
+    }
+
+    /**
+     * Remove dataField
+     *
+     * @param \AppBundle\Entity\DataField $dataField
+     */
+    public function removeDataField(\AppBundle\Entity\DataField $dataField)
+    {
+        $this->dataFields->removeElement($dataField);
+    }
+
+    /**
+     * Get dataFields
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getDataFields()
+    {
+        return $this->dataFields;
+    }
+    
+    public function __get($key){
+    	/** @var DataField $dataField */
+    	foreach ($this->dataFields as $dataField){
+    		if(strcmp($key,  $dataField->getFieldTypes()->getName()) == 0){
+    			return $dataField;
+    		}
+    	}
+    	return null;
+    }
+    
+    public function getObjectArray(){
+    	$out = [];
+    	/** @var DataField $dataField */
+    	foreach ($this->dataFields as $dataField){
+    		$out [$dataField->getFieldTypes()->getName()] = $dataField->getTextValue();
+    	}
+    	return $out;
+    }
+
 }
