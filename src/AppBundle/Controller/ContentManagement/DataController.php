@@ -9,6 +9,7 @@ use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Revision;
 use AppBundle\Form\RevisionType;
+use Elasticsearch\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -16,11 +17,34 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Elasticsearch\ClientBuilder;
-use Elasticsearch\Client;
+use AppBundle\Form\IconTextType;
 
 class DataController extends AppController
 {
+	/**
+	 * @Route("/data/view/{ouuid}", name="data.view"))
+	 */
+	public function viewDataAction($ouuid, Request $request)
+	{
+		$em = $this->getDoctrine()->getManager();
+		
+		$repository = $em->getRepository('AppBundle:Revision');
+		
+		
+		$revision = $repository->findBy([
+				'endTime' => null,
+				'ouuid' => $ouuid
+		]);		
+		
+		if(!$revision || count($revision) != 1) {
+			throw new NotFoundHttpException('Unknown revision');
+		}
+		
+		return $this->render( 'data/view-data.html.twig', [
+				'revision' =>  $revision,
+		] );		
+	}
+	
 	/**
 	 * @Route("/data/draft/edit/{revisionId}", name="revision.edit"))
 	 */
@@ -112,7 +136,9 @@ class DataController extends AppController
 		
 			//dump($revision);
 			
-			return $this->redirectToRoute('homepage');	
+			return $this->redirectToRoute('data.view', [
+					'ouuid' => $revision->getOuuid()
+			]);	
 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [
@@ -140,7 +166,7 @@ class DataController extends AppController
 		$revision = new Revision();
 		
 		$form = $this->createFormBuilder($revision)
-			->add('ouuid', TextType::class, [
+			->add('ouuid', IconTextType::class, [
 					'attr' => [
 						'class' => 'form-control',
 						'placeholder' => 'Auto-generated if left empty'

@@ -1,0 +1,20 @@
+{% use "bootstrap_3_layout.html.twig" %}
+
+{# Widgets #}
+{% block icontext_widget -%}
+{#     {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) %}#}
+	<div class="input-group">
+		<span class="input-group-addon"><i class="{{ icon }}"></i></span>
+	 	{{ block('form_widget') }}
+	</div>
+{%- endblock icontext_widget %}
+
+
+{# Labels #}
+
+
+{# Rows #}
+
+
+{# Errors #}
+

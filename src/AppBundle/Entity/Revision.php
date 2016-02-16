@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Revision
  *
- * @ORM\Table(name="revision")
+ * @ORM\Table(name="revision", uniqueConstraints={@ORM\UniqueConstraint(name="tuple_index", columns={"end_time", "ouuid"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\RevisionRepository")
  */
 class Revision
@@ -43,16 +43,28 @@ class Revision
     private $deleted;
 
     /**
+     * @var ContentType
+     *
      * @ORM\ManyToOne(targetEntity="ContentType")
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
     private $contentType;
     
     /**
+     * @var DataField
+     *
      * @ORM\OneToMany(targetEntity="DataField", mappedBy="revision", cascade={"persist"})
      * @ORM\OrderBy({"orderKey" = "ASC"})
      */
     private $dataFields;
+    
+    /**
+     * @var integer
+     * 
+     * @ORM\Column(name="version", type="integer")
+     * @ORM\Version
+     */
+    private $version;
     
     /**
      * @var string

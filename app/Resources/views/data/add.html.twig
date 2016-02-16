@@ -7,13 +7,6 @@
 
 {% block body %}
 
-{# 	{{ form_errors(form) }}#}
-{# 	{{ form_widget(form) }}#}
-
-
-
-
-
 <div class="row">
 	<div class="col-md-6">
 		<div class="box ">
@@ -24,7 +17,7 @@
 			<!-- /.box-header -->
 			<div class="box-body">
 				<p>
-					This operartion will not directly index a new object "<em>{{ contentType.name }}</em>". 
+					This operation will not directly index a new object "<em>{{ contentType.name }}</em>". 
 					But it will instianciate a new draft without any previous revision. 
 					Wich means that <strong>this draft will not be visible</strong> in any envirronement <strong>until it's first save</strong>.
 					So you won't be able to see it in any list view (such as index, map, calendar, ...).
@@ -48,30 +41,18 @@
 			<!-- /.box-header -->
 			<!-- form start -->
 			{{ form_start(form) }}
+				{% form_theme form 'form/fields.html.twig' %}
+				
 				<div class="box-body">
-					{% if form_errors(form) %}
-						<div class="form-group has-error">
-							<label><i class="fa fa-times-circle-o"></i> Errors in this form:
-								{{ form_errors(form) }}
-							</label>
-						</div>
-					{% endif %}
-					<div class="form-group {% if form_errors(form.ouuid) %}has-error{% endif %}">
-						<label for="form_ouuid">{% if form_errors(form.ouuid) %}<i class="fa fa-times-circle-o"></i> {% endif %}Object unique identifier
-							{% if form_errors(form.ouuid) %}{{ form_errors(form.ouuid) }}{% endif %}
-						</label>
-						<div class="input-group">
-							<span class="input-group-addon"><i class="fa fa-key"></i></span>
-							{{ form_widget(form.ouuid) }}
-						</div>
-					</div>
+					{{ form_row(form.ouuid) }}
+
 				</div>
 				<!-- /.box-body -->
-
 				<div class="box-footer">
 					{{ form_widget(form.save) }}
 				</div>
 			{{ form_end(form) }}
+
 		</div>
 		<!-- /.box -->
 	</div>
