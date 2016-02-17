@@ -12,10 +12,14 @@
 			<div class="box-header with-border">
 				<i class="fa fa-database"></i>
 				<h3 class="box-title">Environments</h3>
+				<a class="btn btn-xs btn-primary pull-right" href="{{ url('environment.add') }}"><i class="fa fa-plus"></i> </a>
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
-				<table class="table table-condensed">
+				{% if environments|length == 0 %}
+					There is no environment yet
+				{% else %}
+				<table class="table table-condensed table-striped">
 					<tbody>
 						<tr>
 							<th style="width: 10px">#</th>
@@ -49,7 +53,7 @@
 						{% endfor %}
 					</tbody>
 				</table>
-
+				{% endif %}
 			</div>
 			<!-- /.box-body -->
 		</div>
@@ -63,7 +67,12 @@
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
-				<table class="table table-condensed">
+			
+				{% if orphanIndexes|length == 0 %}
+					There is no orphean index
+				{% else %}
+				
+				<table class="table table-condensed table-striped">
 					<tbody>
 						<tr>
 							<th style="width: 10px">#</th>
@@ -89,6 +98,7 @@
 						{% endfor %}
 					</tbody>
 				</table>
+				{% endif %}
 
 			</div>
 			<!-- /.box-body -->
@@ -101,32 +111,37 @@
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
-				<table class="table table-condensed">
-					<tbody>
-						<tr>
-							<th style="width: 10px">#</th>
-							<th>Name</th>
-							<th>Index</th>
-							<th>Total</th>
-							<th>Action</th>
-						</tr>
-						{% for alias in unmanagedIndexes %}
+				{% if unmanagedIndexes|length == 0 %}
+					All indexes are managed
+				{% else %}
+			
+					<table class="table table-condensed table-striped">
+						<tbody>
 							<tr>
-								<td>{{ loop.index }}.</td>
-								<td>{{ alias.name }}</td>
-								<td>{{ alias.index }}</td>
-								<td>{{ alias.total|number_format }}</td>
-								<td>
-									{% include 'elements/post-button.html.twig' with {
-										'url': path('environment.create', {'name': alias.name }),
-										'label': 'Manage',
-										'icon': 'plus'
-									}%}
-								</td>
+								<th style="width: 10px">#</th>
+								<th>Name</th>
+								<th>Index</th>
+								<th>Total</th>
+								<th>Action</th>
 							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+							{% for alias in unmanagedIndexes %}
+								<tr>
+									<td>{{ loop.index }}.</td>
+									<td>{{ alias.name }}</td>
+									<td>{{ alias.index }}</td>
+									<td>{{ alias.total|number_format }}</td>
+									<td>
+										{% include 'elements/post-button.html.twig' with {
+											'url': path('environment.create', {'name': alias.name }),
+											'label': 'Manage',
+											'icon': 'plus'
+										}%}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				{% endif %}
 
 			</div>
 			<!-- /.box-body -->
