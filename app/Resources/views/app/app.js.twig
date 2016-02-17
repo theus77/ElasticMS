@@ -22,6 +22,11 @@ $(document).ready(function() {
 	}, 5000);
 	
 	
+	//try to find wich sidemenu elements to activate
+	if (typeof side_menu_target !== 'undefined') { 
+    	$('#'+side_menu_target).parents('li').addClass('active');
+	} 
+	
 });
 
 

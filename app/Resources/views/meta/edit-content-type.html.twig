@@ -2,8 +2,19 @@
 
 {% block title %}Edit a content type{% endblock %}
 {% block pagetitle %}Edit a content type{% endblock %} 
-{% block subtitle %}{% endblock %} 
 
+{% block breadcrumb %}
+	<ol class="breadcrumb">
+		<li><i class="fa fa-cubes"></i> Content Types</li>
+   		<li class="active">edit</li>
+   	</ol>
+{% endblock %}
 
 {% block body %}
 {% endblock %} 
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'contenttype-list'
+	}%}
+{% endblock %}	

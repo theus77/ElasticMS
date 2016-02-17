@@ -61,7 +61,7 @@
 	            	{% if contentType.imageField %}
 	            	  <li class=""><a href="#">Galerie view</a></li>
 	            	{% endif%}
-	            	<li class=""><a href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name }}</a></li>
+	            	<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name }}</a></li>
 	          	</ul>
 	          </li>
 	        {% endif %}
@@ -71,27 +71,32 @@
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
         <li class="header">Admin</li>        
-          <li class="treeview {% block contenttype_active %}{% endblock %}">
-            <a href="#"><i class="fa fa-sitemap"></i> <span>Content Type</span> <i class="fa fa-angle-left pull-right"></i></a>
+          <li class="treeview">
+            <a href="#"><i class="fa fa-sitemap"></i> <span>Content Types</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
-              <li><a href="{{ url('contenttype.list') }}">List Content Types</a></li>
-              <li><a href="{{ url('contenttype.add') }}">New Content Type</a></li>
-              <li><a href="{{ url('environment.list') }}">List Environments</a></li>
-              <li><a href="{{ url('environment.add') }}">New Environment</a></li>
+              <li><a id="menu-contenttype-list" href="{{ url('contenttype.list') }}">List Content Types</a></li>
+              <li><a id="menu-contenttype-add" href="{{ url('contenttype.add') }}">New Content Type</a></li>
             </ul>
         </li>
-        <li class="treeview {% block elasticsearch_active %}{% endblock %}">
+        <li class="treeview">
+          <a href="#"><i class="fa fa-database"></i> <span>Environments</span> <i class="fa fa-angle-left pull-right"></i></a>
+          <ul class="treeview-menu">
+              <li><a id="menu-environment-list" href="{{ url('environment.list') }}">List Environments</a></li>
+              <li><a id="menu-environment-add" href="{{ url('environment.add') }}">New Environment</a></li>
+            </ul>
+        </li>
+        <li class="treeview">
           <a href="#"><i class="fa fa-cubes"></i> <span>Elasticsearch</span> <i class="fa fa-angle-left pull-right"></i></a>
           <ul class="treeview-menu">
-            <li class="{% block elasticsearch_status_active %}{% endblock %}"><a href="{{ url('elasticsearch.status') }}">Status</a></li>
+            <li><a id="menu-elasticsearch-status" href="{{ url('elasticsearch.status') }}">Status</a></li>
           </ul>
         </li>
 	  </ul>
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
         <li class="header">OTHER</li>
-        <li class="{% block documentation_active %}{% endblock %}">
-        	<a href="{{ url('documentation') }}">
+        <li>
+        	<a id="menu-documentation" href="{{ url('documentation') }}">
         		<i class="fa fa-book"></i> <span>Documentation</span>
         	</a>
         </li>

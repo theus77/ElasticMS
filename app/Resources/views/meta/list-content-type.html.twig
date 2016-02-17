@@ -2,7 +2,6 @@
 
 {% block title %}List all content types{% endblock %}
 {% block pagetitle %}List all content types{% endblock %} 
-{% block subtitle %}{% endblock %} 
 
 
 {% block body %}
@@ -52,19 +51,6 @@
 								
               
 								</td>
-						{# 								<td>{{ environment.index }}</td>#}
-{# 								<td>{{ environment.total|number_format }}</td>#}
-{# 								<td>#}
-{# 								{% include 'elements/post-link.html.twig' with {#}
-{# 									'url': path('environment.delete', {'id': environment.id}),#}
-{# 									'message': 'Delete the environment ' ~ environment.name|humanize ~ ' ?',#}
-{# 									'label': '<i class="fa fa-trash"></i> Delete'#}
-{# 								}%}#}
-								
-{# 								<a href="{{ path('index.switch', {'id': environment.id}) }}">#}
-{# 									<i class="fa fa-share-square-o"></i> Switch									#}
-{# 								</a>#}
-{# 								</td>#}
 							</tr>
 						{% endfor %}
 					</tbody>
@@ -76,3 +62,10 @@
 	</div>
 </div>
 {% endblock %} 
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'contenttype-list'
+	}%}
+{% endblock %}	

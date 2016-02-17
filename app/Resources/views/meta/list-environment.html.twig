@@ -2,7 +2,6 @@
 
 {% block title %}All Environments{% endblock %}
 {% block pagetitle %}All Environments{% endblock %} 
-{% block subtitle %}{% endblock %} 
 
 
 {% block body %}
@@ -136,3 +135,9 @@
 </div>
 
 {% endblock %} 
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'environment-list'
+	}%}
+{% endblock %}	

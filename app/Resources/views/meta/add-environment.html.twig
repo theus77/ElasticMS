@@ -2,7 +2,6 @@
 
 {% block title %}Add a new Environment{% endblock %}
 {% block pagetitle %}Add a new Environment{% endblock %} 
-{% block subtitle %}{% endblock %} 
 
 
 {% block body %}
@@ -50,3 +49,10 @@
 </div>
 
 {% endblock %} 
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'environment-add'
+	}%}
+{% endblock %}	

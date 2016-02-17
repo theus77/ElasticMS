@@ -2,7 +2,6 @@
 
 {% block title %}Switch {{ environment.name }} to another index{% endblock %}
 {% block pagetitle %}Switch {{ environment.name }} to another index{% endblock %} 
-{% block subtitle %}{% endblock %} 
 
 
 {% block body %}
@@ -50,3 +49,9 @@
 </div>
 
 {% endblock %} 
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'environment-list'
+	}%}
+{% endblock %}	

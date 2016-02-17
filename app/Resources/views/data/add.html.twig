@@ -59,3 +59,10 @@
 </div>
 
 {% endblock %} 
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'data-add-' ~ contentType.id
+	}%}
+{% endblock %}	

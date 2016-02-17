@@ -56,3 +56,10 @@
 </div>
 
 {% endblock %} 
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'contenttype-add'
+	}%}
+{% endblock %}	

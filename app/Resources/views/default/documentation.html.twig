@@ -50,3 +50,10 @@
 </div>
 
 {% endblock %}
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'documentation'
+	}%}
+{% endblock %}	
