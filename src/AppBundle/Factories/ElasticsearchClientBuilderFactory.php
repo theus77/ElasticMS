@@ -3,6 +3,7 @@
 namespace AppBundle\Factories;
 
 use Elasticsearch\ClientBuilder;
+use Elasticsearch\Client;
 
 /**
  * elasticSearch Factory.
@@ -21,7 +22,9 @@ class ElasticsearchClientBuilderFactory
 	//=== Setting the Serializer
 	//=== Setting a custom ConnectionFactory
 	//=== Set the Endpoint closure
-	
+	/**
+     * @return Client
+	 */
 	public static function build($hosts){
 		$params = [];
 		

@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}All Environments{% endblock %}
+{% block pagetitle %}All Environments{% endblock %} 
+{% block subtitle %}{% endblock %} 
+
+
+{% block body %}
+
+<div class="row">
+	<div class="col-md-4">
+		<div class="box ">
+			<div class="box-header with-border">
+				<i class="fa fa-database"></i>
+				<h3 class="box-title">Environments</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<table class="table table-condensed">
+					<tbody>
+						<tr>
+							<th style="width: 10px">#</th>
+							<th>Name</th>
+							<th>Index</th>
+							<th>Total</th>
+							<th>Action</th>
+						</tr>
+						{% for environment in environments %}
+							<tr>
+								<td>{{ loop.index }}.</td>
+								<td>{{ environment.name }}</td>
+								<td>{{ environment.index }}</td>
+								<td>{{ environment.total|number_format }}</td>
+								<td>
+								{% include 'elements/post-link.html.twig' with {
+									'url': path('environment.delete', {'id': environment.id}),
+									'message': 'Delete the environment ' ~ environment.name|humanize ~ ' ?',
+									'label': '<i class="fa fa-trash"></i> Delete'
+								}%}
+								
+								<a href="{{ path('index.switch', {'id': environment.id}) }}">
+									<i class="fa fa-share-square-o"></i> Switch									
+								</a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
+			</div>
+			<!-- /.box-body -->
+		</div>
+	</div>
+	
+	<div class="col-md-4">
+		<div class="box ">
+			<div class="box-header with-border">
+				<i class="fa fa-database"></i>
+				<h3 class="box-title">Orphan indexes</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<table class="table table-condensed">
+					<tbody>
+						<tr>
+							<th style="width: 10px">#</th>
+							<th>Name</th>
+							<th>Total</th>
+							<th>Action</th>
+						</tr>
+						{% for index in orphanIndexes %}
+							<tr>
+								<td>{{ loop.index }}.</td>
+								<td>{{ index.name }}</td>
+								<td>{{ index.total|number_format }}</td>
+								<td>
+								{% include 'elements/post-link.html.twig' with {
+									'url': path('index.delete', {'name': index.name}),
+									'message': 'Delete the index ' ~ index.name|humanize ~ ' ?',
+									'label': '<i class="fa fa-trash"></i> Delete'
+								}%}
+									
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
+			</div>
+			<!-- /.box-body -->
+		</div>
+	</div>
+	
+	<div class="col-md-4">
+		<div class="box ">
+			<div class="box-header with-border">
+				<i class="fa fa-database"></i>
+				<h3 class="box-title">Unmanaged aliases</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<table class="table table-condensed">
+					<tbody>
+						<tr>
+							<th style="width: 10px">#</th>
+							<th>Name</th>
+							<th>Index</th>
+							<th>Total</th>
+							<th>Action</th>
+						</tr>
+						{% for alias in unmanagedIndexes %}
+							<tr>
+								<td>{{ loop.index }}.</td>
+								<td>{{ alias.name }}</td>
+								<td>{{ alias.index }}</td>
+								<td>{{ alias.total|number_format }}</td>
+								<td>
+									{% include 'elements/post-link.html.twig' with {
+										'url': path('environment.create', {'name': alias.name }),
+										'label': '<i class="glyphicon glyphicon-plus-sign"></i> Create'
+									}%}
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
+			</div>
+			<!-- /.box-body -->
+		</div>
+	</div>
+</div>
+
+{% endblock %} 

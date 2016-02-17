@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Switch {{ environment.name }} to another index{% endblock %}
+{% block pagetitle %}Switch {{ environment.name }} to another index{% endblock %} 
+{% block subtitle %}{% endblock %} 
+
+
+{% block body %}
+
+<div class="row">
+	<div class="col-md-6">
+		<div class="box ">
+			<div class="box-header with-border">
+				<i class="fa fa-warning"></i>
+				<h3 class="box-title">Notice</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<p>
+					You can switch the environment {{ environment.name|humanize }} to an existing index or to another environement.
+				</p>
+			</div>
+			<!-- /.box-body -->
+		</div>
+	</div>
+	<div class="col-md-6">
+		<!-- general form elements -->
+		<div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Switch to</h3>
+			</div>
+			<!-- /.box-header -->
+			<!-- form start -->
+			{{ form_start(form) }}
+				{% form_theme form 'form/fields.html.twig' %}
+				
+				<div class="box-body">
+					{{ form_row(form.index) }}
+
+				</div>
+				<!-- /.box-body -->
+				<div class="box-footer">
+					{{ form_widget(form.save) }}
+				</div>
+			{{ form_end(form) }}
+
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+
+{% endblock %} 

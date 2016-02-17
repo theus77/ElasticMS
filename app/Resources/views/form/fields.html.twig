@@ -9,6 +9,10 @@
 	</div>
 {%- endblock icontext_widget %}
 
+{% block select2_widget -%}
+	{% set attr = attr|merge({class: (attr.class|default('') ~ ' select2')|trim}) %}
+	{{ block('choice_widget') }}
+{%- endblock select2_widget %}
 
 {# Labels #}
 
