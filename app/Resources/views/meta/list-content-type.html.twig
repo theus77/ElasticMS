@@ -17,22 +17,22 @@
 				<table class="table table-condensed table-striped">
 					<tbody>
 						<tr>
-							<th style="width: 10px">#</th>
-							<th style="width: 20px">Icon</th>
+							<th class="text-center" style="width: 10px">#</th>
+							<th class="text-center" style="width: 20px">Icon</th>
 							<th>Name</th>
 							<th>Plural</th>
-							<th>Default Environment</th>
-							<th style="width: 30px">Active</th>
+							<th>Draft Environment</th>
+							<th class="text-center" style="width: 30px">Active</th>
 							<th>Action</th>
 						</tr>
 						{% for contentType in contentTypes %}
 							<tr class="text-{{ contentType.color }}">
-								<td>{{ loop.index }}.</td>
-								<td><i class="{% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i></td>
+								<td class="text-center">{{ loop.index }}.</td>
+								<td class="text-center"><i class="{% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i></td>
 								<td>{{ contentType.name }}</td>
 								<td>{{ contentType.pluralName }}</td>
 								<td>{{ contentType.alias }}</td>
-								<td>{% if contentType.active %}<i class="fa fa-check"></i>{% endif %}</td>
+								<td class="text-center">{% if contentType.active %}<i class="fa fa-check"></i>{% endif %}</td>
 								<td>
 								
 									<div class="btn-group">

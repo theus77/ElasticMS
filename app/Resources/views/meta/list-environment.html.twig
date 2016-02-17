@@ -22,18 +22,18 @@
 				<table class="table table-condensed table-striped">
 					<tbody>
 						<tr>
-							<th style="width: 10px">#</th>
+							<th class="text-center" style="width: 10px">#</th>
 							<th>Name</th>
 							<th>Index</th>
-							<th>Total</th>
+							<th class="text-center">Total</th>
 							<th>Action</th>
 						</tr>
 						{% for environment in environments %}
 							<tr>
-								<td>{{ loop.index }}.</td>
+								<td class="text-center">{{ loop.index }}.</td>
 								<td>{{ environment.name }}</td>
 								<td>{{ environment.index }}</td>
-								<td>{{ environment.total|number_format }}</td>
+								<td class="text-center">{{ environment.total|number_format }}</td>
 								<td>
 									<div class="btn-group">
 										{% include 'elements/get-button.html.twig' with {
@@ -75,16 +75,16 @@
 				<table class="table table-condensed table-striped">
 					<tbody>
 						<tr>
-							<th style="width: 10px">#</th>
+							<th class="text-center" style="width: 10px">#</th>
 							<th>Name</th>
-							<th>Total</th>
+							<th class="text-center">Total</th>
 							<th>Action</th>
 						</tr>
 						{% for index in orphanIndexes %}
 							<tr>
-								<td>{{ loop.index }}.</td>
+								<td class="text-center">{{ loop.index }}.</td>
 								<td>{{ index.name }}</td>
-								<td>{{ index.total|number_format }}</td>
+								<td class="text-center">{{ index.total|number_format }}</td>
 								<td>
 								{% include 'elements/post-button.html.twig' with {
 									'url': path('index.delete', {'name': index.name}),
@@ -118,18 +118,18 @@
 					<table class="table table-condensed table-striped">
 						<tbody>
 							<tr>
-								<th style="width: 10px">#</th>
+								<th class="text-center" style="width: 10px">#</th>
 								<th>Name</th>
 								<th>Index</th>
-								<th>Total</th>
+								<th class="text-center">Total</th>
 								<th>Action</th>
 							</tr>
 							{% for alias in unmanagedIndexes %}
 								<tr>
-									<td>{{ loop.index }}.</td>
+									<td class="text-center">{{ loop.index }}.</td>
 									<td>{{ alias.name }}</td>
 									<td>{{ alias.index }}</td>
-									<td>{{ alias.total|number_format }}</td>
+									<td class="text-center">{{ alias.total|number_format }}</td>
 									<td>
 										{% include 'elements/post-button.html.twig' with {
 											'url': path('environment.create', {'name': alias.name }),
