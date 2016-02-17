@@ -26,7 +26,17 @@ class RequestListener
     			'orderKey' => 'ASC'
     	]);
     	
-        $this->twig->addGlobal('contentTypes', $contentTypes);
+    	/** @var \AppBundle\Repository\RevisionRepository $revisionRepository */
+    	$revisionRepository = $this->doctrine->getRepository('AppBundle:Revision');
+    	
+    	$draftCounterGroupedByContentType = [];
+    	$temp = $revisionRepository->draftCounterGroupedByContentType();
+    	foreach ($temp as $item){
+    		$draftCounterGroupedByContentType[$item["content_type_id"]] = $item["counter"];
+    	}
+
+    	$this->twig->addGlobal('contentTypes', $contentTypes);
+        $this->twig->addGlobal('draftCounterGroupedByContentType', $draftCounterGroupedByContentType);
     }
 	
 }

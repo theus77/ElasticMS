@@ -10,4 +10,15 @@ namespace AppBundle\Repository;
  */
 class RevisionRepository extends \Doctrine\ORM\EntityRepository
 {
+	
+	public function draftCounterGroupedByContentType() {
+
+		$db = $this->createQueryBuilder('r');
+		$db->select('c.id content_type_id', 'count(c.id) counter');
+		$db->join('r.contentType', 'c');
+		$db->groupBy('c.id');
+		
+		return $db->getQuery()->getResult();
+	}
+	
 }

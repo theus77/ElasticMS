@@ -18,31 +18,67 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Form\IconTextType;
+use AppBundle\Repository\ContentTypeRepository;
+use Doctrine\ORM\EntityManager;
+use AppBundle\Repository\RevisionRepository;
 
 class DataController extends AppController
 {
+	/**
+	 * @Route("/data/draft/{contentTypeId}", name="data.draft_in_progress"))
+	 */
+	public function viewDraftInProgressAction($contentTypeId, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository('AppBundle:ContentType');
+		
+		
+		$contentType = $repository->find($contentTypeId);		
+		
+		if(!$contentType || count($contentType) != 1) {
+			throw new NotFoundHttpException('Content type not found');
+		}
+		
+		/** @var RevisionRepository $revisionRep */
+		$revisionRep = $em->getRepository('AppBundle:Revision');
+		$revisions = $revisionRep->findBy([
+				'deleted' => false,
+				'draft' => true,
+				'endTime' => null,
+				'contentType' => $contentTypeId
+		]);
+		
+		return $this->render( 'data/draft-in-progress.html.twig', [
+				'contentType' =>  $contentType,
+				'revisions' => $revisions
+		] );		
+	}
+	
 	/**
 	 * @Route("/data/view/{ouuid}", name="data.view"))
 	 */
 	public function viewDataAction($ouuid, Request $request)
 	{
 		$em = $this->getDoctrine()->getManager();
-		
+	
 		$repository = $em->getRepository('AppBundle:Revision');
-		
-		
+	
+	
 		$revision = $repository->findBy([
 				'endTime' => null,
 				'ouuid' => $ouuid
-		]);		
-		
+		]);
+	
 		if(!$revision || count($revision) != 1) {
 			throw new NotFoundHttpException('Unknown revision');
 		}
-		
+	
 		return $this->render( 'data/view-data.html.twig', [
 				'revision' =>  $revision,
-		] );		
+		] );
 	}
 	
 	/**
