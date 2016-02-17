@@ -20,24 +20,56 @@ use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use AppBundle\Form\Select2Type;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class MetaController extends AppController
 {
+	/**
+	 * @Route("/meta/content-type/edit/{id}", name="contenttype.edit"))
+	 */
+	public function editContentTypeAction($id, Request $request)
+	{
+				
+		return $this->render( 'meta/edit-content-type.html.twig');
+		
+	}
 	/**
 	 * @Route("/meta/content-type/add", name="contenttype.add"))
 	 */
 	public function addContentTypeAction(Request $request)
 	{
+		
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+			
+		/** @var EnvironmentRepository $environmetRepository */
+		$environmetRepository = $em->getRepository('AppBundle:Environment');
+		
+		$environments = $environmetRepository->findAll();
+		$temp = [];
+
+		/** @var Environment $environment */
+		foreach ($environments as $environment) {
+			$temp[$environment->getName()] = $environment->getName();
+		}
+		
 		$contentType = new ContentType();
 		
 		$form = $this->createFormBuilder($contentType)
 		->add('name', IconTextType::class, [
 				'icon' => 'fa fa-gear',
 		])		
-		->add('alias', IconTextType::class, [
-				'label' => 'Default environment',
-				'icon' => 'fa fa-database',
+		->add('pluralName', TextType::class, [
+				'label' => 'Plural form',
 		])		
+// 		->add('alias', IconTextType::class, [
+// 				'label' => 'Default environment',
+// 				'icon' => 'fa fa-database',
+// 		])		
+		->add('alias', Select2Type::class, array(
+				'label' => 'Default environment',
+				'choices'  => $temp,
+		))
 		->add('save', SubmitType::class, [
 				'label' => 'Create',
 				'attr' => [
@@ -51,9 +83,29 @@ class MetaController extends AppController
 		
 		
 		if ($form->isSubmitted() && $form->isValid()) {
-		
-			/** @var ContentType $revision */
+			/** @var ContentType $contentType */
 			$contentType = $form->getData();
+			
+
+			$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
+		
+			$contentTypes = $contentTypeRepository->findBy([
+				'name' => $contentType->getName()
+			]);
+			
+			if(count($contentTypes) !=  0){
+				$form->get ( 'name' )->addError ( new FormError( 'Another content type named ' . $contentType->getName() . ' already exists' ) );
+			}
+			
+			if ($form->isValid()) {
+				$em->persist($contentType);
+				$em->flush();
+
+				return $this->redirectToRoute('contenttype.edit', [
+						'id' => $contentType->getId()
+				]);
+			}
+			
 			
 		}
 		

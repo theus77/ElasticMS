@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="content_type")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ContentTypeRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class ContentType
 {
@@ -202,6 +203,37 @@ class ContentType
      * @ORM\Column(name="rootContentType", type="boolean")
      */
     private $rootContentType;
+    
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="active", type="boolean")
+     */
+    private $active;
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updateModified()
+    {
+    	$this->modified = new \DateTime();
+    	if(!isset($this->created)){
+    		$this->created = $this->modified;
+    	}
+        if(!isset($this->deleted)){
+    		$this->deleted = false;
+    	}
+        if(!isset($this->orderKey)){
+    		$this->orderKey = 0;
+    	}
+        if(!isset($this->rootContentType)){
+    		$this->rootContentType = true;
+    	}
+        if(!isset($this->active)){
+    		$this->active = false;
+    	}
+    }
     
 
     /**
@@ -903,5 +935,29 @@ class ContentType
     public function getFieldTypes()
     {
         return $this->fieldTypes;
+    }
+
+    /**
+     * Set active
+     *
+     * @param boolean $active
+     *
+     * @return ContentType
+     */
+    public function setActive($active)
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    /**
+     * Get active
+     *
+     * @return boolean
+     */
+    public function getActive()
+    {
+        return $this->active;
     }
 }
