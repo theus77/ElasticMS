@@ -8,7 +8,7 @@
 {% block body %}
 
 <div class="row">
-	<div class="col-md-4">
+	<div class="col-md-6">
 		<div class="box ">
 			<div class="box-header with-border">
 				<i class="fa fa-database"></i>
@@ -32,15 +32,19 @@
 								<td>{{ environment.index }}</td>
 								<td>{{ environment.total|number_format }}</td>
 								<td>
-								{% include 'elements/post-link.html.twig' with {
-									'url': path('environment.delete', {'id': environment.id}),
-									'message': 'Delete the environment ' ~ environment.name|humanize ~ ' ?',
-									'label': '<i class="fa fa-trash"></i> Delete'
-								}%}
-								
-								<a href="{{ path('index.switch', {'id': environment.id}) }}">
-									<i class="fa fa-share-square-o"></i> Switch									
-								</a>
+									<div class="btn-group">
+										{% include 'elements/get-button.html.twig' with {
+											'url': path('index.switch', {'id': environment.id}),
+											'label': 'Switch',
+											'icon': 'share-square-o'
+										}%}
+										{% include 'elements/post-button.html.twig' with {
+											'url': path('environment.delete', {'id': environment.id}),
+											'message': 'Delete the environment ' ~ environment.name|humanize ~ ' ?',
+											'label': 'Delete',
+											'icon': 'trash'
+										}%}
+									</div>
 								</td>
 							</tr>
 						{% endfor %}
@@ -52,7 +56,7 @@
 		</div>
 	</div>
 	
-	<div class="col-md-4">
+	<div class="col-md-6">
 		<div class="box ">
 			<div class="box-header with-border">
 				<i class="fa fa-database"></i>
@@ -74,10 +78,11 @@
 								<td>{{ index.name }}</td>
 								<td>{{ index.total|number_format }}</td>
 								<td>
-								{% include 'elements/post-link.html.twig' with {
+								{% include 'elements/post-button.html.twig' with {
 									'url': path('index.delete', {'name': index.name}),
 									'message': 'Delete the index ' ~ index.name|humanize ~ ' ?',
-									'label': '<i class="fa fa-trash"></i> Delete'
+									'label': 'Delete',
+									'icon': 'trash'
 								}%}
 									
 								</td>
@@ -89,9 +94,7 @@
 			</div>
 			<!-- /.box-body -->
 		</div>
-	</div>
-	
-	<div class="col-md-4">
+
 		<div class="box ">
 			<div class="box-header with-border">
 				<i class="fa fa-database"></i>
@@ -115,9 +118,10 @@
 								<td>{{ alias.index }}</td>
 								<td>{{ alias.total|number_format }}</td>
 								<td>
-									{% include 'elements/post-link.html.twig' with {
+									{% include 'elements/post-button.html.twig' with {
 										'url': path('environment.create', {'name': alias.name }),
-										'label': '<i class="glyphicon glyphicon-plus-sign"></i> Create'
+										'label': 'Manage',
+										'icon': 'plus'
 									}%}
 								</td>
 							</tr>

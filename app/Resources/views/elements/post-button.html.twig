@@ -1,0 +1,27 @@
+
+
+<a  class="btn btn-sm btn-danger" href="{{ url }}"
+	onclick=" 
+	{% if message is defined %}
+		if(confirm('{{ message }}') == true) {
+	 {% endif %} var f=document.createElement('form'); 
+		f.style.display='none'; 
+		this.parentNode.appendChild(f); 
+		f.method='post'; 
+		f.action=this.href;
+	f.submit(); 
+	{% if message is defined %}}{% endif %} return false;">
+	
+	{% if icon is defined %}
+		{% if icon|slice(0,10) == 'glyphicon-'  %}
+			<span class="glyphicon {{ icon }}"></span>&nbsp;
+		{% else %}
+			<span class="fa fa-{{ icon }}"></span>&nbsp;
+		{% endif  %}
+	{% endif %}
+	{% if label is defined %}
+		{{ label }}
+	{% endif %}
+
+</a>
+

@@ -22,7 +22,6 @@ class RequestListener
     	$contentTypes = $repository->findBy([
     			'deleted' => false,
     			'rootContentType' => true,
-    			'active' => true,
     	],[
     			'orderKey' => 'ASC'
     	]);

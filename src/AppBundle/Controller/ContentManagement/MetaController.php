@@ -25,12 +25,31 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 class MetaController extends AppController
 {
 	/**
+	 * @Route("/meta/content-type/delete/{id}", name="contenttype.delete"))
+	 */
+	public function deleteContentTypeAction($id, Request $request)
+	{				
+		//TODO
+		return $this->render( 'meta/edit-content-type.html.twig');		
+	}
+	
+	/**
 	 * @Route("/meta/content-type/edit/{id}", name="contenttype.edit"))
 	 */
 	public function editContentTypeAction($id, Request $request)
 	{
-				
+		//TODO
 		return $this->render( 'meta/edit-content-type.html.twig');
+		
+	}
+	
+	/**
+	 * @Route("/meta/content-type/list", name="contenttype.list"))
+	 */
+	public function listContentTypeAction(Request $request)
+	{
+				
+		return $this->render( 'meta/list-content-type.html.twig');
 		
 	}
 	/**

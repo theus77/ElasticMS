@@ -37,32 +37,34 @@
         <li class="header">Content Management</li>
         <!-- Optionally, you can add icons to the links -->
         {% for contentType in contentTypes %}
-          <li class="">
-          	<a href="/data/{{ contentType.name }}" class="text-{{ contentType.color }}">
-          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName }}</span>
-          		<i class="fa fa-angle-left pull-right"></i>
-          	</a>
-          	<ul class="treeview-menu">
-          		<li class=""><a href="#"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">4</span></a></li>
-            	<li class=""><a href="{{ path('data.index', { contentTypeId: contentType.id }) }}">Index all {{ contentType.pluralName }}</a></li>
-            	{% if contentType.locationField %}
-            	  <li class=""><a href="#">Google map view</a></li>
-            	{% endif%}
-            	{% if contentType.startDateField %}
-            	  <li class=""><a href="#">Timeline view</a></li>
-            	{% endif%}
-            	{% if contentType.dateField %}
-            	  <li class=""><a href="#">Calendar view</a></li>
-            	{% endif%}
-            	{% if contentType.parentField %}
-            	  <li class=""><a href="#">Hierarchical view</a></li>
-            	{% endif%}
-            	{% if contentType.imageField %}
-            	  <li class=""><a href="#">Galerie view</a></li>
-            	{% endif%}
-            	<li class=""><a href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name }}</a></li>
-          	</ul>
-          </li>
+        	{% if contentType.active %}
+	          <li class="">
+	          	<a href="/data/{{ contentType.name }}" class="text-{{ contentType.color }}">
+	          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName|humanize }}</span>
+	          		<i class="fa fa-angle-left pull-right"></i>
+	          	</a>
+	          	<ul class="treeview-menu">
+	          		<li class=""><a href="#"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">4</span></a></li>
+	            	<li class=""><a href="{{ path('data.index', { contentTypeId: contentType.id }) }}">Index all {{ contentType.pluralName }}</a></li>
+	            	{% if contentType.locationField %}
+	            	  <li class=""><a href="#">Google map view</a></li>
+	            	{% endif%}
+	            	{% if contentType.startDateField %}
+	            	  <li class=""><a href="#">Timeline view</a></li>
+	            	{% endif%}
+	            	{% if contentType.dateField %}
+	            	  <li class=""><a href="#">Calendar view</a></li>
+	            	{% endif%}
+	            	{% if contentType.parentField %}
+	            	  <li class=""><a href="#">Hierarchical view</a></li>
+	            	{% endif%}
+	            	{% if contentType.imageField %}
+	            	  <li class=""><a href="#">Galerie view</a></li>
+	            	{% endif%}
+	            	<li class=""><a href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name }}</a></li>
+	          	</ul>
+	          </li>
+	        {% endif %}
          {% endfor %}
 		</ul>
 
@@ -72,6 +74,7 @@
           <li class="treeview {% block contenttype_active %}{% endblock %}">
             <a href="#"><i class="fa fa-sitemap"></i> <span>Content Type</span> <i class="fa fa-angle-left pull-right"></i></a>
             <ul class="treeview-menu">
+              <li><a href="{{ url('contenttype.list') }}">List Content Types</a></li>
               <li><a href="{{ url('contenttype.add') }}">New Content Type</a></li>
               <li><a href="{{ url('environment.list') }}">List Environments</a></li>
               <li><a href="{{ url('environment.add') }}">New Environment</a></li>
