@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Revision
@@ -409,11 +410,21 @@ class Revision
     	return null;
     }
     
-    public function getObjectArray(){
+    public static function getObjectArray($array){
     	$out = [];
     	/** @var DataField $dataField */
-    	foreach ($this->dataFields as $dataField){
-    		$out [$dataField->getFieldTypes()->getName()] = $dataField->getTextValue();
+    	foreach ($array as $dataField){
+    		switch ($dataField->getFieldTypes()->getType()){
+				case "string":  
+				case "ouuid":
+	    			$out [$dataField->getFieldTypes()->getName()] = $dataField->getTextValue();
+	    			break;
+				case "container":
+// 					dump(Revision::getObjectArray($dataField->getChildren()));
+					$out = array_merge($out, Revision::getObjectArray($dataField->getChildren()) );
+					break;
+	    			
+    		}
     	}
     	return $out;
     }

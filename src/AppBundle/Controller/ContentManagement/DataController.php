@@ -143,11 +143,9 @@ class DataController extends AppController
 				$revision->addDataField($data);
 			}
 			
-			$this->updateDataStructure($data, $field, null);
+			$this->updateDataStructure($data, $field, null, $data);
 			
 		}
-		
-		dump($revision);
 
 		$form = $this->createForm(RevisionType::class, $revision);
 		
@@ -164,11 +162,13 @@ class DataController extends AppController
 			$client = $this->get('app.elasticsearch'); 
 			
 			try{
+				$objectArray = $revision->getObjectArray($revision->getDataFields());
+				dump($objectArray);
 				if( null == $revision->getOuuid() ) {
 					$status = $client->create([
 						'index' => $revision->getContentType()->getAlias(),
 						'type' => $revision->getContentType()->getName(),
-						'body' => $revision->getObjectArray()
+						'body' => $objectArray
 					]);
 					$revision->setOuuid($status['_id']);
 				}
@@ -177,7 +177,7 @@ class DataController extends AppController
 							'id' => $revision->getOuuid(),
 							'index' => $revision->getContentType()->getAlias(),
 							'type' => $revision->getContentType()->getName(),
-							'body' => $revision->getObjectArray()
+							'body' => $objectArray
 					]);
 				}	
 				
