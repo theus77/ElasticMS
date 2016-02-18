@@ -90,6 +90,25 @@ class DataController extends AppController
 	}
 	
 	
+	private function updateDataStructure(DataField &$data, FieldType &$meta, $revision){
+		/** @var FieldType $field */
+		foreach ($meta->getChildren() as $field){
+			$child = $data->__get($field->getName());
+			if(null == $child){
+				$child = new DataField();
+				$child->setFieldTypes($field);
+				$child->setRevision($revision);
+				$child->setOrderKey($field->getOrderKey());
+				$child->setParent($data);
+				$data->addChild($child);
+				if(null != $revision){
+					$revision->addDataField($child);
+				}
+			}
+			$this->updateDataStructure($child, $field, null);
+		}
+	}
+	
 	/**
 	 * @Route("/data/draft/edit/{revisionId}", name="revision.edit"))
 	 */
@@ -106,25 +125,29 @@ class DataController extends AppController
 		}
 		
 		/** @var FieldType $field */
-		foreach ($revision->getContentType()->getFieldTypes() as $field){
-			$found = false;
+		foreach ($revision->getContentType()->getFieldTypes() as $field){	
+			$data = false;
 			/** @var DataField $data */
-			foreach ($revision->getDataFields() as $data){
-				if ($data->getFieldTypes()->getId() === $field->getId()) {
-					$found = true;
+			foreach ($revision->getDataFields() as $item){
+				if ($item->getFieldTypes()->getId() === $field->getId()) {
+					$data = $item;
 					break;
 				}
 			}
 			
-			if(!$found){
-				$newDataField = new DataField();
-				$newDataField->setFieldTypes($field);
-				$newDataField->setRevision($revision);
-				$newDataField->setOrderKey($field->getOrderKey());
-				$revision->addDataField($newDataField);
+			if(null == $data){
+				$data = new DataField();
+				$data->setFieldTypes($field);
+				$data->setRevision($revision);
+				$data->setOrderKey($field->getOrderKey());
+				$revision->addDataField($data);
 			}
 			
+			$this->updateDataStructure($data, $field, null);
+			
 		}
+		
+		dump($revision);
 
 		$form = $this->createForm(RevisionType::class, $revision);
 		
@@ -134,6 +157,8 @@ class DataController extends AppController
 			$now = new \DateTime('now');
 			/** @var Revision $revision */
 			$revision = $form->getData();
+			
+			dump($revision);
 			
 			
 			/** @var DataField $data */
@@ -181,9 +206,9 @@ class DataController extends AppController
 		
 			//dump($revision);
 			
-			return $this->redirectToRoute('data.view', [
-					'ouuid' => $revision->getOuuid()
-			]);	
+// 			return $this->redirectToRoute('data.view', [
+// 					'ouuid' => $revision->getOuuid()
+// 			]);	
 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [

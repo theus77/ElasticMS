@@ -14,23 +14,24 @@
 	</div>
 	<!-- /.box-header -->
 	<!-- form start -->
-	{{ form_start(form) }}
-{# 		<div class="box-body">#}
-{# 			{% for object in revision.contentType.fieldTypes %}#}
-{# 				{% include 'types/' ~ object.type ~ '.html.twig' with {#}
-{# 					'fieldType': object,#}
-{# 					'revision': revision#}
-{# 				} %}#}
-{# 			{% endfor %}#}
-{# 		<!-- /.box-body -->#}
-
-{# 		<div class="box-footer">#}
-{# 			<div class="btn-group pull-right" role="group" aria-label="">#}
-{# 				{{ form_widget(form.discard) }}#}
-{# 				{{ form_widget(form.save) }}#}
-{# 			</div>#}
-{# 		</div>#}
-	{{ form_end(form) }}
+		<div class="box-body">
+{# 			{{ form_row(form.name) }}#}
+{# 			{{ form_row(form.pluralName) }}#}
+{# 			{{ form_row(form.alias) }}#}
+				{% form_theme form 'form/fields.html.twig' %}	
+			{{ form_start(form) }}
+				<div class="btn-group ">
+					{{ form_widget(form.save) }}
+					{{ form_widget(form.publish) }}
+					{{ form_widget(form.discard) }}
+				</div>
+			
+			{{ form_end(form) }}
+	
+		</div>
+		<!-- /.box-body -->
+		<div class="box-footer">
+		</div>
 </div>
 
 

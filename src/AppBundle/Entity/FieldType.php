@@ -111,7 +111,20 @@ class FieldType
      */
     private $many;
 
+    /**
+     * @var FieldType
+     *
+     * @ORM\ManyToOne(targetEntity="FieldType", inversedBy="children", cascade={"persist"})
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id")
+     */
+    private $parent;
 
+    /**
+     * @ORM\OneToMany(targetEntity="FieldType", mappedBy="parent", cascade={"persist"})
+     * @ORM\OrderBy({"orderKey" = "ASC"})
+     */
+    private $children;
+    
     /**
      * Get id
      *
@@ -432,5 +445,72 @@ class FieldType
     public function getLabel()
     {
         return $this->label;
+    }
+ 
+    
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+    	$this->dataFields = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set parent
+     *
+     * @param \AppBundle\Entity\FieldType $parent
+     *
+     * @return FieldType
+     */
+    public function setParent(\AppBundle\Entity\FieldType $parent = null)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Get parent
+     *
+     * @return \AppBundle\Entity\FieldType
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Add child
+     *
+     * @param \AppBundle\Entity\FieldType $child
+     *
+     * @return FieldType
+     */
+    public function addChild(\AppBundle\Entity\FieldType $child)
+    {
+        $this->children[] = $child;
+
+        return $this;
+    }
+
+    /**
+     * Remove child
+     *
+     * @param \AppBundle\Entity\FieldType $child
+     */
+    public function removeChild(\AppBundle\Entity\FieldType $child)
+    {
+        $this->children->removeElement($child);
+    }
+
+    /**
+     * Get children
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getChildren()
+    {
+        return $this->children;
     }
 }

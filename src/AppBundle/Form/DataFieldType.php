@@ -25,6 +25,7 @@ class DataFieldType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => 'AppBundle\Entity\DataField',
+        	'metadata' => null,
         ));
     }
 }

@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="data_field")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\DataFieldRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class DataField
 {
@@ -96,7 +97,35 @@ class DataField
      */
     private $orderKey;
 
+    /**
+     * @var FieldType
+     *
+     * @ORM\ManyToOne(targetEntity="DataField", inversedBy="children", cascade={"persist"})
+     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id")
+     */
+    private $parent;
+    
+    /**
+     * @ORM\OneToMany(targetEntity="DataField", mappedBy="parent", cascade={"persist"})
+     * @ORM\OrderBy({"orderKey" = "ASC"})
+     */
+    private $children;
 
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updateModified()
+    {
+    	$this->modified = new \DateTime();
+        	if(!isset($this->created)){
+    		$this->created = $this->modified;
+    	}
+    	if(!isset($this->orderKey)){
+    		$this->orderKey = 0;
+    	}
+    }
+    
     /**
      * Get id
      *
@@ -393,5 +422,109 @@ class DataField
     public function getFieldTypes()
     {
         return $this->fieldTypes;
+    }
+    
+    public function __set($key, $input){
+    	dump($this);
+    	dump($key);
+    	dump($input);
+    	
+    	$found = false;
+    	/** @var DataField $dataField */
+    	foreach ($this->children as &$dataField){
+    		if(strcmp($key,  $dataField->getFieldTypes()->getName()) == 0){
+    			$dataField = $input;
+    			break;
+    		}
+    	}
+    	if(! $found){    		
+	    	$this->children->add($input);
+    	}
+	    	
+    	return $this;
+    }
+    
+    /**
+     * get a child
+     *
+     * @return DataField
+     */    
+     public function __get($key){
+//     	dump($key);
+//     	dump($this);
+    	/** @var DataField $dataField */
+    	foreach ($this->children as $dataField){
+    		if(strcmp($key,  $dataField->getFieldTypes()->getName()) == 0){
+    			return $dataField;
+    		}
+    	}
+    	
+    	return null;
+    }
+    
+	/**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->children = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Set parent
+     *
+     * @param \AppBundle\Entity\DataField $parent
+     *
+     * @return DataField
+     */
+    public function setParent(\AppBundle\Entity\DataField $parent = null)
+    {
+        $this->parent = $parent;
+
+        return $this;
+    }
+
+    /**
+     * Get parent
+     *
+     * @return \AppBundle\Entity\DataField
+     */
+    public function getParent()
+    {
+        return $this->parent;
+    }
+
+    /**
+     * Add child
+     *
+     * @param \AppBundle\Entity\DataField $child
+     *
+     * @return DataField
+     */
+    public function addChild(\AppBundle\Entity\DataField $child)
+    {
+        $this->children[] = $child;
+
+        return $this;
+    }
+
+    /**
+     * Remove child
+     *
+     * @param \AppBundle\Entity\DataField $child
+     */
+    public function removeChild(\AppBundle\Entity\DataField $child)
+    {
+        $this->children->removeElement($child);
+    }
+
+    /**
+     * Get children
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getChildren()
+    {
+        return $this->children;
     }
 }

@@ -14,11 +14,46 @@
 	{{ block('choice_widget') }}
 {%- endblock select2_widget %}
 
-{# Labels #}
+{# {% block container_widget -%}#}
+{# 	salut#}
+{# {%- endblock container_widget %}#}
 
+{# Labels #}
+{% block container_label -%}
+	{% if label  %}
+		<div class="panel-heading">
+			<h3 class="panel-title">{{ label }}</h3>
+		</div>
+	{% endif %}
+{%- endblock container_label %}
 
 {# Rows #}
+{% block bouttongroup_row -%}
+<div class="btn-group">
+	{% for button in buttons %}
+		<a class="btn btn-sm btn-primary" href="/meta/environment/switch/39"> <span
+			class="fa fa-share-square-o"></span>&nbsp; Switch</a>
+			
+            {{- form_row(button) -}}
+		
+	{% endfor %}
+</div>
+{%- endblock bouttongroup_row %}
 
+
+{% block container_row -%}
+
+	<div class="panel panel-default">
+{# 	  <div class="panel-heading">#}
+	  	{{- form_label(form) -}}
+{# 	  </div>#}
+	  <div class="panel-body">
+	    {{- form_widget(form) -}}
+	  </div>
+	  {{- form_errors(form) -}}
+	</div>       
+        
+{%- endblock container_row %}
 
 {# Errors #}
 
