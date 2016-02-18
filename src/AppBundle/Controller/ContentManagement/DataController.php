@@ -154,21 +154,9 @@ class DataController extends AppController
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && ($request->request->has('discard') || $form->isValid() )) {
-			$now = new \DateTime('now');
+			
 			/** @var Revision $revision */
 			$revision = $form->getData();
-			
-			dump($revision);
-			
-			
-			/** @var DataField $data */
-			foreach ($revision->getDataFields() as $data){
-				if(null == $data->getCreated()){
-					$data->setCreated($now);
-				}
-				$data->setModified($now);
-			}
-// 			dump($revision);
 			$em->persist($revision);
 			$em->flush();
 			
