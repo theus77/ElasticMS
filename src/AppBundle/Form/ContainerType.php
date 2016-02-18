@@ -22,7 +22,7 @@ class ContainerType extends DataFieldType
 		/** @var FieldType $fieldType */
 		foreach ( $fieldType->getChildren() as $key =>  $fieldType ){
 			$data = new DataField();
-			$data->setFieldTypes($fieldType);
+			$data->setFieldType($fieldType);
 			$data->setParent($data);
 			
 			switch ($fieldType->getType()){

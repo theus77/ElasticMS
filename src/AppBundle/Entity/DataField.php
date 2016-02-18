@@ -46,7 +46,7 @@ class DataField
      * @ORM\ManyToOne(targetEntity="FieldType")
      * @ORM\JoinColumn(name="field_type_id", referencedColumnName="id")
      */
-    private $fieldTypes;
+    private $fieldType;
     
     /**
      * @var int
@@ -401,27 +401,27 @@ class DataField
     }
 
     /**
-     * Set fieldTypes
+     * Set fieldType
      *
-     * @param \AppBundle\Entity\FieldType $fieldTypes
+     * @param \AppBundle\Entity\FieldType $fieldType
      *
      * @return DataField
      */
-    public function setFieldTypes(\AppBundle\Entity\FieldType $fieldTypes = null)
+    public function setFieldType(\AppBundle\Entity\FieldType $fieldType = null)
     {
-        $this->fieldTypes = $fieldTypes;
+        $this->fieldType = $fieldType;
 
         return $this;
     }
 
     /**
-     * Get fieldTypes
+     * Get fieldType
      *
      * @return \AppBundle\Entity\FieldType
      */
-    public function getFieldTypes()
+    public function getFieldType()
     {
-        return $this->fieldTypes;
+        return $this->fieldType;
     }
     
     public function __set($key, $input){
@@ -432,7 +432,7 @@ class DataField
     	$found = false;
     	/** @var DataField $dataField */
     	foreach ($this->children as &$dataField){
-    		if(strcmp($key,  $dataField->getFieldTypes()->getName()) == 0){
+    		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
     			$dataField = $input;
     			break;
     		}
@@ -454,7 +454,7 @@ class DataField
 //     	dump($this);
     	/** @var DataField $dataField */
     	foreach ($this->children as $dataField){
-    		if(strcmp($key,  $dataField->getFieldTypes()->getName()) == 0){
+    		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
     			return $dataField;
     		}
     	}

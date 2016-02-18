@@ -403,7 +403,7 @@ class Revision
     public function __get($key){
     	/** @var DataField $dataField */
     	foreach ($this->dataFields as $dataField){
-    		if(strcmp($key,  $dataField->getFieldTypes()->getName()) == 0){
+    		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
     			return $dataField;
     		}
     	}
@@ -414,10 +414,10 @@ class Revision
     	$out = [];
     	/** @var DataField $dataField */
     	foreach ($array as $dataField){
-    		switch ($dataField->getFieldTypes()->getType()){
+    		switch ($dataField->getFieldType()->getType()){
 				case "string":  
 				case "ouuid":
-	    			$out [$dataField->getFieldTypes()->getName()] = $dataField->getTextValue();
+	    			$out [$dataField->getFieldType()->getName()] = $dataField->getTextValue();
 	    			break;
 				case "container":
 // 					dump(Revision::getObjectArray($dataField->getChildren()));

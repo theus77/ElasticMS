@@ -96,7 +96,7 @@ class DataController extends AppController
 			$child = $data->__get($field->getName());
 			if(null == $child){
 				$child = new DataField();
-				$child->setFieldTypes($field);
+				$child->setFieldType($field);
 				$child->setRevision($revision);
 				$child->setOrderKey($field->getOrderKey());
 				$child->setParent($data);
@@ -129,7 +129,7 @@ class DataController extends AppController
 			$data = false;
 			/** @var DataField $data */
 			foreach ($revision->getDataFields() as $item){
-				if ($item->getFieldTypes()->getId() === $field->getId()) {
+				if ($item->getFieldType()->getId() === $field->getId()) {
 					$data = $item;
 					break;
 				}
@@ -137,7 +137,7 @@ class DataController extends AppController
 			
 			if(null == $data){
 				$data = new DataField();
-				$data->setFieldTypes($field);
+				$data->setFieldType($field);
 				$data->setRevision($revision);
 				$data->setOrderKey($field->getOrderKey());
 				$revision->addDataField($data);
@@ -179,6 +179,8 @@ class DataController extends AppController
 							'type' => $revision->getContentType()->getName(),
 							'body' => $objectArray
 					]);
+					
+					//TODO update ouuid field
 				}	
 				
 				$revision->setDraft(false);
