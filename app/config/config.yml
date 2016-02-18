@@ -40,6 +40,8 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    globals:
+        date_time_format: "j/m/Y \\a\\t G:i"
 
 # Doctrine Configuration
 doctrine:

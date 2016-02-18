@@ -80,6 +80,15 @@ class DataController extends AppController
 				'revision' =>  $revision,
 		] );
 	}
+	/**
+	 * 
+	 * @Route("/data/draft/discard/{revisionId}", name="revision.discard"))
+	 */
+	public function discardRevisionAction($revisionId, Request $request)
+	{
+	//TODO
+	}
+	
 	
 	/**
 	 * @Route("/data/draft/edit/{revisionId}", name="revision.edit"))
