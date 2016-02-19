@@ -136,6 +136,21 @@ class FieldType
     private $children;
     
     
+    public function getClassType(){
+	    switch ($this->getType()){
+	    	case 'AppBundle\Form\OuuidType':
+	    		return OuuidType::class;
+	    	case 'AppBundle\Form\StringType':
+	    		return StringType::class;
+	    	case 'AppBundle\Form\ContainerType':
+	    		return ContainerType::class;
+	    	default:
+	    		return DataFieldType::class;
+	    }    	
+    }
+    
+    
+    
     /**
      * Get id
      *

@@ -20,15 +20,13 @@ class StringType extends DataFieldType
     	
     	if($fieldType->getIcon()){
     		$builder->add('text_value', IconTextType::class, [
-    			'label' => 	$fieldType->getLabel(),
-    			'icon' => $fieldType->getIcon(),
-	    		'required' => false,
+    				'label' => 	$fieldType->getLabel(),
+    				'icon' => $fieldType->getIcon()
     		]);    		
     	}
     	else {
 	    	$builder->add('text_value', TextType::class, [
-	    		'label' => 	$fieldType->getLabel(),
-	    		'required' => false,
+	    		'label' => 	$fieldType->getLabel()
 	    	]);    		
     	}
     	

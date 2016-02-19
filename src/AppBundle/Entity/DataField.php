@@ -3,8 +3,6 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use AppBundle\Form\DataFieldType;
-use AppBundle\Form\OuuidType;
 
 /**
  * DataField
@@ -129,7 +127,7 @@ class DataField
     }
     
     public function propagateOuuid($ouuid) {
-    	if($this->getFieldType()->getType() instanceof OuuidType ) {
+    	if(strcmp($this->getFieldType()->getType(), "ouuid") == 0) {
     		$this->setTextValue($ouuid);
     	}
     	foreach ($this->children as $child){
@@ -138,17 +136,23 @@ class DataField
     }
     
     
-    public function getObjectArray(){	
+    public function getObjectArray(){
     	$out = [];
-    	$class = $this->getFieldType()->getType();
-    	/** @var DataFieldType $dataFieldType */
-    	$dataFieldType = new $class();
-		$dataFieldType->buildObjectArray($out, $this);
-
-		dump($out);
+    	/** @var DataField $dataField */
+    	foreach ($this->children as $child){
+    		switch ($child->getFieldType()->getType()){
+    			case "AppBundle\Form\StringType":
+    			case "AppBundle\Form\OuuidType":
+    				$out [$child->getFieldType()->getName()] = $child->getTextValue();
+    				break;
+    			case "AppBundle\Form\ContainerType":
+    				// 					dump(Revision::getObjectArray($dataField->getChildren()));
+    				$out = array_merge($out, $child->getObjectArray() );
+    				break;
+    		}
+    	}
     	return $out;
     }
-    
     
     /**
      * Get id
@@ -449,11 +453,9 @@ class DataField
     }
     
     public function __set($key, $input){
-//     	dump($this);
-//     	dump($key);
-//     	dump($this);
-//     	dump($input);
-    	
+    	dump($this);
+    	dump($key);
+    	dump($input);
     	
     	$found = false;
     	/** @var DataField $dataField */
@@ -463,9 +465,7 @@ class DataField
     			break;
     		}
     	}
-    	if(! $found){    	
-//     		dump($this);
-//     		dump("warning new entry for $key");
+    	if(! $found){    		
 	    	$this->children->add($input);
     	}
 	    	
@@ -482,12 +482,10 @@ class DataField
 //     	dump($this);
     	/** @var DataField $dataField */
     	foreach ($this->children as $dataField){
-    		if( strcmp($key,  $dataField->getFieldType()->getName()) == 0 ){
+    		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
     			return $dataField;
     		}
     	}
-//     	dump($this);
-//     	dump("child not found $key");
     	
     	return null;
     }

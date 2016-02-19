@@ -90,9 +90,9 @@ class DataController extends AppController
 	}
 	
 	
-	private function updateDataStructure(DataField $data){
+	private function updateDataStructure(DataField $data, FieldType $meta){
 		/** @var FieldType $field */
-		foreach ($data->getFieldType()->getChildren() as $field){
+		foreach ($meta->getChildren() as $field){
 			$child = $data->__get($field->getName());
 			if(null == $child){
 				$child = new DataField();
@@ -102,7 +102,7 @@ class DataController extends AppController
 				$child->setRevision($data->getRevision());
 				$data->addChild($child);
 			}
-			$this->updateDataStructure($child);
+			$this->updateDataStructure($child, $field, null);
 		}
 	}
 	
@@ -131,79 +131,59 @@ class DataController extends AppController
 				$revision->setDataField($data);			
 			}
 			
-			$this->updateDataStructure($revision->getDataField());
+			$this->updateDataStructure($revision->getDataField(), $revision->getContentType()->getFieldType());
 
 		}
-		
+
 		$form = $this->createForm(RevisionType::class, $revision);
-
-// 		revision[dataField][translations][value_en][text_value]
-// 		dump($revision->getDataField()->__get('translations')->__get('value_en')->setTextValue('toto'));
-// 		exit;
-		
-
-// 		dump($revision);
-		
-// 		dump($form);
 		
 		$form->handleRequest($request);
-		
-		dump($revision);
-// 		exit;
-		
-		if (false && $form->isSubmitted() && ($request->request->has('discard') || $form->isValid() )) {
+
+		if ($form->isSubmitted() && ($request->request->has('discard') || $form->isValid() )) {
 			
-		dump($revision);
-		exit;
 			/** @var Revision $revision */
 			$revision = $form->getData();
 			$em->persist($revision);
 			$em->flush();
 			
-			if($request->request->has('publish')) {
-				try{
-					/** @var Client $client */
-					$client = $this->get('app.elasticsearch'); 
-					
-					$objectArray = $revision->getDataField()->getObjectArray();
-					dump($objectArray);
-					if( null == $revision->getOuuid() ) {
-						$status = $client->create([
+			/** @var Client $client */
+			$client = $this->get('app.elasticsearch'); 
+			
+			try{
+				$objectArray = $revision->getDataField()->getObjectArray();
+				dump($objectArray);
+				if( null == $revision->getOuuid() ) {
+					$status = $client->create([
+						'index' => $revision->getContentType()->getAlias(),
+						'type' => $revision->getContentType()->getName(),
+						'body' => $objectArray
+					]);
+					$revision->setOuuid($status['_id']);
+				}
+				else {
+					$status = $client->index([
+							'id' => $revision->getOuuid(),
 							'index' => $revision->getContentType()->getAlias(),
 							'type' => $revision->getContentType()->getName(),
 							'body' => $objectArray
-						]);
-						$revision->setOuuid($status['_id']);
-					}
-					else {
-						$status = $client->index([
-								'id' => $revision->getOuuid(),
-								'index' => $revision->getContentType()->getAlias(),
-								'type' => $revision->getContentType()->getName(),
-								'body' => $objectArray
-						]);
-						
-						$revision->getDataField()->propagateOuuid($revision->getOuuid());
-					}	
+					]);
 					
-					$revision->setDraft(false);
-					$revision->setModified(new \DateTime('now'));
-					$em->persist($revision);
-					$em->flush();
-				}
-				catch (\Exception $e){
-					//TODO
-					dump($e);
-				}
+					$revision->getDataField()->propagateOuuid($revision->getOuuid());
+				}	
 				
-				return $this->redirectToRoute('data.view', [
-						'ouuid' => $revision->getOuuid()
-				]);	
+				$revision->setDraft(false);
+				$revision->setModified(new \DateTime('now'));
+				$em->persist($revision);
+				$em->flush();
+			}
+			catch (\Exception $e){
+				//TODO
+				dump($e);
 			}
 			
-			return $this->redirectToRoute('revision.edit', [
-					'revisionId' => $revision->getId()
-			]);
+			return $this->redirectToRoute('data.view', [
+					'ouuid' => $revision->getOuuid()
+			]);	
 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [

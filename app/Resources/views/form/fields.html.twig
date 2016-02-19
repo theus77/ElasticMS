@@ -20,11 +20,11 @@
 
 {# Labels #}
 {% block container_label -%}
-	{% if data.fieldType.label  %}
+	{% if label  %}
 		<div class="panel-heading">
 			<h3 class="panel-title">
 				{% if data.fieldType.icon %}<i class="{{ data.fieldType.icon }}"></i> {% endif %}
-				{{ data.fieldType.label }}
+				{{ label }}
 			</h3>
 		</div>
 	{% endif %}

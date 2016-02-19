@@ -357,36 +357,6 @@ class Revision
     {
         return $this->contentType;
     }
-    
-//     public function __get($key){
-//     	/** @var DataField $dataField */
-//     	foreach ($this->dataFields as $dataField){
-//     		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
-//     			return $dataField;
-//     		}
-//     	}
-//     	return null;
-//     }
-    
-//     public static function getObjectArray($array){
-//     	$out = [];
-//     	/** @var DataField $dataField */
-//     	foreach ($array as $dataField){
-//     		switch ($dataField->getFieldType()->getType()){
-// 				case "string":  
-// 				case "ouuid":
-// 	    			$out [$dataField->getFieldType()->getName()] = $dataField->getTextValue();
-// 	    			break;
-// 				case "container":
-// // 					dump(Revision::getObjectArray($dataField->getChildren()));
-// 					$out = array_merge($out, Revision::getObjectArray($dataField->getChildren()) );
-// 					break;
-	    			
-//     		}
-//     	}
-//     	return $out;
-//     }
-
 
     /**
      * Set version
@@ -433,7 +403,6 @@ class Revision
      */
     public function getDataField()
     {
-    	dump($this);
         return $this->dataField;
     }
 }

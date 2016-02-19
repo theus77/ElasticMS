@@ -5,7 +5,6 @@ namespace AppBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Entity\DataField;
 
 class DataFieldType extends AbstractType
 {
@@ -28,9 +27,5 @@ class DataFieldType extends AbstractType
             'data_class' => 'AppBundle\Entity\DataField',
         	'metadata' => null,
         ));
-    }
-    
-    public function buildObjectArray(array &$out, DataField $data){
-    	$out[$data->getFieldType()->getName()] = $data->getTextValue();
     }
 }

@@ -14,35 +14,43 @@ class ContainerType extends DataFieldType
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options)
 	{
-		$builder->add('text_value');
 		
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions()['metadata'];
 		$data = $builder->getData();
 		
 		/** @var FieldType $fieldType */
-		foreach ( $fieldType->getChildren() as $fieldType ){
+		foreach ( $fieldType->getChildren() as $key =>  $fieldType ){
 			$data = new DataField();
 			$data->setFieldType($fieldType);
 			$data->setParent($data);
 			
-			$builder->add($fieldType->getName(), $fieldType->getType(), [
-					'metadata' => $fieldType,
-					'label' => false,
-					'data' => $data
-			]);
+			switch ($fieldType->getType()){
+				case 'AppBundle\Form\OuuidType':
+					$builder->add($fieldType->getName(), OuuidType::class, [
+						'metadata' => $fieldType,
+						'label' => false,
+					]);
+					break;
+				case 'AppBundle\Form\StringType':
+					$builder->add($fieldType->getName(), StringType::class, [
+						'metadata' => $fieldType,
+						'label' => false,
+					]);
+					break;
+				case 'AppBundle\Form\ContainerType':
+					$builder->add($fieldType->getName(), ContainerType::class, [
+						'label' => $fieldType->getLabel(),
+						'metadata' => $fieldType,
+					]);
+					break;
+				default:
+			}
 		
 		}		
 		
+		
+		//$builder->add('text_value');
 	}
-	
-	public function buildObjectArray(array &$out, DataField $data){
-		/** @var DataField $data */
-		foreach ( $data->getChildren() as $child ){
-			$class = $child->getFieldType()->getType();
-			/** @var DataFieldType $dataFieldType */
-			$dataFieldType = new $class();
-			$dataFieldType->buildObjectArray($out, $child);
-		}
-	}
+
 }
