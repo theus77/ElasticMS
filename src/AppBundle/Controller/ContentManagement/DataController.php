@@ -138,7 +138,7 @@ class DataController extends AppController
 		$form = $this->createForm(RevisionType::class, $revision);
 		
 		$form->handleRequest($request);
-
+		
 		if ($form->isSubmitted() && ($request->request->has('discard') || $form->isValid() )) {
 			
 			/** @var Revision $revision */
@@ -150,8 +150,9 @@ class DataController extends AppController
 			$client = $this->get('app.elasticsearch'); 
 			
 			try{
+				
 				$objectArray = $revision->getDataField()->getObjectArray();
-				dump($objectArray);
+				
 				if( null == $revision->getOuuid() ) {
 					$status = $client->create([
 						'index' => $revision->getContentType()->getAlias(),

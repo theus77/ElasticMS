@@ -135,24 +135,13 @@ class DataField
     	}
     }
     
-    
     public function getObjectArray(){
     	$out = [];
-    	/** @var DataField $dataField */
-    	foreach ($this->children as $child){
-    		switch ($child->getFieldType()->getType()){
-    			case "AppBundle\Form\StringType":
-    			case "AppBundle\Form\OuuidType":
-    				$out [$child->getFieldType()->getName()] = $child->getTextValue();
-    				break;
-    			case "AppBundle\Form\ContainerType":
-    				// 					dump(Revision::getObjectArray($dataField->getChildren()));
-    				$out = array_merge($out, $child->getObjectArray() );
-    				break;
-    		}
-    	}
+    	$classname = $this->getFieldType()->getType();
+    	$classname::buildObjectArray($this, $out);    	
     	return $out;
     }
+
     
     /**
      * Get id

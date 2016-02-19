@@ -30,4 +30,15 @@ class ContainerType extends DataFieldType
 			]);
 		}		
 	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public static function buildObjectArray(DataField $data, array &$out){
+		/** @var DataField $child */
+		foreach ($data->getChildren() as $child){
+			$classname = $child->getFieldType()->getType();
+			$classname::buildObjectArray($child, $out);
+		}
+	}
 }
