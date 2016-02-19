@@ -22,7 +22,7 @@ class RevisionType extends AbstractType
     	    	
     	
         $builder
-	        ->add($revision->getContentType()->getFieldType()->getName(), $revision->getContentType()->getFieldType()->getClassType(), [
+	        ->add($revision->getContentType()->getFieldType()->getName(), $revision->getContentType()->getFieldType()->getType(), [
 	        		'metadata' => $revision->getContentType()->getFieldType(),
 	        ])
 			->add('save', SubmitType::class, [
