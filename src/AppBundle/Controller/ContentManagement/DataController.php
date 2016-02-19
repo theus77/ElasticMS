@@ -139,52 +139,60 @@ class DataController extends AppController
 		
 		$form->handleRequest($request);
 		
-		if ($form->isSubmitted() && ($request->request->has('discard') || $form->isValid() )) {
+		if ($form->isSubmitted() && (array_key_exists('discard', $request->request->get('revision')) || $form->isValid() )) {
 			
 			/** @var Revision $revision */
 			$revision = $form->getData();
 			$em->persist($revision);
 			$em->flush();
 			
-			/** @var Client $client */
-			$client = $this->get('app.elasticsearch'); 
-			
-			try{
+			if(array_key_exists('publish', $request->request->get('revision'))) {
 				
-				$objectArray = $revision->getDataField()->getObjectArray();
+				/** @var Client $client */
+				$client = $this->get('app.elasticsearch'); 
 				
-				if( null == $revision->getOuuid() ) {
-					$status = $client->create([
-						'index' => $revision->getContentType()->getAlias(),
-						'type' => $revision->getContentType()->getName(),
-						'body' => $objectArray
-					]);
-					$revision->setOuuid($status['_id']);
-				}
-				else {
-					$status = $client->index([
-							'id' => $revision->getOuuid(),
+				try{
+					
+					$objectArray = $revision->getDataField()->getObjectArray();
+					
+					if( null == $revision->getOuuid() ) {
+						$status = $client->create([
 							'index' => $revision->getContentType()->getAlias(),
 							'type' => $revision->getContentType()->getName(),
 							'body' => $objectArray
-					]);
+						]);
+						$revision->setOuuid($status['_id']);
+					}
+					else {
+						$status = $client->index([
+								'id' => $revision->getOuuid(),
+								'index' => $revision->getContentType()->getAlias(),
+								'type' => $revision->getContentType()->getName(),
+								'body' => $objectArray
+						]);
+						
+						$revision->getDataField()->propagateOuuid($revision->getOuuid());
+					}	
 					
-					$revision->getDataField()->propagateOuuid($revision->getOuuid());
-				}	
+					$revision->setDraft(false);
+					$revision->setModified(new \DateTime('now'));
+					$em->persist($revision);
+					$em->flush();
+				}
+				catch (\Exception $e){
+					//TODO
+					dump($e);
+				}
 				
-				$revision->setDraft(false);
-				$revision->setModified(new \DateTime('now'));
-				$em->persist($revision);
-				$em->flush();
-			}
-			catch (\Exception $e){
-				//TODO
-				dump($e);
+				return $this->redirectToRoute('data.view', [
+						'ouuid' => $revision->getOuuid()
+				]);	
 			}
 			
-			return $this->redirectToRoute('data.view', [
-					'ouuid' => $revision->getOuuid()
-			]);	
+			return $this->redirectToRoute('revision.edit', [
+					'revisionId' => $revision->getId()
+			]);
+				
 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [
