@@ -40,7 +40,7 @@ class ContainerType extends DataFieldType
 					break;
 				case 'AppBundle\Form\ContainerType':
 					$builder->add($fieldType->getName(), ContainerType::class, [
-						'label' => $fieldType->getLabel(),
+						'label' => false, //$fieldType->getLabel(),
 						'metadata' => $fieldType,
 					]);
 					break;
