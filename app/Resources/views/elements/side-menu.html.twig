@@ -49,7 +49,7 @@
 	          		{% endif %}
 	          	</a>
 	          	<ul class="treeview-menu">
-	            	<li class=""><a href="{{ path('data.index', { contentTypeId: contentType.id }) }}">Index all {{ contentType.pluralName }}</a></li>
+	            	<li class=""><a href="{{ path('data.index', { contentTypeId: contentType.id }) }}">Index all {{ contentType.pluralName|humanize }}</a></li>
 	            	{% if contentType.locationField %}
 	            	  <li class=""><a href="#">Google map view</a></li>
 	            	{% endif%}
@@ -68,7 +68,7 @@
 	            	{% if draftCounterGroupedByContentType[contentType.id] is defined %}
 	          			<li class=""><a id="menu-data-draft-{{ contentType.id }}" href="{{ path('data.draft_in_progress', { contentTypeId: contentType.id } ) }}"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span></a></li>
 	            	{% endif %}
-	            	<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name }}</a></li>
+	            	<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
 	          	</ul>
 	          </li>
 	        {% endif %}
