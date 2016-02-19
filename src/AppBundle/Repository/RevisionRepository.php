@@ -13,12 +13,16 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 	
 	public function draftCounterGroupedByContentType() {
 
-		$db = $this->createQueryBuilder('r');
-		$db->select('c.id content_type_id', 'count(c.id) counter');
-		$db->join('r.contentType', 'c');
-		$db->groupBy('c.id');
+		$qb = $this->createQueryBuilder('r');
+		$qb->select('c.id content_type_id', 'count(c.id) counter');
+		$qb->join('r.contentType', 'c');
+		$and = $qb->expr()->andX();
+		$and->add($qb->expr()->eq('r.deleted', 0));
+		$and->add($qb->expr()->eq('r.draft', true));
+		$qb->where($and);
+		$qb->groupBy('c.id');
 		
-		return $db->getQuery()->getResult();
+		return $qb->getQuery()->getResult();
 	}
 	
 }
