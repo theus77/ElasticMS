@@ -22,35 +22,12 @@ class ContainerType extends DataFieldType
 		/** @var FieldType $fieldType */
 		foreach ( $fieldType->getChildren() as $key =>  $fieldType ){
 			$data = new DataField();
-			$data->setFieldType($fieldType);
-			$data->setParent($data);
-			
-			switch ($fieldType->getType()){
-				case 'AppBundle\Form\OuuidType':
-					$builder->add($fieldType->getName(), OuuidType::class, [
-						'metadata' => $fieldType,
-						'label' => false,
-					]);
-					break;
-				case 'AppBundle\Form\StringType':
-					$builder->add($fieldType->getName(), StringType::class, [
-						'metadata' => $fieldType,
-						'label' => false,
-					]);
-					break;
-				case 'AppBundle\Form\ContainerType':
-					$builder->add($fieldType->getName(), ContainerType::class, [
-						'label' => false, //$fieldType->getLabel(),
-						'metadata' => $fieldType,
-					]);
-					break;
-				default:
-			}
-		
+			$data->setFieldType ( $fieldType );
+			$data->setParent ( $data );
+			$builder->add ( $fieldType->getName(), $fieldType->getType(), [
+				'metadata' => $fieldType,
+				'label' => false,
+			]);
 		}		
-		
-		
-		//$builder->add('text_value');
 	}
-
 }
