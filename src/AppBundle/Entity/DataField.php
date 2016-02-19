@@ -449,9 +449,11 @@ class DataField
     }
     
     public function __set($key, $input){
-    	dump($this);
-    	dump($key);
-    	dump($input);
+//     	dump($this);
+//     	dump($key);
+//     	dump($this);
+//     	dump($input);
+    	
     	
     	$found = false;
     	/** @var DataField $dataField */
@@ -461,7 +463,9 @@ class DataField
     			break;
     		}
     	}
-    	if(! $found){    		
+    	if(! $found){    	
+//     		dump($this);
+//     		dump("warning new entry for $key");
 	    	$this->children->add($input);
     	}
 	    	
@@ -478,10 +482,12 @@ class DataField
 //     	dump($this);
     	/** @var DataField $dataField */
     	foreach ($this->children as $dataField){
-    		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
+    		if( strcmp($key,  $dataField->getFieldType()->getName()) == 0 ){
     			return $dataField;
     		}
     	}
+//     	dump($this);
+//     	dump("child not found $key");
     	
     	return null;
     }

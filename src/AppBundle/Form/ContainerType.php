@@ -14,6 +14,7 @@ class ContainerType extends DataFieldType
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options)
 	{
+		$builder->add('text_value');
 		
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions()['metadata'];

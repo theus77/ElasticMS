@@ -433,6 +433,7 @@ class Revision
      */
     public function getDataField()
     {
+    	dump($this);
         return $this->dataField;
     }
 }

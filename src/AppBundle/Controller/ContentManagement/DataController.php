@@ -90,9 +90,9 @@ class DataController extends AppController
 	}
 	
 	
-	private function updateDataStructure(DataField $data, FieldType $meta){
+	private function updateDataStructure(DataField $data){
 		/** @var FieldType $field */
-		foreach ($meta->getChildren() as $field){
+		foreach ($data->getFieldType()->getChildren() as $field){
 			$child = $data->__get($field->getName());
 			if(null == $child){
 				$child = new DataField();
@@ -102,7 +102,7 @@ class DataController extends AppController
 				$child->setRevision($data->getRevision());
 				$data->addChild($child);
 			}
-			$this->updateDataStructure($child, $field, null);
+			$this->updateDataStructure($child);
 		}
 	}
 	
@@ -131,16 +131,30 @@ class DataController extends AppController
 				$revision->setDataField($data);			
 			}
 			
-			$this->updateDataStructure($revision->getDataField(), $revision->getContentType()->getFieldType());
+			$this->updateDataStructure($revision->getDataField());
 
 		}
-
+		
 		$form = $this->createForm(RevisionType::class, $revision);
+
+// 		revision[dataField][translations][value_en][text_value]
+// 		dump($revision->getDataField()->__get('translations')->__get('value_en')->setTextValue('toto'));
+// 		exit;
+		
+
+// 		dump($revision);
+		
+// 		dump($form);
 		
 		$form->handleRequest($request);
-
-		if ($form->isSubmitted() && ($request->request->has('discard') || $form->isValid() )) {
+		
+		dump($revision);
+// 		exit;
+		
+		if (false && $form->isSubmitted() && ($request->request->has('discard') || $form->isValid() )) {
 			
+		dump($revision);
+		exit;
 			/** @var Revision $revision */
 			$revision = $form->getData();
 			$em->persist($revision);
@@ -186,6 +200,10 @@ class DataController extends AppController
 						'ouuid' => $revision->getOuuid()
 				]);	
 			}
+			
+			return $this->redirectToRoute('revision.edit', [
+					'revisionId' => $revision->getId()
+			]);
 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [
