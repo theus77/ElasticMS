@@ -60,7 +60,7 @@ class FieldType
     private $label;
 
     /**
-     * @ORM\OneToOne(targetEntity="ContentType", inversedBy="fieldType", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="ContentType")
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
     private $contentType;

@@ -37,7 +37,8 @@ class DataField
     private $modified;
 
     /**
-     * @ORM\OneToOne(targetEntity="Revision", mappedBy="dataField", cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity="Revision")
+     * @ORM\JoinColumn(name="revision_id", referencedColumnName="id")
      */
     private $revision;
 
@@ -124,6 +125,16 @@ class DataField
     		$this->orderKey = 0;
     	}
     }
+    
+    public function propagateOuuid($ouuid) {
+    	if(strcmp($this->getFieldType()->getType(), "ouuid") == 0) {
+    		$this->setTextValue($ouuid);
+    	}
+    	foreach ($this->children as $child){
+    		$child->propagateOuuid($ouuid);
+    	}
+    }
+    
     
     public function getObjectArray(){
     	$out = [];

@@ -53,7 +53,7 @@ class Revision
     
 
     /**
-     * @ORM\OneToOne(targetEntity="DataField", inversedBy="revision", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="DataField", cascade={"persist"})
      * @ORM\JoinColumn(name="data_field_id", referencedColumnName="id")
      */
     private $dataField;

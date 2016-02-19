@@ -116,7 +116,7 @@ class ContentType
     private $color;
     
     /**
-     * @ORM\OneToOne(targetEntity="FieldType", mappedBy="contentType")
+     * @ORM\OneToOne(targetEntity="FieldType", cascade={"persist"})
      * @ORM\JoinColumn(name="field_types_id", referencedColumnName="id")
      */
     private $fieldType;

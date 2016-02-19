@@ -99,6 +99,7 @@ class DataController extends AppController
 				$child->setFieldType($field);
 				$child->setOrderKey($field->getOrderKey());
 				$child->setParent($data);
+				$child->setRevision($data->getRevision());
 				$data->addChild($child);
 			}
 			$this->updateDataStructure($child, $field, null);
@@ -167,7 +168,7 @@ class DataController extends AppController
 							'body' => $objectArray
 					]);
 					
-					//TODO update ouuid field
+					$revision->getDataField()->propagateOuuid($revision->getOuuid());
 				}	
 				
 				$revision->setDraft(false);
