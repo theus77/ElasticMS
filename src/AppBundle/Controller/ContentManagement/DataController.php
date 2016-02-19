@@ -183,9 +183,9 @@ class DataController extends AppController
 		
 			//dump($revision);
 			
-// 			return $this->redirectToRoute('data.view', [
-// 					'ouuid' => $revision->getOuuid()
-// 			]);	
+			return $this->redirectToRoute('data.view', [
+					'ouuid' => $revision->getOuuid()
+			]);	
 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [

@@ -8,7 +8,7 @@ services:
         class: AppBundle\EventListener\RequestListener
         arguments: ['@twig', '@doctrine']
         tags:
-            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+            - { name: kernel.event_listener, event: kernel.request, method: provideTemplateTwigObjects }
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
         factory: [AppBundle\Factories\ElasticsearchClientBuilderFactory, build]

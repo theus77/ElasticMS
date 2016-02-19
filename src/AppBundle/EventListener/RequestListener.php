@@ -16,7 +16,7 @@ class RequestListener
 		$this->doctrine = $doctrine;
 	}
 	
-    public function onKernelRequest(GetResponseEvent $event)
+    public function provideTemplateTwigObjects(GetResponseEvent $event)
     {
     	$repository = $this->doctrine->getRepository('AppBundle:ContentType');
     	$contentTypes = $repository->findBy([
