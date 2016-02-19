@@ -29,17 +29,19 @@ class ContainerType extends DataFieldType
 				case 'ouuid':
 					$builder->add($fieldType->getName(), OuuidType::class, [
 						'metadata' => $fieldType,
+						'label' => false,
 					]);
 					break;
 				case 'string':
 					$builder->add($fieldType->getName(), StringType::class, [
 						'metadata' => $fieldType,
+						'label' => false,
 					]);
 					break;
 				case 'container':
 					$builder->add($fieldType->getName(), ContainerType::class, [
 						'label' => $fieldType->getLabel(),
-						'metadata' => $fieldType
+						'metadata' => $fieldType,
 					]);
 					break;
 				default:

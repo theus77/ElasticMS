@@ -180,9 +180,6 @@ class DataController extends AppController
 				dump($e);
 			}
 			
-		
-			//dump($revision);
-			
 			return $this->redirectToRoute('data.view', [
 					'ouuid' => $revision->getOuuid()
 			]);	

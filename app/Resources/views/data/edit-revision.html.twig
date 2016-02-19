@@ -14,24 +14,22 @@
 	</div>
 	<!-- /.box-header -->
 	<!-- form start -->
+		{% form_theme form 'form/fields.html.twig' %}	
+		{{ form_start(form) }}
 		<div class="box-body">
-{# 			{{ form_row(form.name) }}#}
-{# 			{{ form_row(form.pluralName) }}#}
-{# 			{{ form_row(form.alias) }}#}
-				{% form_theme form 'form/fields.html.twig' %}	
-			{{ form_start(form) }}
-				<div class="btn-group ">
-					{{ form_widget(form.save) }}
-					{{ form_widget(form.publish) }}
-					{{ form_widget(form.discard) }}
-				</div>
 			
-			{{ form_end(form) }}
+			{{ form_widget(form.dataField) }}
 	
 		</div>
 		<!-- /.box-body -->
 		<div class="box-footer">
+			<div class="btn-group pull-right">
+				{{ form_widget(form.save) }}
+				{{ form_widget(form.publish) }}
+				{{ form_widget(form.discard) }}
+			</div>
 		</div>
+		{{ form_end(form) }}
 </div>
 
 

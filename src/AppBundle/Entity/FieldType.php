@@ -75,6 +75,13 @@ class FieldType
     /**
      * @var string
      *
+     * @ORM\Column(name="icon", type="string", length=100, nullable=true)
+     */
+    private $icon;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="description", type="text", nullable=true)
      */
     private $description;
@@ -531,5 +538,29 @@ class FieldType
     public function getChildren()
     {
         return $this->children;
+    }
+
+    /**
+     * Set icon
+     *
+     * @param string $icon
+     *
+     * @return FieldType
+     */
+    public function setIcon($icon)
+    {
+        $this->icon = $icon;
+
+        return $this;
+    }
+
+    /**
+     * Get icon
+     *
+     * @return string
+     */
+    public function getIcon()
+    {
+        return $this->icon;
     }
 }

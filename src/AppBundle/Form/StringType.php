@@ -2,8 +2,9 @@
 
 namespace AppBundle\Form;
 
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use AppBundle\Entity\FieldType;
 
 class StringType extends DataFieldType
 {
@@ -13,7 +14,21 @@ class StringType extends DataFieldType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {  
-    	$builder->add('text_value');
+    	/** @var FieldType $fieldType */
+    	$fieldType = $builder->getOptions()['metadata'];
+    	$data = $builder->getData();
+    	
+    	if($fieldType->getIcon()){
+    		$builder->add('text_value', IconTextType::class, [
+    				'label' => 	$fieldType->getLabel(),
+    				'icon' => $fieldType->getIcon()
+    		]);    		
+    	}
+    	else {
+	    	$builder->add('text_value', TextType::class, [
+	    		'label' => 	$fieldType->getLabel()
+	    	]);    		
+    	}
     	
     }
 

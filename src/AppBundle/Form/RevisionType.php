@@ -2,7 +2,6 @@
 
 namespace AppBundle\Form;
 
-use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Revision;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -26,13 +25,15 @@ class RevisionType extends AbstractType
 	        ->add($revision->getContentType()->getFieldType()->getName(), $revision->getContentType()->getFieldType()->getClassType(), [
 	        		'metadata' => $revision->getContentType()->getFieldType(),
 	        ])
-			->add('discard', SubmitType::class, [
-					'attr' => [
-							'class' => 'btn-default'
-					]
+			->add('save', SubmitType::class, [
+				'attr' => ['class' => 'btn-primary'],
 			])
-			->add('save', SubmitType::class)
-			->add('publish', SubmitType::class)
+			->add('publish', SubmitType::class, [
+				'attr' => ['class' => 'btn-warning'],
+			])
+			->add('discard', SubmitType::class, [
+				'attr' => ['class' => 'btn-danger'],
+			])
         ;
 
             
