@@ -51,13 +51,12 @@ class Revision
      */
     private $contentType;
     
+
     /**
-     * @var DataField
-     *
-     * @ORM\OneToMany(targetEntity="DataField", mappedBy="revision", cascade={"persist"})
-     * @ORM\OrderBy({"orderKey" = "ASC"})
+     * @ORM\OneToOne(targetEntity="DataField", inversedBy="revision", cascade={"persist"})
+     * @ORM\JoinColumn(name="data_field_id", referencedColumnName="id")
      */
-    private $dataFields;
+    private $dataField;
     
     /**
      * @var integer
@@ -358,76 +357,35 @@ class Revision
     {
         return $this->contentType;
     }
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->dataFields = new \Doctrine\Common\Collections\ArrayCollection();
-    }
-
-    /**
-     * Add dataField
-     *
-     * @param \AppBundle\Entity\DataField $dataField
-     *
-     * @return Revision
-     */
-    public function addDataField(\AppBundle\Entity\DataField $dataField)
-    {
-        $this->dataFields[] = $dataField;
-
-        return $this;
-    }
-
-    /**
-     * Remove dataField
-     *
-     * @param \AppBundle\Entity\DataField $dataField
-     */
-    public function removeDataField(\AppBundle\Entity\DataField $dataField)
-    {
-        $this->dataFields->removeElement($dataField);
-    }
-
-    /**
-     * Get dataFields
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getDataFields()
-    {
-        return $this->dataFields;
-    }
     
-    public function __get($key){
-    	/** @var DataField $dataField */
-    	foreach ($this->dataFields as $dataField){
-    		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
-    			return $dataField;
-    		}
-    	}
-    	return null;
-    }
+//     public function __get($key){
+//     	/** @var DataField $dataField */
+//     	foreach ($this->dataFields as $dataField){
+//     		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
+//     			return $dataField;
+//     		}
+//     	}
+//     	return null;
+//     }
     
-    public static function getObjectArray($array){
-    	$out = [];
-    	/** @var DataField $dataField */
-    	foreach ($array as $dataField){
-    		switch ($dataField->getFieldType()->getType()){
-				case "string":  
-				case "ouuid":
-	    			$out [$dataField->getFieldType()->getName()] = $dataField->getTextValue();
-	    			break;
-				case "container":
-// 					dump(Revision::getObjectArray($dataField->getChildren()));
-					$out = array_merge($out, Revision::getObjectArray($dataField->getChildren()) );
-					break;
+//     public static function getObjectArray($array){
+//     	$out = [];
+//     	/** @var DataField $dataField */
+//     	foreach ($array as $dataField){
+//     		switch ($dataField->getFieldType()->getType()){
+// 				case "string":  
+// 				case "ouuid":
+// 	    			$out [$dataField->getFieldType()->getName()] = $dataField->getTextValue();
+// 	    			break;
+// 				case "container":
+// // 					dump(Revision::getObjectArray($dataField->getChildren()));
+// 					$out = array_merge($out, Revision::getObjectArray($dataField->getChildren()) );
+// 					break;
 	    			
-    		}
-    	}
-    	return $out;
-    }
+//     		}
+//     	}
+//     	return $out;
+//     }
 
 
     /**
@@ -452,5 +410,29 @@ class Revision
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * Set dataField
+     *
+     * @param \AppBundle\Entity\DataField $dataField
+     *
+     * @return Revision
+     */
+    public function setDataField(\AppBundle\Entity\DataField $dataField = null)
+    {
+        $this->dataField = $dataField;
+
+        return $this;
+    }
+
+    /**
+     * Get dataField
+     *
+     * @return \AppBundle\Entity\DataField
+     */
+    public function getDataField()
+    {
+        return $this->dataField;
     }
 }

@@ -90,20 +90,16 @@ class DataController extends AppController
 	}
 	
 	
-	private function updateDataStructure(DataField &$data, FieldType &$meta, $revision){
+	private function updateDataStructure(DataField $data, FieldType $meta){
 		/** @var FieldType $field */
 		foreach ($meta->getChildren() as $field){
 			$child = $data->__get($field->getName());
 			if(null == $child){
 				$child = new DataField();
 				$child->setFieldType($field);
-				$child->setRevision($revision);
 				$child->setOrderKey($field->getOrderKey());
 				$child->setParent($data);
 				$data->addChild($child);
-				if(null != $revision){
-					$revision->addDataField($child);
-				}
 			}
 			$this->updateDataStructure($child, $field, null);
 		}
@@ -123,28 +119,19 @@ class DataController extends AppController
 		if(!$revision) {
 			throw new NotFoundHttpException('Unknown revision');
 		}
+
 		
-		/** @var FieldType $field */
-		foreach ($revision->getContentType()->getFieldTypes() as $field){	
-			$data = false;
-			/** @var DataField $data */
-			foreach ($revision->getDataFields() as $item){
-				if ($item->getFieldType()->getId() === $field->getId()) {
-					$data = $item;
-					break;
-				}
-			}
-			
-			if(null == $data){
+		if(null != $revision->getContentType()->getFieldType()){
+			if(null == $revision->getDataField()){
 				$data = new DataField();
-				$data->setFieldType($field);
+				$data->setFieldType($revision->getContentType()->getFieldType());
 				$data->setRevision($revision);
-				$data->setOrderKey($field->getOrderKey());
-				$revision->addDataField($data);
+				$data->setOrderKey($revision->getContentType()->getFieldType()->getOrderKey());
+				$revision->setDataField($data);			
 			}
 			
-			$this->updateDataStructure($data, $field, null, $data);
-			
+			$this->updateDataStructure($revision->getDataField(), $revision->getContentType()->getFieldType());
+
 		}
 
 		$form = $this->createForm(RevisionType::class, $revision);
@@ -162,7 +149,7 @@ class DataController extends AppController
 			$client = $this->get('app.elasticsearch'); 
 			
 			try{
-				$objectArray = $revision->getObjectArray($revision->getDataFields());
+				$objectArray = $revision->getDataField()->getObjectArray();
 				dump($objectArray);
 				if( null == $revision->getOuuid() ) {
 					$status = $client->create([

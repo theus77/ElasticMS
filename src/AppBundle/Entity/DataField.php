@@ -37,8 +37,7 @@ class DataField
     private $modified;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Revision", inversedBy="dataFields", cascade={"persist"})
-     * @ORM\JoinColumn(name="revision_id", referencedColumnName="id")
+     * @ORM\OneToOne(targetEntity="Revision", mappedBy="dataField", cascade={"persist"})
      */
     private $revision;
 
@@ -124,6 +123,24 @@ class DataField
     	if(!isset($this->orderKey)){
     		$this->orderKey = 0;
     	}
+    }
+    
+    public function getObjectArray(){
+    	$out = [];
+    	/** @var DataField $dataField */
+    	foreach ($this->children as $child){
+    		switch ($child->getFieldType()->getType()){
+    			case "string":
+    			case "ouuid":
+    				$out [$child->getFieldType()->getName()] = $child->getTextValue();
+    				break;
+    			case "container":
+    				// 					dump(Revision::getObjectArray($dataField->getChildren()));
+    				$out = array_merge($out, $child->getObjectArray() );
+    				break;
+    		}
+    	}
+    	return $out;
     }
     
     /**

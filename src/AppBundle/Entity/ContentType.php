@@ -2,6 +2,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Proxies\__CG__\AppBundle\Entity\FieldType;
 
 /**
  * ContentType
@@ -115,10 +116,10 @@ class ContentType
     private $color;
     
     /**
-     * @ORM\OneToMany(targetEntity="FieldType", mappedBy="contentType")
-     * @ORM\OrderBy({"orderKey" = "ASC"})
+     * @ORM\OneToOne(targetEntity="FieldType", mappedBy="contentType")
+     * @ORM\JoinColumn(name="field_types_id", referencedColumnName="id")
      */
-    private $fieldTypes;
+    private $fieldType;
     
     /**
      * @var int
@@ -894,47 +895,15 @@ class ContentType
     {
         return $this->indexTwig;
     }
-    
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-        $this->fieldTypes = new \Doctrine\Common\Collections\ArrayCollection();
-    }
 
     /**
-     * Add fieldType
+     * Get fieldType
      *
-     * @param \AppBundle\Entity\FieldType $fieldType
-     *
-     * @return ContentType
+     * @return FieldType
      */
-    public function addFieldType(\AppBundle\Entity\FieldType $fieldType)
+    public function getFieldType()
     {
-        $this->fieldTypes[] = $fieldType;
-
-        return $this;
-    }
-
-    /**
-     * Remove fieldType
-     *
-     * @param \AppBundle\Entity\FieldType $fieldType
-     */
-    public function removeFieldType(\AppBundle\Entity\FieldType $fieldType)
-    {
-        $this->fieldTypes->removeElement($fieldType);
-    }
-
-    /**
-     * Get fieldTypes
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getFieldTypes()
-    {
-        return $this->fieldTypes;
+        return $this->fieldType;
     }
 
     /**
@@ -959,5 +928,19 @@ class ContentType
     public function getActive()
     {
         return $this->active;
+    }
+
+    /**
+     * Set fieldType
+     *
+     * @param \AppBundle\Entity\FieldType $fieldType
+     *
+     * @return ContentType
+     */
+    public function setFieldType(\AppBundle\Entity\FieldType $fieldType = null)
+    {
+        $this->fieldType = $fieldType;
+
+        return $this;
     }
 }

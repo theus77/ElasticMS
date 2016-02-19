@@ -29,9 +29,9 @@
 								<td class="text-center">{{ loop.index }}.</td>
 								<td>{{ revision.ouuid }}</td>
 								<td>
-								{% if revision.contentType.labelField is defined %}
-									{% if attribute(revision, '__get', {key: revision.contentType.labelField}) %}
-										{{ attribute(revision, '__get', {key: revision.contentType.labelField}).textValue }}
+								{% if revision.contentType.labelField is defined and revision.dataField %}
+									{% if attribute(revision.dataField, '__get', {key: revision.contentType.labelField}) %}
+										{{ attribute(revision.dataField, '__get', {key: revision.contentType.labelField}).textValue }}
 									{% endif %}
 								{% endif %}
 								</td>

@@ -3,6 +3,9 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use AppBundle\Form\DataFieldType;
+use AppBundle\Form\ContainerType;
+use AppBundle\Form\OuuidType;
 
 /**
  * FieldType
@@ -57,7 +60,7 @@ class FieldType
     private $label;
 
     /**
-     * @ORM\ManyToOne(targetEntity="ContentType", inversedBy="fieldTypes", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="ContentType", inversedBy="fieldType", cascade={"persist"})
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
     private $contentType;
@@ -124,6 +127,22 @@ class FieldType
      * @ORM\OrderBy({"orderKey" = "ASC"})
      */
     private $children;
+    
+    
+    public function getClassType(){
+	    switch ($this->getType()){
+	    	case 'ouuid':
+	    		return OuuidType::class;
+	    	case 'string':
+	    		return StringType::class;
+	    	case 'container':
+	    		return ContainerType::class;
+	    	default:
+	    		return DataFieldType::class;
+	    }    	
+    }
+    
+    
     
     /**
      * Get id

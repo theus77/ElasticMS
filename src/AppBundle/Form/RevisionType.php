@@ -20,34 +20,12 @@ class RevisionType extends AbstractType
     	
     	/** @var Revision $revision */
     	$revision = $builder->getData();
-    	
-    	/** @var FieldType $fieldType */
-    	foreach ( $revision->getContentType()->getFieldTypes() as $key =>  $fieldType ){
-    		
-    		switch ($fieldType->getType()){
-    			case 'ouuid':
-		    		$builder->add($fieldType->getName(), OuuidType::class, [
-						'metadata' => $fieldType,
-					]);
-    				break;
-    			case 'string':
-		    		$builder->add($fieldType->getName(), StringType::class, [
-						'metadata' => $fieldType,
-					]);
-		    		break;
-		    	case 'container':
-		    		$builder->add($fieldType->getName(), ContainerType::class, [
-		    			'label' => $fieldType->getLabel(),
-		    			'metadata' => $fieldType
-		    		]);
-		    		break;
-    			default:
-    		}
-    		
-    	}
     	    	
     	
         $builder
+	        ->add($revision->getContentType()->getFieldType()->getName(), $revision->getContentType()->getFieldType()->getClassType(), [
+	        		'metadata' => $revision->getContentType()->getFieldType(),
+	        ])
 			->add('discard', SubmitType::class, [
 					'attr' => [
 							'class' => 'btn-default'
