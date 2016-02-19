@@ -3,6 +3,8 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use AppBundle\Form\DataFieldType;
+use AppBundle\Form\OuuidType;
 
 /**
  * DataField
@@ -127,7 +129,7 @@ class DataField
     }
     
     public function propagateOuuid($ouuid) {
-    	if(strcmp($this->getFieldType()->getType(), "ouuid") == 0) {
+    	if($this->getFieldType()->getType() instanceof OuuidType ) {
     		$this->setTextValue($ouuid);
     	}
     	foreach ($this->children as $child){
@@ -136,23 +138,17 @@ class DataField
     }
     
     
-    public function getObjectArray(){
+    public function getObjectArray(){	
     	$out = [];
-    	/** @var DataField $dataField */
-    	foreach ($this->children as $child){
-    		switch ($child->getFieldType()->getType()){
-    			case "string":
-    			case "ouuid":
-    				$out [$child->getFieldType()->getName()] = $child->getTextValue();
-    				break;
-    			case "container":
-    				// 					dump(Revision::getObjectArray($dataField->getChildren()));
-    				$out = array_merge($out, $child->getObjectArray() );
-    				break;
-    		}
-    	}
+    	$class = $this->getFieldType()->getType();
+    	/** @var DataFieldType $dataFieldType */
+    	$dataFieldType = new $class();
+		$dataFieldType->buildObjectArray($out, $this);
+
+		dump($out);
     	return $out;
     }
+    
     
     /**
      * Get id

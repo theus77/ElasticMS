@@ -146,44 +146,46 @@ class DataController extends AppController
 			$em->persist($revision);
 			$em->flush();
 			
-			/** @var Client $client */
-			$client = $this->get('app.elasticsearch'); 
-			
-			try{
-				$objectArray = $revision->getDataField()->getObjectArray();
-				dump($objectArray);
-				if( null == $revision->getOuuid() ) {
-					$status = $client->create([
-						'index' => $revision->getContentType()->getAlias(),
-						'type' => $revision->getContentType()->getName(),
-						'body' => $objectArray
-					]);
-					$revision->setOuuid($status['_id']);
-				}
-				else {
-					$status = $client->index([
-							'id' => $revision->getOuuid(),
+			if($request->request->has('publish')) {
+				try{
+					/** @var Client $client */
+					$client = $this->get('app.elasticsearch'); 
+					
+					$objectArray = $revision->getDataField()->getObjectArray();
+					dump($objectArray);
+					if( null == $revision->getOuuid() ) {
+						$status = $client->create([
 							'index' => $revision->getContentType()->getAlias(),
 							'type' => $revision->getContentType()->getName(),
 							'body' => $objectArray
-					]);
+						]);
+						$revision->setOuuid($status['_id']);
+					}
+					else {
+						$status = $client->index([
+								'id' => $revision->getOuuid(),
+								'index' => $revision->getContentType()->getAlias(),
+								'type' => $revision->getContentType()->getName(),
+								'body' => $objectArray
+						]);
+						
+						$revision->getDataField()->propagateOuuid($revision->getOuuid());
+					}	
 					
-					$revision->getDataField()->propagateOuuid($revision->getOuuid());
-				}	
+					$revision->setDraft(false);
+					$revision->setModified(new \DateTime('now'));
+					$em->persist($revision);
+					$em->flush();
+				}
+				catch (\Exception $e){
+					//TODO
+					dump($e);
+				}
 				
-				$revision->setDraft(false);
-				$revision->setModified(new \DateTime('now'));
-				$em->persist($revision);
-				$em->flush();
+				return $this->redirectToRoute('data.view', [
+						'ouuid' => $revision->getOuuid()
+				]);	
 			}
-			catch (\Exception $e){
-				//TODO
-				dump($e);
-			}
-			
-			return $this->redirectToRoute('data.view', [
-					'ouuid' => $revision->getOuuid()
-			]);	
 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [

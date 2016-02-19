@@ -17,3 +17,13 @@ services:
         class: Twig_Extension_StringLoader
         tags:
              - { name: 'twig.extension' }
+    app.form.ouuid:
+        class: AppBundle\Form\OuuidType
+        tags:
+            - { name: form.type }
+            - { name: ems.field.type }
+    app.form.string:
+        class: AppBundle\Form\StringType
+        tags:
+            - { name: form.type }
+            - { name: ems.field.type }

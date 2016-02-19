@@ -136,21 +136,6 @@ class FieldType
     private $children;
     
     
-    public function getClassType(){
-	    switch ($this->getType()){
-	    	case 'ouuid':
-	    		return OuuidType::class;
-	    	case 'string':
-	    		return StringType::class;
-	    	case 'container':
-	    		return ContainerType::class;
-	    	default:
-	    		return DataFieldType::class;
-	    }    	
-    }
-    
-    
-    
     /**
      * Get id
      *
