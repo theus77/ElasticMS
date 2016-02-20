@@ -77,7 +77,7 @@ class DataController extends AppController
 		}
 	
 		return $this->render( 'data/view-data.html.twig', [
-				'revision' =>  $revision,
+				'revision' =>  $revision[0],
 		] );
 	}
 	/**

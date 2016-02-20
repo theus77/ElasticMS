@@ -36,6 +36,15 @@
 				{{ object._ems_twig_rendering|raw }}
 			  </div>
 			  {% endif %}
+			  <div class="panel-footer">
+			  	<div class="btn-group">
+				  	{% include 'elements/get-button.html.twig' with {
+						'url':  path('data.view', {'ouuid': object._id} ),
+						'label': 'View',
+						'icon': 'eye'
+					}%}
+				</div>
+			  </div>
 			</div>			
 
 			{% endfor %}

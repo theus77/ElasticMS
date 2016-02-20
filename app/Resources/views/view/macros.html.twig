@@ -1,0 +1,42 @@
+
+
+{%  macro renderDataField(dataField) %}
+	{{ attribute(_self, dataField.fieldType.type|replace({'\\': '_'}), [dataField]) }}
+{% endmacro %}
+
+{% macro AppBundle_Form_ContainerType(dataField) %}
+    {% if dataField.fieldType.label %}
+    	<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					{% if dataField.fieldType.icon %}
+						<i class="{{ dataField.fieldType.icon }}"></i> 
+					{% endif %}
+					{{ dataField.fieldType.label }}
+				</h3>
+			</div>
+			<div class="panel-body">
+	{% endif %}
+		{% for child in dataField.children %}
+			{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
+		{% endfor %}
+    {% if dataField.fieldType.label %}
+    		</div>
+		</div>
+	{% endif %}
+{% endmacro %}
+
+{% macro AppBundle_Form_OuuidType(dataField) %}
+	<dl>
+		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
+		<dd>{{ dataField.textValue }}</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_StringType(dataField) %}
+	<dl>
+		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
+		<dd>{{ dataField.textValue }}</dd>
+	</dl>
+{% endmacro %}
+
