@@ -75,6 +75,34 @@
          {% endfor %}
 		</ul>
 
+    <ul class="sidebar-menu">
+        <li class="header">Indexes</li>
+        <!-- Optionally, you can add icons to the links -->
+        {% for contentType in contentTypes %}
+        	{% if contentType.active %}
+	          <li class="">
+	          	<a href="/data/{{ contentType.name }}" class="text-{{ contentType.color }}">
+	          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName|humanize }}</span>
+	          		
+	            	{% if draftCounterGroupedByContentType[contentType.id] is defined %}
+	          			<span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span>
+	          		{% else %}
+		          		<i class="fa fa-angle-left pull-right"></i>
+	          		{% endif %}
+	          	</a>
+	          	<ul class="treeview-menu">
+	            	<li class="">
+	            		<a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentTypeId: contentType.id }) }}">
+	            			Re-index in {{ contentType.alias }}
+	            		</a>
+	            	</li>
+	          	</ul>
+	          </li>
+	        {% endif %}
+         {% endfor %}
+		</ul>
+
+
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
         <li class="header">Admin</li>        

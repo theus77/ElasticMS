@@ -22,6 +22,7 @@ use AppBundle\Repository\ContentTypeRepository;
 use Doctrine\ORM\EntityManager;
 use AppBundle\Repository\RevisionRepository;
 use Doctrine\ORM\QueryBuilder;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class DataController extends AppController
 {
@@ -81,12 +82,68 @@ class DataController extends AppController
 				'revision' =>  $revision[0],
 		] );
 	}
+	
+	/**
+	 *
+	 * @Route("/data/new-draft/{ouuid}", name="revision.new-draft"))
+	 */
+	public function newDraftAction($ouuid, Request $request)
+	{
+		if($request->isMethod('GET') ){
+			throw new BadRequestHttpException('This method doesn\'t allow GET request');
+		}
+		
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		
+		/** @var Revision $revision */
+		$revisions = $repository->findBy([
+				'ouuid' => $ouuid,
+				'endTime' => null,
+		]);
+		
+		if(count($revisions) != 1 || null != $revisions[0]->getEndTime()) {
+			throw new NotFoundHttpException('Unknown revision');
+		}
+		$revision = $revisions[0];
+		
+		if($revision->getDraft()){
+			return $this->redirectToRoute('revision.edit', [
+					'revisionId' => $revision->getId()
+			]);
+		}
+		
+		$now = new \DateTime();
+		
+		
+		$newDraft = new Revision($revision);
+		$newDraft->setStartTime($now);
+		
+		$revision->setEndTime($now);
+		
+		$em->persist($revision);
+		$em->persist($newDraft);
+		$em->flush();
+		
+		return $this->redirectToRoute('revision.edit', [
+				'revisionId' => $newDraft->getId()
+		]);
+	}
+	
+	
 	/**
 	 * 
 	 * @Route("/data/draft/discard/{revisionId}", name="revision.discard"))
 	 */
 	public function discardRevisionAction($revisionId, Request $request)
 	{
+		if($request->isMethod('GET') ){
+			throw new BadRequestHttpException('This method doesn\'t allow GET request');
+		}
+		
 		/** @var EntityManager $em */ 
 		$em = $this->getDoctrine()->getManager();
 		
@@ -218,9 +275,9 @@ class DataController extends AppController
 								'body' => $objectArray
 						]);
 						
-						$revision->getDataField()->propagateOuuid($revision->getOuuid());
 					}	
 					
+					$revision->getDataField()->propagateOuuid($revision->getOuuid());
 					$revision->setDraft(false);
 					$revision->setModified(new \DateTime('now'));
 					$em->persist($revision);
@@ -309,14 +366,12 @@ class DataController extends AppController
 			if($form->isValid()) {
 				$now = new \DateTime('now');
 				$revision->setContentType($contentType);
-				$revision->setCreated($now);
-				$revision->setModified($now);
 				$revision->setDraft(true);
 				$revision->setDeleted(false);
+				$revision->setStartTime($now);
 				$revision->setEndTime(null);
 				$revision->setLockBy( $this->getUser()->getUsername() );
 				$revision->setLockUntil(new \DateTime($this->getParameter('lock_time')));
-				$revision->setStartTime($now);
 				
 				$em->persist($revision);
 				$em->flush();

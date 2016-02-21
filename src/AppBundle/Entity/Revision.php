@@ -3,13 +3,13 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * Revision
  *
  * @ORM\Table(name="revision", uniqueConstraints={@ORM\UniqueConstraint(name="tuple_index", columns={"end_time", "ouuid"})})
  * @ORM\Entity(repositoryClass="AppBundle\Repository\RevisionRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Revision
 {
@@ -74,13 +74,6 @@ class Revision
     private $ouuid;
 
     /**
-     * @var int
-     *
-     * @ORM\Column(name="$revision_id", type="integer", nullable=true)
-     */
-    private $revision_id;
-
-    /**
      * @var \DateTime
      *
      * @ORM\Column(name="start_time", type="datetime")
@@ -114,6 +107,38 @@ class Revision
      * @ORM\Column(name="lock_until", type="datetime", nullable=true)
      */
     private $lockUntil;
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updateModified()
+    {
+    	$this->modified = new \DateTime();
+        	if(!isset($this->created)){
+    		$this->created = $this->modified;
+    	}
+    	if(!isset($this->orderKey)){
+    		$this->orderKey = 0;
+    	}
+    }
+    
+    function __construct()
+    {
+    	$a = func_get_args();
+    	$i = func_num_args();
+    	if($i == 1){
+    		if($a[0] instanceof Revision){
+    			/** @var \Revision $ancestor */
+    			$ancestor = $a[0];
+    			$this->deleted = $ancestor->deleted;
+    			$this->draft = true;
+    			$this->ouuid = $ancestor->ouuid;
+    			$this->contentType = $ancestor->contentType;
+    			$this->dataField = new DataField($ancestor->dataField);
+    		}
+    	}
+    }
 
     /**
      * Get id
@@ -411,29 +436,5 @@ class Revision
     public function getDataField()
     {
         return $this->dataField;
-    }
-
-    /**
-     * Set revisionId
-     *
-     * @param integer $revisionId
-     *
-     * @return Revision
-     */
-    public function setRevisionId($revisionId)
-    {
-        $this->revision_id = $revisionId;
-
-        return $this;
-    }
-
-    /**
-     * Get revisionId
-     *
-     * @return integer
-     */
-    public function getRevisionId()
-    {
-        return $this->revision_id;
     }
 }

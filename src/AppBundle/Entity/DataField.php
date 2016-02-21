@@ -40,7 +40,7 @@ class DataField
     /**
      * @var int
      *
-     * @ORM\Column(name="$revision_id", type="integer", nullable=true)
+     * @ORM\Column(name="revision_id", type="integer", nullable=true)
      */
     private $revision_id;
 
@@ -131,17 +131,11 @@ class DataField
     
     public function propagateOuuid($ouuid) {
     	if(strcmp(OuuidType::class, $this->getFieldType()->getType()) == 0) {
+    		dump($this);
     		$this->setTextValue($ouuid);
     	}
     	foreach ($this->children as $child){
     		$child->propagateOuuid($ouuid);
-    	}
-    }
-    
-    public function detachRevision() {
-		$this->setRevision(null);
-    	foreach ($this->children as $child){
-    		$child->detachRevision();
     	}
     }
     
@@ -471,6 +465,28 @@ class DataField
     public function __construct()
     {
         $this->children = new \Doctrine\Common\Collections\ArrayCollection();
+        
+        $a = func_get_args();
+        $i = func_num_args();
+        if($i >= 1 && $a[0] instanceof DataField){
+        	/** @var \DataField $ancestor */
+        	$ancestor = $a[0];
+        	$this->dateValue = $ancestor->dateValue;
+        	$this->fieldType = $ancestor->getFieldType();
+        	$this->floatValue = $ancestor->floatValue;
+        	$this->integerValue = $ancestor->integerValue;
+        	$this->language = $ancestor->language;
+        	$this->orderKey = $ancestor->orderKey;
+        	$this->sha1 = $ancestor->sha1;
+        	$this->textValue = $ancestor->textValue;
+        	if($i >= 2 && $a[1] instanceof DataField){
+        		$this->parent = $a[1];
+        	}
+        		
+        	foreach ($ancestor->getChildren() as $child){
+        		$this->addChild(new DataField($child, $this));
+        	}	
+    	}
     }
 
     /**
