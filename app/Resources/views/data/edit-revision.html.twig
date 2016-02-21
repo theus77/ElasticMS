@@ -26,7 +26,12 @@
 			<div class="btn-group pull-right">
 				{{ form_widget(form.save) }}
 				{{ form_widget(form.publish) }}
-				{{ form_widget(form.discard) }}
+				{% include 'elements/post-button.html.twig' with {
+					'url': path('revision.discard', {'revisionId': revision.id}),
+					'message': 'Discard this draft ?',
+					'label': 'Discard',
+					'icon': 'trash'
+				}%}
 			</div>
 		</div>
 		{{ form_end(form) }}

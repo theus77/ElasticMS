@@ -21,6 +21,7 @@ use AppBundle\Form\IconTextType;
 use AppBundle\Repository\ContentTypeRepository;
 use Doctrine\ORM\EntityManager;
 use AppBundle\Repository\RevisionRepository;
+use Doctrine\ORM\QueryBuilder;
 
 class DataController extends AppController
 {
@@ -86,7 +87,53 @@ class DataController extends AppController
 	 */
 	public function discardRevisionAction($revisionId, Request $request)
 	{
-	//TODO
+		/** @var EntityManager $em */ 
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		/** @var Revision $revision */
+		$revision = $repository->find($revisionId);
+		
+		if(!$revision || !$revision->getDraft() || null != $revision->getEndTime()) {
+			throw new NotFoundHttpException('Unknown revision or not a draft');
+		}
+		
+		$contentTypeId = $revision->getContentType()->getId();
+		
+		if(null != $revision->getOuuid()){
+			/** @var QueryBuilder $qb */
+			$qb = $repository->createQueryBuilder('t')
+				->where('t.ouuid = :ouuid')
+				->setParameter('ouuid', $revision->getOuuid())
+				->andWhere('t.id <> :id')
+				->setParameter('id', $revision->getId())
+				->orderBy('t.startTime', 'desc')
+				->setMaxResults(1);
+			$query = $qb->getQuery();
+			
+			
+			$result = $query->getResult();
+			if(count($result) == 1){
+				/** @var Revision $previous */
+				$previous = $result[0];
+				$previous->setEndTime(null);
+				$em->persist($previous);
+			}
+			
+		}
+		
+// 		$revision->getDataField()->detachRevision();
+// 		$em->persist($revision);
+// 		$em->flush();
+		
+		$em->remove($revision);
+
+		$em->flush();
+		
+		return $this->redirectToRoute('data.draft_in_progress', [
+				'contentTypeId' => $contentTypeId
+		]);			
 	}
 	
 	
@@ -99,7 +146,7 @@ class DataController extends AppController
 				$child->setFieldType($field);
 				$child->setOrderKey($field->getOrderKey());
 				$child->setParent($data);
-				$child->setRevision($data->getRevision());
+				$child->setRevisionId($data->getRevisionId());
 				$data->addChild($child);
 			}
 			$this->updateDataStructure($child, $field, null);
@@ -126,7 +173,7 @@ class DataController extends AppController
 			if(null == $revision->getDataField()){
 				$data = new DataField();
 				$data->setFieldType($revision->getContentType()->getFieldType());
-				$data->setRevision($revision);
+				$data->setRevisionId($revision->getId());
 				$data->setOrderKey($revision->getContentType()->getFieldType()->getOrderKey());
 				$revision->setDataField($data);			
 			}

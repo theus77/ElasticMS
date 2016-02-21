@@ -53,7 +53,7 @@ class Revision
     
 
     /**
-     * @ORM\OneToOne(targetEntity="DataField", cascade={"persist"})
+     * @ORM\OneToOne(targetEntity="DataField", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="data_field_id", referencedColumnName="id")
      */
     private $dataField;
@@ -72,6 +72,13 @@ class Revision
      * @ORM\Column(name="ouuid", type="string", length=255, nullable=true)
      */
     private $ouuid;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="$revision_id", type="integer", nullable=true)
+     */
+    private $revision_id;
 
     /**
      * @var \DateTime
@@ -404,5 +411,29 @@ class Revision
     public function getDataField()
     {
         return $this->dataField;
+    }
+
+    /**
+     * Set revisionId
+     *
+     * @param integer $revisionId
+     *
+     * @return Revision
+     */
+    public function setRevisionId($revisionId)
+    {
+        $this->revision_id = $revisionId;
+
+        return $this;
+    }
+
+    /**
+     * Get revisionId
+     *
+     * @return integer
+     */
+    public function getRevisionId()
+    {
+        return $this->revision_id;
     }
 }

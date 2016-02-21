@@ -38,10 +38,12 @@ class DataField
     private $modified;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Revision")
-     * @ORM\JoinColumn(name="revision_id", referencedColumnName="id")
+     * @var int
+     *
+     * @ORM\Column(name="$revision_id", type="integer", nullable=true)
      */
-    private $revision;
+    private $revision_id;
+
 
     /**
      * @ORM\ManyToOne(targetEntity="FieldType")
@@ -107,7 +109,7 @@ class DataField
     private $parent;
     
     /**
-     * @ORM\OneToMany(targetEntity="DataField", mappedBy="parent", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="DataField", mappedBy="parent", cascade={"persist", "remove"})
      * @ORM\OrderBy({"orderKey" = "ASC"})
      */
     private $children;
@@ -133,6 +135,13 @@ class DataField
     	}
     	foreach ($this->children as $child){
     		$child->propagateOuuid($ouuid);
+    	}
+    }
+    
+    public function detachRevision() {
+		$this->setRevision(null);
+    	foreach ($this->children as $child){
+    		$child->detachRevision();
     	}
     }
     
@@ -371,30 +380,6 @@ class DataField
     }
 
     /**
-     * Set revision
-     *
-     * @param \AppBundle\Entity\Revision $revision
-     *
-     * @return DataField
-     */
-    public function setRevision(\AppBundle\Entity\Revision $revision = null)
-    {
-        $this->revision = $revision;
-
-        return $this;
-    }
-
-    /**
-     * Get revision
-     *
-     * @return \AppBundle\Entity\Revision
-     */
-    public function getRevision()
-    {
-        return $this->revision;
-    }
-
-    /**
      * Set orderKey
      *
      * @param integer $orderKey
@@ -544,5 +529,29 @@ class DataField
     public function getChildren()
     {
         return $this->children;
+    }
+
+    /**
+     * Set revisionId
+     *
+     * @param integer $revisionId
+     *
+     * @return DataField
+     */
+    public function setRevisionId($revisionId)
+    {
+        $this->revision_id = $revisionId;
+
+        return $this;
+    }
+
+    /**
+     * Get revisionId
+     *
+     * @return integer
+     */
+    public function getRevisionId()
+    {
+        return $this->revision_id;
     }
 }

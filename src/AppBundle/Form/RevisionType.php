@@ -26,13 +26,10 @@ class RevisionType extends AbstractType
 	        		'metadata' => $revision->getContentType()->getFieldType(),
 	        ])
 			->add('save', SubmitType::class, [
-				'attr' => ['class' => 'btn-primary'],
+				'attr' => ['class' => 'btn-primary btn-sm '],
 			])
 			->add('publish', SubmitType::class, [
-				'attr' => ['class' => 'btn-warning'],
-			])
-			->add('discard', SubmitType::class, [
-				'attr' => ['class' => 'btn-danger'],
+				'attr' => ['class' => 'btn-primary btn-sm '],
 			])
         ;
 

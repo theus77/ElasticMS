@@ -5,6 +5,8 @@
 
 
 {% block body %}
+
+{% if revisions %}
 <div class="row">
 	<div class="col-md-12">
 		<div class="box ">
@@ -65,6 +67,12 @@
 		</div>
 	</div>
 </div>
+{% else %}
+	<div class="callout callout-success">
+    	<h4>Empty</h4>
+		<p>There is no draft in progress.</p>
+    </div>
+{% endif %}
 {% endblock %}
 
 
