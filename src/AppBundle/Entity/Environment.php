@@ -60,6 +60,11 @@ class Environment
     private $counter;
 
     /**
+     * @ORM\ManyToMany(targetEntity="Revision", mappedBy="environments")
+     */
+    private $revisions;
+
+    /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
@@ -69,6 +74,14 @@ class Environment
     	if(!isset($this->created)){
     		$this->created = $this->modified;
     	}
+    }
+    
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+    	$this->revisions = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
     /**
@@ -200,4 +213,38 @@ class Environment
         return $this->total;
     }
     
+
+    /**
+     * Add revision
+     *
+     * @param \AppBundle\Entity\Revision $revision
+     *
+     * @return Environment
+     */
+    public function addRevision(\AppBundle\Entity\Revision $revision)
+    {
+        $this->revisions[] = $revision;
+
+        return $this;
+    }
+
+    /**
+     * Remove revision
+     *
+     * @param \AppBundle\Entity\Revision $revision
+     */
+    public function removeRevision(\AppBundle\Entity\Revision $revision)
+    {
+        $this->revisions->removeElement($revision);
+    }
+
+    /**
+     * Get revisions
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getRevisions()
+    {
+        return $this->revisions;
+    }
 }

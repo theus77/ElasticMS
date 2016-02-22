@@ -4,9 +4,9 @@ namespace AppBundle\Form;
 
 use AppBundle\Entity\Revision;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 
 class RevisionType extends AbstractType
 {
@@ -25,11 +25,13 @@ class RevisionType extends AbstractType
 	        ->add($revision->getContentType()->getFieldType()->getName(), $revision->getContentType()->getFieldType()->getType(), [
 	        		'metadata' => $revision->getContentType()->getFieldType(),
 	        ])
-			->add('save', SubmitType::class, [
+			->add('save', SubmitEmsType::class, [
 				'attr' => ['class' => 'btn-primary btn-sm '],
+				'icon' => 'fa fa-save'
 			])
-			->add('publish', SubmitType::class, [
+			->add('publish', SubmitEmsType::class, [
 				'attr' => ['class' => 'btn-primary btn-sm '],
+				'icon' => 'fa fa-leanpub',
 			])
         ;
 

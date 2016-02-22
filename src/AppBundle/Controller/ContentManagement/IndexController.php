@@ -8,61 +8,26 @@ use AppBundle\Controller\AppController;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Entity\ContentType;
 use AppBundle;
+use Doctrine\ORM\EntityManager;
+use AppBundle\Repository\RevisionRepository;
 
 class IndexController extends AppController
 {
 	/**
-	 * @Route("/data/index/{contentTypeId}/{page}.{_format}", defaults={"page": 1, "_format": "html"}, name="data.index"))
+	 * @Route("/indexes/content-type/{contentTypeId}/{alias}", name="index.content-type")
 	 */
-	public function indexAction($contentTypeId, $_format, $page)
+	public function reindexContentTypeAction($contentTypeId, $alias)
 	{
-		$repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:ContentType');
-		/** @var ContentType $contentType */
-		$contentType = $repository->find($contentTypeId);
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		/** @var Revision $revision */
+// 		$revisions = $repository->findBy();
 		
+			
+			return $this->render( 'default/coming-soon.html.twig');
 		
-		if($contentType){
-			$client = $this->getElasticsearch();
-			$results = $client->search([
-					'index' => $contentType->getAlias(),
-					'version' => true, 
-					'size' => $this->container->getParameter('paging_size'), 
-					'from' => ($page-1)*$this->container->getParameter('paging_size'),
-					'type' => $contentType->getName(),
-			]);
-			
-			if( null != $contentType->getIndexTwig() ) {
-				$twig = $this->getTwig();
-				$template = $twig->createTemplate($contentType->getIndexTwig());
-				foreach ($results['hits']['hits'] as &$hit){	
-					try {
-						
-						$hit['_ems_twig_rendering'] = $template->render([
-								'source' => $hit['_source'],
-								'object' => $hit,
-						]);				
-					}
-					catch (\Twig_Error $e){
-						$hit['_ems_twig_rendering'] = "Error in the template: ".$e->getMessage();
-					}
-				}
-			}
-			
-			return $this->render( 'data/index.'.$_format.'.twig', [
-					'results' => $results,
-					'lastPage' => ceil($results['hits']['total']/$this->container->getParameter('paging_size')),
-					'paginationPath' => 'data.index',
-					'currentFilters' => [
-							'contentTypeId' => $contentTypeId,
-							'page' =>  $page,
-							'_format' => $_format
-					],
-					'contentType' =>  $contentType
-			] );
-			
-		}
-		
-		throw new NotFoundHttpException();
 		
 	}
 }

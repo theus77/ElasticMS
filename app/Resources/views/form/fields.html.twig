@@ -2,7 +2,6 @@
 
 {# Widgets #}
 {% block icontext_widget -%}
-{#     {% set attr = attr|merge({class: (attr.class|default('') ~ ' form-control')|trim}) %}#}
 	<div class="input-group">
 		<span class="input-group-addon"><i class="{{ icon }}"></i></span>
 	 	{{ block('form_widget') }}
@@ -14,9 +13,26 @@
 	{{ block('choice_widget') }}
 {%- endblock select2_widget %}
 
-{# {% block container_widget -%}#}
-{# 	salut#}
-{# {%- endblock container_widget %}#}
+{%- block submitems_widget -%}
+	{% set attr = attr|merge({class: (attr.class|default('') ~ ' btn')|trim}) %}
+    {%- if label is empty -%}
+        {%- if label_format is not empty -%}
+            {% set label = label_format|replace({
+                '%name%': name,
+                '%id%': id,
+            }) %}
+        {%- else -%}
+            {% set label = name|humanize %}
+        {%- endif -%}
+    {%- endif -%}
+    <button type="{{ type|default('submit') }}" {{ block('button_attributes') }}>
+    	{%- if icon -%}
+			<span class="{{ icon }}"></span>&nbsp;
+		{% endif %}
+		{{ translation_domain is same as(false) ? label : label|trans({}, translation_domain) }}
+  	</button>
+{%- endblock submitems_widget -%}
+
 
 {# Labels #}
 {% block container_label -%}

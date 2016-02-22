@@ -2,6 +2,9 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Entity\Revision;
+use AppBundle\Entity\Environment;
+
 /**
  * RevisionRepository
  *
@@ -24,5 +27,19 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		
 		return $qb->getQuery()->getResult();
 	}
+
+
+	public function findByOuuidContentTypeAndEnvironnement(Revision $revision) {
 	
+		$qb = $this->createQueryBuilder('r');
+		$qb->join('r.environments', 'e');
+		$qb->where('r.ouuid = :ouuid and e.id = :envId and r.contentType = :contentTypeId');
+		$qb->setParameters([
+				'ouuid' => $revision->getOuuid(),
+				'envId' => $revision->getContentType()->getEnvironment()->getId(),
+				'contentTypeId' => $revision->getContentType()->getId()
+		]);
+	
+		return $qb->getQuery()->getResult();
+	}
 }

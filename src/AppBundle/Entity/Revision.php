@@ -109,6 +109,12 @@ class Revision
     private $lockUntil;
 
     /**
+     * @ORM\ManyToMany(targetEntity="Environment", inversedBy="revisions", cascade={"persist", "remove"})
+     * @ORM\JoinTable(name="environment_revision")
+     */
+    private $environments;
+    
+    /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
@@ -125,6 +131,9 @@ class Revision
     
     function __construct()
     {
+
+    	$this->environments = new \Doctrine\Common\Collections\ArrayCollection();
+    	
     	$a = func_get_args();
     	$i = func_num_args();
     	if($i == 1){
@@ -437,4 +446,39 @@ class Revision
     {
         return $this->dataField;
     }
+
+    /**
+     * Add environment
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     *
+     * @return Revision
+     */
+    public function addEnvironment(\AppBundle\Entity\Environment $environment)
+    {
+        $this->environments[] = $environment;
+
+        return $this;
+    }
+
+    /**
+     * Remove environment
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     */
+    public function removeEnvironment(\AppBundle\Entity\Environment $environment)
+    {
+        $this->environments->removeElement($environment);
+    }
+
+    /**
+     * Get environments
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEnvironments()
+    {
+        return $this->environments;
+    }
+
 }

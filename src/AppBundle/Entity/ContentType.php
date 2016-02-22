@@ -213,6 +213,12 @@ class ContentType
     private $active;
 
     /**
+     * @ORM\ManyToOne(targetEntity="Environment")
+     * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
+     */
+    private $environment;
+
+    /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
@@ -942,5 +948,29 @@ class ContentType
         $this->fieldType = $fieldType;
 
         return $this;
+    }
+
+    /**
+     * Set environment
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     *
+     * @return ContentType
+     */
+    public function setEnvironment(\AppBundle\Entity\Environment $environment = null)
+    {
+        $this->environment = $environment;
+
+        return $this;
+    }
+
+    /**
+     * Get environment
+     *
+     * @return \AppBundle\Entity\Environment
+     */
+    public function getEnvironment()
+    {
+        return $this->environment;
     }
 }
