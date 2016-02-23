@@ -82,14 +82,32 @@ class MetaController extends AppController
 		if ($form->isSubmitted() && $form->isValid()) {
 			/** @var  Client $client */
 			$client = $this->get('app.elasticsearch');
-			
 			$indexName = 'ems_'.$this->getGUID();
 			
+			
+			/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
+			$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
+			$contentTypes = $contentTypeRepository->findAll();
+			$mapping = [];
+			/** @var ContentType $contentType */
+			foreach ($contentTypes as $contentType){
+				$mapping = array_merge($mapping, $contentType->generateMapping());
+// 				$client->indices()->putMapping([
+// 					'index' => $indexName,
+// 					'type' => $contentType->getName(),
+// 					'body' => $maping
+// 				]);
+			}
+			
 			$client->indices()->create([
-					'index' => 'ems_'.$this->getGUID(),
+					'index' => $indexName,
+					'body' => ["mappings" => $mapping],
 			]);
 			
 			$this->addFlash('notice', 'A new index '.$indexName.' has been created');
+			
+			
+			
 			
 			foreach ($environment->getRevisions() as $revision) {
 				$objectArray = $revision->getDataField()->getObjectArray();
@@ -105,6 +123,7 @@ class MetaController extends AppController
 			$this->switchAlias($client, $environment->getName(), $indexName);
 			$this->addFlash('notice', 'The alias <strong>'.$environment->getName().'</strong> is now pointing to '.$indexName);
 			
+			return $this->redirectToRoute('environment.list');
 		}
 		
 		return $this->render( 'meta/rebuild-index.html.twig',[

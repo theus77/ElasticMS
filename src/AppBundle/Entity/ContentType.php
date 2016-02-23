@@ -218,6 +218,22 @@ class ContentType
      */
     private $environment;
 
+    public function generateMapping(){
+    	$out = [
+    		$this->name => [
+    			"_all" => [
+    				"store" => true,
+    				"enabled" => true,
+    			],
+    			"properties" => [
+    					
+    			],
+    		]
+    	];
+    	
+    	return $out;
+    }
+    
     /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
