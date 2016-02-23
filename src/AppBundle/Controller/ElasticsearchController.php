@@ -16,6 +16,21 @@ class ElasticsearchController extends Controller
 			$client = $this->get('app.elasticsearch');
 			$status = $client->cluster()->health();
 			
+			if('html' === $_format && 'green' !== $status['status']){
+				if('red' === $status['status']){
+					$this->addFlash(
+						'error',
+						'There is something wrong with the cluster! Actions are required now.'
+					);
+				}
+				else {
+					$this->addFlash(
+						'warning',
+						'There is something wrong with the cluster. Status: <strong>'.$status['status'].'</strong>.'
+					);
+				}
+			}
+			
 			return $this->render( 'elasticsearch/status.'.$_format.'.twig', [
 					'status' => $status
 			] );			

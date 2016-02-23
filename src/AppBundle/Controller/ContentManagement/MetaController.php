@@ -5,25 +5,26 @@ namespace AppBundle\Controller\ContentManagement;
 use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
 use AppBundle;
-use AppBundle\Entity\Revision;
+use AppBundle\Entity\Environment;
+use AppBundle\Entity\Form\RebuildIndex;
 use AppBundle\Form\IconTextType;
+use AppBundle\Form\Select2Type;
+use AppBundle\Repository\EnvironmentRepository;
+use Doctrine\ORM\EntityManager;
+use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Entity\Environment;
-use Elasticsearch\Client;
-use AppBundle\Repository\EnvironmentRepository;
-use Doctrine\ORM\EntityManager;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
-use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use AppBundle\Form\Select2Type;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormError;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Form\Form\RebuildIndexType;
 
 class MetaController extends AppController
 {
+	
 	/**
 	 * @Route("/meta/content-type/delete/{id}", name="contenttype.delete"))
 	 */
@@ -52,6 +53,67 @@ class MetaController extends AppController
 		return $this->render( 'meta/list-content-type.html.twig');
 		
 	}
+	
+	
+	
+	/**
+	 * @Route("/meta/index/rebuild/{id}", name="index.rebuild"))
+	 */
+	public function rebuildIndexAction($id, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var EnvironmentRepository $repository */
+		$repository = $em->getRepository('AppBundle:Environment');
+		
+		/** @var Environment $environment */
+		$environment = $repository->find($id);
+		
+		if(! $environment || count($environment) != 1){
+			throw new NotFoundHttpException('Unknow environment');
+		}
+		
+		$rebuildIndex = new RebuildIndex();
+		
+		$form = $this->createForm(RebuildIndexType::class, $rebuildIndex);
+		
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()) {
+			/** @var  Client $client */
+			$client = $this->get('app.elasticsearch');
+			
+			$indexName = 'ems_'.$this->getGUID();
+			
+			$client->indices()->create([
+					'index' => 'ems_'.$this->getGUID(),
+			]);
+			
+			$this->addFlash('notice', 'A new index '.$indexName.' has been created');
+			
+			foreach ($environment->getRevisions() as $revision) {
+				$objectArray = $revision->getDataField()->getObjectArray();
+				$status = $client->create([
+						'index' => $indexName,
+						'type' => $revision->getContentType()->getName(),
+						'body' => $objectArray
+				]);
+			}
+
+			$this->addFlash('notice', count($environment->getRevisions()).' objects have been reindexed');
+			
+			$this->switchAlias($client, $environment->getName(), $indexName);
+			$this->addFlash('notice', 'The alias <strong>'.$environment->getName().'</strong> is now pointing to '.$indexName);
+			
+		}
+		
+		return $this->render( 'meta/rebuild-index.html.twig',[
+				'environment' => $environment,
+				'form' => $form->createView(),
+		]);
+		
+	}
+	
 	/**
 	 * @Route("/meta/content-type/add", name="contenttype.add"))
 	 */
@@ -265,23 +327,8 @@ class MetaController extends AppController
 			$environment = $form->getData();
 			if(strcmp($environment->getName(), $environment->getIndex()) != 0) {
 				
-				//TODO: atomic solution
-				try {
-					$indexes = $client->indices()->get(['index' => $environment->getName()]);
-					// 				dump($indexes);
-					$client->indices()->deleteAlias([
-							'name' => $environment->getName(),
-							'index' => array_keys($indexes)[0]
-					]);
-				}
-				catch (Missing404Exception $e){
-				
-				}
-				
-				$client->indices()->putAlias([
-					'index' => $environment->getIndex(),
-					'name' => $environment->getName()
-				]);
+				$this->switchAlias($client, $environment->getName(), $environment->getIndex());
+
 			}
 
 			return $this->redirectToRoute('environment.list');
@@ -292,6 +339,26 @@ class MetaController extends AppController
 				'environment' => $environment
 		]);
 // 		return $this->redirectToRoute('environment.list');
+	}
+	
+	private function switchAlias($client, $alias, $to){
+		//TODO: atomic solution
+		try {
+			$indexes = $client->indices()->get(['index' => $alias]);
+			// 				dump($indexes);
+			$client->indices()->deleteAlias([
+					'name' => $alias,
+					'index' => array_keys($indexes)[0]
+			]);
+		}
+		catch (Missing404Exception $e){
+		
+		}
+		
+		$client->indices()->putAlias([
+				'index' => $to,
+				'name' => $alias
+		]);		
 	}
 	
 	/**

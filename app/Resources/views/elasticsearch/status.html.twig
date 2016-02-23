@@ -25,23 +25,6 @@
 				</h4>
 			</div>
 			<div class="box-body ">
-				{% if 'yellow' in status.status %}
-					<div class="alert alert-warning alert-dismissible">
-		                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-		                <h4><i class="icon fa fa-warning"></i> Warning! </h4>
-		                There is something wrong with the cluster. Status: <strong>{{ status.status }}</strong>.
-		            </div>
-		        {% elseif 'green' in status.status %}
-		        {% else %}
-				<div class="alert alert-danger alert-dismissible">
-					<button type="button" class="close" data-dismiss="alert"
-						aria-hidden="true">×</button>
-					<h4>
-						<i class="icon fa fa-ban"></i> Alert!
-					</h4>
-					There is something wrong with the cluster! Actions are required now. Status: <strong>{{ status.status }}</strong>.
-				</div>
-				{% endif %}
 				<ul class="list-group">
 					<li class="list-group-item">Number of nodes <span
 						class=" badge bg-{{ status.status }}">{{ status.number_of_nodes }}</span></li>
