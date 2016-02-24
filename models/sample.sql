@@ -7,7 +7,7 @@
 #
 # Hôte: 127.0.0.1 (MySQL 5.6.22-log)
 # Base de données: elasticms
-# Temps de génération: 2016-02-24 08:40:47 +0000
+# Temps de génération: 2016-02-24 23:05:32 +0000
 # ************************************************************
 
 
@@ -67,11 +67,12 @@ LOCK TABLES `content_type` WRITE;
 
 INSERT INTO `content_type` (`id`, `field_types_id`, `created`, `modified`, `name`, `pluralName`, `icon`, `alias`, `description`, `indexTwig`, `lockBy`, `lockUntil`, `circles`, `deleted`, `color`, `labelField`, `parentField`, `userField`, `dateField`, `startDateField`, `endDateField`, `locationField`, `ouuidField`, `imageField`, `videoField`, `orderKey`, `rootContentType`, `active`, `environment_id`)
 VALUES
-	(1,1,'2016-01-01 00:00:00','2016-01-01 00:00:00','label','labels','fa fa-key','draft','Translation keys','<ul>	\n	<li>Key: {{ source.key }}</li>\n	<li>English: <b>{{ source.value_en }}</b></li>\n	<li>French: <b>{{ source.value_fr }}</b></li>\n	<li>Nederlands: <b>{{ source.value_nl }}</b></li>\n</ul>',NULL,NULL,NULL,0,'red','value_en',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,1,42),
-	(2,9,'2016-01-01 00:00:00','2016-01-01 00:00:00','rich_text','rich_texts','fa fa-html5','draft','WYSIWYG fields',NULL,NULL,NULL,NULL,0,'purple',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,1,42),
-	(3,NULL,'2016-02-19 10:19:00','2016-02-19 10:19:00','flight','flights',NULL,'draft',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,42),
-	(4,NULL,'2016-02-23 13:20:01','2016-02-23 13:20:01','version','versions',NULL,'aperture',NULL,'<div class=\"row\">\n	<div class=\"col-sm-2\">\n		<img class=\"img-responsive\" src=\"http://global.theus.be/img/fr/{{ object._id }}/thumb.jpg\" alt=\"Photo\">\n	</div>\n<div class=\"col-sm-10\">\n	This series was taken <strong>{{ object._source.date|date(\"d M Y\") }}</strong>\n	{% if object._source.artist  is defined %}n		by <strong>{{ object._source.artist }}</strong>\n	{% endif %}\n	(see it on <a href=\"http://global.theus.be/fr/galleries/version/{{ object._id }}\" target=\"_blank\">GlobalView</a>)\n		<ul>\n			<li>Rating:\n				{% for i in 0..object._source.rating %}\n    					<i class=\"fa fa-fw fa-star\"></i>\n				{% endfor %}\n			</li>\n			<li>Name: {{ object._source.name }}</li>\n			<li>Pixel size: {{ object._source.pixel_size }}</li>\n			<li>Project: {{ object._source.project_name }}</li>\n			{% if object. _source.model  is defined %}\n				<li>Model: {{ object._source.model }}</li>\n			{% endif %}\n			{% if object. _source.lens_model  is defined %}\n				<li>Lens: {{ object._source.lens_model }}</li>\n			{% endif %}\n		</ul>\n\n	</div>\n</div>',NULL,NULL,NULL,0,NULL,'name',NULL,NULL,NULL,NULL,NULL,'location',NULL,NULL,NULL,0,1,1,NULL),
-	(5,NULL,'2016-02-24 09:38:20','2016-02-24 09:38:20','contact','adress book',NULL,'draft',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,NULL);
+	(1,1,'2016-01-01 00:00:00','2016-01-01 00:00:00','label','labels','fa fa-key','draft','Translation keys','<ul>	\n	<li>Key: {{ source.key }}</li>\n	<li>English: <b>{{ source.value_en }}</b></li>\n	<li>French: <b>{{ source.value_fr }}</b></li>\n	<li>Nederlands: <b>{{ source.value_nl }}</b></li>\n</ul>',NULL,NULL,NULL,0,'red','value_en',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,1,48),
+	(2,9,'2016-01-01 00:00:00','2016-01-01 00:00:00','rich_text','rich_texts','fa fa-html5','draft','WYSIWYG fields',NULL,NULL,NULL,NULL,0,'purple',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,1,48),
+	(3,NULL,'2016-02-19 10:19:00','2016-02-19 10:19:00','flight','flights',NULL,'draft',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,48),
+	(4,NULL,'2016-02-23 13:20:01','2016-02-23 13:20:01','version','versions','fa fa-photo','aperture',NULL,'<div class=\"row\">\n	<div class=\"col-sm-2\">\n		<img class=\"img-responsive\" src=\"http://global.theus.be/img/fr/{{ object._id }}/thumb.jpg\" alt=\"Photo\">\n	</div>\n<div class=\"col-sm-10\">\n	This series was taken <strong>{{ object._source.date|date(\"d M Y\") }}</strong>\n	{% if object._source.artist  is defined %}n		by <strong>{{ object._source.artist }}</strong>\n	{% endif %}\n	(see it on <a href=\"http://global.theus.be/fr/galleries/version/{{ object._id }}\" target=\"_blank\">GlobalView</a>)\n		<ul>\n			<li>Rating:\n				{% for i in 0..object._source.rating %}\n    					<i class=\"fa fa-fw fa-star\"></i>\n				{% endfor %}\n			</li>\n			<li>Name: {{ object._source.name }}</li>\n			<li>Pixel size: {{ object._source.pixel_size }}</li>\n			<li>Project: {{ object._source.project_name }}</li>\n			{% if object. _source.model  is defined %}\n				<li>Model: {{ object._source.model }}</li>\n			{% endif %}\n			{% if object. _source.lens_model  is defined %}\n				<li>Lens: {{ object._source.lens_model }}</li>\n			{% endif %}\n		</ul>\n\n	</div>\n</div>',NULL,NULL,NULL,0,NULL,'name',NULL,NULL,NULL,NULL,NULL,'location',NULL,NULL,NULL,0,1,1,39),
+	(5,NULL,'2016-02-24 09:38:20','2016-02-24 09:38:20','contact','adress book',NULL,'draft',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,0,48),
+	(6,13,'2016-02-24 23:39:29','2016-02-24 23:39:29','demo','demo',NULL,'preview',NULL,NULL,NULL,NULL,NULL,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,1,1,48);
 
 /*!40000 ALTER TABLE `content_type` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -262,9 +263,9 @@ VALUES
 	(206,1,NULL,'2016-02-21 22:38:32','2016-02-21 22:38:32',NULL,NULL,NULL,NULL,NULL,NULL,0,40),
 	(207,4,206,'2016-02-21 22:38:32','2016-02-21 22:38:34',NULL,NULL,NULL,'AVMFxRAp5uThDdEL5_O6',NULL,NULL,0,40),
 	(208,5,206,'2016-02-21 22:38:32','2016-02-21 22:38:32',NULL,NULL,NULL,NULL,NULL,NULL,0,40),
-	(209,6,208,'2016-02-21 22:38:32','2016-02-21 22:38:32',NULL,NULL,NULL,'sdsdsd',NULL,NULL,0,40),
-	(210,7,208,'2016-02-21 22:38:32','2016-02-21 22:38:32',NULL,NULL,NULL,'dfsdf',NULL,NULL,0,40),
-	(211,8,208,'2016-02-21 22:38:32','2016-02-21 22:38:32',NULL,NULL,NULL,'afsdfsdfs',NULL,NULL,0,40),
+	(209,6,208,'2016-02-21 22:38:32','2016-02-24 13:46:02',NULL,NULL,NULL,'first version',NULL,NULL,0,40),
+	(210,7,208,'2016-02-21 22:38:32','2016-02-24 13:46:02',NULL,NULL,NULL,'first version',NULL,NULL,0,40),
+	(211,8,208,'2016-02-21 22:38:32','2016-02-24 13:46:02',NULL,NULL,NULL,'first version',NULL,NULL,0,40),
 	(212,1,NULL,'2016-02-21 22:39:01','2016-02-21 22:39:01',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
 	(213,4,212,'2016-02-21 22:39:01','2016-02-21 22:39:01',NULL,NULL,NULL,'AVMFxRAp5uThDdEL5_O6',NULL,NULL,0,NULL),
 	(214,5,212,'2016-02-21 22:39:01','2016-02-21 22:39:01',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
@@ -429,7 +430,100 @@ VALUES
 	(391,5,389,'2016-02-24 09:29:55','2016-02-24 09:29:55',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
 	(392,6,391,'2016-02-24 09:29:55','2016-02-24 09:30:03',NULL,NULL,NULL,'dame 1',NULL,NULL,0,NULL),
 	(393,7,391,'2016-02-24 09:29:55','2016-02-24 09:30:03',NULL,NULL,NULL,'dame 2',NULL,NULL,0,NULL),
-	(394,8,391,'2016-02-24 09:29:55','2016-02-24 09:30:03',NULL,NULL,NULL,'dame 3',NULL,NULL,0,NULL);
+	(394,8,391,'2016-02-24 09:29:55','2016-02-24 09:30:03',NULL,NULL,NULL,'dame 3',NULL,NULL,0,NULL),
+	(395,1,NULL,'2016-02-24 13:31:28','2016-02-24 13:31:28',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(396,4,395,'2016-02-24 13:31:28','2016-02-24 13:31:28',NULL,NULL,NULL,'AVMFxRAp5uThDdEL5_O6',NULL,NULL,0,NULL),
+	(397,5,395,'2016-02-24 13:31:28','2016-02-24 13:31:28',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(398,6,397,'2016-02-24 13:31:28','2016-02-24 13:31:28',NULL,NULL,NULL,'sdsdsd234567',NULL,NULL,0,NULL),
+	(399,7,397,'2016-02-24 13:31:28','2016-02-24 13:31:28',NULL,NULL,NULL,'dfsdf234567',NULL,NULL,0,NULL),
+	(400,8,397,'2016-02-24 13:31:28','2016-02-24 13:31:28',NULL,NULL,NULL,'afsdfsdfs234567',NULL,NULL,0,NULL),
+	(401,1,NULL,'2016-02-24 14:23:11','2016-02-24 14:23:11',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(402,4,401,'2016-02-24 14:23:11','2016-02-24 14:23:11',NULL,NULL,NULL,'home.welcomeMessage',NULL,NULL,0,NULL),
+	(403,5,401,'2016-02-24 14:23:11','2016-02-24 14:23:11',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(404,6,403,'2016-02-24 14:23:11','2016-02-24 14:23:22',NULL,NULL,NULL,'Welcome 1',NULL,NULL,0,NULL),
+	(405,7,403,'2016-02-24 14:23:11','2016-02-24 14:23:22',NULL,NULL,NULL,'Bienvenue 1',NULL,NULL,0,NULL),
+	(406,8,403,'2016-02-24 14:23:11','2016-02-24 14:23:22',NULL,NULL,NULL,'Wilkom 1',NULL,NULL,0,NULL),
+	(407,1,NULL,'2016-02-24 14:23:28','2016-02-24 14:23:28',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(408,4,407,'2016-02-24 14:23:28','2016-02-24 14:23:28',NULL,NULL,NULL,'home.welcomeMessage',NULL,NULL,0,NULL),
+	(409,5,407,'2016-02-24 14:23:28','2016-02-24 14:23:28',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(410,6,409,'2016-02-24 14:23:28','2016-02-24 14:23:46',NULL,NULL,NULL,'Welcome 2',NULL,NULL,0,NULL),
+	(411,7,409,'2016-02-24 14:23:28','2016-02-24 14:23:46',NULL,NULL,NULL,'Bienvenue 2',NULL,NULL,0,NULL),
+	(412,8,409,'2016-02-24 14:23:28','2016-02-24 14:23:46',NULL,NULL,NULL,'Wilkom 2',NULL,NULL,0,NULL),
+	(413,1,NULL,'2016-02-24 14:46:42','2016-02-24 14:46:42',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(414,4,413,'2016-02-24 14:46:42','2016-02-24 14:46:42',NULL,NULL,NULL,'AVL7L3FigEQtjLergsxk',NULL,NULL,0,NULL),
+	(415,5,413,'2016-02-24 14:46:42','2016-02-24 14:46:42',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(416,6,415,'2016-02-24 14:46:42','2016-02-24 14:46:42',NULL,NULL,NULL,'a',NULL,NULL,0,NULL),
+	(417,7,415,'2016-02-24 14:46:42','2016-02-24 14:46:42',NULL,NULL,NULL,'b',NULL,NULL,0,NULL),
+	(418,8,415,'2016-02-24 14:46:42','2016-02-24 14:46:42',NULL,NULL,NULL,'c',NULL,NULL,0,NULL),
+	(419,1,NULL,'2016-02-24 15:30:42','2016-02-24 15:30:42',NULL,NULL,NULL,NULL,NULL,NULL,0,80),
+	(420,4,419,'2016-02-24 15:30:42','2016-02-24 15:30:44',NULL,NULL,NULL,'xcxcxcx',NULL,NULL,0,80),
+	(421,5,419,'2016-02-24 15:30:42','2016-02-24 15:30:42',NULL,NULL,NULL,NULL,NULL,NULL,0,80),
+	(422,6,421,'2016-02-24 15:30:42','2016-02-24 15:30:42',NULL,NULL,NULL,'test MDK 1',NULL,NULL,0,80),
+	(423,7,421,'2016-02-24 15:30:42','2016-02-24 15:30:42',NULL,NULL,NULL,'test MDK 1',NULL,NULL,0,80),
+	(424,8,421,'2016-02-24 15:30:42','2016-02-24 15:30:42',NULL,NULL,NULL,'test MDK 1',NULL,NULL,0,80),
+	(425,1,NULL,'2016-02-24 15:34:47','2016-02-24 15:34:47',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(426,4,425,'2016-02-24 15:34:47','2016-02-24 15:34:47',NULL,NULL,NULL,'xcxcxcx',NULL,NULL,0,NULL),
+	(427,5,425,'2016-02-24 15:34:47','2016-02-24 15:34:47',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(428,6,427,'2016-02-24 15:34:47','2016-02-24 15:34:56',NULL,NULL,NULL,'test MDK 2',NULL,NULL,0,NULL),
+	(429,7,427,'2016-02-24 15:34:47','2016-02-24 15:34:56',NULL,NULL,NULL,'test MDK 2',NULL,NULL,0,NULL),
+	(430,8,427,'2016-02-24 15:34:47','2016-02-24 15:34:56',NULL,NULL,NULL,'test MDK 2',NULL,NULL,0,NULL),
+	(431,1,NULL,'2016-02-24 15:42:53','2016-02-24 15:42:53',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(432,4,431,'2016-02-24 15:42:53','2016-02-24 15:42:53',NULL,NULL,NULL,'xcxcxcx',NULL,NULL,0,NULL),
+	(433,5,431,'2016-02-24 15:42:53','2016-02-24 15:42:53',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(434,6,433,'2016-02-24 15:42:53','2016-02-24 15:43:02',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(435,7,433,'2016-02-24 15:42:53','2016-02-24 15:43:02',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(436,8,433,'2016-02-24 15:42:53','2016-02-24 15:43:02',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(437,1,NULL,'2016-02-24 15:44:42','2016-02-24 15:44:42',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(438,4,437,'2016-02-24 15:44:42','2016-02-24 15:44:42',NULL,NULL,NULL,'xcxcxcx',NULL,NULL,0,NULL),
+	(439,5,437,'2016-02-24 15:44:42','2016-02-24 15:44:42',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(440,6,439,'2016-02-24 15:44:42','2016-02-24 15:44:42',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(441,7,439,'2016-02-24 15:44:42','2016-02-24 15:44:42',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(442,8,439,'2016-02-24 15:44:42','2016-02-24 15:44:42',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(443,1,NULL,'2016-02-24 15:46:38','2016-02-24 15:46:38',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(444,4,443,'2016-02-24 15:46:38','2016-02-24 15:46:38',NULL,NULL,NULL,'xcxcxcx',NULL,NULL,0,NULL),
+	(445,5,443,'2016-02-24 15:46:38','2016-02-24 15:46:38',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(446,6,445,'2016-02-24 15:46:38','2016-02-24 15:46:38',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(447,7,445,'2016-02-24 15:46:38','2016-02-24 15:46:38',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(448,8,445,'2016-02-24 15:46:38','2016-02-24 15:46:38',NULL,NULL,NULL,'test MDK 3',NULL,NULL,0,NULL),
+	(455,1,NULL,'2016-02-24 17:31:58','2016-02-24 17:31:58',NULL,NULL,NULL,NULL,NULL,NULL,0,86),
+	(456,4,455,'2016-02-24 17:31:58','2016-02-24 17:32:06',NULL,NULL,NULL,'testgd',NULL,NULL,0,86),
+	(457,5,455,'2016-02-24 17:31:58','2016-02-24 17:31:58',NULL,NULL,NULL,NULL,NULL,NULL,0,86),
+	(458,6,457,'2016-02-24 17:31:58','2016-02-24 17:31:58',NULL,NULL,NULL,'testgd',NULL,NULL,0,86),
+	(459,7,457,'2016-02-24 17:31:58','2016-02-24 17:31:58',NULL,NULL,NULL,'testgd',NULL,NULL,0,86),
+	(460,8,457,'2016-02-24 17:31:58','2016-02-24 17:31:58',NULL,NULL,NULL,'testgd',NULL,NULL,0,86),
+	(461,1,NULL,'2016-02-24 17:33:24','2016-02-24 17:33:24',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(462,4,461,'2016-02-24 17:33:24','2016-02-24 17:33:24',NULL,NULL,NULL,'testgd',NULL,NULL,0,NULL),
+	(463,5,461,'2016-02-24 17:33:24','2016-02-24 17:33:24',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(464,6,463,'2016-02-24 17:33:24','2016-02-24 17:33:36',NULL,NULL,NULL,'testgd 2',NULL,NULL,0,NULL),
+	(465,7,463,'2016-02-24 17:33:24','2016-02-24 17:33:36',NULL,NULL,NULL,'testgd 2',NULL,NULL,0,NULL),
+	(466,8,463,'2016-02-24 17:33:24','2016-02-24 17:33:36',NULL,NULL,NULL,'testgd 2',NULL,NULL,0,NULL),
+	(467,1,NULL,'2016-02-24 17:34:16','2016-02-24 17:34:16',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(468,4,467,'2016-02-24 17:34:16','2016-02-24 17:34:16',NULL,NULL,NULL,'testgd',NULL,NULL,0,NULL),
+	(469,5,467,'2016-02-24 17:34:16','2016-02-24 17:34:16',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(470,6,469,'2016-02-24 17:34:16','2016-02-24 17:34:16',NULL,NULL,NULL,'testgd 2',NULL,NULL,0,NULL),
+	(471,7,469,'2016-02-24 17:34:16','2016-02-24 17:34:16',NULL,NULL,NULL,'testgd 2',NULL,NULL,0,NULL),
+	(472,8,469,'2016-02-24 17:34:16','2016-02-24 17:34:16',NULL,NULL,NULL,'testgd 2',NULL,NULL,0,NULL),
+	(473,9,NULL,'2016-02-24 23:37:35','2016-02-24 23:37:35',NULL,NULL,NULL,NULL,NULL,NULL,0,89),
+	(474,10,473,'2016-02-24 23:37:35','2016-02-24 23:37:35',NULL,NULL,NULL,'<p>salut</p>',NULL,NULL,0,89),
+	(475,11,473,'2016-02-24 23:37:35','2016-02-24 23:37:35',NULL,NULL,NULL,'<p>salut</p>',NULL,NULL,0,89),
+	(476,12,473,'2016-02-24 23:37:35','2016-02-24 23:37:35',NULL,NULL,NULL,'<p>salut</p>',NULL,NULL,0,89),
+	(477,9,NULL,'2016-02-24 23:38:18','2016-02-24 23:38:18',NULL,NULL,NULL,NULL,NULL,NULL,0,NULL),
+	(478,10,477,'2016-02-24 23:38:18','2016-02-24 23:38:30',NULL,NULL,NULL,'<p>salut sd</p>',NULL,NULL,0,NULL),
+	(479,11,477,'2016-02-24 23:38:18','2016-02-24 23:38:30',NULL,NULL,NULL,'<p>salut sdsd</p>',NULL,NULL,0,NULL),
+	(480,12,477,'2016-02-24 23:38:18','2016-02-24 23:38:30',NULL,NULL,NULL,'<p>salut dsdsds</p>',NULL,NULL,0,NULL),
+	(481,13,NULL,'2016-02-25 00:03:29','2016-02-25 00:03:29',NULL,NULL,NULL,NULL,NULL,NULL,0,91),
+	(482,14,481,'2016-02-25 00:03:29','2016-02-25 00:03:29',NULL,NULL,NULL,NULL,NULL,NULL,0,91),
+	(483,15,481,'2016-02-25 00:03:29','2016-02-25 00:03:29',NULL,NULL,NULL,'d',NULL,NULL,0,91),
+	(484,16,481,'2016-02-25 00:03:29','2016-02-25 00:03:29',NULL,NULL,NULL,'d',NULL,NULL,0,91),
+	(485,17,481,'2016-02-25 00:03:29','2016-02-25 00:03:29',NULL,NULL,NULL,'<p><strong>d</strong></p>',NULL,NULL,0,91),
+	(486,18,481,'2016-02-25 00:03:29','2016-02-25 00:03:29',NULL,NULL,NULL,'<p><strong>d</strong></p>',NULL,NULL,0,91),
+	(487,13,NULL,'2016-02-25 00:04:58','2016-02-25 00:04:58',NULL,NULL,NULL,NULL,NULL,NULL,0,92),
+	(488,14,487,'2016-02-25 00:04:58','2016-02-25 00:04:58',NULL,NULL,NULL,NULL,NULL,NULL,0,92),
+	(489,15,487,'2016-02-25 00:04:58','2016-02-25 00:04:58',NULL,NULL,NULL,'test demo',NULL,NULL,0,92),
+	(490,16,487,'2016-02-25 00:04:58','2016-02-25 00:04:58',NULL,NULL,NULL,'test demo',NULL,NULL,0,92),
+	(491,17,487,'2016-02-25 00:04:58','2016-02-25 00:04:58',NULL,NULL,NULL,'test demo',NULL,NULL,0,92),
+	(492,18,487,'2016-02-25 00:04:58','2016-02-25 00:04:58',NULL,NULL,NULL,'<p>test demo</p>',NULL,NULL,0,92),
+	(493,19,487,'2016-02-25 00:04:58','2016-02-25 00:04:58',NULL,NULL,NULL,'AVMVhz6EzbTdUSH6o39f',NULL,NULL,0,92);
 
 /*!40000 ALTER TABLE `data_field` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -445,6 +539,8 @@ CREATE TABLE `environment` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `managed` tinyint(1) NOT NULL,
+  `color` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNIQ_4626DE225E237E06` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -452,12 +548,13 @@ CREATE TABLE `environment` (
 LOCK TABLES `environment` WRITE;
 /*!40000 ALTER TABLE `environment` DISABLE KEYS */;
 
-INSERT INTO `environment` (`id`, `created`, `modified`, `name`)
+INSERT INTO `environment` (`id`, `created`, `modified`, `name`, `managed`, `color`)
 VALUES
-	(39,'2016-02-17 14:14:36','2016-02-17 14:14:36','aperture'),
-	(40,'2016-02-17 14:16:53','2016-02-17 14:16:53','photos'),
-	(42,'2016-02-19 07:37:12','2016-02-19 07:37:12','draft'),
-	(46,'2016-02-24 09:21:50','2016-02-24 09:21:50','staging');
+	(39,'2016-02-17 14:14:36','2016-02-17 14:14:36','aperture',0,NULL),
+	(40,'2016-02-17 14:16:53','2016-02-17 14:16:53','photos',0,NULL),
+	(48,'2016-02-24 15:15:33','2016-02-24 15:15:33','preview',1,'green'),
+	(49,'2016-02-24 15:21:52','2016-02-24 15:21:52','staging',1,'orange'),
+	(50,'2016-02-24 15:21:59','2016-02-24 15:21:59','live',1,'red');
 
 /*!40000 ALTER TABLE `environment` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -483,24 +580,33 @@ LOCK TABLES `environment_revision` WRITE;
 
 INSERT INTO `environment_revision` (`revision_id`, `environment_id`)
 VALUES
-	(45,42),
-	(50,42),
-	(51,42),
-	(52,42),
-	(54,42),
-	(55,42),
-	(56,42),
-	(57,42),
-	(58,42),
-	(59,42),
-	(60,42),
-	(64,42),
-	(67,42),
-	(68,42),
-	(70,42),
-	(71,42),
-	(72,42),
-	(74,42);
+	(44,48),
+	(50,48),
+	(51,48),
+	(52,48),
+	(55,48),
+	(56,48),
+	(57,48),
+	(58,48),
+	(59,48),
+	(60,48),
+	(64,48),
+	(67,48),
+	(70,48),
+	(71,48),
+	(72,48),
+	(74,48),
+	(78,48),
+	(79,48),
+	(82,50),
+	(83,49),
+	(84,48),
+	(88,48),
+	(88,49),
+	(88,50),
+	(90,48),
+	(91,48),
+	(92,48);
 
 /*!40000 ALTER TABLE `environment_revision` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -546,7 +652,17 @@ VALUES
 	(6,1,5,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\StringType','value_en','English',0,NULL,NULL,NULL,NULL,0,0,''),
 	(7,1,5,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\StringType','value_fr','Français',0,NULL,NULL,NULL,NULL,0,0,''),
 	(8,1,5,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\StringType','value_nl','Nederlands',0,NULL,NULL,NULL,NULL,0,0,''),
-	(9,2,NULL,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\ContainerType','dataField','',0,NULL,NULL,NULL,NULL,0,0,NULL);
+	(9,2,NULL,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\ContainerType','dataField','',0,NULL,NULL,NULL,NULL,0,0,NULL),
+	(10,2,9,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\WysiwygType','text_fr','Français',0,NULL,NULL,NULL,NULL,0,0,NULL),
+	(11,2,9,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\WysiwygType','text_nl','Nederlands',0,NULL,NULL,NULL,NULL,0,0,NULL),
+	(12,2,9,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\WysiwygType','text_en','English',0,NULL,NULL,NULL,NULL,0,0,NULL),
+	(13,6,NULL,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\ContainerType','dataField','',0,NULL,NULL,NULL,NULL,0,0,NULL),
+	(14,6,13,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\ContainerType','testContainer','A container',0,NULL,NULL,NULL,NULL,0,0,'fa fa-key'),
+	(15,6,13,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\StringType','testString','Simple string',0,NULL,NULL,NULL,NULL,0,0,''),
+	(16,6,13,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\StringType','testString2','String with icon',0,NULL,NULL,NULL,NULL,0,0,'fa fa-question'),
+	(17,6,13,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\TextAreaType','testTextarea','Simple textarea',0,NULL,NULL,NULL,NULL,0,0,NULL),
+	(18,6,13,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\WysiwygType','testWysiwyg','WYSIWYG',0,NULL,NULL,NULL,NULL,0,0,NULL),
+	(19,6,13,'2016-01-01 00:00:00','2016-01-01 00:00:00','AppBundle\\Form\\OuuidType','testOuuid','OUUID',0,NULL,NULL,NULL,NULL,0,0,'fa fa-key');
 
 /*!40000 ALTER TABLE `field_type` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -584,7 +700,7 @@ LOCK TABLES `revision` WRITE;
 
 INSERT INTO `revision` (`id`, `content_type_id`, `data_field_id`, `created`, `modified`, `deleted`, `version`, `ouuid`, `start_time`, `end_time`, `draft`, `lock_by`, `lock_until`)
 VALUES
-	(1,1,1,'2016-02-19 21:18:49','2016-02-22 09:51:58',0,7,'AVL7L3FigEQtjLergsxk','2016-02-19 21:18:49','2016-02-22 09:51:50',0,'admin','2016-02-19 21:23:49'),
+	(1,1,1,'2016-02-19 21:18:49','2016-02-24 14:52:38',0,8,'AVL7L3FigEQtjLergsxk','2016-02-19 21:18:49','2016-02-22 09:51:50',0,'admin','2016-02-19 21:23:49'),
 	(2,1,7,'2016-02-19 21:20:34','2016-02-22 09:52:29',0,6,'AVL7MRj5gEQtjLergsxl','2016-02-19 21:20:34','2016-02-22 09:52:27',0,'admin','2016-02-19 21:25:34'),
 	(3,1,13,'2016-02-19 21:27:13','2016-02-22 09:53:17',0,5,'AVL7OlbJgEQtjLergsxo','2016-02-19 21:27:13','2016-02-22 09:53:17',0,'admin','2016-02-19 21:32:13'),
 	(4,1,19,'2016-02-19 21:31:16','2016-02-22 09:53:32',0,4,'fsdfsdfsdf','2016-02-19 21:31:16','2016-02-22 09:53:32',0,'admin','2016-02-19 21:36:16'),
@@ -610,12 +726,12 @@ VALUES
 	(33,1,170,'2016-02-21 13:06:37','2016-02-21 13:06:48',0,3,'dddddd','2016-02-21 13:06:37',NULL,0,'admin','2016-02-21 13:11:37'),
 	(34,1,176,'2016-02-21 13:07:22','2016-02-21 14:14:20',0,10,'AVMDujqf5uThDdEL5_O0','2016-02-21 13:07:22','2016-02-21 14:14:20',0,'admin','2016-02-21 13:12:22'),
 	(39,1,200,'2016-02-21 14:14:20','2016-02-21 14:15:04',0,2,'AVMDujqf5uThDdEL5_O0','2016-02-21 14:14:20',NULL,0,NULL,NULL),
-	(40,1,206,'2016-02-21 22:38:26','2016-02-21 23:10:24',0,5,'AVMFxRAp5uThDdEL5_O6','2016-02-21 22:38:26','2016-02-21 22:39:01',0,'admin','2016-02-21 22:43:26'),
-	(41,1,212,'2016-02-21 22:39:01','2016-02-21 22:39:48',0,3,'AVMFxRAp5uThDdEL5_O6','2016-02-21 22:39:01','2016-02-21 22:39:48',0,NULL,NULL),
+	(40,1,206,'2016-02-21 22:38:26','2016-02-24 14:22:28',0,7,'AVMFxRAp5uThDdEL5_O6','2016-02-21 22:38:26','2016-02-21 22:39:01',0,'admin','2016-02-21 22:43:26'),
+	(41,1,212,'2016-02-21 22:39:01','2016-02-24 14:21:19',0,6,'AVMFxRAp5uThDdEL5_O6','2016-02-21 22:39:01','2016-02-21 22:39:48',0,NULL,NULL),
 	(42,1,218,'2016-02-21 22:39:48','2016-02-21 22:40:28',0,3,'AVMFxRAp5uThDdEL5_O6','2016-02-21 22:39:48','2016-02-21 22:40:28',0,NULL,NULL),
 	(43,1,224,'2016-02-21 22:40:28','2016-02-21 23:10:24',0,4,'AVMFxRAp5uThDdEL5_O6','2016-02-21 22:40:28','2016-02-21 22:45:16',0,NULL,NULL),
-	(44,1,230,'2016-02-21 22:45:16','2016-02-21 23:10:58',0,6,'AVMFxRAp5uThDdEL5_O6','2016-02-21 22:45:16','2016-02-21 23:10:44',0,NULL,NULL),
-	(45,1,236,'2016-02-21 23:10:44','2016-02-21 23:10:58',0,2,'AVMFxRAp5uThDdEL5_O6','2016-02-21 23:10:44',NULL,0,NULL,NULL),
+	(44,1,230,'2016-02-21 22:45:16','2016-02-24 14:22:28',0,9,'AVMFxRAp5uThDdEL5_O6','2016-02-21 22:45:16','2016-02-21 23:10:44',0,NULL,NULL),
+	(45,1,236,'2016-02-21 23:10:44','2016-02-24 13:41:48',0,4,'AVMFxRAp5uThDdEL5_O6','2016-02-21 23:10:44','2016-02-24 13:31:28',0,NULL,NULL),
 	(46,1,242,'2016-02-22 09:19:05','2016-02-22 09:19:33',0,5,'ljflskdjfd','2016-02-22 09:19:05','2016-02-22 09:19:26',0,'admin','2016-02-22 09:24:05'),
 	(47,1,248,'2016-02-22 09:19:26','2016-02-22 09:25:20',0,4,'ljflskdjfd','2016-02-22 09:19:26','2016-02-22 09:23:21',0,NULL,NULL),
 	(48,1,254,'2016-02-22 09:23:21','2016-02-22 09:25:43',0,4,'ljflskdjfd','2016-02-22 09:23:21','2016-02-22 09:25:32',0,NULL,NULL),
@@ -623,7 +739,7 @@ VALUES
 	(50,1,266,'2016-02-22 09:26:10','2016-02-22 09:26:20',0,2,'ljflskdjfd','2016-02-22 09:26:10',NULL,0,NULL,NULL),
 	(51,2,272,'2016-02-22 09:47:56','2016-02-22 09:47:59',0,2,'AVL-GKEwgEQtjLergsx4','2016-02-22 09:47:56',NULL,0,NULL,NULL),
 	(52,2,273,'2016-02-22 09:48:37','2016-02-22 09:48:42',0,3,'AVMIKpZm5uThDdEL5_O9','2016-02-22 09:48:37',NULL,0,'admin','2016-02-22 09:53:37'),
-	(54,1,280,'2016-02-22 09:51:50','2016-02-22 09:52:19',0,3,'AVL7L3FigEQtjLergsxk','2016-02-22 09:51:50',NULL,0,NULL,NULL),
+	(54,1,280,'2016-02-22 09:51:50','2016-02-24 14:46:49',0,5,'AVL7L3FigEQtjLergsxk','2016-02-22 09:51:50','2016-02-24 14:46:42',0,NULL,NULL),
 	(55,1,286,'2016-02-22 09:52:27','2016-02-22 09:52:29',0,2,'AVL7MRj5gEQtjLergsxl','2016-02-22 09:52:27',NULL,0,NULL,NULL),
 	(56,1,292,'2016-02-22 09:53:17','2016-02-22 09:53:20',0,2,'AVL7OlbJgEQtjLergsxo','2016-02-22 09:53:17',NULL,0,NULL,NULL),
 	(57,1,298,'2016-02-22 09:53:32','2016-02-22 09:53:34',0,2,'fsdfsdfsdf','2016-02-22 09:53:32',NULL,0,NULL,NULL),
@@ -634,14 +750,29 @@ VALUES
 	(64,1,334,'2016-02-22 11:56:53','2016-02-22 12:55:59',0,2,'AVL7TePWgEQtjLergsxu','2016-02-22 11:56:53',NULL,0,NULL,NULL),
 	(65,1,340,'2016-02-23 13:11:35','2016-02-23 13:15:48',0,5,'AVMODK0XzbTdUSH6o34w','2016-02-23 13:11:35','2016-02-23 13:15:06',0,'admin','2016-02-23 13:16:35'),
 	(67,1,352,'2016-02-23 13:15:06','2016-02-23 13:15:48',0,2,'AVMODK0XzbTdUSH6o34w','2016-02-23 13:15:06',NULL,0,NULL,NULL),
-	(68,1,358,'2016-02-23 13:50:11','2016-02-23 13:50:26',0,3,'home.welcomeMessage','2016-02-23 13:50:11',NULL,0,'admin','2016-02-23 13:55:11'),
+	(68,1,358,'2016-02-23 13:50:11','2016-02-24 14:23:56',0,6,'home.welcomeMessage','2016-02-23 13:50:11','2016-02-24 14:23:11',0,'admin','2016-02-23 13:55:11'),
 	(69,1,364,'2016-02-23 14:38:09','2016-02-23 14:39:58',0,5,'test.testDemo','2016-02-23 14:38:09','2016-02-23 14:39:32',0,'admin','2016-02-23 14:43:09'),
 	(70,1,370,'2016-02-23 14:39:32','2016-02-23 14:39:58',0,2,'test.testDemo','2016-02-23 14:39:32',NULL,0,NULL,NULL),
 	(71,1,376,'2016-02-23 14:44:43','2016-02-23 14:45:09',0,3,'AVMOYF0AzbTdUSH6o340','2016-02-23 14:44:43',NULL,0,'admin','2016-02-23 14:49:43'),
 	(72,2,382,'2016-02-24 00:13:17','2016-02-24 00:13:28',0,3,'AVMQaKpNzbTdUSH6o375','2016-02-24 00:13:17',NULL,0,'admin','2016-02-24 00:18:17'),
 	(73,1,383,'2016-02-24 09:28:23','2016-02-24 09:30:14',0,5,'AVMSZav2zbTdUSH6o38m','2016-02-24 09:28:23','2016-02-24 09:29:55',0,'admin','2016-02-24 09:33:23'),
 	(74,1,389,'2016-02-24 09:29:55','2016-02-24 09:30:14',0,2,'AVMSZav2zbTdUSH6o38m','2016-02-24 09:29:55',NULL,0,NULL,NULL),
-	(75,1,NULL,'2016-02-24 09:31:52','2016-02-24 09:31:52',0,1,NULL,'2016-02-24 09:31:52',NULL,1,'admin','2016-02-24 09:36:52');
+	(76,1,395,'2016-02-24 13:31:28','2016-02-24 14:20:39',0,3,'AVMFxRAp5uThDdEL5_O6','2016-02-24 13:31:28',NULL,0,NULL,NULL),
+	(77,1,401,'2016-02-24 14:23:11','2016-02-24 14:23:46',0,4,'home.welcomeMessage','2016-02-24 14:23:11','2016-02-24 14:23:28',0,NULL,NULL),
+	(78,1,407,'2016-02-24 14:23:28','2016-02-24 14:23:46',0,2,'home.welcomeMessage','2016-02-24 14:23:28',NULL,0,NULL,NULL),
+	(79,1,413,'2016-02-24 14:46:42','2016-02-24 14:46:49',0,2,'AVL7L3FigEQtjLergsxk','2016-02-24 14:46:42',NULL,0,NULL,NULL),
+	(80,1,419,'2016-02-24 15:30:28','2016-02-24 15:49:22',0,11,'xcxcxcx','2016-02-24 15:30:28','2016-02-24 15:34:47',0,'admin','2016-02-24 15:35:28'),
+	(81,1,425,'2016-02-24 15:34:47','2016-02-24 15:49:14',0,8,'xcxcxcx','2016-02-24 15:34:47','2016-02-24 15:42:53',0,NULL,NULL),
+	(82,1,431,'2016-02-24 15:42:53','2016-02-24 16:01:47',0,11,'xcxcxcx','2016-02-24 15:42:53','2016-02-24 15:44:42',0,NULL,NULL),
+	(83,1,437,'2016-02-24 15:44:42','2016-02-24 16:01:47',0,9,'xcxcxcx','2016-02-24 15:44:42','2016-02-24 15:46:38',0,NULL,NULL),
+	(84,1,443,'2016-02-24 15:46:38','2016-02-24 16:01:32',0,4,'xcxcxcx','2016-02-24 15:46:38',NULL,0,NULL,NULL),
+	(86,1,455,'2016-02-24 17:31:46','2016-02-24 18:23:17',0,13,'testgd','2016-02-24 17:31:46','2016-02-24 17:33:24',0,'admin','2016-02-24 17:36:46'),
+	(87,1,461,'2016-02-24 17:33:24','2016-02-24 17:34:41',0,6,'testgd','2016-02-24 17:33:24','2016-02-24 17:34:16',0,NULL,NULL),
+	(88,1,467,'2016-02-24 17:34:16','2016-02-24 18:23:17',0,7,'testgd','2016-02-24 17:34:16',NULL,0,NULL,NULL),
+	(89,2,473,'2016-02-24 23:07:14','2016-02-24 23:38:30',0,5,'AVMVbkJUzbTdUSH6o39c','2016-02-24 23:07:14','2016-02-24 23:38:18',0,'admin','2016-02-24 23:12:14'),
+	(90,2,477,'2016-02-24 23:38:18','2016-02-24 23:38:30',0,2,'AVMVbkJUzbTdUSH6o39c','2016-02-24 23:38:18',NULL,0,NULL,NULL),
+	(91,6,481,'2016-02-24 23:40:19','2016-02-25 00:03:29',0,3,'AVMVheJVzbTdUSH6o39e','2016-02-24 23:40:19',NULL,0,'admin','2016-02-24 23:45:19'),
+	(92,6,487,'2016-02-25 00:04:40','2016-02-25 00:04:58',0,3,'AVMVhz6EzbTdUSH6o39f','2016-02-25 00:04:40',NULL,0,'admin','2016-02-25 00:09:40');
 
 /*!40000 ALTER TABLE `revision` ENABLE KEYS */;
 UNLOCK TABLES;

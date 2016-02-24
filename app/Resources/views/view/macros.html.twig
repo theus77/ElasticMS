@@ -40,3 +40,17 @@
 	</dl>
 {% endmacro %}
 
+{% macro AppBundle_Form_TextAreaType(dataField) %}
+	<dl>
+		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
+		<dd>{{ dataField.textValue }}</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_WysiwygType(dataField) %}
+	<dl>
+		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
+		<dd>{{ dataField.textValue|raw }}</dd>
+	</dl>
+{% endmacro %}
+
