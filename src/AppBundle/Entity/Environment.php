@@ -58,6 +58,20 @@ class Environment
      * @var integer
      */
     private $counter;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="color", type="string", length=50, nullable=true)
+     */
+    private $color;
+    
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="managed", type="boolean")
+     */
+    private $managed;
 
     /**
      * @ORM\ManyToMany(targetEntity="Revision", mappedBy="environments")
@@ -246,5 +260,53 @@ class Environment
     public function getRevisions()
     {
         return $this->revisions;
+    }
+
+    /**
+     * Set managed
+     *
+     * @param boolean $managed
+     *
+     * @return Environment
+     */
+    public function setManaged($managed)
+    {
+        $this->managed = $managed;
+
+        return $this;
+    }
+
+    /**
+     * Get managed
+     *
+     * @return boolean
+     */
+    public function getManaged()
+    {
+        return $this->managed;
+    }
+
+    /**
+     * Set color
+     *
+     * @param string $color
+     *
+     * @return Environment
+     */
+    public function setColor($color)
+    {
+        $this->color = $color;
+
+        return $this;
+    }
+
+    /**
+     * Get color
+     *
+     * @return string
+     */
+    public function getColor()
+    {
+        return $this->color;
     }
 }

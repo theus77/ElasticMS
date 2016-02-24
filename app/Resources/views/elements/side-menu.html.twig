@@ -14,7 +14,7 @@
         	{% endif %}
         </div>
         <div class="pull-left info">
-          <p>{% if app.user %} {{ app.user.username }} {% else %} Anonymous {% endif %}</p>
+          <p>{% if app.user|humanize %} {{ app.user.username }} {% else %} Anonymous {% endif %}</p>
           <!-- Status -->
           <a href="{{ url('elasticsearch.status') }}" id="status-overview"><i class="fa fa-circle"></i> Updating...</a>
         </div>
@@ -68,7 +68,9 @@
 	            	{% if draftCounterGroupedByContentType[contentType.id] is defined %}
 	          			<li class=""><a id="menu-data-draft-{{ contentType.id }}" href="{{ path('data.draft_in_progress', { contentTypeId: contentType.id } ) }}"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span></a></li>
 	            	{% endif %}
-	            	<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
+	            	{% if contentType.environment.managed %}
+	            		<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
+	            	{% endif %}
 	          	</ul>
 	          </li>
 	        {% endif %}

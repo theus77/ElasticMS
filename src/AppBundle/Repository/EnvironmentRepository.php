@@ -2,6 +2,9 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Entity\Environment;
+use Doctrine\DBAL\Query\QueryBuilder;
+
 /**
  * EnvironmentRepository
  *
@@ -10,4 +13,17 @@ namespace AppBundle\Repository;
  */
 class EnvironmentRepository extends \Doctrine\ORM\EntityRepository
 {
+	
+	public function findAvailableEnvironements(Environment $defaultEnv) {
+		/** @var QueryBuilder $qb */
+		$qb = $this->createQueryBuilder('e');
+		$qb->where($qb->expr()->neq('e.id', ':defaultEnvId'));
+		$qb->andWhere('e.managed <> 0');
+		$qb->orderBy('e.name', 'ASC');
+		$qb->setParameter('defaultEnvId', $defaultEnv->getId());
+	
+		return $qb->getQuery()->getResult();
+	}
+	
+	
 }

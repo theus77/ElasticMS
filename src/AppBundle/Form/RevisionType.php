@@ -31,7 +31,7 @@ class RevisionType extends AbstractType
 			])
 			->add('publish', SubmitEmsType::class, [
 				'attr' => ['class' => 'btn-primary btn-sm '],
-				'icon' => 'fa fa-leanpub',
+				'icon' => 'glyphicon glyphicon-open',
 			])
         ;
 

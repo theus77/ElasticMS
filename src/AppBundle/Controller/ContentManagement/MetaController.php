@@ -21,6 +21,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Form\Form\RebuildIndexType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class MetaController extends AppController
 {
@@ -108,11 +109,12 @@ class MetaController extends AppController
 			
 			
 			
-			
+			/** @var \AppBundle\Entity\Revision $revision */
 			foreach ($environment->getRevisions() as $revision) {
 				$objectArray = $revision->getDataField()->getObjectArray();
 				$status = $client->create([
 						'index' => $indexName,
+						'id' => $revision->getOuuid(),
 						'type' => $revision->getContentType()->getName(),
 						'body' => $objectArray
 				]);
@@ -462,6 +464,9 @@ class MetaController extends AppController
 		$form = $this->createFormBuilder($environment)
 			->add('name', IconTextType::class, [
 					'icon' => 'fa fa-database',
+			])		
+			->add('managed', CheckboxType::class, [
+				'label' => 'Can we use this environment to publish objects?'
 			])		
 			->add('save', SubmitType::class, [
 					'label' => 'Create',

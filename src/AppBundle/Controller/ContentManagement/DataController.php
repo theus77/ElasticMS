@@ -73,13 +73,24 @@ class DataController extends AppController
 				'endTime' => null,
 				'ouuid' => $ouuid
 		]);
+		
 	
 		if(!$revision || count($revision) != 1) {
 			throw new NotFoundHttpException('Unknown revision');
 		}
+		/** @var Revision $revision */
+		$revision = $revision[0];
+		
+		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid);
+		
+		$availableEnv = $em->getRepository('AppBundle:Environment')->findAvailableEnvironements(
+				$revision->getContentType()->getEnvironment());
+		
 	
 		return $this->render( 'data/view-data.html.twig', [
-				'revision' =>  $revision[0],
+				'revision' =>  $revision,
+				'revisionsSummary' => $revisionsSummary,
+				'availableEnv' => $availableEnv
 		] );
 	}
 
@@ -96,7 +107,7 @@ class DataController extends AppController
 		if($contentType){
 			$client = $this->getElasticsearch();
 			$results = $client->search([
-					'index' => $contentType->getAlias(),
+					'index' => $contentType->getEnvironment()->getName(),
 					'version' => true,
 					'size' => $this->container->getParameter('paging_size'),
 					'from' => ($page-1)*$this->container->getParameter('paging_size'),
@@ -311,13 +322,15 @@ class DataController extends AppController
 				/** @var Client $client */
 				$client = $this->get('app.elasticsearch'); 
 				
+				
+				//TODO: test if draft and last version publish in
 				try{
 					
 					$objectArray = $revision->getDataField()->getObjectArray();
 					
 					if( null == $revision->getOuuid() ) {
 						$status = $client->create([
-							'index' => $revision->getContentType()->getAlias(),
+							'index' => $revision->getContentType()->getEnvironment()->getName(),
 							'type' => $revision->getContentType()->getName(),
 							'body' => $objectArray
 						]);
@@ -329,7 +342,7 @@ class DataController extends AppController
 					else {
 						$status = $client->index([
 								'id' => $revision->getOuuid(),
-								'index' => $revision->getContentType()->getAlias(),
+								'index' => $revision->getContentType()->getEnvironment()->getName(),
 								'type' => $revision->getContentType()->getName(),
 								'body' => $objectArray
 						]);

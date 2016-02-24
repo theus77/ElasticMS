@@ -391,30 +391,6 @@ class ContentType
     }
 
     /**
-     * Set defaultEnvironmentId
-     *
-     * @param integer $defaultEnvironmentId
-     *
-     * @return ContentType
-     */
-    public function setDefaultEnvironmentId($defaultEnvironmentId)
-    {
-        $this->defaultEnvironmentId = $defaultEnvironmentId;
-
-        return $this;
-    }
-
-    /**
-     * Get defaultEnvironmentId
-     *
-     * @return integer
-     */
-    public function getDefaultEnvironmentId()
-    {
-        return $this->defaultEnvironmentId;
-    }
-
-    /**
      * Set lockBy
      *
      * @param string $lockBy

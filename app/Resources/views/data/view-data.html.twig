@@ -10,38 +10,95 @@
 
 {% block body %}
 {% import "view/macros.html.twig" as macros %}
-
-<div class="box">
-	<div class="box-header with-border bg-{{ revision.contentType.color }} color-palette">
-		<h3 class="box-title">
-			<i class="{% if revision.contentType.icon %}{{ revision.contentType.icon }} {% else %} fa fa-question {% endif %} "></i>
-			Data
-		</h3>
-	</div>
-	<!-- /.box-header -->
-	<!-- form start -->
-		<div class="box-body">
-			{{ macros.renderDataField(revision.dataField) }}
-		</div>
-		<!-- /.box-body -->
-		<div class="box-footer">
-			<div class="btn-group pull-right">
-				{% if revision.draft %}
-					{% include 'elements/get-button.html.twig' with {
-						'url': path('revision.edit', {'revisionId': revision.id}),
-						'label': 'Edit draft',
-						'icon': 'pencil'
-					}%}
-				{% else %}
-					{% include 'elements/post-button.html.twig' with {
-						'url': path('revision.new-draft', {'ouuid': revision.ouuid}),
-						'message': 'Inititate a new draft ?',
-						'label': 'New draft',
-						'icon': 'pencil'
-					}%}
-				{% endif %}
+<div class="row">
+	<div class="col-md-12">
+		<div class="box">
+			<div
+				class="box-header with-border bg-{{ revision.contentType.color }} color-palette">
+				<h3 class="box-title">
+					<i
+						class="{% if revision.contentType.icon %}{{ revision.contentType.icon }} {% else %} fa fa-question {% endif %} "></i>
+					Data
+				</h3>
+			</div>
+			<!-- /.box-header -->
+			<!-- form start -->
+			<div class="box-body">{{ macros.renderDataField(revision.dataField)
+				}}</div>
+			<!-- /.box-body -->
+			<div class="box-footer">
+				<div class="btn-group pull-right">{% if revision.draft %} {% include
+					'elements/get-button.html.twig' with { 'url': path('revision.edit',
+					{'revisionId': revision.id}), 'label': 'Edit draft', 'icon':
+					'pencil' }%} {% else %} {% include 'elements/post-button.html.twig'
+					with { 'url': path('revision.new-draft', {'ouuid':
+					revision.ouuid}), 'message': 'Inititate a new draft ?', 'label':
+					'New draft', 'icon': 'pencil' }%} {% endif %}</div>
 			</div>
 		</div>
+	</div>
 </div>
-
+<div class="row">
+	<div class="col-md-6">
+		<div class="box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Revisions</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<table class="table table-bordered">
+					<tbody>
+						<tr>
+							<th style="width: 10px">#</th>
+							<th>Date</th>
+							<th>Environments</th>
+							<th>Actions</th>
+						</tr>
+						{% for rev in revisionsSummary %}
+						<tr>
+							<td>{{ loop.index }}.</td>
+							<td>{{ rev.startTime|date }}</td>
+							<td>
+								{% for env in rev.environments %}
+									<span class="badge bg-{{ env.color|raw }}">{{ env.name|humanize }}</span>
+								{% endfor %}
+							</td>
+							<td>
+								<div class="btn-group">
+									{% include 'elements/get-button.html.twig' with { 
+										'url': path('revision.edit', {'revisionId': rev.id}), 
+										'label': 'Edit', 
+										'icon': 'pencil' }%}
+									{% if rev.environments|length %}
+										{% include 'elements/get-button.html.twig' with { 
+											'url': path('revision.edit', {'revisionId': rev.id}), 
+											'label': 'Re-index', 
+											'icon': 'recycle',
+											'disabled': true }%}
+									{% endif %}
+									  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									    	<span class="glyphicon glyphicon-open"></span>&nbsp;
+											Publish to
+											<span class="caret"></span>
+									  </button>
+									   <ul class="dropdown-menu">
+									   		{% for env in availableEnv %}
+												{% if env not in rev.environments %}
+										   			<li>
+										   				<a href="{{ path('revision.publish_to', {'revisionId': rev.id, 'envId': env.id}) }}">{{ env.name|humanize }}</a>
+										   			</li>
+										   		{% endif %}
+									   		{% endfor %}
+									   </ul>
+										
+								</div>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}
