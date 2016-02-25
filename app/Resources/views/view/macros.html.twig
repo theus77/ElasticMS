@@ -9,7 +9,7 @@
     	<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					{% if dataField.fieldType.editOptionsArray.icon %}
+					{% if dataField.fieldType.editOptionsArray.icon is defined %}
 						<i class="{{ dataField.fieldType.editOptionsArray.icon }}"></i> 
 					{% endif %}
 					{{ dataField.fieldType.label }}
