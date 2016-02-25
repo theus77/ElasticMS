@@ -29,8 +29,8 @@ class LoadContentTypeData extends AbstractFixture implements OrderedFixtureInter
 		//define content type specific fields
 		$data = array(
 				//name, pluralName, icon, alias, description, indexTwig, color, rootContentType, active, environment_id
-				['label', 'labels', 'fa fa-key', 'draft', 'Translation keys', $labelTwig, 'red', 0, 1, 1, 'draft'],
-				['rich-text', 'rich-texts', 'fa fa-html5', 'draft', 'WYSIWYG fields', $richTextTwig, 'purple', 0, 1, 1, 'draft'],
+				['label', 'labels', 'fa fa-key', 'draft', 'Translation keys', $labelTwig, 'red', 0, 1, 1, 'preview'],
+				['rich-text', 'rich-texts', 'fa fa-html5', 'draft', 'WYSIWYG fields', $richTextTwig, 'purple', 0, 1, 1, 'preview'],
 		);
 	
 		foreach ($data as $contentData)

@@ -17,7 +17,7 @@ class LoadEnvironmentData extends AbstractFixture implements OrderedFixtureInter
 		
 		$environmentsData = array(
 				//name, color, managed
-				['draft', 'lightblue', 1],
+				['preview', 'lightblue', 1],
 				['staging', 'blue', 1],
 				['live', 'green', 1],
 		);

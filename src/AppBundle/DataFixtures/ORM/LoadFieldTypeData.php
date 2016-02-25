@@ -47,7 +47,7 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 				//If container this field will be the new parent for the next fields
 				//TODO or not?: this does not work for recursive containers, except in a straight line (= the order of your fields is very importan in this strategy)
 				$type = $fieldData[0];
-				if ($type == "Container"){
+				if ($type == 'Container'){
 					$name = $fieldData[2];
 					$containerField = $type.$name;
 					//TODO This looks ugly .-)--> I'm a pirate arrr
@@ -76,8 +76,11 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 	private function createFieldType($contentType, $parent, $type, $name, $label, $deleted, $orderKey, $many, $icon)
 	{
 		$fieldType = new FieldType();
-		//$fieldType->setContentType($this->getReference($contentType));
-		//$fieldType->setParent($this->getReference($parent));
+		if ($parent != ''){
+			$fieldType->setParent($this->getReference($parent));
+		}else{
+			$fieldType->setContentType($this->getReference($contentType));
+		}
 		//$fieldType->setCreated($this->currentTime);
 		//$fieldType->setModified($this->currentTime);
 		$fieldType->setType('AppBundle\\Form\\'.$type.'Type');
@@ -86,7 +89,7 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 		$fieldType->setDeleted($deleted);
 		$fieldType->setOrderKey($orderKey);
 		$fieldType->setMany($many);
-		$fieldType->setIcon($icon);
+		//$fieldType->setIcon($icon);
 		
 		return $fieldType;
 	}

@@ -58,7 +58,7 @@ class FieldType
     private $label;
 
     /**
-     * @ORM\ManyToOne(targetEntity="ContentType")
+     * @ORM\OneToOne(targetEntity="ContentType")
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
     private $contentType;
