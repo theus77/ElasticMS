@@ -25,7 +25,37 @@ class LoadContentTypeData extends AbstractFixture implements OrderedFixtureInter
 				<li>French: <b>{{ source.value_fr }}</b></li>
 				<li>Nederlands: <b>{{ source.value_nl }}</b></li>
 			</ul>';
-		$richTextTwig = '';
+		$richTextTwig = '
+				<div class="col-md-4">
+				<div class="panel panel-default">
+						<div class="panel-heading">
+							<i class="fa fa-language"></i>&nbsp; English
+						</div>
+						 <div class="panel-body">
+							{{ source.value_en|raw }}
+						</div>
+				</div>
+				</div>
+				<div class="col-md-4">
+				<div class="panel panel-default">
+						<div class="panel-heading">
+							<i class="fa fa-language"></i>&nbsp; French
+						</div>
+						 <div class="panel-body">
+							{{ source.value_fr|raw }}
+						</div>
+				</div>
+				</div>
+				<div class="col-md-4">
+				<div class="panel panel-default">
+						<div class="panel-heading">
+							<i class="fa fa-language"></i>&nbsp; Nederlands
+						</div>
+						 <div class="panel-body">
+							{{ source.value_nl|raw }}
+						</div>
+				</div>
+				</div>';
 		$demoTwig = '';
 		$versionTwig = '
 			<div class="row">
