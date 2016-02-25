@@ -19,19 +19,37 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 				//contentType id, parent id --> should both be set dynamically
 				//type, name, label, deleted, orderKey, many, icon
 				['Container', 'dataField', '', 0, 0, 0, ''],
-				['Ouuid', 'key', 'key', 0, 0, 0, 'fa fa-key'],
-				['Container', 'translations', 'Translations', 0, 0, 0, 'fa fa-language'],
+				['Ouuid', 'key', 'key', 0, 0, 0, "{'icon':'fa fa-key'}"],
+				['Container', 'translations', 'Translations', 0, 0, 0, '{"icon":"fa fa-language"}'],
 				['String', 'value_en', 'English', 0, 0, 0, ''],
 				['String', 'value_fr', 'Français', 0, 0, 0, ''],
 				['String', 'value_nl', 'Nederlands', 0, 0, 0, ''],
 		);
 		$richTextFields = array(
 				['Container', 'dataField', '', 0, 0, 0, ''],
+				['Ouuid', 'key', 'key', 0, 0, 0, "{'icon':'fa fa-key'}"],
+				['Container', 'translations', 'Translations', 0, 0, 0, '{"icon":"fa fa-language"}'],
+				['Wysiwyg', 'value_en', 'English', 0, 0, 0, ''],
+				['Wysiwyg', 'value_fr', 'Français', 0, 0, 0, ''],
+				['Wysiwyg', 'value_nl', 'Nederlands', 0, 0, 0, ''],
+				
+		);
+		$demoFields = array(
+				['Container', 'dataField', '', 0, 0, 0, ''],
+				['Container', 'testContainer', 'Label container', 0, 0, 0, '{"icon":"fa fa-language","label":"with icon"}'],
+				['Ouuid', 'key', 'key', 0, 0, 0, "{'icon':'fa fa-key'}"],
+				['Container', 'testContainer2', 'Label container', 0, 0, 0, '{"label":"without icon"}'],
+				['String', 'testString', 'Test string', 0, 0, 0, ''],
+				['String', 'testStringIcon', 'Test string', 0, 0, 0, '{"icon":"fa fa-question","label":"with icon"}'],
+				['TextArea', 'tesTextArea', 'Textarea', 0, 0, 0, ''],
+				['Wysiwyg', 'testWysiwyg', 'WYSIWYG', 0, 0, 0, ''],
+				
 		);
 		
 		$fields = array(
 				'label' => $labelFields,
 				'rich-text' => $richTextFields,
+				'demo' => $demoFields,
 		);
 		
 		foreach ($fields as $contentTypeName => $data)
@@ -74,7 +92,7 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 		return 3;
 	}
 	
-	private function createFieldType($contentType, $parent, $type, $name, $label, $deleted, $orderKey, $many, $icon)
+	private function createFieldType($contentType, $parent, $type, $name, $label, $deleted, $orderKey, $many, $editOptions)
 	{
 		$fieldType = new FieldType();
 		if ($parent != ''){
@@ -83,15 +101,13 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 			$fieldType->setContentType($this->getReference($contentType));
 			$this->getReference($contentType)->setFieldType($fieldType);
 		}
-		//$fieldType->setCreated($this->currentTime);
-		//$fieldType->setModified($this->currentTime);
 		$fieldType->setType('AppBundle\\Form\\'.$type.'Type');
 		$fieldType->setName($name);
 		$fieldType->setLabel($label);
 		$fieldType->setDeleted($deleted);
 		$fieldType->setOrderKey($orderKey);
 		$fieldType->setMany($many);
-		//$fieldType->setIcon($icon);
+		$fieldType->setEditOptions($editOptions);
 		
 		return $fieldType;
 	}

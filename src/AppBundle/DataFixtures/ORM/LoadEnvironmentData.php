@@ -16,10 +16,11 @@ class LoadEnvironmentData extends AbstractFixture implements OrderedFixtureInter
 		//$this->currentTime =  time();
 		
 		$environmentsData = array(
-				//name, color, managed
-				['preview', 'lightblue', 1],
-				['staging', 'blue', 1],
-				['live', 'green', 1],
+				//name, 	color, 		managed
+				['preview', 'lightblue',1],
+				['staging', 'blue', 	1],
+				['live', 	'green', 	1],
+				['aperture','red', 		0],
 		);
 
 		foreach ($environmentsData as $environmentData)
@@ -45,8 +46,6 @@ class LoadEnvironmentData extends AbstractFixture implements OrderedFixtureInter
 	private function createEnvironment($name, $color, $managed)
 	{
 		$environment = new Environment();
-	//	$environment->setCreated($this->currentTime);
-	//	$environment->setModified($this->currentTime);
 		$environment->setName($name);
 		$environment->setColor($color);
 		$environment->setManaged($managed);

@@ -60,13 +60,6 @@ class ContentType
     /**
      * @var string
      *
-     * @ORM\Column(name="alias", length=100)
-     */
-    private $alias;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="description", type="text", nullable=true)
      */
     private $description;
@@ -844,30 +837,6 @@ class ContentType
     public function getDefaultEnvironment()
     {
         return $this->defaultEnvironment;
-    }
-
-    /**
-     * Set alias
-     *
-     * @param string $alias
-     *
-     * @return ContentType
-     */
-    public function setAlias($alias)
-    {
-        $this->alias = $alias;
-
-        return $this;
-    }
-
-    /**
-     * Get alias
-     *
-     * @return string
-     */
-    public function getAlias()
-    {
-        return $this->alias;
     }
 
     /**

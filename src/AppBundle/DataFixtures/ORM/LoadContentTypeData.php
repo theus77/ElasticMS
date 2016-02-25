@@ -18,19 +18,52 @@ class LoadContentTypeData extends AbstractFixture implements OrderedFixtureInter
 		
 		
 		//Define twig code outside the data array (for readability purposes)
-		$labelTwig = '<ul>	
-	<li>Key: {{ source.key }}</li>
-	<li>English: <b>{{ source.value_en }}</b></li>
-	<li>French: <b>{{ source.value_fr }}</b></li>
-	<li>Nederlands: <b>{{ source.value_nl }}</b></li>
-</ul>';
+		$labelTwig = '
+			<ul>	
+				<li>Key: {{ source.key }}</li>
+				<li>English: <b>{{ source.value_en }}</b></li>
+				<li>French: <b>{{ source.value_fr }}</b></li>
+				<li>Nederlands: <b>{{ source.value_nl }}</b></li>
+			</ul>';
 		$richTextTwig = '';
+		$demoTwig = '';
+		$versionTwig = '
+			<div class="row">
+				<div class="col-sm-2">
+					<img class="img-responsive" src="http://global.theus.be/img/fr/{{ object._id }}/thumb.jpg" alt="Photo">
+				</div>
+			<div class="col-sm-10">
+				This series was taken <strong>{{ object._source.date|date("d M Y") }}</strong>
+				{% if object._source.artist  is defined %}n		by <strong>{{ object._source.artist }}</strong>
+				{% endif %}
+				(see it on <a href="http://global.theus.be/fr/galleries/version/{{ object._id }}" target="_blank">GlobalView</a>)
+					<ul>
+						<li>Rating:
+							{% for i in 0..object._source.rating %}
+			    					<i class="fa fa-fw fa-star"></i>
+							{% endfor %}
+						</li>
+						<li>Name: {{ object._source.name }}</li>
+						<li>Pixel size: {{ object._source.pixel_size }}</li>
+						<li>Project: {{ object._source.project_name }}</li>
+						{% if object. _source.model  is defined %}
+							<li>Model: {{ object._source.model }}</li>
+						{% endif %}
+						{% if object. _source.lens_model  is defined %}
+							<li>Lens: {{ object._source.lens_model }}</li>
+						{% endif %}
+					</ul>
+			
+				</div>
+			</div>';
 		
 		//define content type specific fields
 		$data = array(
-				//name, pluralName, icon, alias, description, indexTwig, color, rootContentType, active, environment_id
-				['label', 'labels', 'fa fa-key', 'draft', 'Translation keys', $labelTwig, 'red', 0, 1, 1, 'preview'],
-				['rich-text', 'rich-texts', 'fa fa-html5', 'draft', 'WYSIWYG fields', $richTextTwig, 'purple', 0, 1, 1, 'preview'],
+				//name, 		pluralName, 	icon, 			description, 		indexTwig, 		color, 	orderKey, 	rootContentType, 	active, environment,	labelField	$locationField
+				['label', 		'labels', 		'fa fa-key', 	'Translation keys', $labelTwig,    'red', 	1, 			1, 					1, 		'preview', 		'value_en',	null],
+				['rich-text', 	'rich-texts', 	'fa fa-html5', 	'WYSIWYG fields', 	$richTextTwig, 'purple',2, 			1, 					1, 		'preview', 		null,		null],
+				['demo', 		'demo', 		'fa fa-binoculars','Demo', 			$demoTwig,	   'yellow',3, 			1, 					1, 		'preview', 		null,		null],
+				['version', 	'version', 		'fa fa-photo', 	'Other src', 		$versionTwig,  'pink',	4, 			1, 					1, 		'aperture',		'name',		'location'],
 		);
 	
 		foreach ($data as $contentData)
@@ -52,16 +85,12 @@ class LoadContentTypeData extends AbstractFixture implements OrderedFixtureInter
 	}
 	
 	
-	private function createContentType($name, $pluralName, $icon, $alias, $description, $indexTwig, $color, $orderKey, $rootContentType, $active, $environment)
+	private function createContentType($name, $pluralName, $icon, $description, $indexTwig, $color, $orderKey, $rootContentType, $active, $environment, $labelField, $locationField)
 	{
 		$contentType = new ContentType();
-		//$contentType->setFieldType(); cannot be set here, will be referenced in LoadFieldTypeData.php
-		//$contentType->setCreated($this->currentTime);
-		//$contentType->setModified($this->currentTime);
 		$contentType->setName($name);
 		$contentType->setPluralName($pluralName);
 		$contentType->setIcon($icon);
-		$contentType->setAlias($alias);
 		$contentType->setDescription($description);
 		$contentType->setIndexTwig($indexTwig);
 		$contentType->setColor($color);
@@ -69,6 +98,8 @@ class LoadContentTypeData extends AbstractFixture implements OrderedFixtureInter
 		$contentType->setRootContentType($rootContentType);
 		$contentType->setActive($active);
 		$contentType->setEnvironment($this->getReference($environment));
+		$contentType->setLabelField($labelField);
+		$contentType->setLocationField($locationField);
 	
 		return $contentType;
 	}
