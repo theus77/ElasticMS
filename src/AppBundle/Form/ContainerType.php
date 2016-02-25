@@ -18,6 +18,11 @@ class ContainerType extends DataFieldType
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions()['metadata'];
 		$data = $builder->getData();
+
+		$options = array_merge([
+				'metadata' => $fieldType,
+				'label' => false,
+		], $fieldType->getEditOptionsArray());
 		
 		/** @var FieldType $fieldType */
 		foreach ( $fieldType->getChildren() as $key =>  $fieldType ){

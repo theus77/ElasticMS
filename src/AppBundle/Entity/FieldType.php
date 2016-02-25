@@ -57,7 +57,7 @@ class FieldType
     private $label;
 
     /**
-     * @ORM\ManyToOne(targetEntity="ContentType")
+     * @ORM\OneToOne(targetEntity="ContentType")
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
     private $contentType;
@@ -69,12 +69,6 @@ class FieldType
      */
     private $deleted;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="icon", type="string", length=100, nullable=true)
-     */
-    private $icon;
 
     /**
      * @var string
@@ -324,6 +318,31 @@ class FieldType
         return $this;
     }
 
+
+    /**
+     * Get editOptionsArray
+     *
+     * @return string
+     */
+    public function getEditOptionsArray()
+    {
+    	if(null != $this->editOptions){
+	    	try{
+	    		$out = json_decode($this->editOptions, true);
+	    		if(is_array($out)){
+		    		return $out;	    			
+	    		}
+		    	dump($this);
+	    		dump($out);
+	    	}
+	    	catch (\Exception $e){
+	    		dump($e);
+	    	}    		
+    	}
+    	
+    	return [];
+    }
+    
     /**
      * Get editOptions
      *
@@ -427,7 +446,11 @@ class FieldType
      */
     public function getContentType()
     {
-        return $this->contentType;
+    	$parent = $this->parent;
+    	while($parent != null){
+    		$parent = $parent->parent;
+    	}
+        return $parent->contentType;
     }
 
     /**
@@ -519,29 +542,5 @@ class FieldType
     public function getChildren()
     {
         return $this->children;
-    }
-
-    /**
-     * Set icon
-     *
-     * @param string $icon
-     *
-     * @return FieldType
-     */
-    public function setIcon($icon)
-    {
-        $this->icon = $icon;
-
-        return $this;
-    }
-
-    /**
-     * Get icon
-     *
-     * @return string
-     */
-    public function getIcon()
-    {
-        return $this->icon;
     }
 }
