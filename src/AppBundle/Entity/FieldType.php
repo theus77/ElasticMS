@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="field_type")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\FieldTypeRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class FieldType
 {
@@ -125,6 +126,18 @@ class FieldType
      * @ORM\OrderBy({"orderKey" = "ASC"})
      */
     private $children;
+    
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updateModified()
+    {
+    	$this->modified = new \DateTime();
+    	if(!isset($this->created)){
+    		$this->created = $this->modified;
+    	}
+    }
     
     /**
      * Get id
