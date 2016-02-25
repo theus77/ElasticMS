@@ -218,8 +218,11 @@ class DataController extends AppController
 		/** @var Revision $revision */
 		$revision = $repository->find($revisionId);
 		
-		if(!$revision || !$revision->getDraft() || null != $revision->getEndTime()) {
-			throw new NotFoundHttpException('Unknown revision or not a draft');
+		if(!$revision) {
+			throw $this->createNotFoundException('Revision not found');
+		}
+		if(!$revision->getDraft() || null != $revision->getEndTime()) {
+			throw BadRequestHttpException('Only authirized on a draft');
 		}
 		
 		$contentTypeId = $revision->getContentType()->getId();
@@ -274,6 +277,53 @@ class DataController extends AppController
 			}
 			$this->updateDataStructure($child, $field, null);
 		}
+	}
+	
+	/**
+	 * @Route("/data/revision/re-index/{revisionId}", name="revision.reindex"))
+	 */
+	public function reindexRevisionAction($revisionId, Request $request){
+		if($request->isMethod('GET') ){
+			throw new BadRequestHttpException('This method doesn\'t allow GET request');
+		}
+		
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		/** @var Revision $revision */
+		$revision = $repository->find($revisionId);
+		
+		if(!$revision) {
+			throw $this->createNotFoundException('Revision not found');
+		}
+		
+		/** @var Client $client */
+		$client = $this->get('app.elasticsearch');
+		
+	
+		try{
+			/** @var \AppBundle\Entity\Environment $environment */
+			foreach ($revision->getEnvironments() as $environment ){
+				$objectArray = $revision->getDataField()->getObjectArray();
+				$status = $client->index([
+						'id' => $revision->getOuuid(),
+						'index' => $environment->getName(),
+						'type' => $revision->getContentType()->getName(),
+						'body' => $objectArray
+				]);				
+
+				$this->addFlash('notice', 'Reindexed in '.$environment->getName());
+			}
+		}
+		catch (\Exception $e){
+			$this->addFlash('warning', 'Reindexing has failed: '.$e->getMessage());
+		}
+		return $this->redirectToRoute('data.view', [
+				'ouuid' => $revision->getOuuid()
+		]);
+		
 	}
 	
 	/**

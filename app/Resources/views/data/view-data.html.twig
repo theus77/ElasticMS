@@ -70,12 +70,21 @@
 										'label': 'Edit', 
 										'icon': 'pencil' }%}
 									{% if rev.environments|length %}
-										{% include 'elements/get-button.html.twig' with { 
-											'url': path('revision.edit', {'revisionId': rev.id}), 
+										{% include 'elements/post-button.html.twig' with { 
+											'url': path('revision.reindex', {'revisionId': rev.id}), 
 											'label': 'Re-index', 
-											'icon': 'recycle',
-											'disabled': true }%}
+											'icon': 'recycle'}%}
 									{% endif %}
+									
+									{# TODO: better way to determine if there is a environement to publish this revision in ? #}
+									{% set hasEnv = false %}
+									{% for env in availableEnv %}
+										{% if env not in rev.environments %}
+								   			{% set hasEnv = true %}
+									   	{% endif %}
+								   	{% endfor %}
+									
+									  {% if hasEnv  %}
 									  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									    	<span class="glyphicon glyphicon-open"></span>&nbsp;
 											Publish to
@@ -90,6 +99,7 @@
 										   		{% endif %}
 									   		{% endfor %}
 									   </ul>
+									  {% endif %}
 										
 								</div>
 							</td>
