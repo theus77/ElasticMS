@@ -29,9 +29,9 @@
 							<tr class="text-{{ contentType.color }}">
 								<td class="text-center">{{ loop.index }}.</td>
 								<td class="text-center"><i class="{% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i></td>
-								<td>{{ contentType.name }}</td>
-								<td>{{ contentType.pluralName }}</td>
-								<td>{{ contentType.alias }}</td>
+								<td>{{ contentType.name|humanize }}</td>
+								<td>{{ contentType.pluralName|humanize }}</td>
+								<td>{{ contentType.environment.name|humanize }}</td>
 								<td class="text-center">{% if contentType.active %}<i class="fa fa-check"></i>{% endif %}</td>
 								<td>
 								
