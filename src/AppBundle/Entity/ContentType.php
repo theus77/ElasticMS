@@ -166,6 +166,13 @@ class ContentType
     /**
      * @var int
      *
+     * @ORM\Column(name="category_field", type="string", length=100, nullable=true)
+     */
+    private $categoryField;
+    
+    /**
+     * @var int
+     *
      * @ORM\Column(name="ouuidField", type="string", length=100, nullable=true)
      */
     private $ouuidField;
@@ -933,5 +940,29 @@ class ContentType
     public function getEnvironment()
     {
         return $this->environment;
+    }
+
+    /**
+     * Set categoryField
+     *
+     * @param string $categoryField
+     *
+     * @return ContentType
+     */
+    public function setCategoryField($categoryField)
+    {
+        $this->categoryField = $categoryField;
+
+        return $this;
+    }
+
+    /**
+     * Get categoryField
+     *
+     * @return string
+     */
+    public function getCategoryField()
+    {
+        return $this->categoryField;
     }
 }

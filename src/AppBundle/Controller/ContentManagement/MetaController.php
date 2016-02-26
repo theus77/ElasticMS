@@ -22,6 +22,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Form\Form\RebuildIndexType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use AppBundle\Repository\ContentTypeRepository;
+use AppBundle\Form\Meta\ContentTypeType;
+use AppBundle\Entity\FieldType;
+use AppBundle\Form\ContainerType;
 
 class MetaController extends AppController
 {
@@ -40,8 +44,42 @@ class MetaController extends AppController
 	 */
 	public function editContentTypeAction($id, Request $request)
 	{
-		//TODO
-		return $this->render( 'meta/edit-content-type.html.twig');
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository('AppBundle:ContentType');
+		
+		/** @var ContentType $contentType */
+		$contentType = $repository->find($id);
+		
+		if(! $contentType || count($contentType) != 1){
+			throw $this->createNotFoundException('Content type not found');
+		}
+		
+		if(null == $contentType->getFieldType()) {
+			$fieldType = new FieldType();
+			$fieldType->setName('dataField');
+			$fieldType->setMany(false);
+			$fieldType->setType(ContainerType::class);
+			$fieldType->setContentType($contentType);
+			$fieldType->setDeleted(false);
+		}
+		
+		$form = $this->createForm(ContentTypeType::class, $contentType);
+		
+		$form->handleRequest($request);
+		
+		
+		if ($form->isSubmitted() && $form->isValid()) {
+			$em->persist($contentType);
+			$em->flush();
+			
+			return $this->redirectToRoute('contenttype.list');
+		}
+		return $this->render( 'meta/edit-content-type.html.twig', [
+				'form' => $form->createView(),
+				'contentType' => $contentType,
+		]);
 		
 	}
 	
@@ -168,7 +206,7 @@ class MetaController extends AppController
 // 				'label' => 'Default environment',
 // 				'icon' => 'fa fa-database',
 // 		])		
-		->add('alias', Select2Type::class, array(
+		->add('environment', Select2Type::class, array(
 				'label' => 'Default environment',
 				'choices'  => $temp,
 		))
