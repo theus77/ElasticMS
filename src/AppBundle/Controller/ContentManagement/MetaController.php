@@ -64,6 +64,8 @@ class MetaController extends AppController
 			$fieldType->setType(ContainerType::class);
 			$fieldType->setContentType($contentType);
 			$fieldType->setDeleted(false);
+			$fieldType->setOrderKey(0);
+			$contentType->setFieldType($fieldType);
 		}
 		
 		$form = $this->createForm(ContentTypeType::class, $contentType);
@@ -72,6 +74,8 @@ class MetaController extends AppController
 		
 		
 		if ($form->isSubmitted() && $form->isValid()) {
+			$contentType->getFieldType()->updateOrderKeys();
+			
 			$em->persist($contentType);
 			$em->flush();
 			
@@ -89,9 +93,7 @@ class MetaController extends AppController
 	 */
 	public function listContentTypeAction(Request $request)
 	{
-				
 		return $this->render( 'meta/list-content-type.html.twig');
-		
 	}
 	
 	

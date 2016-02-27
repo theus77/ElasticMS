@@ -46,4 +46,8 @@ class ContainerType extends DataFieldType
 			$classname::buildObjectArray($child, $out);
 		}
 	}
+    
+    public static function hasChildren() {
+    	return true;
+    }
 }

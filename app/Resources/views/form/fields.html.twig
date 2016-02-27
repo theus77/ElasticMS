@@ -1,6 +1,7 @@
 {% use "bootstrap_3_layout.html.twig" %}
 
 {# Widgets #}
+
 {% block icontext_widget -%}
 	<div class="input-group">
 		<span class="input-group-addon"><i class="{{ icon }}"></i></span>
@@ -78,6 +79,32 @@
 	</div>       
         
 {%- endblock container_row %}
+
+
+
+{% block fieldTypeType_row -%}
+	{% if form.vars.data.children|length > 0 %}
+		<div class="panel panel-default" >
+		  <div class="panel-heading">
+			<strong>{{ form.vars.data.name }}</strong> <small>{{ form.vars.data.type }}</small>
+		  </div>
+		  <div class="panel-body">
+		  	<ul class="list-group">
+				{{- form_widget(form) -}}
+			</ul>
+		  </div>	
+		  {{- form_errors(form) -}}
+		</div>       
+	{% else %}
+		<li class="list-group-item">
+			<div><strong>{{ form.vars.data.name }}</strong> <small>{{ form.vars.data.type }}</small></div>				
+			{{- form_widget(form) -}}
+			{{- form_errors(form) -}}
+		</li>
+	{% endif %}
+  	
+        
+{%- endblock fieldTypeType_row %}
 
 {# Errors #}
 

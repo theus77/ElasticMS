@@ -34,4 +34,8 @@ class DataFieldType extends AbstractType
     public static function buildObjectArray(DataField $data, array &$out){
     	$out [$data->getFieldType()->getName()] = $data->getTextValue();    	
     }
+    
+    public static function hasChildren() {
+    	return false;
+    }
 }

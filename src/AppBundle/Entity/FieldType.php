@@ -53,7 +53,7 @@ class FieldType
     /**
      * @var string
      *
-     * @ORM\Column(name="label", type="string", length=255)
+     * @ORM\Column(name="label", type="string", length=255, nullable=true)
      */
     private $label;
 
@@ -163,6 +163,16 @@ class FieldType
         return $this;
     }
 
+    public function updateOrderKeys() {
+    	if(null != $this->children){
+	    	/** @var FieldType $child */
+	    	foreach ( $this->children as $key => $child ) {
+	    		$child->setOrderKey($key);
+	    		$child->updateOrderKeys();
+	    	}    		
+    	}
+    }
+    	
     /**
      * Get created
      *
@@ -498,7 +508,25 @@ class FieldType
     {
     	$this->dataFields = new \Doctrine\Common\Collections\ArrayCollection();
     }
-
+    
+    /**
+     * get a child
+     *
+     * @return DataField
+     */
+    public function __get($key){
+    	//     	dump($key);
+    	//     	dump($this);
+    	/** @var FieldType $fieldType */
+    	foreach ($this->children as $fieldType){
+    		if(strcmp($key,  $fieldType->getName()) == 0){
+    			return $fieldType;
+    		}
+    	}
+    	 
+    	return null;
+    }
+    
     /**
      * Set parent
      *
