@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Form;
+namespace AppBundle\Form\Field;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

@@ -1,20 +1,16 @@
 <?php
 
-namespace AppBundle\Form\Meta;
+namespace AppBundle\Form\Form;
 
 use AppBundle\Entity\ContentType;
-use AppBundle\Form\IconPickerType;
-use AppBundle\Form\SubmitEmsType;
+use AppBundle\Form\Field\ColorPickerType;
+use AppBundle\Form\Field\IconPickerType;
+use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use AppBundle\Form\Select2Type;
-use Doctrine\ORM\EntityManager;
-use AppBundle\Repository\EnvironmentRepository;
-use AppBundle\Entity\Environment;
-use AppBundle\Form\ColorPickerType;
 
 class ContentTypeType extends AbstractType {
 	/**

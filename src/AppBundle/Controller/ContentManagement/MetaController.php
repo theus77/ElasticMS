@@ -6,26 +6,27 @@ use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\Environment;
+use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Form\RebuildIndex;
-use AppBundle\Form\IconTextType;
-use AppBundle\Form\Select2Type;
+use AppBundle\Form\DataField\ContainerType;
+use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\Select2Type;
+use AppBundle\Form\Form\ContentTypeType;
+use AppBundle\Form\Form\RebuildIndexType;
+use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Form\Form\RebuildIndexType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use AppBundle\Repository\ContentTypeRepository;
-use AppBundle\Form\Meta\ContentTypeType;
-use AppBundle\Entity\FieldType;
-use AppBundle\Form\ContainerType;
 
 class MetaController extends AppController
 {
@@ -186,12 +187,6 @@ class MetaController extends AppController
 		$environmetRepository = $em->getRepository('AppBundle:Environment');
 		
 		$environments = $environmetRepository->findAll();
-		$temp = [];
-
-		/** @var Environment $environment */
-		foreach ($environments as $environment) {
-			$temp[$environment->getName()] = $environment->getName();
-		}
 		
 		$contentType = new ContentType();
 		
@@ -206,9 +201,17 @@ class MetaController extends AppController
 // 				'label' => 'Default environment',
 // 				'icon' => 'fa fa-database',
 // 		])		
-		->add('environment', Select2Type::class, array(
+		->add('environment', ChoiceType::class, array(
 				'label' => 'Default environment',
-				'choices'  => $temp,
+				'choices'  => $environments,
+		        /** @var Environment $environment */
+			    'choice_label' => function($environment, $key, $index) {
+			        return $environment->getName();
+			    },
+// 			    'choice_value' => function($key) {
+// 			    	dump($key);
+// 			        return $key;
+// 			    },
 		))
 		->add('save', SubmitType::class, [
 				'label' => 'Create',
@@ -218,6 +221,8 @@ class MetaController extends AppController
 		])
 		->getForm();
 		
+		dump($request);
+		
 		$form->handleRequest($request);
 			
 		
@@ -225,7 +230,6 @@ class MetaController extends AppController
 		if ($form->isSubmitted() && $form->isValid()) {
 			/** @var ContentType $contentType */
 			$contentType = $form->getData();
-			
 
 			$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
 		

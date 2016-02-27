@@ -1,10 +1,11 @@
 <?php
 
-namespace AppBundle\Form;
+namespace AppBundle\Form\DataField;
 
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Entity\FieldType;
+use AppBundle\Form\Field\IconTextType;
 
 class StringType extends DataFieldType {
 	/**

@@ -1,6 +1,6 @@
 <?php
 
-namespace AppBundle\Form;
+namespace AppBundle\Form\DataField;
 
 use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType as TextareaSymfonyType;

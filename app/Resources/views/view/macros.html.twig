@@ -4,7 +4,7 @@
 	{{ attribute(_self, dataField.fieldType.type|replace({'\\': '_'}), [dataField]) }}
 {% endmacro %}
 
-{% macro AppBundle_Form_ContainerType(dataField) %}
+{% macro AppBundle_Form_DataField_ContainerType(dataField) %}
     {% if dataField.fieldType.label %}
     	<div class="panel panel-default">
 			<div class="panel-heading">
@@ -26,28 +26,28 @@
 	{% endif %}
 {% endmacro %}
 
-{% macro AppBundle_Form_OuuidType(dataField) %}
+{% macro AppBundle_Form_DataField_OuuidType(dataField) %}
 	<dl>
 		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
 		<dd>{{ dataField.textValue }}</dd>
 	</dl>
 {% endmacro %}
 
-{% macro AppBundle_Form_StringType(dataField) %}
+{% macro AppBundle_Form_DataField_StringType(dataField) %}
 	<dl>
 		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
 		<dd>{{ dataField.textValue }}</dd>
 	</dl>
 {% endmacro %}
 
-{% macro AppBundle_Form_TextAreaType(dataField) %}
+{% macro AppBundle_Form_DataField_TextAreaType(dataField) %}
 	<dl>
 		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
 		<dd>{{ dataField.textValue }}</dd>
 	</dl>
 {% endmacro %}
 
-{% macro AppBundle_Form_WysiwygType(dataField) %}
+{% macro AppBundle_Form_DataField_WysiwygType(dataField) %}
 	<dl>
 		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
 		<dd>

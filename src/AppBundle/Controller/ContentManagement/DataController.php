@@ -8,21 +8,20 @@ use AppBundle;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Revision;
-use AppBundle\Form\RevisionType;
+use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Form\RevisionType;
+use AppBundle\Repository\ContentTypeRepository;
+use AppBundle\Repository\RevisionRepository;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\QueryBuilder;
 use Elasticsearch\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Form\IconTextType;
-use AppBundle\Repository\ContentTypeRepository;
-use Doctrine\ORM\EntityManager;
-use AppBundle\Repository\RevisionRepository;
-use Doctrine\ORM\QueryBuilder;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class DataController extends AppController
 {
