@@ -101,7 +101,7 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 			$fieldType->setContentType($this->getReference($contentType));
 			$this->getReference($contentType)->setFieldType($fieldType);
 		}
-		$fieldType->setType('AppBundle\\Form\\'.$type.'Type');
+		$fieldType->setType('AppBundle\\Form\\DataField\\'.$type.'Type');
 		$fieldType->setName($name);
 		$fieldType->setLabel($label);
 		$fieldType->setDeleted($deleted);
