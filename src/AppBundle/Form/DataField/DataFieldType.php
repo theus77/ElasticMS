@@ -6,6 +6,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Entity\DataField;
+use AppBundle\Form\FieldType\DataFieldOptionsType;
 
 class DataFieldType extends AbstractType
 {
@@ -38,4 +39,5 @@ class DataFieldType extends AbstractType
     public static function isContainer() {
     	return false;
     }
+    
 }

@@ -3,6 +3,8 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use AppBundle\Form\FieldType\DataFieldOptionsType;
+use AppBundle\Entity\FieldOptions\DataFieldOptions;
 
 /**
  * FieldType
@@ -326,6 +328,20 @@ class FieldType
     {
         return $this->mapping;
     }
+    
+    
+    
+    public function setStructuredOptions(array $options) {
+    	
+    	$this->editOptions = json_encode($options);
+    	
+    	return $this;
+    }
+    
+    public function getStructuredOptions() {
+    	return json_decode($this->editOptions, true);
+    	 
+    }
 
     /**
      * Set editOptions
@@ -336,6 +352,7 @@ class FieldType
      */
     public function setEditOptions($editOptions)
     {
+    	
         $this->editOptions = $editOptions;
 
         return $this;
@@ -529,6 +546,12 @@ class FieldType
 
     public function getTypeClass(){
 	    return new $this->type();
+    }
+    
+
+
+    public static function getOptionsFormType(){
+    	return DataFieldOptionsType::class;
     }
     
     /**
