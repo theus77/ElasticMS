@@ -2,10 +2,11 @@
 
 namespace AppBundle\Form\DataField;
 
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Entity\FieldType;
 use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\FieldType\StringOptionsType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
 
 class StringType extends DataFieldType {
 	/**
@@ -30,4 +31,8 @@ class StringType extends DataFieldType {
 			$builder->add ( 'text_value', TextType::class, $options );
 		}
 	}
+	
+    public static function getOptionsFormType(){
+    	return StringOptionsType::class;
+    }
 }

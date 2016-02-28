@@ -545,13 +545,13 @@ class FieldType
     }
 
     public function getTypeClass(){
-	    return new $this->type();
+	    return new $this->type;
     }
     
 
 
-    public static function getOptionsFormType(){
-    	return DataFieldOptionsType::class;
+    public function getOptionsFormType(){
+    	return $this->getTypeClass()->getOptionsFormType();
     }
     
     /**

@@ -40,4 +40,8 @@ class DataFieldType extends AbstractType
     	return false;
     }
     
+    public static function getOptionsFormType(){
+    	return DataFieldOptionsType::class;
+    }
+    
 }
