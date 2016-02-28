@@ -18,7 +18,7 @@ class SelectPickerType extends DataFieldType {
 		$data = $builder->getData ();
 		
 		$choices = $fieldType->getEditOptionsArray() ['choices'];
-
+		//TODO check for required choices, multiple selection, ...
 		$builder->add ( 'text_value', ChoiceSymfonyType::class, [ 
 				'label' => $fieldType->getLabel (),
 				'required' => false,
