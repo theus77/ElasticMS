@@ -39,6 +39,7 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 				['Container', 'testContainer', 'Label container', 0, 0, 0, '{"icon":"fa fa-language","label":"with icon"}'],
 				['Ouuid', 'key', 'key', 0, 0, 0, '{"icon":"fa fa-key"}'],
 				['Container', 'testContainer2', 'Label container', 0, 0, 0, '{"label":"without icon"}'],
+				['SelectPicker', 'testChoice', 'Make a choice', 0, 0, 0, '{"choices":{"Elastic": "elastic","CMS": "cms","ElasticMS": "elasticms"}}'],
 				['String', 'testString', 'Test string', 0, 0, 0, ''],
 				['String', 'testStringIcon', 'Test string', 0, 0, 0, '{"icon":"fa fa-question","label":"with icon"}'],
 				['TextArea', 'tesTextArea', 'Textarea', 0, 0, 0, ''],
