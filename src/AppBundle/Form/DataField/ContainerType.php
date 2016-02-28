@@ -47,7 +47,7 @@ class ContainerType extends DataFieldType
 		}
 	}
     
-    public static function hasChildren() {
+    public static function isContainer() {
     	return true;
     }
 }

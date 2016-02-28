@@ -35,7 +35,7 @@ class DataFieldType extends AbstractType
     	$out [$data->getFieldType()->getName()] = $data->getTextValue();    	
     }
     
-    public static function hasChildren() {
+    public static function isContainer() {
     	return false;
     }
 }

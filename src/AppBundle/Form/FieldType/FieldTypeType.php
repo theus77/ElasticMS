@@ -20,24 +20,26 @@ class FieldTypeType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-//     	$builder->add ( 'label', TextType::class, [
-//     		'required' => false,
-//     	] );
+    	$builder->add ( 'label', TextType::class, [
+    		'required' => false,
+    	] );
+    	$builder->add ( 'many' );
 //     	$builder->add ( 'name' );
 //     	$builder->add ( 'type' );
 //     	$builder->add ( 'orderKey' );
-//     	$builder->add ( 'many' );
 
     	if(isset($options['data']) && null != $options['data']->getChildren()){
     		
 	    	$className = $options['data']->getType();
+	    	/** @var FieldType $instance */
 	    	$instance = new $className();
 	    	
-			if($instance->hasChildren()) {
+			if($instance->isContainer()) {
 				/** @var FieldType $field */
 				foreach ($options['data']->getChildren() as $idx => $field) {
 					$builder->add ( $field->getName(), FieldTypeType::class, [
 							'data' => $field,
+							'container' => true,
 					]  );
 				}
 			}
@@ -51,6 +53,7 @@ class FieldTypeType extends AbstractType
     {
         $resolver->setDefaults(array(
             'data_class' => 'AppBundle\Entity\FieldType',
+        	'container' => false,
         ));
     }
 	

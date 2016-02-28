@@ -526,6 +526,10 @@ class FieldType
     	 
     	return null;
     }
+
+    public function getTypeClass(){
+	    return new $this->type();
+    }
     
     /**
      * Set parent

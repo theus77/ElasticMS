@@ -39,9 +39,13 @@ class ContentTypeType extends AbstractType {
 // 		$builder->add ( 'videoField');
 // 		$builder->add ( 'categoryField');
 		$builder->add ( 'pluralName', TextType::class);
-		$builder->add ( 'icon', IconPickerType::class);
+		$builder->add ( 'icon', IconPickerType::class, [
+			'required' => false,
+		]);
 // 		$builder->add ( 'orderKey', IntegerType::class);
-		$builder->add ( 'color', ColorPickerType::class);
+		$builder->add ( 'color', ColorPickerType::class, [
+			'required' => false,
+		]);
 
 		$builder->add ( 'fieldType', FieldTypeType::class, [
 			'data' => $contentType->getFieldType()
