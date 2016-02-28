@@ -108,12 +108,34 @@
 	</div>
 
 	{% if form.vars.data.typeClass.container %}
+			<div class="modal fade" id="{{ form.vars.id }}_modal_add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <h4 class="modal-title" id="myModalLabel">
+						Add a field to <strong>{{ form.vars.data.name }}</strong>	
+					</h4>
+			      </div>
+			      <div class="modal-body">
+			        ........
+			      </div>
+			      <div class="modal-footer">
+			        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>	
+	
+	
 		<div class="panel panel-default" >
 		  <div class="panel-heading">
 				<strong>{{ form.vars.data.name }}</strong> <small>{{ form.vars.data.type }}</small>			
 				
 				<div class="btn-group pull-right" role="group" aria-label="...">
-				  <button type="button" class="btn btn-primary btn-xs"><i class="fa fa-plus"></i> Add a field</button>
+					<button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#{{ form.vars.id }}_modal_add">
+						<i class="fa fa-plus"></i> Add a field
+					</button>
 				  {% if form.vars.data.parent|length != 0 %}
 					  <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#{{ form.vars.id }}_modal_options">
 						  <i class="fa fa-sliders"></i> Options
