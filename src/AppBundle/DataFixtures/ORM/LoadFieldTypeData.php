@@ -19,7 +19,7 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 				//contentType id, parent id --> should both be set dynamically
 				//type, name, label, deleted, orderKey, many, icon
 				['Container', 'dataField', '', 0, 0, 0, ''],
-				['Ouuid', 'key', 'key', 0, 0, 0, "{'icon':'fa fa-key'}"],
+				['Ouuid', 'key', 'key', 0, 0, 0, '{"icon":"fa fa-key"}'],
 				['Container', 'translations', 'Translations', 0, 0, 0, '{"icon":"fa fa-language"}'],
 				['String', 'value_en', 'English', 0, 0, 0, ''],
 				['String', 'value_fr', 'Français', 0, 0, 0, ''],
@@ -27,7 +27,7 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 		);
 		$richTextFields = array(
 				['Container', 'dataField', '', 0, 0, 0, ''],
-				['Ouuid', 'key', 'key', 0, 0, 0, "{'icon':'fa fa-key'}"],
+				['Ouuid', 'key', 'key', 0, 0, 0, '{"icon":"fa fa-key"}'],
 				['Container', 'translations', 'Translations', 0, 0, 0, '{"icon":"fa fa-language"}'],
 				['Wysiwyg', 'value_en', 'English', 0, 0, 0, ''],
 				['Wysiwyg', 'value_fr', 'Français', 0, 0, 0, ''],
@@ -37,7 +37,7 @@ class LoadFieldTypeData extends AbstractFixture implements OrderedFixtureInterfa
 		$demoFields = array(
 				['Container', 'dataField', '', 0, 0, 0, ''],
 				['Container', 'testContainer', 'Label container', 0, 0, 0, '{"icon":"fa fa-language","label":"with icon"}'],
-				['Ouuid', 'key', 'key', 0, 0, 0, "{'icon':'fa fa-key'}"],
+				['Ouuid', 'key', 'key', 0, 0, 0, '{"icon":"fa fa-key"}'],
 				['Container', 'testContainer2', 'Label container', 0, 0, 0, '{"label":"without icon"}'],
 				['String', 'testString', 'Test string', 0, 0, 0, ''],
 				['String', 'testStringIcon', 'Test string', 0, 0, 0, '{"icon":"fa fa-question","label":"with icon"}'],
