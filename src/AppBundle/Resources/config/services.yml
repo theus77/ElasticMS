@@ -4,3 +4,8 @@ services:
         factory: [AppBundle\Factories\ElasticsearchClientBuilderFactory, build]
         arguments:
             - %elasticsearch_hosts%
+    app.form.type.string:
+        class: AppBundle\Form\DataField\StringType
+        tags:
+            - { name: form.type }
+            - { name: form.ems.DataField.type }

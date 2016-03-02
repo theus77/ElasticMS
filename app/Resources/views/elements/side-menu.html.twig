@@ -82,24 +82,19 @@
       <ul class="sidebar-menu">
         <li class="header">Admin</li>        
           <li class="treeview">
-            <a href="#"><i class="fa fa-sitemap"></i> <span>Content Types</span> <i class="fa fa-angle-left pull-right"></i></a>
-            <ul class="treeview-menu">
-              <li><a id="menu-contenttype-list" href="{{ url('contenttype.list') }}">List Content Types</a></li>
-              <li><a id="menu-contenttype-add" href="{{ url('contenttype.add') }}">New Content Type</a></li>
-            </ul>
+            <a href="{{ url('contenttype.list') }}" id="menu-contenttype-list">
+            	<i class="fa fa-sitemap"></i> <span>Content Types</span> 
+            </a>
         </li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-database"></i> <span>Environments</span> <i class="fa fa-angle-left pull-right"></i></a>
-          <ul class="treeview-menu">
-              <li><a id="menu-environment-list" href="{{ url('environment.list') }}">List Environments</a></li>
-              <li><a id="menu-environment-add" href="{{ url('environment.add') }}">New Environment</a></li>
-            </ul>
+          <a href="{{ url('environment.list') }}" id="menu-environment-list">
+          	<i class="fa fa-database"></i> <span>Environments</span> 
+          </a>
         </li>
         <li class="treeview">
-          <a href="#"><i class="fa fa-cubes"></i> <span>Elasticsearch</span> <i class="fa fa-angle-left pull-right"></i></a>
-          <ul class="treeview-menu">
-            <li><a id="menu-elasticsearch-status" href="{{ url('elasticsearch.status') }}">Status</a></li>
-          </ul>
+          <a href="{{ url('elasticsearch.status') }}" id="menu-elasticsearch-status">
+          	<i class="fa fa-cubes"></i> <span>Elasticsearch</span> 
+          </a>
         </li>
 	  </ul>
       <!-- Sidebar Menu -->

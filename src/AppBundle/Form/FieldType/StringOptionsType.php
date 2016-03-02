@@ -18,12 +18,12 @@ class StringOptionsType extends DataFieldOptionsType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
     	parent::buildForm($builder, $options);
-    	$builder->add ( 'icon', IconPickerType::class, [
-    		'required' => false,
-    	] );
-    	$builder->add ( 'language', TextType::class, [
-    		'required' => false,
-    	] );
+//     	$builder->add ( 'icon', IconPickerType::class, [
+//     		'required' => false,
+//     	] );
+//     	$builder->add ( 'language', TextType::class, [
+//     		'required' => false,
+//     	] );
     }   
 
 }

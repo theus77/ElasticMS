@@ -3,11 +3,10 @@
 namespace AppBundle\Form\Form;
 
 use AppBundle\Entity\Revision;
-use AppBundle\Form\SubmitEmsType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\RadioType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Form\Field\SubmitEmsType;
 
 class RebuildIndexType extends AbstractType {
 	/**

@@ -422,14 +422,19 @@ class DataField
     }
     
     public function __set($key, $input){
-    	dump($this);
-    	dump($key);
-    	dump($input);
+    	if(strpos($key, 'ems_') !== 0){
+    		dump('warning not ems prefixed call');
+     		throw new \Exception('unprotected ems set');
+    	}
+    	else{
+    		$key = substr($key, 4);
+    	}
     	
     	$found = false;
     	/** @var DataField $dataField */
     	foreach ($this->children as &$dataField){
     		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
+    			$found = true;
     			$dataField = $input;
     			break;
     		}
@@ -447,8 +452,15 @@ class DataField
      * @return DataField
      */    
      public function __get($key){
-//     	dump($key);
-//     	dump($this);
+     	
+     	if(strpos($key, 'ems_') !== 0){
+     		dump('warning not ems prefixed call');
+     		throw new \Exception('unprotected ems get');
+     	}
+     	else{
+     		$key = substr($key, 4);
+     	}
+     	
     	/** @var DataField $dataField */
     	foreach ($this->children as $dataField){
     		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){

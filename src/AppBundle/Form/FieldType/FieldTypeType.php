@@ -9,6 +9,9 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormView;
 use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use AppBundle\Form\Field\SubmitEmsType;
 
 class FieldTypeType extends AbstractType
 {
@@ -22,14 +25,47 @@ class FieldTypeType extends AbstractType
     {
     	/** @var FieldType $fieldType */
     	$fieldType = $options['data'];
+
+    	$builder->add ( 'type', HiddenType::class );
+    	$builder->add ( 'name', HiddenType::class );
+    	
     	
     	$builder->add ( 'label', TextType::class, [
     		'required' => false,
     	] );
     	$builder->add ( 'many' );
     	$builder->add ( 'structuredOptions', $fieldType->getOptionsFormType());
-//     	$builder->add ( 'type' );
-//     	$builder->add ( 'orderKey' );
+    	
+    	$currentType = $fieldType->getType();
+    	$currentTypeCLass = new $currentType;
+    	
+    	
+    	if($currentTypeCLass->isContainer()) {
+	    	$builder->add ( 'ems:internal:add:field:class', ChoiceType::class, [
+	    			'label' => 'Field\'s type',
+	    			'mapped' => false,
+	    			'required' => false,
+	    			'choices' => [
+	    				'Container' => 'AppBundle\Form\DataField\ContainerType',
+	    				'Ouuid' => 'AppBundle\Form\DataField\OuuidType',
+	    				'String' => 'AppBundle\Form\DataField\StringType',
+	    				'WYSIWYG' => 'AppBundle\Form\DataField\WysiwygType',
+	    				'TextArea' => 'AppBundle\Form\DataField\TextAreaType',
+	    			]
+	    	]);    	
+	    	$builder->add ( 'ems:internal:add:field:name', TextType::class, [
+	    			'label' => 'Field\'s name',
+	    			'mapped' => false,
+	    			'required' => false,
+	    	]);
+	    	
+	    	$builder->add ( 'add', SubmitEmsType::class, [
+	    			'attr' => [
+	    					'class' => 'btn-primary '
+	    			],
+	    			'icon' => 'fa fa-plus'
+	    	] );
+    	}    	
 
     	if(isset($fieldType) && null != $fieldType->getChildren()){
     		
@@ -57,6 +93,8 @@ class FieldTypeType extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => 'AppBundle\Entity\FieldType',
         	'container' => false,
+        	'path' => false,
+        	'new_field' => false,
         ));
     }
 	

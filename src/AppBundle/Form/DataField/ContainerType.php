@@ -5,6 +5,7 @@ namespace AppBundle\Form\DataField;
 use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Entity\DataField;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class ContainerType extends DataFieldType
 {
@@ -17,19 +18,19 @@ class ContainerType extends DataFieldType
 		
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions()['metadata'];
-		$data = $builder->getData();
-
+		
 // 		$options = array_merge([
 // 				'metadata' => $fieldType,
 // 				'label' => false,
 // 		], $fieldType->getEditOptionsArray());
-		
+
+
 		/** @var FieldType $fieldType */
 		foreach ( $fieldType->getChildren() as $key =>  $fieldType ){
 			$data = new DataField();
 			$data->setFieldType ( $fieldType );
 			$data->setParent ( $data );
-			$builder->add ( $fieldType->getName(), $fieldType->getType(), [
+			$builder->add ( 'ems_'.$fieldType->getName(), $fieldType->getType(), [
 				'metadata' => $fieldType,
 				'label' => false,
 			]);

@@ -13,9 +13,9 @@ class WysiwygType extends DataFieldType {
 	 * @param array $options        	
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
+				
 		/** @var FieldType $fieldType */
-		$fieldType = $builder->getOptions () ['metadata'];
-		$data = $builder->getData ();
+		$fieldType = $builder->getOptions()['metadata'];
 		
 		$builder->add ( 'text_value', TextareaSymfonyType::class, [ 
 				'label' => $fieldType->getLabel (),

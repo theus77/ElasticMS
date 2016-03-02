@@ -523,25 +523,61 @@ class FieldType
      */
     public function __construct()
     {
-    	$this->dataFields = new \Doctrine\Common\Collections\ArrayCollection();
+    	$this->children = new \Doctrine\Common\Collections\ArrayCollection();
     }
-    
+
     /**
      * get a child
      *
-     * @return DataField
+     * @return FieldType
      */
     public function __get($key){
-    	//     	dump($key);
-    	//     	dump($this);
+//     	if(strpos($key, 'ems_') !== 0){
+//     		dump('warning not ems prefixed call');
+//      		throw new \Exception('unprotected ems set');
+//     	}
+//     	else{
+//     		$key = substr($key, 4);
+//     	}
+    	
     	/** @var FieldType $fieldType */
     	foreach ($this->children as $fieldType){
     		if(strcmp($key,  $fieldType->getName()) == 0){
     			return $fieldType;
     		}
     	}
-    	 
+    
     	return null;
+    }    
+    
+    /**
+     * set a child
+     *
+     * @return DataField
+     */
+    public function __set($key, $input ){
+//     	if(strpos($key, 'ems_') !== 0){
+//     		dump('warning not ems prefixed call');
+//      		throw new \Exception('unprotected ems set');
+//     	}
+//     	else{
+//     		$key = substr($key, 4);
+//     	}
+    	
+    	$found = false;
+    	/** @var FieldType $fieldType */
+    	foreach ($this->children as &$child){
+    		if(strcmp($key,  $child->getName()) == 0){
+    			$found = true;
+    			$child = $input;
+    			break;
+    		}
+    	}
+    	if(! $found){    		
+	    	$this->children->add($input);
+    	}
+    	 
+    	return $this;
     }
 
     public function getTypeClass(){

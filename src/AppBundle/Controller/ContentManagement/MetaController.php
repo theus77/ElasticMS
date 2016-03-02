@@ -27,6 +27,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Form\DataField\DataFieldType;
+use AppBundle\Form\FieldType\FieldTypeType;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 
 class MetaController extends AppController
 {
@@ -38,6 +41,31 @@ class MetaController extends AppController
 	{				
 		//TODO
 		return $this->render( 'meta/edit-content-type.html.twig');		
+	}
+	
+	private function addNewContentType(array $formArray, FieldType $fieldType){
+		if(array_key_exists('add', $formArray)){
+			dump("something to add");
+			
+			$child = new FieldType();
+			$child->setName($formArray['ems:internal:add:field:name']);
+			$child->setMany(false);
+			$child->setType($formArray['ems:internal:add:field:class']);
+			$child->setDeleted(false);
+			$child->setParent($fieldType);
+			$fieldType->addChild($child);		
+			
+			return true;
+		}
+		else{
+			/** @var FieldType $child */
+			foreach ($fieldType->getChildren() as $child){
+				if($this->addNewContentType($formArray[$child->getName()], $child)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	/**
@@ -68,18 +96,34 @@ class MetaController extends AppController
 			$contentType->setFieldType($fieldType);
 		}
 		
+		$inputContentType = $request->request->get('content_type');
+
+		
 		$form = $this->createForm(ContentTypeType::class, $contentType);
 		
 		$form->handleRequest($request);
 		
 		
 		if ($form->isSubmitted() && $form->isValid()) {
-			$contentType->getFieldType()->updateOrderKeys();
 			
-			$em->persist($contentType);
-			$em->flush();
+			if(array_key_exists('save', $inputContentType)){
+				$contentType->getFieldType()->updateOrderKeys();
+				$em->persist($contentType);
+				$em->flush();
+				return $this->redirectToRoute('contenttype.list');				
+			}
+			else {
+				if($this->addNewContentType($inputContentType['fieldType'], $contentType->getFieldType())) {
+					$contentType->getFieldType()->updateOrderKeys();
+					$em->persist($contentType);
+					$em->flush();					
+					return $this->redirectToRoute('contenttype.edit',[
+						'id' => $id		
+					]);
+				}
+
+			}
 			
-			return $this->redirectToRoute('contenttype.list');
 		}
 		return $this->render( 'meta/edit-content-type.html.twig', [
 				'form' => $form->createView(),
@@ -449,6 +493,7 @@ class MetaController extends AppController
 					if (count ( $anotherObject ) == 0) {
 						$environment = new Environment();
 						$environment->setName($name);
+						$environment->setManaged(false);
 						
 						$em->persist($environment);
 						$em->flush();

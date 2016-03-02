@@ -19,7 +19,7 @@ class RevisionType extends AbstractType {
 		/** @var Revision $revision */
 		$revision = $builder->getData ();
 		
-		$builder->add ( $revision->getContentType ()->getFieldType ()->getName (), $revision->getContentType ()->getFieldType ()->getType (), [ 
+		$builder->add ( 'dataField', $revision->getContentType ()->getFieldType ()->getType (), [ 
 				'metadata' => $revision->getContentType ()->getFieldType () 
 		] )->add ( 'save', SubmitEmsType::class, [ 
 				'attr' => [ 

@@ -265,7 +265,7 @@ class DataController extends AppController
 	private function updateDataStructure(DataField $data, FieldType $meta){
 		/** @var FieldType $field */
 		foreach ($meta->getChildren() as $field){
-			$child = $data->__get($field->getName());
+			$child = $data->__get('ems_'.$field->getName());
 			if(null == $child){
 				$child = new DataField();
 				$child->setFieldType($field);

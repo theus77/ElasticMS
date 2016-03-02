@@ -13,9 +13,9 @@ class SelectPickerType extends DataFieldType {
 	 * @param array $options        	
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
+		
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
-		$data = $builder->getData ();
 		
 		$choices = $fieldType->getEditOptionsArray() ['choices'];
 		//TODO check for required choices, multiple selection, ...
