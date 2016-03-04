@@ -42,6 +42,10 @@ twig:
     strict_variables: "%kernel.debug%"
     globals:
         date_time_format: "j/m/Y \\a\\t G:i"
+        theme_color: blue
+        #blue black purple yellow red green 
+        ems_name: <b>elastic</b>MS
+        ems_shortname: <b>e</b>MS
 
 # Doctrine Configuration
 doctrine:
