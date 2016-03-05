@@ -27,7 +27,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         page. However, you can choose any other skin. Make sure you
         apply the skin class to the body tag so the changes take effect.
   -->
-  <link rel="stylesheet" href="{{ asset('bower/AdminLTE/dist/css/skins/skin-blue.min.css') }}">
+  <link rel="stylesheet" href="{{ asset('bower/AdminLTE/dist/css/skins/skin-'~theme_color~'.min.css') }}">
 
 
   {% block stylesheets %}{% endblock %}
@@ -62,7 +62,7 @@ desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-{{ theme_color }} sidebar-mini">
 <div class="wrapper">
 
   <!-- Main Header -->
@@ -71,9 +71,9 @@ desired effect
     <!-- Logo -->
     <a href="{{ url('homepage') }}" class="logo">
       <!-- mini logo for sidebar mini 50x50 pixels -->
-      <span class="logo-mini"><b>e</b>MS</span>
+      <span class="logo-mini">{{ ems_shortname|raw }}</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><b>elastic</b>MS</span>
+      <span class="logo-lg">{{ ems_name|raw }}</span>
     </a>
 
     <!-- Header Navbar -->
