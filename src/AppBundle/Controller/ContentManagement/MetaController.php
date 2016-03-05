@@ -41,8 +41,28 @@ class MetaController extends AppController
 	 */
 	public function deleteContentTypeAction($id, Request $request)
 	{				
-		//TODO
-		return $this->render( 'meta/edit-content-type.html.twig');		
+		if($request->isMethod('GET') ){
+			throw new BadRequestHttpException('This method doesn\'t allow GET request');
+		}
+		
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository('AppBundle:ContentType');
+		
+		/** @var ContentType $contentType */
+		$contentType = $repository->find($id);
+		
+		if(! $contentType || count($contentType) != 1){
+			throw $this->createNotFoundException('Content type not found');
+		}
+		
+		$contentType->setActive(false)->setDeleted(true);
+		$em->persist($contentType);
+		$em->flush();
+		$this->addFlash('warning', 'Content type '.$contentType->getName().' has been deleted');
+		
+		return $this->redirectToRoute('contenttype.list');	
 	}
 	
 	private function addNewContentType(array $formArray, FieldType $fieldType){
@@ -242,8 +262,6 @@ class MetaController extends AppController
 			
 			$this->addFlash('notice', count($environment->getRevisions()).' objects have been reindexed');
 			
-			dump($environment->getName());
-			dump($indexName);
 			$this->switchAlias($client, $this->getParameter('instance_id').$environment->getName(), $indexName);
 			$this->addFlash('notice', 'The alias <strong>'.$environment->getName().'</strong> is now pointing to '.$indexName);
 			
@@ -258,6 +276,74 @@ class MetaController extends AppController
 	}
 	
 	/**
+	 * @Route("/meta/content-type/add", name="contenttype.add-referenced"))
+	 */
+	public function addReferencedContentTypeAction(Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+			
+		/** @var EnvironmentRepository $environmetRepository */
+		$environmetRepository = $em->getRepository('AppBundle:Environment');
+		
+		if($request->isMethod('POST')){
+			if(null != $request->get('envId') && null != $request->get('name') ){
+				$defaultEnvironment = $environmetRepository->find($request->get('envId'));
+				if($defaultEnvironment){
+					$contentType = new ContentType();
+					$contentType->setName($request->get('name'));
+					$contentType->setPluralName($contentType->getName());
+					$contentType->setEnvironment($defaultEnvironment);	
+					
+					$em->persist($contentType);
+					$em->flush();
+					return $this->redirectToRoute('contenttype.edit', [
+						'id' => $contentType->getId()
+					]);					
+				}
+			}
+			return $this->redirectToRoute('contenttype.add-referenced');
+		}
+
+		/** @var ContentTypeRepository $contenttypeRepository */
+		$contenttypeRepository = $em->getRepository('AppBundle:ContentType');
+		
+		$environments = $environmetRepository->findBy([
+				'managed' => false,
+		]);
+		
+		/** @var  Client $client */
+		$client = $this->get('app.elasticsearch');
+		
+		
+		$referencedContentTypes = [];
+		/** @var Environment $environment */
+		foreach ($environments as $environment){
+			$alias = $environment->getAlias();
+			$mapping = $client->indices()->getMapping([
+					'index' => $alias,
+			]);
+			foreach ($mapping as $indexName => $index){
+				foreach ($index['mappings'] as $name => $type){
+					if(! $contenttypeRepository->findBy([
+						'name' => $name
+					])) {
+						$referencedContentTypes[] = [
+							'name' => $name,
+							'alias' => $alias,
+							'envId' => $environment->getId(),
+						];
+					}
+				}				
+			}
+		}
+		
+		return $this->render( 'meta/add-referenced-content-type.html.twig', [
+				'referencedContentTypes' => $referencedContentTypes
+		]);
+	}
+	
+	/**
 	 * @Route("/meta/content-type/add", name="contenttype.add"))
 	 */
 	public function addContentTypeAction(Request $request)
@@ -269,7 +355,9 @@ class MetaController extends AppController
 		/** @var EnvironmentRepository $environmetRepository */
 		$environmetRepository = $em->getRepository('AppBundle:Environment');
 		
-		$environments = $environmetRepository->findAll();
+		$environments = $environmetRepository->findBy([
+			'managed' => true,
+		]);
 		
 		$contentType = new ContentType();
 		
@@ -303,8 +391,6 @@ class MetaController extends AppController
 				]
 		])
 		->getForm();
-		
-		dump($request);
 		
 		$form->handleRequest($request);
 			
@@ -378,10 +464,12 @@ class MetaController extends AppController
 		
 		/** @var  Environment $environment */
 		foreach ($environments as $environment) {
-			if(isset($temp[$this->getParameter('instance_id').$environment->getName()])){
-				$environment->setIndex($temp[$this->getParameter('instance_id').$environment->getName()]);
-				$environment->setTotal($stats['indices'][$temp[$this->getParameter('instance_id').$environment->getName()]]['total']['docs']['count']);
-				unset($temp[$this->getParameter('instance_id').$environment->getName()]);
+			$realName = ($environment->getManaged()?$this->getParameter('instance_id'):'').$environment->getName();
+			
+			if(isset($temp[$realName])){
+				$environment->setIndex($temp[$realName]);
+				$environment->setTotal($stats['indices'][$temp[$realName]]['total']['docs']['count']);
+				unset($temp[$realName]);
 			}
 		}
 // 		dump($stats);
@@ -561,19 +649,20 @@ class MetaController extends AppController
 			
 			/** @var  Client $client */
 			$client = $this->get('app.elasticsearch');
-			try {
-				$aliasName = ($environment->getManaged()?$this->getParameter('instance_id'):'').$environment->getName();
-				$indexes = $client->indices()->get(['index' => $aliasName]);
-// 				dump($indexes);
-				$client->indices()->deleteAlias([
-					'name' => $aliasName,
-					'index' => array_keys($indexes)[0]
-				]);				
+			if($environment->getManaged()){
+				try {
+					$aliasName = ($environment->getManaged()?$this->getParameter('instance_id'):'').$environment->getName();
+					$indexes = $client->indices()->get(['index' => $aliasName]);
+	// 				dump($indexes);
+					$client->indices()->deleteAlias([
+						'name' => $aliasName,
+						'index' => array_keys($indexes)[0]
+					]);				
+				}
+				catch (Missing404Exception $e){
+					
+				}
 			}
-			catch (Missing404Exception $e){
-				
-			}
-			
 			$em->remove($environment);
 			$em->flush();
 			return $this->redirectToRoute('environment.list');

@@ -217,6 +217,10 @@ class ContentType
      * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
      */
     private $environment;
+    
+    function __construct(){
+//     	$this->
+    }
 
     public function generateMapping(){
     	$out = [
@@ -820,30 +824,6 @@ class ContentType
     public function getUserField()
     {
         return $this->userField;
-    }
-
-    /**
-     * Set defaultEnvironment
-     *
-     * @param string $defaultEnvironment
-     *
-     * @return ContentType
-     */
-    public function setDefaultEnvironment($defaultEnvironment)
-    {
-        $this->defaultEnvironment = $defaultEnvironment;
-
-        return $this;
-    }
-
-    /**
-     * Get defaultEnvironment
-     *
-     * @return string
-     */
-    public function getDefaultEnvironment()
-    {
-        return $this->defaultEnvironment;
     }
 
     /**

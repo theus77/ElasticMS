@@ -25,7 +25,7 @@
 				<!-- /.box-header -->
 				<div class="box-body">
 					<div class="col-md-4">
-						{{ form_row(form.active) }}
+{# 						{{ form_row(form.active) }}#}
 						{{ form_row(form.rootContentType) }}
 						{{ form_row(form.pluralName) }}
 						{{ form_row(form.icon) }}
@@ -50,9 +50,11 @@
 					</div>
 										
 					
-					<div class="col-md-12">
-						{{ form_row(form.fieldType) }}
-					</div>
+					{% if contentType.environment.managed %}
+						<div class="col-md-12">
+							{{ form_row(form.fieldType) }}
+						</div>
+					{% endif %}
 										
 				</div>
 				<!-- /.box-body -->		

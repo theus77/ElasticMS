@@ -30,43 +30,94 @@
 							<th>Action</th>
 						</tr>
 						{% for environment in environments %}
-							<tr>
-								<td class="text-center">{{ loop.index }}.</td>
-								<td>
-									<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
-								</td>
-								<td>{{ environment.index }}</td>
-								<td class="text-center">{{ environment.total|number_format }}</td>
-								<td class="text-center">{{ environment.revisions|length|number_format }}</td>
-								<td>
-									<div class="btn-group">
-										{% if environment.managed  %}
+							{% if environment.managed  %}
+								<tr>
+									<td class="text-center">{{ loop.index }}.</td>
+									<td>
+										<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
+									</td>
+									<td>{{ environment.index }}</td>
+									<td class="text-center">{{ environment.total|number_format }}</td>
+									<td class="text-center">{{ environment.revisions|length|number_format }}</td>
+									<td>
+										<div class="btn-group">
 											{% include 'elements/get-button.html.twig' with {
 												'url': path('index.rebuild', {'id': environment.id}),
 												'label': 'Rebuild',
 												'icon': 'recycle'
 											}%}
-										{% else %}
 											{% include 'elements/get-button.html.twig' with {
-												'url': path('index.switch', {'id': environment.id}),
-												'label': 'Switch',
-												'icon': 'share-square-o'
+													'url': path('environment.edit', {'id': environment.id}),
+													'label': 'Edit',
+													'icon': 'pencil'
+												}%}
+											{% include 'elements/post-button.html.twig' with {
+												'url': path('environment.delete', {'id': environment.id}),
+												'message': 'Delete the environment ' ~ environment.name|humanize ~ ' ?',
+												'label': 'Delete',
+												'icon': 'trash'
 											}%}
-										{% endif %}
-										{% include 'elements/get-button.html.twig' with {
-												'url': path('environment.edit', {'id': environment.id}),
-												'label': 'Edit',
-												'icon': 'pencil'
+										</div>
+									</td>
+								</tr>
+							{% endif %}
+						{% endfor %}
+					</tbody>
+				</table>
+				{% endif %}
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<div class="box ">
+			<div class="box-header with-border">
+				<i class="fa fa-database"></i>
+				<h3 class="box-title">Externals environments</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				{% if environments|length == 0 %}
+					There is no environment yet
+				{% else %}
+				<table class="table table-condensed table-striped">
+					<tbody>
+						<tr>
+							<th class="text-center" style="width: 10px">#</th>
+							<th>Name</th>
+							<th>Index</th>
+							<th class="text-center">Total</th>
+							<th>Action</th>
+						</tr>
+						{% for environment in environments %}
+							{% if not environment.managed  %}
+								<tr>
+									<td class="text-center">{{ loop.index }}.</td>
+									<td>
+										<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
+									</td>
+									<td>{{ environment.index }}</td>
+									<td class="text-center">{{ environment.total|number_format }}</td>
+									<td>
+										<div class="btn-group">
+{# 											{% include 'elements/get-button.html.twig' with {#}
+{# 												'url': path('index.switch', {'id': environment.id}),#}
+{# 												'label': 'Switch',#}
+{# 												'icon': 'share-square-o'#}
+{# 											}%}#}
+											{% include 'elements/get-button.html.twig' with {
+													'url': path('environment.edit', {'id': environment.id}),
+													'label': 'Edit',
+													'icon': 'pencil'
+												}%}
+											{% include 'elements/post-button.html.twig' with {
+												'url': path('environment.delete', {'id': environment.id}),
+												'message': 'Detach the environment ' ~ environment.name|humanize ~ ' ?',
+												'label': 'Detach',
+												'icon': 'trash'
 											}%}
-										{% include 'elements/post-button.html.twig' with {
-											'url': path('environment.delete', {'id': environment.id}),
-											'message': 'Delete the environment ' ~ environment.name|humanize ~ ' ?',
-											'label': 'Delete',
-											'icon': 'trash'
-										}%}
-									</div>
-								</td>
-							</tr>
+										</div>
+									</td>
+								</tr>
+							{% endif %}
 						{% endfor %}
 					</tbody>
 				</table>
@@ -150,7 +201,7 @@
 									<td>
 										{% include 'elements/post-button.html.twig' with {
 											'url': path('environment.create', {'name': alias.name }),
-											'label': 'Add',
+											'label': 'Attach',
 											'icon': 'plus'
 										}%}
 									</td>

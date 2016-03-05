@@ -26,7 +26,7 @@ class ContentTypeType extends AbstractType {
 		$contentType = $builder->getData ();
 
 		$builder->add ( 'rootContentType');
-		$builder->add ( 'active');
+// 		$builder->add ( 'active');
 // 		$builder->add ( 'labelField');
 // 		$builder->add ( 'parentField');
 // 		$builder->add ( 'userField');
@@ -47,9 +47,11 @@ class ContentTypeType extends AbstractType {
 			'required' => false,
 		]);
 
-		$builder->add ( 'fieldType', FieldTypeType::class, [
-			'data' => $contentType->getFieldType()
-		]);
+		if($contentType->getEnvironment()->getManaged()){
+			$builder->add ( 'fieldType', FieldTypeType::class, [
+				'data' => $contentType->getFieldType()
+			]);			
+		}
 		
 		
 		$builder->add ( 'description', TextareaType::class, [
