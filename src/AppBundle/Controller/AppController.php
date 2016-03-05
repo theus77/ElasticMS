@@ -30,6 +30,11 @@ class AppController extends Controller
 		return $this->container->get('twig');
 	}
 	
+
+
+	protected function getFormatedTimestamp(){
+		return date('_Ymd_His');
+	}
 	
 	protected function getGUID(){
 		mt_srand((double)microtime()*10000);//optional for php 4.2.0 and up.

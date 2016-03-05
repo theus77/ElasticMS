@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit the environement {{environment.name}}{% endblock %}
+{% block pagetitle %}Edit the environement {{environment.name}}{% endblock %} 
+{% block breadcrumb %}
+	<ol class="breadcrumb">
+		<li><i class="fa fa-database"></i> Environments</li>
+		<li><a href={{ url('environment.list') }}>List Environments</a></li>
+   		<li class="active">Edit environment</li>
+   	</ol>
+{% endblock %}
+
+{% block body %}
+<div class="row">
+	<div class="col-md-6">
+		<div class="box ">
+			<div class="box-header with-border">
+				<i class="fa fa-warning"></i>
+				<h3 class="box-title">Notice</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<p>
+					If you intend to rename an environement, please create a new one and align it to the one you would like to rename.
+					Then delete the previous one.
+				</p>
+			</div>
+			<!-- /.box-body -->
+		</div>
+	</div>
+	<div class="col-md-6">
+		<div class="box box-info">
+			<div class="box-header with-border">
+				<h3 class="box-title">Update environement's options</h3>
+			</div>
+			<!-- /.box-header -->
+			<!-- form start -->
+			{% form_theme form 'form/fields.html.twig' %}	
+			{{ form_start(form) }}
+				<div class="box-body">
+					{{ form_widget(form.color) }}
+				</div>
+				<!-- /.box-body -->
+				<div class="box-footer">
+					<div class="btn-group pull-right">
+						{{ form_widget(form.save) }}
+					</div>
+				</div>
+				<!-- /.box-footer -->
+			
+			{{ form_end(form) }}
+		</div>
+	</div>
+</div>
+{% endblock %} 
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'environment-list'
+	}%}
+{% endblock %}	

@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{% if revision.ouuid %}Edit {{ revision.ouuid }}{% else %}New draft{% endif %}{% endblock %}
-{% block pagetitle %}{% if revision.ouuid %}Edit {{ revision.ouuid }}{% else %}New draft{% endif %}{% endblock %} 
+{% block title %}{% if revision.ouuid %}Edit {{ revision.contentType.name|humanize }} : {{ revision.ouuid }}{% else %}{{ revision.contentType.name|humanize }} : new draft{% endif %}{% endblock %}
+{% block pagetitle %}{% if revision.ouuid %}Edit {{ revision.contentType.name|humanize }} : {{ revision.ouuid }}{% else %}{{ revision.contentType.name|humanize }} : new draft{% endif %}{% endblock %} 
 {% block subtitle %}<small>.....</small>{% endblock %} 
 
 

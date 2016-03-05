@@ -308,7 +308,7 @@ class DataController extends AppController
 				$objectArray = $revision->getDataField()->getObjectArray();
 				$status = $client->index([
 						'id' => $revision->getOuuid(),
-						'index' => $environment->getName(),
+						'index' => $this->getParameter('instance_id').$environment->getName(),
 						'type' => $revision->getContentType()->getName(),
 						'body' => $objectArray
 				]);				
@@ -379,7 +379,7 @@ class DataController extends AppController
 					
 					if( null == $revision->getOuuid() ) {
 						$status = $client->create([
-							'index' => $revision->getContentType()->getEnvironment()->getName(),
+							'index' => $this->getParameter('instance_id').$revision->getContentType()->getEnvironment()->getName(),
 							'type' => $revision->getContentType()->getName(),
 							'body' => $objectArray
 						]);
@@ -391,7 +391,7 @@ class DataController extends AppController
 					else {
 						$status = $client->index([
 								'id' => $revision->getOuuid(),
-								'index' => $revision->getContentType()->getEnvironment()->getName(),
+								'index' => $this->getParameter('instance_id').$revision->getContentType()->getEnvironment()->getName(),
 								'type' => $revision->getContentType()->getName(),
 								'body' => $objectArray
 						]);

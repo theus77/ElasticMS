@@ -30,6 +30,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Form\DataField\DataFieldType;
 use AppBundle\Form\FieldType\FieldTypeType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use AppBundle\Form\Field\ColorPickerType;
+use AppBundle\Form\Form\EditEnvironmentType;
 
 class MetaController extends AppController
 {
@@ -140,8 +142,39 @@ class MetaController extends AppController
 		return $this->render( 'meta/list-content-type.html.twig');
 	}
 	
-	
-	
+
+	/**
+	 * @Route("/meta/index/edit/{id}", name="environment.edit"))
+	 */
+	public function editEnvironmentAction($id, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var EnvironmentRepository $repository */
+		$repository = $em->getRepository('AppBundle:Environment');		/** @var Environment $environment */
+		$environment = $repository->find($id);
+		
+		if(! $environment || count($environment) != 1){
+			throw new NotFoundHttpException('Unknow environment');
+		}
+				
+		$form = $this->createForm(EditEnvironmentType::class, $environment);
+		
+		$form->handleRequest($request);
+		
+		if ($form->isSubmitted() && $form->isValid()) {
+			$em->persist($environment);
+			$em->flush();
+			return $this->redirectToRoute('environment.list');
+		}
+		
+		return $this->render( 'meta/edit-environment.html.twig',[
+				'environment' => $environment,
+				'form' => $form->createView(),
+		]);		
+		
+	}
+
 	/**
 	 * @Route("/meta/index/rebuild/{id}", name="index.rebuild"))
 	 */
@@ -168,7 +201,7 @@ class MetaController extends AppController
 		if ($form->isSubmitted() && $form->isValid()) {
 			/** @var  Client $client */
 			$client = $this->get('app.elasticsearch');
-			$indexName = 'ems_'.$this->getGUID();
+			$indexName = $this->getParameter('instance_id').$environment->getName().$this->getFormatedTimestamp();
 			
 			
 			/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
@@ -178,17 +211,19 @@ class MetaController extends AppController
 			/** @var ContentType $contentType */
 			foreach ($contentTypes as $contentType){
 				$mapping = array_merge($mapping, $contentType->generateMapping());
-// 				$client->indices()->putMapping([
-// 					'index' => $indexName,
-// 					'type' => $contentType->getName(),
-// 					'body' => $maping
-// 				]);
 			}
-			
-			$client->indices()->create([
-					'index' => $indexName,
-					'body' => ["mappings" => $mapping],
-			]);
+			if(count($mapping) == 0){
+				$client->indices()->create([
+						'index' => $indexName,
+				]);
+				
+			}
+			else{
+				$client->indices()->create([
+						'index' => $indexName,
+						'body' => ["mappings" => $mapping],
+				]);			
+			}
 			
 			$this->addFlash('notice', 'A new index '.$indexName.' has been created');
 			
@@ -198,16 +233,18 @@ class MetaController extends AppController
 			foreach ($environment->getRevisions() as $revision) {
 				$objectArray = $revision->getDataField()->getObjectArray();
 				$status = $client->create([
-						'index' => $indexName,
+						'index' => $this->getParameter('instance_id').$indexName,
 						'id' => $revision->getOuuid(),
 						'type' => $revision->getContentType()->getName(),
 						'body' => $objectArray
 				]);
 			}
-
+			
 			$this->addFlash('notice', count($environment->getRevisions()).' objects have been reindexed');
 			
-			$this->switchAlias($client, $environment->getName(), $indexName);
+			dump($environment->getName());
+			dump($indexName);
+			$this->switchAlias($client, $this->getParameter('instance_id').$environment->getName(), $indexName);
 			$this->addFlash('notice', 'The alias <strong>'.$environment->getName().'</strong> is now pointing to '.$indexName);
 			
 			return $this->redirectToRoute('environment.list');
@@ -341,10 +378,10 @@ class MetaController extends AppController
 		
 		/** @var  Environment $environment */
 		foreach ($environments as $environment) {
-			if(isset($temp[$environment->getName()])){
-				$environment->setIndex($temp[$environment->getName()]);
-				$environment->setTotal($stats['indices'][$temp[$environment->getName()]]['total']['docs']['count']);
-				unset($temp[$environment->getName()]);
+			if(isset($temp[$this->getParameter('instance_id').$environment->getName()])){
+				$environment->setIndex($temp[$this->getParameter('instance_id').$environment->getName()]);
+				$environment->setTotal($stats['indices'][$temp[$this->getParameter('instance_id').$environment->getName()]]['total']['docs']['count']);
+				unset($temp[$this->getParameter('instance_id').$environment->getName()]);
 			}
 		}
 // 		dump($stats);
@@ -525,10 +562,11 @@ class MetaController extends AppController
 			/** @var  Client $client */
 			$client = $this->get('app.elasticsearch');
 			try {
-				$indexes = $client->indices()->get(['index' => $environment->getName()]);
+				$aliasName = ($environment->getManaged()?$this->getParameter('instance_id'):'').$environment->getName();
+				$indexes = $client->indices()->get(['index' => $aliasName]);
 // 				dump($indexes);
 				$client->indices()->deleteAlias([
-					'name' => $environment->getName(),
+					'name' => $aliasName,
 					'index' => array_keys($indexes)[0]
 				]);				
 			}
@@ -554,8 +592,10 @@ class MetaController extends AppController
 			->add('name', IconTextType::class, [
 					'icon' => 'fa fa-database',
 			])		
+			->add('color', ColorPickerType::class, [
+			])		
 			->add('managed', CheckboxType::class, [
-				'label' => 'Can we use this environment to publish objects?'
+				'label' => 'Can we use this environment to publish objects?',
 			])		
 			->add('save', SubmitType::class, [
 					'label' => 'Create',
@@ -600,10 +640,10 @@ class MetaController extends AppController
 				}
 				catch (Missing404Exception $e){
 					$client->indices()->create([
-						'index' => 'ems_'.$this->getGUID(),
+						'index' => $this->getParameter('instance_id').$environment->getName().$this->getFormatedTimestamp(),
 						'body' => '{
 		    				"aliases" : {
-		        			'.json_encode($environment->getName()).' : {}}}'
+		        			'.json_encode($this->getParameter('instance_id').$environment->getName()).' : {}}}'
 					]);					
 				}
 				

@@ -10,6 +10,7 @@ parameters:
     paging_size: 50
     elasticsearch_cluster: ["toto:9200"]
     lock_time: "+5 minutes"
+    instance_id: "ems_"
 
 framework:
     #esi:             ~
@@ -42,6 +43,10 @@ twig:
     strict_variables: "%kernel.debug%"
     globals:
         date_time_format: "j/m/Y \\a\\t G:i"
+        theme_color: blue
+        #blue black purple yellow red green 
+        ems_name: <b>elastic</b>MS
+        ems_shortname: <b>e</b>MS
 
 # Doctrine Configuration
 doctrine:

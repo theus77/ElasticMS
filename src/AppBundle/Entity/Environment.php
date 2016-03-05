@@ -177,7 +177,7 @@ class Environment
      */
     public function getName()
     {
-        return $this->name;
+    	return $this->name;
     }
 
     /**

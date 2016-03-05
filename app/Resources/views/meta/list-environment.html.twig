@@ -32,7 +32,9 @@
 						{% for environment in environments %}
 							<tr>
 								<td class="text-center">{{ loop.index }}.</td>
-								<td>{{ environment.name }}</td>
+								<td>
+									<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
+								</td>
 								<td>{{ environment.index }}</td>
 								<td class="text-center">{{ environment.total|number_format }}</td>
 								<td class="text-center">{{ environment.revisions|length|number_format }}</td>
@@ -51,6 +53,11 @@
 												'icon': 'share-square-o'
 											}%}
 										{% endif %}
+										{% include 'elements/get-button.html.twig' with {
+												'url': path('environment.edit', {'id': environment.id}),
+												'label': 'Edit',
+												'icon': 'pencil'
+											}%}
 										{% include 'elements/post-button.html.twig' with {
 											'url': path('environment.delete', {'id': environment.id}),
 											'message': 'Delete the environment ' ~ environment.name|humanize ~ ' ?',
@@ -117,12 +124,12 @@
 		<div class="box ">
 			<div class="box-header with-border">
 				<i class="fa fa-database"></i>
-				<h3 class="box-title">Unmanaged aliases</h3>
+				<h3 class="box-title">Unreferenced aliases</h3>
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
 				{% if unmanagedIndexes|length == 0 %}
-					All indexes are managed
+					All indexes are referenced
 				{% else %}
 			
 					<table class="table table-condensed table-striped">
@@ -143,7 +150,7 @@
 									<td>
 										{% include 'elements/post-button.html.twig' with {
 											'url': path('environment.create', {'name': alias.name }),
-											'label': 'Manage',
+											'label': 'Add',
 											'icon': 'plus'
 										}%}
 									</td>
