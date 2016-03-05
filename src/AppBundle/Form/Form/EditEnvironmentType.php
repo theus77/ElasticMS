@@ -3,12 +3,11 @@
 namespace AppBundle\Form\Form;
 
 use AppBundle\Entity\Revision;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\Field\SubmitEmsType;
-use AppBundle\Form\DataField\StringType;
 use AppBundle\Form\Field\ColorPickerType;
+use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\SubmitEmsType;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
 
 class EditEnvironmentType extends AbstractType {
 	/**
@@ -22,6 +21,9 @@ class EditEnvironmentType extends AbstractType {
 		$revision = $builder->getData ();
 		
 		$builder
+		->add ( 'name', IconTextType::class, [
+			'icon' => 'fa fa-tag'
+		] )
 		->add ( 'color', ColorPickerType::class)
 		->add ( 'save', SubmitEmsType::class, [ 
 				'attr' => [ 

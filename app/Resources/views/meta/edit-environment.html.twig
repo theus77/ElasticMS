@@ -21,7 +21,7 @@
 			<!-- /.box-header -->
 			<div class="box-body">
 				<p>
-					If you intend to rename an environement, please create a new one and align it to the one you would like to rename.
+					If you intend to rename the alias, please create a new environment and align it to the one you would like to rename the alias.
 					Then delete the previous one.
 				</p>
 			</div>
@@ -38,7 +38,8 @@
 			{% form_theme form 'form/fields.html.twig' %}	
 			{{ form_start(form) }}
 				<div class="box-body">
-					{{ form_widget(form.color) }}
+					{{ form_row(form.name) }}
+					{{ form_row(form.color) }}
 				</div>
 				<!-- /.box-body -->
 				<div class="box-footer">

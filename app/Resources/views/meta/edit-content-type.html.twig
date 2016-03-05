@@ -26,7 +26,9 @@
 				<div class="box-body">
 					<div class="col-md-4">
 {# 						{{ form_row(form.active) }}#}
-						{{ form_row(form.rootContentType) }}
+						{% if contentType.environment.managed %}
+							{{ form_row(form.rootContentType) }}
+						{% endif %}
 						{{ form_row(form.pluralName) }}
 						{{ form_row(form.icon) }}
 						{{ form_row(form.color) }}
@@ -48,8 +50,39 @@
 						{{ form_row(form.description) }}
 {# 						{{ form_row(form.indexTwig) }}#}
 					</div>
-										
-					
+
+
+				<div class="col-md-12">
+					<div class="nav-tabs-custom">
+						<ul class="nav nav-tabs">
+							{% if contentType.environment.managed %}
+								<li class="active"><a href="#tab_1" data-toggle="tab"
+									aria-expanded="true">Structure</a></li>
+							{% endif %}
+							{% if mapping %}
+								<li class="{% if not contentType.environment.managed %}active{% endif %}"><a href="#tab_2" data-toggle="tab"
+									aria-expanded="false">Mapping</a></li>
+							{% endif %}
+						</ul>
+						<div class="tab-content">
+							{% if contentType.environment.managed %}
+								<div class="tab-pane active" id="tab_1">
+									{{ form_row(form.fieldType) }}
+								</div>
+							{% endif %}	
+							{% if mapping %}
+								{% import "view/macros.html.twig" as macros %}
+								<div class="tab-pane{% if not contentType.environment.managed %} active{% endif %}" id="tab_2">
+									{{ macros.renderMapping(mapping) }}
+								</div>
+								<!-- /.tab-pane -->
+							{% endif %}	
+						</div>
+						<!-- /.tab-content -->
+					</div>
+				</div>
+
+
 					{% if contentType.environment.managed %}
 						<div class="col-md-12">
 							{{ form_row(form.fieldType) }}

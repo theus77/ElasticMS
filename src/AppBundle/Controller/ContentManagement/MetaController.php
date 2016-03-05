@@ -59,7 +59,8 @@ class MetaController extends AppController
 		
 		$contentType->setActive(false)->setDeleted(true);
 		$em->persist($contentType);
-		$em->flush();
+		$em->flush();		
+		
 		$this->addFlash('warning', 'Content type '.$contentType->getName().' has been deleted');
 		
 		return $this->redirectToRoute('contenttype.list');	
@@ -147,9 +148,20 @@ class MetaController extends AppController
 			}
 			
 		}
+		
+
+		/** @var  Client $client */
+		$client = $this->get('app.elasticsearch');
+		
+		$mapping = $client->indices()->getMapping([
+			'index' => $contentType->getEnvironment()->getAlias(),
+			'type' => $contentType->getName(),
+		]);
+		
 		return $this->render( 'meta/edit-content-type.html.twig', [
 				'form' => $form->createView(),
 				'contentType' => $contentType,
+				'mapping' => isset(current($mapping)['mappings'][$contentType->getName()]['properties'])?current($mapping)['mappings'][$contentType->getName()]['properties']:false,
 		]);
 		
 	}
@@ -194,6 +206,62 @@ class MetaController extends AppController
 		]);		
 		
 	}
+	
+	private function reindexAllInNewIndex(Environment $environment){
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var  Client $client */
+		$client = $this->get('app.elasticsearch');
+		$indexName = $environment->getAlias().$this->getFormatedTimestamp();
+			
+			
+		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
+		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
+		$contentTypes = $contentTypeRepository->findAll();
+		$mapping = [];
+		/** @var ContentType $contentType */
+		foreach ($contentTypes as $contentType){
+			$mapping = array_merge($mapping, $contentType->generateMapping());
+		}
+		if(count($mapping) == 0){
+			$client->indices()->create([
+					'index' => $indexName,
+			]);
+		
+		}
+		else{
+			$client->indices()->create([
+					'index' => $indexName,
+					'body' => ["mappings" => $mapping],
+			]);
+		}
+			
+		$this->addFlash('notice', 'A new index '.$indexName.' has been created');
+			
+			
+		$this->reindexAll($environment, $indexName);
+		
+		$this->switchAlias($client, $environment->getAlias(), $indexName);
+		$this->addFlash('notice', 'The alias <strong>'.$environment->getName().'</strong> is now pointing to '.$indexName);
+	
+	}
+	
+	private function reindexAll(Environment $environment, $alias){
+		/** @var  Client $client */
+		$client = $this->get('app.elasticsearch');
+		/** @var \AppBundle\Entity\Revision $revision */
+		foreach ($environment->getRevisions() as $revision) {
+			$objectArray = $revision->getDataField()->getObjectArray();
+			$status = $client->index([
+					'index' => $alias,
+					'id' => $revision->getOuuid(),
+					'type' => $revision->getContentType()->getName(),
+					'body' => $objectArray
+			]);
+		}
+			
+		$this->addFlash('notice', count($environment->getRevisions()).' objects have been reindexed in '.$alias);
+	}
 
 	/**
 	 * @Route("/meta/index/rebuild/{id}", name="index.rebuild"))
@@ -219,52 +287,19 @@ class MetaController extends AppController
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
-			/** @var  Client $client */
-			$client = $this->get('app.elasticsearch');
-			$indexName = $this->getParameter('instance_id').$environment->getName().$this->getFormatedTimestamp();
 			
+			$option = $rebuildIndex->getOption();
 			
-			/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
-			$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
-			$contentTypes = $contentTypeRepository->findAll();
-			$mapping = [];
-			/** @var ContentType $contentType */
-			foreach ($contentTypes as $contentType){
-				$mapping = array_merge($mapping, $contentType->generateMapping());
-			}
-			if(count($mapping) == 0){
-				$client->indices()->create([
-						'index' => $indexName,
-				]);
-				
-			}
-			else{
-				$client->indices()->create([
-						'index' => $indexName,
-						'body' => ["mappings" => $mapping],
-				]);			
-			}
-			
-			$this->addFlash('notice', 'A new index '.$indexName.' has been created');
-			
-			
-			
-			/** @var \AppBundle\Entity\Revision $revision */
-			foreach ($environment->getRevisions() as $revision) {
-				$objectArray = $revision->getDataField()->getObjectArray();
-				$status = $client->create([
-						'index' => $this->getParameter('instance_id').$indexName,
-						'id' => $revision->getOuuid(),
-						'type' => $revision->getContentType()->getName(),
-						'body' => $objectArray
-				]);
-			}
-			
-			$this->addFlash('notice', count($environment->getRevisions()).' objects have been reindexed');
-			
-			$this->switchAlias($client, $this->getParameter('instance_id').$environment->getName(), $indexName);
-			$this->addFlash('notice', 'The alias <strong>'.$environment->getName().'</strong> is now pointing to '.$indexName);
-			
+			switch ($option){
+				case "newIndex":
+					$this->reindexAllInNewIndex($environment);
+					break;
+				case "sameIndex":
+					$this->reindexAll($environment, $environment->getAlias());
+					break;
+				default:
+					$this->addFlash('warning', 'Unknow rebuild option: '.$option.'.');
+			}			
 			return $this->redirectToRoute('environment.list');
 		}
 		
@@ -294,6 +329,7 @@ class MetaController extends AppController
 					$contentType->setName($request->get('name'));
 					$contentType->setPluralName($contentType->getName());
 					$contentType->setEnvironment($defaultEnvironment);	
+					$contentType->setActive(true);	
 					
 					$em->persist($contentType);
 					$em->flush();
@@ -325,9 +361,10 @@ class MetaController extends AppController
 			]);
 			foreach ($mapping as $indexName => $index){
 				foreach ($index['mappings'] as $name => $type){
-					if(! $contenttypeRepository->findBy([
-						'name' => $name
-					])) {
+					$already = $contenttypeRepository->findBy([
+							'name' => $name
+					]);
+					if(!$already || $already[0]->getDeleted() ) {
 						$referencedContentTypes[] = [
 							'name' => $name,
 							'alias' => $alias,
@@ -464,12 +501,10 @@ class MetaController extends AppController
 		
 		/** @var  Environment $environment */
 		foreach ($environments as $environment) {
-			$realName = ($environment->getManaged()?$this->getParameter('instance_id'):'').$environment->getName();
-			
-			if(isset($temp[$realName])){
-				$environment->setIndex($temp[$realName]);
-				$environment->setTotal($stats['indices'][$temp[$realName]]['total']['docs']['count']);
-				unset($temp[$realName]);
+			if(isset($temp[$environment->getAlias()])){
+				$environment->setIndex($temp[$environment->getAlias()]);
+				$environment->setTotal($stats['indices'][$temp[$environment->getAlias()]]['total']['docs']['count']);
+				unset($temp[$environment->getAlias()]);
 			}
 		}
 // 		dump($stats);
@@ -618,6 +653,7 @@ class MetaController extends AppController
 					if (count ( $anotherObject ) == 0) {
 						$environment = new Environment();
 						$environment->setName($name);
+						$environment->setAlias($name);
 						$environment->setManaged(false);
 						
 						$em->persist($environment);
@@ -651,11 +687,9 @@ class MetaController extends AppController
 			$client = $this->get('app.elasticsearch');
 			if($environment->getManaged()){
 				try {
-					$aliasName = ($environment->getManaged()?$this->getParameter('instance_id'):'').$environment->getName();
-					$indexes = $client->indices()->get(['index' => $aliasName]);
-	// 				dump($indexes);
+					$indexes = $client->indices()->get(['index' => $environment->getAlias()]);
 					$client->indices()->deleteAlias([
-						'name' => $aliasName,
+						'name' => $environment->getAlias(),
 						'index' => array_keys($indexes)[0]
 					]);				
 				}
@@ -683,9 +717,9 @@ class MetaController extends AppController
 			])		
 			->add('color', ColorPickerType::class, [
 			])		
-			->add('managed', CheckboxType::class, [
-				'label' => 'Can we use this environment to publish objects?',
-			])		
+// 			->add('managed', CheckboxType::class, [
+// 				'label' => 'Can we use this environment to publish objects?',
+// 			])		
 			->add('save', SubmitType::class, [
 					'label' => 'Create',
 					'attr' => [
@@ -720,19 +754,18 @@ class MetaController extends AppController
 				/** @var  Client $client */
 				$client = $this->get('app.elasticsearch');
 				
+				$environment->setAlias($this->getParameter('instance_id').$environment->getName());
+				$environment->setManaged(true);
 				try {
-					$indexes = ($client->indices()->get(['index' => $environment->getName()]));	
-					
-					if(strcmp($environment->getName(), array_keys($indexes)[0]) == 0){
-						$form->get ( 'name' )->addError ( new FormError( 'Another index named ' . $environment->getName () . ' already exists' ) );
-					}
+					$indexes = ($client->indices()->get(['index' => $environment->getAlias()]));	
+					$form->get ( 'name' )->addError ( new FormError( 'Another index named ' . $environment->getName () . ' already exists' ) );
 				}
 				catch (Missing404Exception $e){
 					$client->indices()->create([
-						'index' => $this->getParameter('instance_id').$environment->getName().$this->getFormatedTimestamp(),
+						'index' => $environment->getAlias().$this->getFormatedTimestamp(),
 						'body' => '{
 		    				"aliases" : {
-		        			'.json_encode($this->getParameter('instance_id').$environment->getName()).' : {}}}'
+		        			'.json_encode($environment->getAlias()).' : {}}}'
 					]);					
 				}
 				

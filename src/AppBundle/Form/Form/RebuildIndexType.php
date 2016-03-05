@@ -22,11 +22,14 @@ class RebuildIndexType extends AbstractType {
 				'label' => '',
 				'expanded' => true,
 				'choices' => [ 
-						'newIndex' 
+						'newIndex',
+						'sameIndex'
 				],
 				'choice_label' => function ($category, $key, $index) {
 					if ('newIndex' == $category)
 						return 'A new index will be created and all objects will be reindexed with the revision defined for this environment. Once it\'s done the environement alias will be updated. Nothing will be removed from the current search index.';
+					if ('sameIndex' == $category)
+						return 'All object in eMS will be just reindexed into the existing index.';
 					return 'Unknow option';
 				} 
 		]

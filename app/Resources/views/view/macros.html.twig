@@ -4,6 +4,53 @@
 	{{ attribute(_self, dataField.fieldType.type|replace({'\\': '_'}), [dataField]) }}
 {% endmacro %}
 
+{%  macro recursifArray(array) %}
+<ul class="list-group">
+	{% for prop, value in array %}
+		<li class="list-group-item">
+			<strong>{{ prop }} : </strong>
+			{% if value is iterable %}
+				{{ _self.recursifArray(value) }}
+			{% else %}
+				{{ value }}
+			{% endif %}
+		</li>
+	{% endfor %}
+</ul>
+
+{% endmacro %}
+
+{%  macro renderMapping(mapping) %}
+	<ul class="list-group">
+	{% for key, child in mapping %}
+	
+		<li class="list-group-item bg-gray color-palette"><strong>{{ key }}</strong></li>
+		<li class="list-group-item">
+			<ul class="list-group">
+				{% for prop, value in child %}
+					{% if value is iterable %}
+						{% if prop == 'properties' %}
+							<li class="list-group-item">
+								{{ _self.renderMapping(child.properties) }}
+							</li>
+						{% else %}
+							<li class="list-group-item"><strong>{{ prop }} : </strong>
+								{{ _self.recursifArray(value) }}
+							</li>
+						{% endif %}
+					{% else %}
+						<li class="list-group-item"><strong>{{ prop }} : </strong>{{ value }}</li>
+					{% endif %}
+				{% endfor %}
+{# 			{% if child.properties is defined %}#}
+{# 					{{ _self.renderMapping(child.properties) }}#}
+{# 			{% endif %}#}
+			</ul>
+		</li>
+	{% endfor %}
+	</ul>
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_ContainerType(dataField) %}
     {% if dataField.fieldType.label %}
     	<div class="panel panel-default">

@@ -3,6 +3,12 @@
 {% block title %}All Environments{% endblock %}
 {% block pagetitle %}All Environments{% endblock %} 
 
+{% block breadcrumb %}
+	<ol class="breadcrumb">
+		<li><i class="fa fa-database"></i> Environments</li>
+		<li>List Environments</li>
+   	</ol>
+{% endblock %}
 
 {% block body %}
 
@@ -24,6 +30,7 @@
 						<tr>
 							<th class="text-center" style="width: 10px">#</th>
 							<th>Name</th>
+							<th>Alias</th>
 							<th>Index</th>
 							<th class="text-center">Total (index)</th>
 							<th class="text-center">Total (eMS)</th>
@@ -36,6 +43,7 @@
 									<td>
 										<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
 									</td>
+									<td>{{ environment.alias }}</td>
 									<td>{{ environment.index }}</td>
 									<td class="text-center">{{ environment.total|number_format }}</td>
 									<td class="text-center">{{ environment.revisions|length|number_format }}</td>
@@ -83,6 +91,7 @@
 						<tr>
 							<th class="text-center" style="width: 10px">#</th>
 							<th>Name</th>
+							<th>Alias</th>
 							<th>Index</th>
 							<th class="text-center">Total</th>
 							<th>Action</th>
@@ -94,6 +103,7 @@
 									<td>
 										<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
 									</td>
+									<td>{{ environment.alias }}</td>
 									<td>{{ environment.index }}</td>
 									<td class="text-center">{{ environment.total|number_format }}</td>
 									<td>

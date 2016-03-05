@@ -25,7 +25,6 @@ class ContentTypeType extends AbstractType {
 		/** @var ContentType $contentType */
 		$contentType = $builder->getData ();
 
-		$builder->add ( 'rootContentType');
 // 		$builder->add ( 'active');
 // 		$builder->add ( 'labelField');
 // 		$builder->add ( 'parentField');
@@ -51,6 +50,7 @@ class ContentTypeType extends AbstractType {
 			$builder->add ( 'fieldType', FieldTypeType::class, [
 				'data' => $contentType->getFieldType()
 			]);			
+			$builder->add ( 'rootContentType');
 		}
 		
 		
