@@ -66,6 +66,22 @@ class MetaController extends AppController
 		return $this->redirectToRoute('contenttype.list');	
 	}
 	
+	private function removeContentType(array $formArray, FieldType $fieldType){
+		if(array_key_exists('remove', $formArray)){
+			$fieldType->setDeleted(true);
+			return true;
+		}
+		else{
+			/** @var FieldType $child */
+			foreach ($fieldType->getChildren() as $child){
+				if($this->removeContentType($formArray[$child->getName()], $child)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	private function addNewContentType(array $formArray, FieldType $fieldType){
 		if(array_key_exists('add', $formArray)){
 			
@@ -82,7 +98,7 @@ class MetaController extends AppController
 		else{
 			/** @var FieldType $child */
 			foreach ($fieldType->getChildren() as $child){
-				if($this->addNewContentType($formArray[$child->getName()], $child)) {
+				if(!$child->getDeleted() &&$this->addNewContentType($formArray[$child->getName()], $child)) {
 					return true;
 				}
 			}
@@ -141,6 +157,15 @@ class MetaController extends AppController
 					$em->flush();					
 					return $this->redirectToRoute('contenttype.edit',[
 						'id' => $id		
+					]);
+				}
+
+				if($this->removeContentType($inputContentType['fieldType'], $contentType->getFieldType())) {
+					$contentType->getFieldType()->updateOrderKeys();
+					$em->persist($contentType);
+					$em->flush();
+					return $this->redirectToRoute('contenttype.edit',[
+							'id' => $id
 					]);
 				}
 

@@ -99,7 +99,7 @@
 	        {{- form_row(form.structuredOptions) -}}
 	      </div>
 	      <div class="modal-footer">
-	        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
 	      </div>
 	    </div>
 	  </div>
@@ -123,7 +123,7 @@
 			      <div class="modal-footer">
 			      	<div class="btn-group">
 			      		{{ form_widget(form.add) }}
-				        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+				        <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
 			      	</div>
 			      </div>
 			    </div>
@@ -140,6 +140,7 @@
 				  <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#{{ form.vars.id }}_modal_options">
 					  <i class="fa fa-sliders"></i> Options
 				  </button>
+				  {{ form_widget(form.remove) }}
 			  	{% endif %}
  			</div>
 		</li>
@@ -157,7 +158,7 @@
 				  <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#{{ form.vars.id }}_modal_options">
 					  <i class="fa fa-sliders"></i> Options
 				  </button>
-				  
+				  {{ form_widget(form.remove) }}			  
  				</div>		
 			</div>		
 			{{- form_widget(form) -}}

@@ -23,6 +23,7 @@ class FieldTypeType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+    	
     	/** @var FieldType $fieldType */
     	$fieldType = $options['data'];
 
@@ -58,7 +59,7 @@ class FieldTypeType extends AbstractType
 	    			'mapped' => false,
 	    			'required' => false,
 	    	]);
-	    	
+
 	    	$builder->add ( 'add', SubmitEmsType::class, [
 	    			'attr' => [
 	    					'class' => 'btn-primary '
@@ -66,6 +67,14 @@ class FieldTypeType extends AbstractType
 	    			'icon' => 'fa fa-plus'
 	    	] );
     	}    	
+    	if(null != $fieldType->getParent()){
+	    	$builder->add ( 'remove', SubmitEmsType::class, [
+	    			'attr' => [
+	    					'class' => 'btn-danger btn-xs'
+	    			],
+	    			'icon' => 'fa fa-trash'
+	    	] );	    		
+    	}
 
     	if(isset($fieldType) && null != $fieldType->getChildren()){
     		
@@ -76,10 +85,12 @@ class FieldTypeType extends AbstractType
 			if($instance->isContainer()) {
 				/** @var FieldType $field */
 				foreach ($fieldType->getChildren() as $idx => $field) {
-					$builder->add ( $field->getName(), FieldTypeType::class, [
-							'data' => $field,
-							'container' => true,
-					]  );
+					if(!$field->getDeleted()){
+						$builder->add ( $field->getName(), FieldTypeType::class, [
+								'data' => $field,
+								'container' => true,
+						]  );						
+					}
 				}
 			}
     	}
