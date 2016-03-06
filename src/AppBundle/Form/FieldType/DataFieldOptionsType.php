@@ -19,9 +19,8 @@ class DataFieldOptionsType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-    	$builder->add ( 'label', TextType::class, [
-    		'required' => false,
-    	] );
+    	$builder->add ( 'displayOptions', DisplayOptionsType::class);
+    	$builder->add ( 'mappingOptions', MappingOptionsType::class);
     }   
 
     /**

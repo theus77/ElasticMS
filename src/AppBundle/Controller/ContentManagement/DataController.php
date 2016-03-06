@@ -106,7 +106,7 @@ class DataController extends AppController
 		if($contentType){
 			$client = $this->getElasticsearch();
 			$results = $client->search([
-					'index' => $contentType->getEnvironment()->getName(),
+					'index' => $contentType->getEnvironment()->getAlias(),
 					'version' => true,
 					'size' => $this->container->getParameter('paging_size'),
 					'from' => ($page-1)*$this->container->getParameter('paging_size'),
@@ -417,7 +417,7 @@ class DataController extends AppController
 				}
 				catch (\Exception $e){
 					//TODO
-					dump($e);
+// 					dump($e);
 					exit;
 				}
 				return $this->redirectToRoute('data.view', [

@@ -64,22 +64,26 @@
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_ContainerType(dataField) %}
-    {% if dataField.fieldType.label %}
+    {% if dataField.fieldType.displayOptions.label is defined %}
     	<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
-					{% if dataField.fieldType.editOptionsArray.icon is defined %}
-						<i class="{{ dataField.fieldType.editOptionsArray.icon }}"></i> 
+					{% if dataField.fieldType.displayOptions.icon is defined %}
+						<i class="{{ dataField.fieldType.displayOptions.icon }}"></i> 
 					{% endif %}
-					{{ dataField.fieldType.label }}
+					{% if dataField.fieldType.displayOptions.label is defined %}
+						{{ dataField.fieldType.displayOptions.label }}
+					{% else %}
+						{{ dataField.fieldType.name }}
+					{% endif %}
 				</h3>
 			</div>
 			<div class="panel-body">
 	{% endif %}
-		{% for child in dataField.children %}
+		{% for child in dataField.children if not child.fieldType.deleted %}
 			{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
 		{% endfor %}
-    {% if dataField.fieldType.label %}
+    {% if dataField.fieldType.displayOptions.label is defined %}
     		</div>
 		</div>
 	{% endif %}
@@ -87,21 +91,36 @@
 
 {% macro AppBundle_Form_DataField_OuuidType(dataField) %}
 	<dl>
-		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
+		{% if dataField.fieldType.displayOptions.label is defined %}
+			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
+		{% else %}
+			<dt>{{ dataField.fieldType.name }}</dt>
+		{% endif %}
 		<dd>{{ dataField.textValue }}</dd>
 	</dl>
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_StringType(dataField) %}
 	<dl>
-		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
+		{% if dataField.fieldType.displayOptions.label is defined %}
+			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
+		{% else %}
+			<dt>{{ dataField.fieldType.name }}</dt>
+		{% endif %}
+		
 		<dd>{{ dataField.textValue }}</dd>
 	</dl>
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_TextAreaType(dataField) %}
 	<dl>
-		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
 		<dd>{{ dataField.textValue }}</dd>
 	</dl>
 {% endmacro %}

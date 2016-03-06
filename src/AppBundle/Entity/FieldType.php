@@ -53,13 +53,6 @@ class FieldType
     private $name;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="label", type="string", length=255, nullable=true)
-     */
-    private $label;
-
-    /**
      * @ORM\OneToOne(targetEntity="ContentType")
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
@@ -83,23 +76,9 @@ class FieldType
     /**
      * @var string
      *
-     * @ORM\Column(name="mapping", type="text", nullable=true)
+     * @ORM\Column(name="options", type="text", nullable=true)
      */
-    private $mapping;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="editOptions", type="text", nullable=true)
-     */
-    private $editOptions;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="viewOptions", type="text", nullable=true)
-     */
-    private $viewOptions;
+    private $options;
 
     /**
      * @var int
@@ -304,119 +283,29 @@ class FieldType
     {
         return $this->description;
     }
-
-    /**
-     * Set mapping
-     *
-     * @param string $mapping
-     *
-     * @return FieldType
-     */
-    public function setMapping($mapping)
-    {
-        $this->mapping = $mapping;
-
-        return $this;
-    }
-
-    /**
-     * Get mapping
-     *
-     * @return string
-     */
-    public function getMapping()
-    {
-        return $this->mapping;
-    }
     
     
     
     public function setStructuredOptions(array $options) {
     	
-    	$this->editOptions = json_encode($options);
+    	$this->options = json_encode($options);
     	
     	return $this;
     }
     
     public function getStructuredOptions() {
-    	return json_decode($this->editOptions, true);
+    	return json_decode($this->options, true);
     	 
     }
 
-    /**
-     * Set editOptions
-     *
-     * @param string $editOptions
-     *
-     * @return FieldType
-     */
-    public function setEditOptions($editOptions)
-    {
-    	
-        $this->editOptions = $editOptions;
-
-        return $this;
-    }
-
-
-    /**
-     * Get editOptionsArray
-     *
-     * @return string
-     */
-    public function getEditOptionsArray()
-    {
-    	if(null != $this->editOptions){
-	    	try{
-	    		$out = json_decode($this->editOptions, true);
-	    		if(is_array($out)){
-		    		return $out;	    			
-	    		}
-		    	dump($this);
-	    		dump($out);
-	    	}
-	    	catch (\Exception $e){
-	    		dump($e);
-	    	}    		
+    public function getDisplayOptions(){
+    	$options = $this->getStructuredOptions();
+    	dump($options);
+    	if(isset($options['displayOptions'])){
+    		return $options['displayOptions'];
     	}
-    	
     	return [];
     }
-    
-    /**
-     * Get editOptions
-     *
-     * @return string
-     */
-    public function getEditOptions()
-    {
-        return $this->editOptions;
-    }
-
-    /**
-     * Set viewOptions
-     *
-     * @param string $viewOptions
-     *
-     * @return FieldType
-     */
-    public function setViewOptions($viewOptions)
-    {
-        $this->viewOptions = $viewOptions;
-
-        return $this;
-    }
-
-    /**
-     * Get viewOptions
-     *
-     * @return string
-     */
-    public function getViewOptions()
-    {
-        return $this->viewOptions;
-    }
-
     /**
      * Set orderKey
      *
@@ -491,30 +380,6 @@ class FieldType
     		$parent = $parent->parent;
     	}
         return $parent->contentType;
-    }
-
-    /**
-     * Set label
-     *
-     * @param string $label
-     *
-     * @return FieldType
-     */
-    public function setLabel($label)
-    {
-        $this->label = $label;
-
-        return $this;
-    }
-
-    /**
-     * Get label
-     *
-     * @return string
-     */
-    public function getLabel()
-    {
-        return $this->label;
     }
  
     
@@ -646,5 +511,29 @@ class FieldType
     public function getChildren()
     {
         return $this->children;
+    }
+
+    /**
+     * Set options
+     *
+     * @param string $options
+     *
+     * @return FieldType
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
+
+        return $this;
+    }
+
+    /**
+     * Get options
+     *
+     * @return string
+     */
+    public function getOptions()
+    {
+        return $this->options;
     }
 }

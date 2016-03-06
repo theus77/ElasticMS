@@ -463,7 +463,7 @@ class DataField
      	
     	/** @var DataField $dataField */
     	foreach ($this->children as $dataField){
-    		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
+    		if(!$dataField->getFieldType()->getDeleted() && strcmp($key,  $dataField->getFieldType()->getName()) == 0){
     			return $dataField;
     		}
     	}

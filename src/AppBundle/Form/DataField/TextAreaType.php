@@ -17,9 +17,14 @@ class TextAreaType extends DataFieldType {
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions()['metadata'];
 		
-		$builder->add ( 'text_value', TextareaSymfonyType::class, [ 
-				'label' => $fieldType->getLabel (),
-				'required' => false 
-		] );
+
+		$options = array_merge([
+				'required' => false,
+				'label' => $fieldType->getName(),
+		], $fieldType->getDisplayOptions());
+		
+		$builder->add ( 'text_value', TextareaSymfonyType::class, [
+				'label' => $options['label']
+		]);
 	}
 }

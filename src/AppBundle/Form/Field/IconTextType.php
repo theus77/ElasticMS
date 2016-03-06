@@ -18,7 +18,11 @@ class IconTextType extends TextType {
 		$resolver->setDefaults ( array (
 				'compound' => false,
 				'metadata' => null,
-				'icon' => 'fa fa-key' 
+				'icon' => 'fa fa-key',
+	        	'col-xs' => null,
+	        	'col-sm' => null,
+	        	'col-md' => null,
+	        	'col-lg' => null,
 		) );
 	}
 	

@@ -40,13 +40,31 @@
 {%- endblock submitems_widget -%}
 
 
+{%- block dataFieldOptions_widget -%}
+
+	<div class="tab-content">
+		<div class="tab-pane active" id="tab_display_{{ seed }}">
+			{{- form_widget(form.displayOptions) -}}
+		</div>
+		<!-- /.tab-pane -->
+		<div class="tab-pane" id="tab_mapping_{{ seed }}">
+			{{- form_widget(form.mappingOptions) -}}
+		</div>
+		<!-- /.tab-pane -->
+	</div>
+	<!-- /.tab-content -->
+
+{%- endblock dataFieldOptions_widget -%}
+
+
 {# Labels #}
 {% block container_label -%}
-	{% if data.fieldType.label  %}
+
+	{% if data.fieldType.displayOptions.label is defined  %}
 		<div class="panel-heading">
 			<h3 class="panel-title">
-				{% if data.fieldType.editOptionsArray.icon is defined %}<i class="{{ data.fieldType.editOptionsArray.icon }}"></i>&nbsp;{% endif %}
-				{{ data.fieldType.label }}
+				{% if data.fieldType.displayOptions.icon is defined %}<i class="{{ data.fieldType.displayOptions.icon }}"></i>&nbsp;{% endif %}
+				{{ data.fieldType.displayOptions.label }}
 			</h3>
 		</div>
 	{% endif %}
@@ -66,17 +84,15 @@
 {%- endblock bouttongroup_row %}
 
 
-{# {% block container_row -%}#}
-
-{# 	<div class="panel panel-default">#}
-{# 	  {{- form_label(form) -}}#}
-{# 	  <div class="panel-body">#}
-{# 	    {{- form_widget(form) -}}#}
-{# 	  </div>#}
-{# 	  {{- form_errors(form) -}}#}
-{# 	</div>       #}
-        
-{# {%- endblock container_row %}#}
+{% block container_row -%}
+	<div class="panel panel-default">
+	  {{- form_label(form) -}}
+	  <div class="panel-body">
+	    {{- form_widget(form) -}}
+	  </div>
+	  {{- form_errors(form) -}}
+	</div>               
+{%- endblock container_row %}
 
 
 
@@ -94,9 +110,19 @@
 			</h4>
 	      </div>
 	      <div class="modal-body">
-	        {{- form_row(form.label) -}}
-	        {{- form_row(form.many) -}}
-	        {{- form_row(form.structuredOptions) -}}
+	      	{% if form.many is defined %}
+	       		{{- form_row(form.many) -}}
+	       	{% endif %}
+	       	{% set seed = random() %}
+				<div class="nav-tabs-custom">
+					<ul class="nav nav-tabs">
+						<li class="active"><a href="#tab_display_{{ seed }}" data-toggle="tab"
+							aria-expanded="true">Display</a></li>
+						<li class=""><a href="#tab_mapping_{{ seed }}" data-toggle="tab"
+							aria-expanded="false">Mapping</a></li>
+					</ul>
+					{{- form_widget(form.structuredOptions, {'seed': seed} ) -}}
+				</div>
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
@@ -130,8 +156,13 @@
 			  </div>
 			</div>	
 	
-			<strong>{{ form.vars.data.name }}</strong> <small>{{ form.vars.data.type }}</small>			
-				
+	
+			{% if form.vars.data.parent|length != 0 %}
+{# 				<i class="glyphicon glyphicon-move"></i> #}
+				<strong>{{ form.vars.data.name }}</strong> <small>{{ form.vars.data.type }}</small>
+			{% else %}
+				<strong>source</strong>	
+			{% endif %}	
 			<div class="btn-group pull-right" role="group" aria-label="...">
 				<button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#{{ form.vars.id }}_modal_add">
 					<i class="fa fa-plus"></i> Add a field
@@ -153,6 +184,8 @@
 	{% else %}
 		<li class="list-group-item">
 			<div class="">
+			
+{# 				<i class="glyphicon glyphicon-move"></i>#}
 				<strong>{{ form.vars.data.name }}</strong> <small>{{ form.vars.data.type }}</small>
 				<div class="btn-group pull-right" role="group" aria-label="...">
 				  <button type="button" class="btn btn-primary btn-xs" data-toggle="modal" data-target="#{{ form.vars.id }}_modal_options">

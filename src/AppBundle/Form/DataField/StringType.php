@@ -18,17 +18,15 @@ class StringType extends DataFieldType {
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions()['metadata'];
 		
+
+
 		$options = array_merge([
-			'required' => false,
-			'label' => $fieldType->getLabel (),
-		], $fieldType->getEditOptionsArray());
+				'required' => false,
+				'label' => $fieldType->getName(),
+		], $fieldType->getDisplayOptions());
 		
 		
-		if (isset($options['icon'])) {
-			$builder->add ( 'text_value', IconTextType::class, $options );
-		} else {
-			$builder->add ( 'text_value', TextType::class, $options );
-		}
+		$builder->add ( 'text_value', IconTextType::class, $options );
 	}
 	
     public static function getOptionsFormType(){

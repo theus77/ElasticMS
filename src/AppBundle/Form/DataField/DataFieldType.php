@@ -29,11 +29,17 @@ class DataFieldType extends AbstractType
         $resolver->setDefaults(array(
             'data_class' => 'AppBundle\Entity\DataField',
         	'metadata' => null,
+        	'col-xs' => null,
+        	'col-sm' => null,
+        	'col-md' => null,
+        	'col-lg' => null,
         ));
     }
     
     public static function buildObjectArray(DataField $data, array &$out){
-    	$out [$data->getFieldType()->getName()] = $data->getTextValue();    	
+    	if(!$data->getFieldType()->getDeleted()){
+	    	$out [$data->getFieldType()->getName()] = $data->getTextValue();    	    		
+    	}
     }
     
     public static function isContainer() {

@@ -6,6 +6,7 @@ use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Entity\DataField;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use AppBundle\Form\FieldType\ContainerOptionsType;
 
 class ContainerType extends DataFieldType
 {
@@ -19,11 +20,10 @@ class ContainerType extends DataFieldType
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions()['metadata'];
 		
-// 		$options = array_merge([
-// 				'metadata' => $fieldType,
-// 				'label' => false,
-// 		], $fieldType->getEditOptionsArray());
-
+		$options = array_merge([
+				'metadata' => $fieldType,
+				'label' => $fieldType->getName(),
+		], $fieldType->getDisplayOptions());
 
 		/** @var FieldType $fieldType */
 		foreach ( $fieldType->getChildren() as $key =>  $fieldType ){
@@ -43,12 +43,18 @@ class ContainerType extends DataFieldType
 	public static function buildObjectArray(DataField $data, array &$out){
 		/** @var DataField $child */
 		foreach ($data->getChildren() as $child){
-			$classname = $child->getFieldType()->getType();
-			$classname::buildObjectArray($child, $out);
+			if(! $child->getFieldType()->getDeleted() ){
+				$classname = $child->getFieldType()->getType();
+				$classname::buildObjectArray($child, $out);				
+			}
 		}
 	}
     
     public static function isContainer() {
     	return true;
+    }
+
+    public static function getOptionsFormType(){
+    	return ContainerOptionsType::class;
     }
 }
