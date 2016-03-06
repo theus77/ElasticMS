@@ -8,25 +8,22 @@ class ColorPickerType extends SelectPickerType {
 	
 	private $choices = [
 		 'not-defined' => null,
-// 		 'danger' => 'danger',
-// 		 'warning' => 'warning',
 		 'red' => 'red',
 		 'maroon' => 'maroon',
 		 'orange' => 'orange',
 		 'yellow' => 'yellow',
-// 		 'success' => 'success',
 		 'green' => 'green',
 		 'teal' => 'teal',
 		 'aqua' => 'aqua',
 		 'light-blue' => 'light-blue',
 		 'blue' => 'blue',
-// 		 'primary' => 'primary',
-// 		 'info' => 'info',
 		 'purple' => 'purple',
 		 'navy' => 'navy',
 		 'black' => 'black',
 		 'grey' => 'grey',
-// 		 'muted' => 'muted',
+		 'olive' => 'olive',
+		 'lime' => 'lime',
+		'fuchsia' => 'fuchsia',
 	];
 	
 	/**
