@@ -68,7 +68,6 @@ class MetaController extends AppController
 	
 	private function addNewContentType(array $formArray, FieldType $fieldType){
 		if(array_key_exists('add', $formArray)){
-			dump("something to add");
 			
 			$child = new FieldType();
 			$child->setName($formArray['ems:internal:add:field:name']);

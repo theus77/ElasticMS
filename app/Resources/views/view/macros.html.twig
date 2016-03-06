@@ -6,7 +6,7 @@
 
 {%  macro recursifArray(array) %}
 <ul class="list-group">
-	{% for prop, value in array %}
+	{% for prop, value in array if prop != 'properties' and prop != 'type' %}
 		<li class="list-group-item">
 			<strong>{{ prop }} : </strong>
 			{% if value is iterable %}
@@ -17,38 +17,50 @@
 		</li>
 	{% endfor %}
 </ul>
-
 {% endmacro %}
 
-{%  macro renderMapping(mapping) %}
-	<ul class="list-group">
-	{% for key, child in mapping %}
-	
-		<li class="list-group-item bg-gray color-palette"><strong>{{ key }}</strong></li>
-		<li class="list-group-item">
-			<ul class="list-group">
-				{% for prop, value in child %}
-					{% if value is iterable %}
-						{% if prop == 'properties' %}
-							<li class="list-group-item">
-								{{ _self.renderMapping(child.properties) }}
-							</li>
+{%  macro recursifMapping(mapping, path) %}
+	<div class="box-group" id="accordion{{ path }}">
+		{% for key, child in mapping %}
+			{% set collapsable =  (child|length > 1 or  child.properties is defined)%}
+			<div class="panel box">
+				<div
+					class="box-header with-border bg-gray color-palette">
+					<h4 class="box-title">
+						{% if collapsable %}
+							<a data-toggle="collapse" data-parent="#accordion{{ path }}"
+								href="#collapse{{ path }}_{{ key }}" class="collapsed" aria-expanded="false"> 
+								{{ key }} 
+								<small>{{ child.type }}</small>
+							</a>
 						{% else %}
-							<li class="list-group-item"><strong>{{ prop }} : </strong>
-								{{ _self.recursifArray(value) }}
-							</li>
+							{{ key }} 
+							<small>{{ child.type }}</small>
 						{% endif %}
-					{% else %}
-						<li class="list-group-item"><strong>{{ prop }} : </strong>{{ value }}</li>
-					{% endif %}
-				{% endfor %}
-{# 			{% if child.properties is defined %}#}
-{# 					{{ _self.renderMapping(child.properties) }}#}
-{# 			{% endif %}#}
-			</ul>
-		</li>
-	{% endfor %}
-	</ul>
+					</h4>
+				</div>
+				{% if collapsable %}
+					<div id="collapse{{ path }}_{{ key }}" class="panel-collapse collapse"
+						aria-expanded="false" style="height: 0px;">
+						<div class="box-body">
+							{% if child|length > 1 %}
+								{{ _self.recursifArray(child) }}
+							{% endif %}
+							{% if child.properties is defined  %}
+								{{ _self.recursifMapping(child.properties, path ~ '_' ~ key) }}
+							{% endif %}
+						</div>
+					</div>
+				{% endif %}
+			</div>
+		{% endfor %}
+	</div>
+{% endmacro %}
+
+
+
+{%  macro renderMapping(mapping) %}
+	{{ _self.recursifMapping(mapping, '') }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_ContainerType(dataField) %}
