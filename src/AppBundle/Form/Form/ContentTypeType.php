@@ -26,7 +26,7 @@ class ContentTypeType extends AbstractType {
 		$contentType = $builder->getData ();
 
 // 		$builder->add ( 'active');
-// 		$builder->add ( 'labelField');
+		$builder->add ( 'labelField');
 // 		$builder->add ( 'parentField');
 // 		$builder->add ( 'userField');
 // 		$builder->add ( 'dateField');
@@ -59,11 +59,11 @@ class ContentTypeType extends AbstractType {
 						'class' => 'ckeditor'
 				]
 		] );
-// 		$builder->add ( 'indexTwig', TextareaType::class, [
-// 				'attr' => [
-// 						'class' => 'ckeditor'
-// 				]
-// 		] );
+		$builder->add ( 'indexTwig', TextareaType::class, [
+				'attr' => [
+						'class' => 'ckeditor'
+				]
+		] );
 		
 		
 		$builder->add ( 'save', SubmitEmsType::class, [ 
