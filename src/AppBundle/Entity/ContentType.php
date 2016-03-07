@@ -235,6 +235,10 @@ class ContentType
     		]
     	];
     	
+    	if(isset($this->fieldType)){
+    		$out[$this->name]['properties'] =  $this->fieldType->generateMapping();
+    	}
+    	
     	return $out;
     }
     

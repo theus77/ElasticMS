@@ -5,6 +5,8 @@ namespace AppBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use AppBundle\Form\FieldType\DataFieldOptionsType;
 use AppBundle\Entity\FieldOptions\DataFieldOptions;
+use AppBundle\Form\FieldType\FieldTypeType;
+use AppBundle\Form\DataField\DataFieldType;
 
 /**
  * FieldType
@@ -304,6 +306,20 @@ class FieldType
     	}
     	return [];
     }
+
+    public function getMappingOptions(){
+    	$options = $this->getStructuredOptions();
+    	if(isset($options['mappingOptions'])){
+    		return $options['mappingOptions'];
+    	}
+    	return [];
+    }
+    
+    public function generateMapping(){
+    	$className = $this->getTypeClass()->getOptionsFormType();
+    	$class = new $className;
+    	return  $class->generateMapping($this->getMappingOptions(), $this);
+    }
     
     /**
      * Set orderKey
@@ -443,7 +459,13 @@ class FieldType
     	 
     	return $this;
     }
-
+    
+    /**
+     * Get an instance of the corresponding DataFieldType 
+     *
+     *
+     * @return DataFieldType
+     */
     public function getTypeClass(){
 	    return new $this->type;
     }

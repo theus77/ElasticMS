@@ -5,7 +5,6 @@ namespace AppBundle\Form\FieldType;
 use AppBundle\Entity\FieldType;
 use AppBundle\Form\Field\IconPickerType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class ContainerOptionsType extends DataFieldOptionsType
 {
@@ -18,11 +17,22 @@ class ContainerOptionsType extends DataFieldOptionsType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
     	parent::buildForm($builder, $options);
-    	$builder->get('displayOptions')
-    		->add ( 'icon', IconPickerType::class, [
-    			'required' => false,
-    	]);
-    }   
+		$builder->get ( 'displayOptions' )->add ( 'icon', IconPickerType::class, [ 
+				'required' => false 
+		] );
+	}
 	
+	public static function generateMapping(array $options, FieldType $current) {
+		$out = [ ];
+		
+		/** @var FieldType $child */
+		foreach ( $current->getChildren () as $child ) {
+			if (! $child->getDeleted ()) {
+				$child->getTypeClass()->getOptionsFormType();
+    				$out = array_merge($out, $child->generateMapping());
+    			}
+    		}
+    		return $out;
+        }
 
 }

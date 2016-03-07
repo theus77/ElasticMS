@@ -49,15 +49,24 @@ class ContainerType extends DataFieldType
 			}
 		}
 	}
-    
+
+	/**
+	 * {@inheritdoc}
+	 */
     public static function isContainer() {
     	return true;
     }
-    
+
+    /**
+     * {@inheritdoc}
+     */
     public static function isArrayable() {
     	return false;
     }    
 
+    /**
+     * {@inheritdoc}
+     */
     public static function getOptionsFormType(){
     	return ContainerOptionsType::class;
     }

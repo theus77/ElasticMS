@@ -278,7 +278,9 @@ class MetaController extends AppController
 		$mapping = [];
 		/** @var ContentType $contentType */
 		foreach ($contentTypes as $contentType){
-			$mapping = array_merge($mapping, $contentType->generateMapping());
+			if($contentType->getEnvironment()->getManaged()){
+				$mapping = array_merge($mapping, $contentType->generateMapping());				
+			}
 		}
 		if(count($mapping) == 0){
 			$client->indices()->create([
@@ -564,7 +566,6 @@ class MetaController extends AppController
 				unset($temp[$environment->getAlias()]);
 			}
 		}
-// 		dump($stats);
 		$unmanagedIndexes = [];
 		foreach ($temp as $alias => $index){
 			$unmanagedIndexes[] = [
@@ -671,7 +672,6 @@ class MetaController extends AppController
 		//TODO: atomic solution
 		try {
 			$indexes = $client->indices()->get(['index' => $alias]);
-			// 				dump($indexes);
 			$client->indices()->deleteAlias([
 					'name' => $alias,
 					'index' => array_keys($indexes)[0]

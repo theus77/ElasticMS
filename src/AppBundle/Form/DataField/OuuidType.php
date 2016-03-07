@@ -3,6 +3,7 @@
 namespace AppBundle\Form\DataField;
 
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Form\FieldType\OuuidOptionsType;
 
 class OuuidType extends DataFieldType {
 	/**
@@ -15,5 +16,14 @@ class OuuidType extends DataFieldType {
 	
 	public static function isArrayable() {
 		return false;
-	}
+	}	
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function getOptionsFormType(){
+    	return OuuidOptionsType::class;
+    }
+	
+
 }

@@ -18,8 +18,6 @@ class StringType extends DataFieldType {
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions()['metadata'];
 		
-
-
 		$options = array_merge([
 				'required' => false,
 				'label' => $fieldType->getName(),
@@ -32,4 +30,6 @@ class StringType extends DataFieldType {
     public static function getOptionsFormType(){
     	return StringOptionsType::class;
     }
+    
+
 }

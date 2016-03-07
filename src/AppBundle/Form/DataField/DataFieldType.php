@@ -7,6 +7,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Entity\DataField;
 use AppBundle\Form\FieldType\DataFieldOptionsType;
+use AppBundle\Entity\FieldType;
 
 class DataFieldType extends AbstractType
 {
@@ -53,5 +54,5 @@ class DataFieldType extends AbstractType
     public static function getOptionsFormType(){
     	return DataFieldOptionsType::class;
     }
-    
+
 }

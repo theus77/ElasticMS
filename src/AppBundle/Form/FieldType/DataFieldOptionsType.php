@@ -46,4 +46,8 @@ class DataFieldOptionsType extends AbstractType
 	public function hasMappingOptions() {
 		return false;
 	}
+	
+	public static function generateMapping(array $options, FieldType $current){
+		return [];
+	}
 }

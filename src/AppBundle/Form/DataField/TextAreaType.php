@@ -5,6 +5,7 @@ namespace AppBundle\Form\DataField;
 use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType as TextareaSymfonyType;
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Form\FieldType\StringOptionsType;
 
 class TextAreaType extends DataFieldType {
 	/**
@@ -27,4 +28,8 @@ class TextAreaType extends DataFieldType {
 				'label' => $options['label']
 		]);
 	}
+	
+    public static function getOptionsFormType(){
+    	return StringOptionsType::class;
+    }
 }
