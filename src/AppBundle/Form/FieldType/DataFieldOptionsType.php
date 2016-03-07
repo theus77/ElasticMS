@@ -20,7 +20,9 @@ class DataFieldOptionsType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
     	$builder->add ( 'displayOptions', DisplayOptionsType::class);
-    	$builder->add ( 'mappingOptions', MappingOptionsType::class);
+    	if($this->hasMappingOptions()){
+	    	$builder->add ( 'mappingOptions', MappingOptionsType::class);    		
+    	}
     }   
 
     /**
@@ -39,5 +41,9 @@ class DataFieldOptionsType extends AbstractType
 	 */
 	public function getBlockPrefix() {
 		return 'dataFieldOptions';
+	}
+	
+	public function hasMappingOptions() {
+		return false;
 	}
 }

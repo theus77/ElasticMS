@@ -64,6 +64,13 @@ class FieldTypeType extends AbstractType
 	    			],
 	    			'icon' => 'fa fa-plus'
 	    	] );
+
+	    	$builder->add ( 'reorder', SubmitEmsType::class, [
+	    			'attr' => [
+	    					'class' => 'btn-primary '
+	    			],
+	    			'icon' => 'fa fa-reorder'
+	    	] );
     	}    	
     	if(null != $fieldType->getParent()){
 	    	$builder->add ( 'remove', SubmitEmsType::class, [
@@ -114,5 +121,6 @@ class FieldTypeType extends AbstractType
 	 */
 	public function getBlockPrefix() {
 		return 'fieldTypeType';
-	}
+	}	
+	
 }

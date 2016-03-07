@@ -286,8 +286,7 @@ class FieldType
     
     
     
-    public function setStructuredOptions(array $options) {
-    	
+    public function setStructuredOptions( $options) {
     	$this->options = json_encode($options);
     	
     	return $this;
@@ -300,12 +299,12 @@ class FieldType
 
     public function getDisplayOptions(){
     	$options = $this->getStructuredOptions();
-    	dump($options);
     	if(isset($options['displayOptions'])){
     		return $options['displayOptions'];
     	}
     	return [];
     }
+    
     /**
      * Set orderKey
      *
@@ -430,7 +429,7 @@ class FieldType
 //     	}
     	
     	$found = false;
-    	/** @var FieldType $fieldType */
+    	/** @var FieldType $child */
     	foreach ($this->children as &$child){
     		if(strcmp($key,  $child->getName()) == 0){
     			$found = true;

@@ -74,7 +74,29 @@ class MetaController extends AppController
 		else{
 			/** @var FieldType $child */
 			foreach ($fieldType->getChildren() as $child){
-				if($this->removeContentType($formArray[$child->getName()], $child)) {
+				if(!$child->getDeleted() && $this->removeContentType($formArray[$child->getName()], $child)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	private function reorderContentType(array $formArray, FieldType $fieldType){
+		if(array_key_exists('reorder', $formArray)){
+			$keys = array_keys($formArray);
+			/** @var FieldType $child */
+			foreach ($fieldType->getChildren() as $child){
+				if(! $child->getDeleted() ){
+					$child->setOrderKey(array_search($child->getName(), $keys));					
+				}
+			}
+			return true;
+		}
+		else{
+			/** @var FieldType $child */
+			foreach ($fieldType->getChildren() as $child){
+				if(!$child->getDeleted() && $this->reorderContentType($formArray[$child->getName()], $child)) {
 					return true;
 				}
 			}
@@ -148,7 +170,9 @@ class MetaController extends AppController
 				$contentType->getFieldType()->updateOrderKeys();
 				$em->persist($contentType);
 				$em->flush();
-				return $this->redirectToRoute('contenttype.list');				
+				return $this->redirectToRoute('contenttype.edit',[
+					'id' => $id		
+				]);				
 			}
 			else {
 				if($this->addNewContentType($inputContentType['fieldType'], $contentType->getFieldType())) {
@@ -162,6 +186,15 @@ class MetaController extends AppController
 
 				if($this->removeContentType($inputContentType['fieldType'], $contentType->getFieldType())) {
 					$contentType->getFieldType()->updateOrderKeys();
+					$em->persist($contentType);
+					$em->flush();
+					return $this->redirectToRoute('contenttype.edit',[
+							'id' => $id
+					]);
+				}
+
+				if($this->reorderContentType($inputContentType['fieldType'], $contentType->getFieldType())) {
+// 					$contentType->getFieldType()->updateOrderKeys();
 					$em->persist($contentType);
 					$em->flush();
 					return $this->redirectToRoute('contenttype.edit',[

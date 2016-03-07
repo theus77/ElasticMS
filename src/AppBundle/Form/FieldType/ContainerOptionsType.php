@@ -21,7 +21,8 @@ class ContainerOptionsType extends DataFieldOptionsType
     	$builder->get('displayOptions')
     		->add ( 'icon', IconPickerType::class, [
     			'required' => false,
-    		]);
+    	]);
     }   
+	
 
 }

@@ -27,5 +27,9 @@ class StringOptionsType extends DataFieldOptionsType
     			'required' => false,
     		]);
     }   
+    
+    public function hasMappingOptions() {
+    	return true;
+    }
 
 }
