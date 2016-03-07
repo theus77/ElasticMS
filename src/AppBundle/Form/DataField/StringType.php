@@ -23,8 +23,7 @@ class StringType extends DataFieldType {
 				'label' => $fieldType->getName(),
 		], $fieldType->getDisplayOptions());
 		
-		
-		$builder->add ( 'text_value', IconTextType::class, $options );
+		$builder->add ( 'text_value', IconTextType::class, $options);
 	}
 	
     public static function getOptionsFormType(){

@@ -22,21 +22,10 @@ class DisplayOptionsType extends AbstractType
     		'required' => false,
     		'icon' => 'fa fa-tag',
     	]);
-    	$builder->add ( 'col-xs', IntegerType::class, [
+    	$builder->add ( 'class', IconTextType::class, [
     		'required' => false,
-    		'label' => 'Bootstrap extra small devices',
-    	]);
-    	$builder->add ( 'col-sm', IntegerType::class, [
-    		'required' => false,
-    		'label' => 'Bootstrap small devices'
-    	]);
-    	$builder->add ( 'col-md', IntegerType::class, [
-    		'required' => false,
-    		'label' => 'Bootstrap medium devices'
-    	]);
-    	$builder->add ( 'col-lg', IntegerType::class, [
-    		'required' => false,
-    		'label' => 'Bootstrap large devices'
+    		'label' => 'Bootstrap class',
+    		'icon' => 'fa fa-css3',
     	]);
     } 
     

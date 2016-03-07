@@ -97,6 +97,19 @@
 {%- endblock container_row %}
 
 
+{# {% block icontext_row -%}#}
+{# 	<div class="{% if class is defined %} {{ class }}{% endif %}">#}
+{# 	 	{{ block('form_row') }}#}
+{# 	</div>#}
+{# {%- endblock icontext_row %}#}
+
+{% block form_row -%}
+    <div class="form-group{% if class is defined %} {{ class }}{% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+        {{- form_label(form) -}}
+        {{- form_widget(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{%- endblock form_row %}
 
 {% block fieldTypeType_row -%}
 
@@ -115,17 +128,16 @@
 	      	{% if form.many is defined %}
 	       		{{- form_row(form.many) -}}
 	       	{% endif %}
-	       	{% set seed = random() %}
 				<div class="nav-tabs-custom">
 					<ul class="nav nav-tabs">
-						<li class="active"><a href="#tab_display_{{ seed }}" data-toggle="tab"
+						<li class="active"><a href="#tab_display_{{ form.vars.id }}" data-toggle="tab"
 							aria-expanded="true">Display</a></li>
 						{% if form.structuredOptions.mappingOptions is defined %}
-							<li class=""><a href="#tab_mapping_{{ seed }}" data-toggle="tab"
+							<li class=""><a href="#tab_mapping_{{ form.vars.id }}" data-toggle="tab"
 								aria-expanded="false">Mapping</a></li>
 						{%  endif %}
 					</ul>
-					{{- form_widget(form.structuredOptions, {'seed': seed} ) -}}
+					{{- form_widget(form.structuredOptions, {'seed': form.vars.id} ) -}}
 				</div>
 	      </div>
 	      <div class="modal-footer">

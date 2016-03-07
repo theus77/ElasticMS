@@ -19,10 +19,7 @@ class IconTextType extends TextType {
 				'compound' => false,
 				'metadata' => null,
 				'icon' => 'fa fa-key',
-	        	'col-xs' => null,
-	        	'col-sm' => null,
-	        	'col-md' => null,
-	        	'col-lg' => null,
+	        	'class' => null,
 		) );
 	}
 	
@@ -33,6 +30,7 @@ class IconTextType extends TextType {
 	 */
 	public function buildView(FormView $view, FormInterface $form, array $options) {
 		$view->vars ['icon'] = $options ['icon'];
+		$view->vars ['class'] = $options ['class'];
 	}
 	
 	/**

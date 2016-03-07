@@ -101,7 +101,7 @@
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_StringType(dataField) %}
-	<dl>
+	<dl class="{% if dataField.fieldType.displayOptions.class is defined %}{{ dataField.fieldType.displayOptions.class }}{% endif %}">
 		{% if dataField.fieldType.displayOptions.label is defined %}
 			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
 		{% else %}
