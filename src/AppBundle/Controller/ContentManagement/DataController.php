@@ -79,6 +79,7 @@ class DataController extends AppController
 		}
 		/** @var Revision $revision */
 		$revision = $revision[0];
+		$revision->getDataField()->orderChildren();
 		
 		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid);
 		

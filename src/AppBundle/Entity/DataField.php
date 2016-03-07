@@ -146,6 +146,23 @@ class DataField
     	return $out;
     }
 
+    public function orderChildren(){
+    	$temp = new \Doctrine\Common\Collections\ArrayCollection();
+    	foreach ($this->getFieldType()->getChildren() as $childField){
+    		if(!$childField->getDeleted()){    			
+	    		$value = $this->__get('ems_'.$childField->getName());
+	    		if(isset($value)){
+		    		$temp->add($value);
+	    		}
+    		}
+    	}
+
+    	$this->children = $temp;
+    	
+    	foreach ($this->children as $child){
+    		$child->orderChildren();
+    	}
+    }
     
     /**
      * Get id
