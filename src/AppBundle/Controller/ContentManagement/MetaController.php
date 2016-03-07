@@ -32,6 +32,7 @@ use AppBundle\Form\FieldType\FieldTypeType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use AppBundle\Form\Field\ColorPickerType;
 use AppBundle\Form\Form\EditEnvironmentType;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 
 class MetaController extends AppController
 {
@@ -129,6 +130,104 @@ class MetaController extends AppController
 	}
 	
 	/**
+	 * @Route("/meta/content-type/refresh-mapping/{id}", name="contenttype.refreshmapping"))
+	 */
+	public function refreshMappingContentTypeAction($id, Request $request)
+	{
+		if($request->isMethod('GET') ){
+			throw new BadRequestHttpException('This method doesn\'t allow GET request');
+		}		
+		
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository('AppBundle:ContentType');
+		
+		/** @var ContentType $contentType */
+		$contentType = $repository->find($id);
+		
+		if(! $contentType || count($contentType) != 1){
+			throw $this->createNotFoundException('Content type not found');
+		}
+		
+		
+
+		/** @var EnvironmentRepository $envRep */
+		$envRep = $em->getRepository('AppBundle:Environment');
+		
+// 		dump();
+		
+		$envs = array_reduce($envRep->findManagedIndexes(), function($envs, $item)
+		{
+			if(isset($envs)){
+				$envs.= ','.$item['alias'];
+			}
+			else {
+				$envs = $item['alias'];
+			}
+		    return $envs;
+		});
+		
+// 		$commaList = implode(', ', $fruit);
+// 		dump($envs);
+// 		exit;
+
+		try{
+			/** @var  Client $client */
+			$client = $this->get('app.elasticsearch');
+	
+			$out = $client->indices()->putMapping([
+					'index' => $envs,
+					'type' => $contentType->getName(),
+					'body' => $contentType->generateMapping(),
+			]);	
+			
+			if(isset($out['acknowledged']) && $out['acknowledged']){
+				$this->addFlash('notice', 'Mappings successfully updated');							
+			}
+			else {
+				$this->addFlash('warning', '<p><strong>Something went wrong. Try again</strong></p>
+						<p>Message from Elasticsearch: '.print_r($out, true).'</p>');		
+			}
+			
+			$contentType->setDirty(false);
+			$em->persist($contentType);
+			$em->flush();
+			
+		}
+		catch (BadRequest400Exception $e){
+			$this->addFlash('error', '<p><strong>You should try to rebuild the indexes</strong></p>
+					<p>Message from Elasticsearch: '.$e->getMessage().'</p>');
+		}
+		
+
+		return $this->redirectToRoute('contenttype.list');
+		
+		
+// 		dump($out);
+		
+// 		$client->indices()->
+		
+		
+// 		$inELK = $client->indices()->getMapping([
+// 				'index' => $contentType->getEnvironment()->getAlias(),
+// 				'type' => $contentType->getName(),
+// 		]);
+		
+// 		$inEMS = $contentType->generateMapping()[$contentType->getName()];
+		
+// 		reset($inELK);
+// 		$first_key = key($inELK);
+// 		$inELK = $inELK[$first_key]['mappings'][$contentType->getName()];
+		
+// 		dump($inELK);
+// 		dump($inEMS);
+// 		$result = array_diff($inEMS, $inELK);
+// 		dump($result);
+	}
+	
+	
+	/**
 	 * @Route("/meta/content-type/edit/{id}", name="contenttype.edit"))
 	 */
 	public function editContentTypeAction($id, Request $request)
@@ -168,11 +267,10 @@ class MetaController extends AppController
 			
 			if(array_key_exists('save', $inputContentType)){
 				$contentType->getFieldType()->updateOrderKeys();
+				$contentType->setDirty($contentType->getEnvironment()->getManaged());
 				$em->persist($contentType);
 				$em->flush();
-				return $this->redirectToRoute('contenttype.edit',[
-					'id' => $id		
-				]);				
+				return $this->redirectToRoute('contenttype.list');				
 			}
 			else {
 				if($this->addNewContentType($inputContentType['fieldType'], $contentType->getFieldType())) {

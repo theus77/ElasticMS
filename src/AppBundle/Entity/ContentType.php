@@ -102,6 +102,13 @@ class ContentType
     private $deleted;
     
     /**
+     * @var bool
+     *
+     * @ORM\Column(name="dirty", type="boolean")
+     */
+    private $dirty;
+    
+    /**
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=true)
@@ -219,7 +226,7 @@ class ContentType
     private $environment;
     
     function __construct(){
-//     	$this->
+     	$this->dirty = true;
     }
 
     public function generateMapping(){
@@ -948,5 +955,29 @@ class ContentType
     public function getCategoryField()
     {
         return $this->categoryField;
+    }
+
+    /**
+     * Set dirty
+     *
+     * @param boolean $dirty
+     *
+     * @return ContentType
+     */
+    public function setDirty($dirty)
+    {
+        $this->dirty = $dirty;
+
+        return $this;
+    }
+
+    /**
+     * Get dirty
+     *
+     * @return boolean
+     */
+    public function getDirty()
+    {
+        return $this->dirty;
     }
 }

@@ -26,4 +26,13 @@ class EnvironmentRepository extends \Doctrine\ORM\EntityRepository
 	}
 	
 	
+	public function findManagedIndexes() {
+		$qb = $this->createQueryBuilder('e');
+		$qb->select('e.alias alias');
+		$qb->where($qb->expr()->eq('e.managed', true));
+	
+		return $qb->getQuery()->getResult();
+	}
+	
+	
 }

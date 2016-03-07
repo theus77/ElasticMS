@@ -26,6 +26,7 @@
 							<th>Name</th>
 							<th>Plural</th>
 							<th>Draft Environment</th>
+							<th class="text-center" style="width: 30px">Dirty</th>
 							<th class="text-center" style="width: 30px">Active</th>
 							<th>Action</th>
 						</tr>
@@ -36,6 +37,7 @@
 								<td>{{ contentType.name|humanize }}</td>
 								<td>{{ contentType.pluralName|humanize }}</td>
 								<td>{{ contentType.environment.name|humanize }}</td>
+								<td class="text-center">{% if contentType.dirty %}<i class="fa fa-warning"></i>{% endif %}</td>
 								<td class="text-center">{% if contentType.active %}<i class="fa fa-check"></i>{% endif %}</td>
 								<td>
 								
@@ -45,6 +47,14 @@
 											'label': 'Edit',
 											'icon': 'pencil'
 										}%}
+										{% if contentType.environment.managed %}
+											{% include 'elements/post-button.html.twig' with {
+												'url':  path('contenttype.refreshmapping', {'id': contentType.id}),
+												'message': 'Try to update the ' ~ contentType.name|humanize ~ ' mapping ?',
+												'label': 'Update mapping',
+												'icon': 'refresh'
+											}%}
+										{% endif %}
 										{% include 'elements/post-button.html.twig' with {
 											'url': path('contenttype.delete', {'id': contentType.id}),
 											'message': 'Delete the content type ' ~ contentType.name|humanize ~ ' ?',
