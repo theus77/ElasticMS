@@ -8800,3 +8800,8 @@ button.close {
 #search-page em {
   background-color: yellow;
 }
+
+/* line 2, ../../sass/_jquery_ui.scss */
+ul.sortable > li {
+  cursor: pointer;
+}
