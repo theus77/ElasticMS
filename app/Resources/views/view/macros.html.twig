@@ -31,7 +31,7 @@
 							<a data-toggle="collapse" data-parent="#accordion{{ path }}"
 								href="#collapse{{ path }}_{{ key }}" class="collapsed" aria-expanded="false"> 
 								{{ key }} 
-								<small>{{ child.type }}</small>
+								{% if child.type is defined %}<small>{{ child.type }}</small>{% endif %}
 							</a>
 						{% else %}
 							{{ key }} 

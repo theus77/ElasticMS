@@ -487,6 +487,7 @@ class MetaController extends AppController
 					$contentType->setPluralName($contentType->getName());
 					$contentType->setEnvironment($defaultEnvironment);	
 					$contentType->setActive(true);	
+					$contentType->setDirty(false);	
 					
 					$em->persist($contentType);
 					$em->flush();

@@ -198,7 +198,6 @@
 							<tr>
 								<th class="text-center" style="width: 10px">#</th>
 								<th>Name</th>
-								<th>Index</th>
 								<th class="text-center">Total</th>
 								<th>Action</th>
 							</tr>
@@ -206,7 +205,6 @@
 								<tr>
 									<td class="text-center">{{ loop.index }}.</td>
 									<td>{{ alias.name }}</td>
-									<td>{{ alias.index }}</td>
 									<td class="text-center">{{ alias.total|number_format }}</td>
 									<td>
 										{% include 'elements/post-button.html.twig' with {
