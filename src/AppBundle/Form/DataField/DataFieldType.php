@@ -46,6 +46,10 @@ class DataFieldType extends AbstractType
     	return false;
     }
     
+    public static function isArrayable() {
+    	return true;
+    }
+    
     public static function getOptionsFormType(){
     	return DataFieldOptionsType::class;
     }

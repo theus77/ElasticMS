@@ -12,4 +12,8 @@ class OuuidType extends DataFieldType {
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 	}
+	
+	public static function isArrayable() {
+		return false;
+	}
 }

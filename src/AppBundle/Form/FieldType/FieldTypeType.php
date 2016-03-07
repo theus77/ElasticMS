@@ -30,7 +30,7 @@ class FieldTypeType extends AbstractType
     	$builder->add ( 'type', HiddenType::class );
     	$builder->add ( 'name', HiddenType::class );
     	
-    	if(!$fieldType->getTypeClass()->isContainer()){
+    	if($fieldType->getTypeClass()->isArrayable()){
 	    	$builder->add ( 'many' );    		
     	}
     	$builder->add ( 'structuredOptions', $fieldType->getOptionsFormType());

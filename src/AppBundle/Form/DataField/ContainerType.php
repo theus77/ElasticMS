@@ -53,6 +53,10 @@ class ContainerType extends DataFieldType
     public static function isContainer() {
     	return true;
     }
+    
+    public static function isArrayable() {
+    	return false;
+    }    
 
     public static function getOptionsFormType(){
     	return ContainerOptionsType::class;
