@@ -10,7 +10,8 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Entity\FieldType;
-	
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+		
 /**
  * Defined a Container content type.
  * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
@@ -26,11 +27,24 @@ use AppBundle\Entity\FieldType;
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder->add ( 'text_value', IconTextType::class, [ 
-				'required' => false,
-				'label' => $options ['label'],
-				'icon' => $options['prefixIcon'],
-		] );
+		
+		if($options['prefixIcon'] || $options['prefixText'] || $options['suffixIcon'] || $options['suffixText'] ){
+			$builder->add ( 'text_value', IconTextType::class, [ 
+					'required' => false,
+					'label' => $options ['label'],
+					'icon' => $options['prefixIcon'],
+					'prefixText' => $options['prefixText'],
+					'suffixIcon' => $options['suffixIcon'],
+					'suffixText' => $options['suffixText'],
+			] );			
+		}
+		else{
+			$builder->add ( 'text_value', TextType::class, [
+					'required' => false,
+					'label' => $options ['label'],
+			] );			
+		}
+		
 	}
 	
 	/**
@@ -42,9 +56,6 @@ use AppBundle\Entity\FieldType;
 		/* get options for twig context */
 		parent::buildView ( $view, $form, $options );
 // 		$view->vars ['prefixIcon'] = $options ['prefixIcon'];
-// 		$view->vars ['prefixText'] = $options ['prefixText'];
-// 		$view->vars ['subfixIcon'] = $options ['subfixIcon'];
-// 		$view->vars ['subfixText'] = $options ['subfixText'];
 	}
 	
 	/**
@@ -57,8 +68,8 @@ use AppBundle\Entity\FieldType;
 		parent::configureOptions ( $resolver );
 		$resolver->setDefault ( 'prefixIcon', null );
 		$resolver->setDefault ( 'prefixText', null );
-		$resolver->setDefault ( 'subfixIcon', null );
-		$resolver->setDefault ( 'subfixText', null );
+		$resolver->setDefault ( 'suffixIcon', null );
+		$resolver->setDefault ( 'suffixText', null );
 	}
 	
 	/**
@@ -76,9 +87,9 @@ use AppBundle\Entity\FieldType;
 		] )->add ( 'prefixText', IconTextType::class, [ 
 				'required' => false,
 				'icon' => 'fa fa-hand-o-left' 
-		] )->add ( 'subfixIcon', IconPickerType::class, [ 
+		] )->add ( 'suffixIcon', IconPickerType::class, [ 
 				'required' => false 
-		] )->add ( 'subfixText', IconTextType::class, [ 
+		] )->add ( 'suffixText', IconTextType::class, [ 
 				'required' => false,
 				'icon' => 'fa fa-hand-o-right' 
 		] );

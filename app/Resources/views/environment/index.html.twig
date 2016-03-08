@@ -55,6 +55,11 @@
 												'icon': 'recycle'
 											}%}
 											{% include 'elements/get-button.html.twig' with {
+													'url': path('environment.view', {'id': environment.id}),
+													'label': 'View',
+													'icon': 'eye'
+												}%}
+											{% include 'elements/get-button.html.twig' with {
 													'url': path('environment.edit', {'id': environment.id}),
 													'label': 'Edit',
 													'icon': 'pencil'
@@ -113,6 +118,11 @@
 {# 												'label': 'Switch',#}
 {# 												'icon': 'share-square-o'#}
 {# 											}%}#}
+											{% include 'elements/get-button.html.twig' with {
+													'url': path('environment.view', {'id': environment.id}),
+													'label': 'View',
+													'icon': 'eye'
+												}%}
 											{% include 'elements/get-button.html.twig' with {
 													'url': path('environment.edit', {'id': environment.id}),
 													'label': 'Edit',
@@ -209,6 +219,7 @@
 									<td>
 										{% include 'elements/post-button.html.twig' with {
 											'url': path('environment.attach', {'name': alias.name }),
+											'message': 'Attach the alias ' ~ alias.name|humanize ~ ' ?',
 											'label': 'Attach',
 											'icon': 'plus'
 										}%}

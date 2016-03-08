@@ -4,8 +4,13 @@
 
 {% block icontext_widget -%}
 	<div class="input-group">
-		<span class="input-group-addon"><i class="{{ icon }}"></i></span>
+		{% if icon or prefixText %}
+			<span class="input-group-addon"><i class="{% if icon %}{{ icon }}{% endif %}"></i>{% if prefixText %} &nbsp; {{ prefixText }} {% endif %}</span>
+		{% endif %}
 	 	{{ block('form_widget') }}
+		{% if subfixIcon or subfixText %}
+			<span class="input-group-addon"><i class="{% if subfixIcon %}{{ subfixIcon }}{% endif %}"></i>{% if subfixText %} &nbsp; {{ subfixText }} {% endif %}</span>
+		{% endif %}
 	</div>
 {%- endblock icontext_widget %}
 

@@ -24,12 +24,14 @@ class EditEnvironmentType extends AbstractType {
 		->add ( 'name', IconTextType::class, [
 			'icon' => 'fa fa-tag'
 		] )
-		->add ( 'color', ColorPickerType::class)
+		->add ( 'color', ColorPickerType::class, [
+				'required' => false,
+		])
 		->add ( 'save', SubmitEmsType::class, [ 
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm ' 
 				],
-				'icon' => 'fa fa-recycle' 
+				'icon' => 'fa fa-save' 
 		] );
 	}
 }

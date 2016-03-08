@@ -234,16 +234,16 @@ class EnvironmentController extends AppController {
 	 * @param unknown $id
 	 * @param Request $request
 	 * @throws NotFoundHttpException
-	 * @Route("/environment/{id}", name="environment.edit"))
+	 * @Route("/environment/edit/{id}", name="environment.edit"))
 	 */
 	public function editAction($id, Request $request)
 	{
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
-		
+	
 		/** @var EnvironmentRepository $repository */
 		$repository = $em->getRepository('AppBundle:Environment');
-		
+	
 		/** @var Environment $environment */
 		$environment = $repository->find($id);
 	
@@ -265,6 +265,53 @@ class EnvironmentController extends AppController {
 		return $this->render( 'environment/edit.html.twig',[
 				'environment' => $environment,
 				'form' => $form->createView(),
+		]);
+	
+	}
+
+
+	/**
+	 * View environement details (especially the mapping information).
+	 * @param integer $id 
+	 * @param Request $request
+	 * @throws NotFoundHttpException
+	 * @Route("/environment/{id}", name="environment.view"))
+	 */
+	public function viewAction($id, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var EnvironmentRepository $repository */
+		$repository = $em->getRepository('AppBundle:Environment');
+		
+		/** @var Environment $environment */
+		$environment = $repository->find($id);
+	
+		if(! $environment || count($environment) != 1){
+			throw new NotFoundHttpException('Unknow environment');
+		}
+
+		/** @var  Client $client */
+		$client = $this->get('app.elasticsearch');
+		
+		/** @var ContentTypeRepository $contentTypeRep */
+		$contentTypeRep = $em->getRepository('AppBundle:ContentType');
+		
+		
+		try{
+			$info = $client->indices()->getMapping([
+					'index' => $environment->getAlias(),
+			]);		
+		}
+		catch (Missing404Exception $e){
+			$this->addFlash('error', 'Elasticsearch alias '.$environment->getAlias().' is missing. Consider to rebuild the indexes.');
+			$info = false;
+		}
+	
+		return $this->render( 'environment/view.html.twig',[
+				'environment' => $environment,
+				'info' => $info,
 		]);
 	
 	}

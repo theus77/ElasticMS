@@ -6,7 +6,7 @@
 
 {%  macro recursifArray(array) %}
 <ul class="list-group">
-	{% for prop, value in array if prop != 'properties' and prop != 'type' %}
+	{% for prop, value in array %}
 		<li class="list-group-item">
 			<strong>{{ prop }} : </strong>
 			{% if value is iterable %}
@@ -56,7 +56,6 @@
 		{% endfor %}
 	</div>
 {% endmacro %}
-
 
 
 {%  macro renderMapping(mapping) %}

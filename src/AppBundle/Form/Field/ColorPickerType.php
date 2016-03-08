@@ -10,9 +10,12 @@ class ColorPickerType extends SelectPickerType {
 		 'not-defined' => null,
 		 'red' => 'red',
 		 'maroon' => 'maroon',
+		'fuchsia' => 'fuchsia',
 		 'orange' => 'orange',
 		 'yellow' => 'yellow',
+		 'olive' => 'olive',
 		 'green' => 'green',
+		 'lime' => 'lime',
 		 'teal' => 'teal',
 		 'aqua' => 'aqua',
 		 'light-blue' => 'light-blue',
@@ -21,9 +24,6 @@ class ColorPickerType extends SelectPickerType {
 		 'navy' => 'navy',
 		 'black' => 'black',
 		 'grey' => 'grey',
-		 'olive' => 'olive',
-		 'lime' => 'lime',
-		'fuchsia' => 'fuchsia',
 	];
 	
 	/**
