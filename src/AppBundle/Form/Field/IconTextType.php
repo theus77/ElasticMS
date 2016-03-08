@@ -22,8 +22,8 @@ class IconTextType extends TextType {
 	        	'class' => null,
 		) );
 		$resolver->setDefault ( 'prefixText', null );
-		$resolver->setDefault ( 'subfixIcon', null );
-		$resolver->setDefault ( 'subfixText', null );
+		$resolver->setDefault ( 'suffixIcon', null );
+		$resolver->setDefault ( 'suffixText', null );
 	}
 	
 	/**
@@ -35,8 +35,8 @@ class IconTextType extends TextType {
 		$view->vars ['icon'] = $options ['icon'];
 		$view->vars ['class'] = $options ['class'];
 		$view->vars ['prefixText'] = $options ['prefixText'];
-		$view->vars ['subfixIcon'] = $options ['subfixIcon'];
-		$view->vars ['subfixText'] = $options ['subfixText'];
+		$view->vars ['suffixIcon'] = $options ['suffixIcon'];
+		$view->vars ['suffixText'] = $options ['suffixText'];
 	}
 	
 	/**

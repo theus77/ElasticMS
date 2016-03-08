@@ -8,8 +8,8 @@
 			<span class="input-group-addon"><i class="{% if icon %}{{ icon }}{% endif %}"></i>{% if prefixText %} &nbsp; {{ prefixText }} {% endif %}</span>
 		{% endif %}
 	 	{{ block('form_widget') }}
-		{% if subfixIcon or subfixText %}
-			<span class="input-group-addon"><i class="{% if subfixIcon %}{{ subfixIcon }}{% endif %}"></i>{% if subfixText %} &nbsp; {{ subfixText }} {% endif %}</span>
+		{% if suffixIcon or suffixText %}
+			<span class="input-group-addon"><i class="{% if suffixIcon %}{{ suffixIcon }}{% endif %}"></i>{% if suffixText %} &nbsp; {{ suffixText }} {% endif %}</span>
 		{% endif %}
 	</div>
 {%- endblock icontext_widget %}

@@ -55,11 +55,13 @@ class ContentTypeType extends AbstractType {
 		
 		
 		$builder->add ( 'description', TextareaType::class, [
+				'required' => false,
 				'attr' => [
 						'class' => 'ckeditor'
 				]
 		] );
 		$builder->add ( 'indexTwig', TextareaType::class, [
+				'required' => false,
 		] );
 		
 		
