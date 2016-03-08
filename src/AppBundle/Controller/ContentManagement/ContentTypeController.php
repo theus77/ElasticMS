@@ -7,41 +7,24 @@ use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\FieldType;
-use AppBundle\Entity\Form\RebuildIndex;
 use AppBundle\Form\DataField\ContainerType;
 use AppBundle\Form\Field\IconTextType;
-use AppBundle\Form\Field\Select2Type;
 use AppBundle\Form\Form\ContentTypeType;
-use AppBundle\Form\Form\RebuildIndexType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Form\DataField\DataFieldType;
-use AppBundle\Form\FieldType\FieldTypeType;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
-use AppBundle\Form\Field\ColorPickerType;
-use AppBundle\Form\Form\EditEnvironmentType;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 
 /**
- * Operations on content types such as CRUD but alose rebuild index, .
- *
- *
- *
- *
- *
- * ..
+ * Operations on content types such as CRUD but alose rebuild index.
  *
  * @author Mathieu De Keyzer <ems@theus.be>
  *        

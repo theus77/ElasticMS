@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Form\DataField\SubfieldType;
 
 class FieldTypeType extends AbstractType
 {
@@ -71,7 +72,23 @@ class FieldTypeType extends AbstractType
 	    			],
 	    			'icon' => 'fa fa-reorder'
 	    	] );
-    	}    	
+    	}
+    	else if(strcmp(SubfieldType::class, $fieldType->getType()) !=0 ) {
+    		
+	    	$builder->add ( 'ems:internal:add:subfield:name', TextType::class, [
+	    			'label' => 'Subfield\'s name',
+	    			'mapped' => false,
+	    			'required' => false,
+	    	]);
+	    	
+	    	$builder->add ( 'subfield', SubmitEmsType::class, [
+	    			'label' => 'Add',
+    				'attr' => [
+    						'class' => 'btn-primary '
+    				],
+    				'icon' => 'fa fa-plus'
+    		] );    		
+    	}
     	if(null != $fieldType->getParent()){
 	    	$builder->add ( 'remove', SubmitEmsType::class, [
 	    			'attr' => [
