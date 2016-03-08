@@ -116,7 +116,13 @@ class DataController extends AppController
 				
 			if( null != $contentType->getIndexTwig() ) {
 				$twig = $this->getTwig();
-				$template = $twig->createTemplate($contentType->getIndexTwig());
+				try {
+					$template = $twig->createTemplate($contentType->getIndexTwig());
+				}
+				catch (\Twig_Error $e){
+					$this->addFlash('error', 'There is something wrong with the index twig of '.$contentType->getName());
+					$template = $twig->createTemplate('');
+				}
 				foreach ($results['hits']['hits'] as &$hit){
 					try {
 	

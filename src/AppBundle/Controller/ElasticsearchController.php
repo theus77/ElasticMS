@@ -40,6 +40,27 @@ class ElasticsearchController extends Controller
 		}
 	}
 	
+
+	/**
+	 * @Route("/elasticsearch/index/delete/{name}", name="elasticsearch.index.delete"))
+	 */
+	public function deleteIndexAction($name, Request $request)
+	{
+		/** @var  Client $client */
+		$client = $this->get('app.elasticsearch');
+		try {
+			$indexes = $client->indices()->get(['index' => $name]);
+			$client->indices()->delete([
+					'index' => $name
+			]);
+			$this->addFlash('notice', 'Elasticsearch index '.$name.' has been deleted');
+		}
+		catch (Missing404Exception $e){
+			$this->addFlash('warning', 'Elasticsearch index not found');
+		}
+		return $this->redirectToRoute('environment.index');
+	}
+	
 	/**
 	 * @Route("/search/{query}/{page}", defaults={"query"=null, "page"=1}, name="elasticsearch.search"))
 	 */

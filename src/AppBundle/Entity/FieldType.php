@@ -90,13 +90,6 @@ class FieldType
     private $orderKey;
 
     /**
-     * @var bool
-     *
-     * @ORM\Column(name="many", type="boolean")
-     */
-    private $many;
-
-    /**
      * @var FieldType
      *
      * @ORM\ManyToOne(targetEntity="FieldType", inversedBy="children", cascade={"persist"})
@@ -316,9 +309,7 @@ class FieldType
     }
     
     public function generateMapping(){
-    	$className = $this->getTypeClass()->getOptionsFormType();
-    	$class = new $className;
-    	return  $class->generateMapping($this->getMappingOptions(), $this);
+    	return  $this->getTypeClass()->generateMapping($this->getMappingOptions(), $this);
     }
     
     /**
@@ -343,30 +334,6 @@ class FieldType
     public function getOrderKey()
     {
         return $this->orderKey;
-    }
-
-    /**
-     * Set many
-     *
-     * @param boolean $many
-     *
-     * @return FieldType
-     */
-    public function setMany($many)
-    {
-        $this->many = $many;
-
-        return $this;
-    }
-
-    /**
-     * Get many
-     *
-     * @return bool
-     */
-    public function getMany()
-    {
-        return $this->many;
     }
 
     /**
@@ -398,12 +365,15 @@ class FieldType
     }
  
     
+    
     /**
      * Constructor
      */
     public function __construct()
     {
     	$this->children = new \Doctrine\Common\Collections\ArrayCollection();
+		$this->deleted = false;
+		$this->orderKey = 0;
     }
 
     /**
@@ -472,9 +442,9 @@ class FieldType
     
 
 
-    public function getOptionsFormType(){
-    	return $this->getTypeClass()->getOptionsFormType();
-    }
+//     public function getOptionsFormType(){
+//     	return $this->getTypeClass()->getOptionsFormType();
+//     }
     
     /**
      * Set parent

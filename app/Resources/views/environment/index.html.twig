@@ -50,7 +50,7 @@
 									<td>
 										<div class="btn-group">
 											{% include 'elements/get-button.html.twig' with {
-												'url': path('index.rebuild', {'id': environment.id}),
+												'url': path('environment.rebuild', {'id': environment.id}),
 												'label': 'Rebuild',
 												'icon': 'recycle'
 											}%}
@@ -60,7 +60,7 @@
 													'icon': 'pencil'
 												}%}
 											{% include 'elements/post-button.html.twig' with {
-												'url': path('environment.delete', {'id': environment.id}),
+												'url': path('environment.remove', {'id': environment.id}),
 												'message': 'Delete the environment ' ~ environment.name|humanize ~ ' ?',
 												'label': 'Delete',
 												'icon': 'trash'
@@ -119,7 +119,7 @@
 													'icon': 'pencil'
 												}%}
 											{% include 'elements/post-button.html.twig' with {
-												'url': path('environment.delete', {'id': environment.id}),
+												'url': path('environment.remove', {'id': environment.id}),
 												'message': 'Detach the environment ' ~ environment.name|humanize ~ ' ?',
 												'label': 'Detach',
 												'icon': 'trash'
@@ -165,7 +165,7 @@
 								<td class="text-center">{{ index.total|number_format }}</td>
 								<td>
 								{% include 'elements/post-button.html.twig' with {
-									'url': path('index.delete', {'name': index.name}),
+									'url': path('elasticsearch.index.delete', {'name': index.name}),
 									'message': 'Delete the index ' ~ index.name|humanize ~ ' ?',
 									'label': 'Delete',
 									'icon': 'trash'
@@ -208,7 +208,7 @@
 									<td class="text-center">{{ alias.total|number_format }}</td>
 									<td>
 										{% include 'elements/post-button.html.twig' with {
-											'url': path('environment.create', {'name': alias.name }),
+											'url': path('environment.attach', {'name': alias.name }),
 											'label': 'Attach',
 											'icon': 'plus'
 										}%}

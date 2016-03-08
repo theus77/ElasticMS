@@ -1,55 +1,104 @@
-<?php 
+<?php
 
 namespace AppBundle\Form\DataField;
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Entity\DataField;
-use AppBundle\Form\FieldType\DataFieldOptionsType;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Form\DataField\Options\OptionsType;
 use AppBundle\Entity\FieldType;
 
-class DataFieldType extends AbstractType
-{
-	
-
+/**
+ * It's the mother class of all specific DataField used in eMS
+ *
+ * @author Mathieu De Keyzer <ems@theus.be>
+ *        
+ */
+class DataFieldType extends AbstractType {
 	/**
-     * @param FormBuilderInterface $builder
-     * @param array $options
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-
-    }   
-
-    /**
-     * @param OptionsResolver $resolver
-     */
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setDefaults(array(
-            'data_class' => 'AppBundle\Entity\DataField',
-        	'metadata' => null,
-        	'class' => null,
-        ));
-    }
-    
-    public static function buildObjectArray(DataField $data, array &$out){
-    	if(!$data->getFieldType()->getDeleted()){
-	    	$out [$data->getFieldType()->getName()] = $data->getTextValue();    	    		
-    	}
-    }
-    
-    public static function isContainer() {
-    	return false;
-    }
-    
-    public static function isArrayable() {
-    	return true;
-    }
-    
-    public static function getOptionsFormType(){
-    	return DataFieldOptionsType::class;
-    }
-
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function configureOptions(OptionsResolver $resolver) {
+		$resolver->setDefaults ( [ 
+				'data_class' => 'AppBundle\Entity\DataField',
+				'class' => null, // used to specify a bootstrap class arround the compoment
+				'metadata' => null, // used to keep a link to the FieldType
+		] 
+ );
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function buildView(FormView $view, FormInterface $form, array $options) {
+		$view->vars ['class'] = $options ['class'];
+		$view->vars ['isContainer'] = $this->isContainer ();
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getBlockPrefix() {
+		return 'datafieldtype';
+	}
+	
+	/**
+	 * Build an array representing the object, this array is ready to be serialized in json
+	 * and push in elasticsearch
+	 *
+	 * @return array
+	 */
+	public static function buildObjectArray(DataField $data, array &$out) {
+		if (! $data->getFieldType ()->getDeleted ()) {
+			/**
+			 * by default it serialize the text value.
+			 * It can be overrided.
+			 */
+			$out [$data->getFieldType ()->getName ()] = $data->getTextValue ();
+		}
+	}
+	
+	/**
+	 * Test if the field may contain sub field.
+	 *
+	 * I.e. container, nested, array, ...
+	 *
+	 * @return boolean
+	 */
+	public static function isContainer() {
+		return false;
+	}
+	
+	/**
+	 * Build a Field specific options sub-form (or compount field) (used in edit content type).
+	 *
+	 * @param FormBuilderInterface $builder        	
+	 * @param array $options        	
+	 */
+	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
+		/**
+		 * preset with the most used options
+		 */
+		$builder->add ( 'structuredOptions', OptionsType::class );
+	}
+	
+	/**
+	 * Build an elasticsearch mapping options as an array
+	 * 
+	 * @param array $options
+	 * @param FieldType $current
+	 */
+	public static function generateMapping(array $options, FieldType $current){
+		/* Elasticsearch doesnt accept parameter with null value, that the goals of the array_filter call */
+		return [$current->getName() => array_merge(array_filter($options), ['type' => 'string'])];
+	}
 }

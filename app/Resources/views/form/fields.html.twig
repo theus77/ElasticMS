@@ -40,7 +40,7 @@
 {%- endblock submitems_widget -%}
 
 
-{%- block dataFieldOptions_widget -%}
+{%- block data_field_options_widget -%}
 
 	<div class="tab-content">
 		<div class="tab-pane active" id="tab_display_{{ seed }}">
@@ -56,7 +56,7 @@
 	</div>
 	<!-- /.tab-content -->
 
-{%- endblock dataFieldOptions_widget -%}
+{%- endblock data_field_options_widget -%}
 
 
 {# Labels #}
@@ -88,10 +88,10 @@
 
 {% block container_row -%}
 	<div class="panel panel-default">
-	  {{- form_label(form) -}}
-	  <div class="panel-body">
-	    {{- form_widget(form) -}}
-	  </div>
+	  		{{- form_label(form) -}}
+	  	<div class="panel-body">
+	  		{{- form_widget(form) -}}
+	  	</div>
 	  {{- form_errors(form) -}}
 	</div>               
 {%- endblock container_row %}
@@ -103,13 +103,34 @@
 {# 	</div>#}
 {# {%- endblock icontext_row %}#}
 
-{% block form_row -%}
-    <div class="form-group{% if class is defined %} {{ class }}{% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
-        {{- form_label(form) -}}
-        {{- form_widget(form) -}}
-        {{- form_errors(form) -}}
-    </div>
-{%- endblock form_row %}
+{% block datafieldtype_row -%}
+<div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+	{% if isContainer %}
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				{% if icon %}<i class="{{ icon }}"></i>&nbsp;{% endif %}
+		  		{{- form_label(form) -}}
+		  	</div>
+		  <div class="panel-body">
+		    {{- form_widget(form) -}}
+		  </div>
+		  {{- form_errors(form) -}}
+		</div>               
+	{% else %}
+			{{- form_widget(form) -}}
+			{{- form_errors(form) -}}
+	{% endif %}
+</div>
+{% endblock datafieldtype_row %}
+
+
+{# {% block form_row -%}#}
+{#     <div class="form-group{% if class is defined %} {{ class }}{% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">#}
+{#         {{- form_label(form) -}}#}
+{#         {{- form_widget(form) -}}#}
+{#         {{- form_errors(form) -}}#}
+{#     </div>#}
+{# {%- endblock form_row %}#}
 
 {% block fieldTypeType_row -%}
 

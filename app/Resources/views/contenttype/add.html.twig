@@ -48,11 +48,11 @@
 				<div class="box-footer">
 					{{ form_widget(form.save) }}
 					
-					{% include 'elements/get-button.html.twig' with {
-						'url':  path('contenttype.edit', {'id': contentType.id}),
-						'label': 'Refresh',
-						'icon': 'refresh'
-					}%}
+{# 					{% include 'elements/get-button.html.twig' with {#}
+{# 						'url':  path('contenttype.edit', {'id': contentType.id}),#}
+{# 						'label': 'Refresh',#}
+{# 						'icon': 'refresh'#}
+{# 					}%}#}
 				</div>
 			{{ form_end(form) }}
 

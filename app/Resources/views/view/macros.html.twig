@@ -81,7 +81,9 @@
 			<div class="panel-body">
 	{% endif %}
 		{% for child in dataField.children if not child.fieldType.deleted %}
-			{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
+			<div class="{% if child.fieldType.displayOptions.class  %} {{ child.fieldType.displayOptions.class }} {% endif %}">
+				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
+			</div>
 		{% endfor %}
     {% if dataField.fieldType.displayOptions.label is defined %}
     		</div>
@@ -127,7 +129,13 @@
 
 {% macro AppBundle_Form_DataField_WysiwygType(dataField) %}
 	<dl>
-		<dt>{{ dataField.fieldType.label }} ({{ dataField.fieldType.name }})</dt>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
 		<dd>
 			<div class="panel panel-default">
 				<div class="panel-body">	

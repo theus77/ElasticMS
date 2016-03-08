@@ -2,34 +2,63 @@
 
 namespace AppBundle\Form\DataField;
 
-use AppBundle\Entity\FieldType;
+
+use AppBundle\Form\Field\AnalyzerPickerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType as TextareaSymfonyType;
 use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\FieldType\StringOptionsType;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class TextAreaType extends DataFieldType {
-	/**
-	 *
-	 * @param FormBuilderInterface $builder        	
-	 * @param array $options        	
-	 */
+/**
+ * Defined a Container content type.
+ * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
+ *
+ * @author Mathieu De Keyzer <ems@theus.be>
+ *        
+ */
+ class TextAreaType extends DataFieldType {
+
+    /**
+     * {@inheritdoc}
+     */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-				
-		/** @var FieldType $fieldType */
-		$fieldType = $builder->getOptions()['metadata'];
-		
-
-		$options = array_merge([
-				'required' => false,
-				'label' => $fieldType->getName(),
-		], $fieldType->getDisplayOptions());
-		
 		$builder->add ( 'text_value', TextareaSymfonyType::class, [
-				'label' => $options['label']
+				'label' => $options['label'],
+				'required' => false,
 		]);
 	}
+
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function buildView(FormView $view, FormInterface $form, array $options) {
+		/*get options for twig context*/
+		parent::buildView($view, $form, $options);
+		$view->vars ['icon'] = $options ['icon'];
+	}
 	
-    public static function getOptionsFormType(){
-    	return StringOptionsType::class;
-    }
+	/**
+	 * {@inheritdoc}
+	 */
+	public function configureOptions(OptionsResolver $resolver)
+	{
+		/*set the default option value for this kind of compound field*/
+		parent::configureOptions($resolver);
+		$resolver->setDefault('icon', null);
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
+		parent::buildOptionsForm ( $builder, $options );
+		$optionsForm = $builder->get ( 'structuredOptions' );
+		
+		// String specific mapping options
+		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);
+	}
 }

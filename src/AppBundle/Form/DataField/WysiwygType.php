@@ -2,9 +2,14 @@
 
 namespace AppBundle\Form\DataField;
 
-use AppBundle\Entity\FieldType;
+
 use Symfony\Component\Form\Extension\Core\Type\TextareaType as TextareaSymfonyType;
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Form\DataField\Options\StringOptionsType;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\AnalyzerPickerType;
 
 class WysiwygType extends DataFieldType {
 	/**
@@ -13,15 +18,44 @@ class WysiwygType extends DataFieldType {
 	 * @param array $options        	
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-				
-		/** @var FieldType $fieldType */
-		$fieldType = $builder->getOptions()['metadata'];
-		
 		$builder->add ( 'text_value', TextareaSymfonyType::class, [ 
-				'label' => $fieldType->getLabel (),
 				'attr' => [ 
 						'class' => 'ckeditor' 
-				] 
+				],
+				'label' => $options['label'],
+				'required' => false,
 		] );
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function buildView(FormView $view, FormInterface $form, array $options) {
+		/*get options for twig context*/
+		parent::buildView($view, $form, $options);
+		$view->vars ['icon'] = $options ['icon'];
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public function configureOptions(OptionsResolver $resolver)
+	{
+		/*set the default option value for this kind of compound field*/
+		parent::configureOptions($resolver);
+		$resolver->setDefault('icon', null);
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
+		parent::buildOptionsForm ( $builder, $options );
+		$optionsForm = $builder->get ( 'structuredOptions' );
+		
+		// String specific mapping options
+		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);
 	}
 }

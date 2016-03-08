@@ -13,7 +13,7 @@
 				<h3 class="box-title">Content types</h3>
 				<div class="btn-group  pull-right">
 					<a class="btn btn-xs btn-primary" href="{{ url('contenttype.add') }}"><i class="fa fa-plus"></i> Add content type</a>
-					<a class="btn btn-xs btn-primary" href="{{ url('contenttype.add-referenced') }}"><i class="fa fa-plus"></i> Add referenced</a>
+					<a class="btn btn-xs btn-primary" href="{{ url('contenttype.unreferenced') }}"><i class="fa fa-plus"></i> Add referenced</a>
 				</div>
 			</div>
 			<!-- /.box-header -->
@@ -55,8 +55,16 @@
 												'icon': 'refresh'
 											}%}
 										{% endif %}
+										{% if not contentType.active %}
+											{% include 'elements/post-button.html.twig' with {
+												'url':  path('contenttype.activate', {'id': contentType.id}),
+												'message': 'Are you ready to activate ' ~ contentType.name|humanize ~ ' ?',
+												'label': 'Activate',
+												'icon': 'warning'
+											}%}
+										{% endif %}
 										{% include 'elements/post-button.html.twig' with {
-											'url': path('contenttype.delete', {'id': contentType.id}),
+											'url': path('contenttype.remove', {'id': contentType.id}),
 											'message': 'Delete the content type ' ~ contentType.name|humanize ~ ' ?',
 											'label': 'Delete',
 											'icon': 'trash'

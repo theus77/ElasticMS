@@ -450,7 +450,7 @@ class DataField
     	$found = false;
     	/** @var DataField $dataField */
     	foreach ($this->children as &$dataField){
-    		if(strcmp($key,  $dataField->getFieldType()->getName()) == 0){
+    		if(null != $dataField->getFieldType() && !$dataField->getFieldType()->getDeleted() && strcmp($key,  $dataField->getFieldType()->getName()) == 0){
     			$found = true;
     			$dataField = $input;
     			break;
@@ -480,7 +480,7 @@ class DataField
      	
     	/** @var DataField $dataField */
     	foreach ($this->children as $dataField){
-    		if(!$dataField->getFieldType()->getDeleted() && strcmp($key,  $dataField->getFieldType()->getName()) == 0){
+    		if(null != $dataField->getFieldType() && !$dataField->getFieldType()->getDeleted() && strcmp($key,  $dataField->getFieldType()->getName()) == 0){
     			return $dataField;
     		}
     	}
