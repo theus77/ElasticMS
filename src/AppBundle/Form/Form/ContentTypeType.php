@@ -60,9 +60,6 @@ class ContentTypeType extends AbstractType {
 				]
 		] );
 		$builder->add ( 'indexTwig', TextareaType::class, [
-				'attr' => [
-						'class' => 'ckeditor'
-				]
 		] );
 		
 		

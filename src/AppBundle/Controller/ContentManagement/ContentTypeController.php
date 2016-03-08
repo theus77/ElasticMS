@@ -336,7 +336,7 @@ class ContentTypeController extends AppController {
 			}
 		}
 		
-		return $this->render ( 'meta/add-referenced-content-type.html.twig', [ 
+		return $this->render ( 'contenttype/unreferenced.html.twig', [ 
 				'referencedContentTypes' => $referencedContentTypes 
 		] );
 	}
