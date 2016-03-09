@@ -118,3 +118,22 @@
 		</dd>
 	</dl>
 {% endmacro %}
+
+{% macro AppBundle_Form_DataField_EmailFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
+		<dd>
+			<div class="panel panel-default">
+				<div class="panel-body">	
+					{{ dataField.textValue|raw }}
+				</div>
+			</div>
+		</dd>
+	</dl>
+{% endmacro %}
