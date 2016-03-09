@@ -3,13 +3,12 @@
 namespace AppBundle\Form\DataField;
 
 
+use AppBundle\Form\Field\AnalyzerPickerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType as TextareaSymfonyType;
 use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\DataField\Options\StringOptionsType;
-use Symfony\Component\Form\FormView;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Form\Field\AnalyzerPickerType;
 
 class WysiwygType extends DataFieldType {
 	/**

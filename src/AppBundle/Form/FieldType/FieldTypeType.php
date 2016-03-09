@@ -2,18 +2,15 @@
 
 namespace AppBundle\Form\FieldType;
 
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\FormView;
 use AppBundle\Entity\FieldType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use AppBundle\Form\Field\SubmitEmsType;
 use AppBundle\Form\DataField\SubfieldType;
 use AppBundle\Form\Field\FieldTypePickerType;
+use AppBundle\Form\Field\SubmitEmsType;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class FieldTypeType extends AbstractType
 {

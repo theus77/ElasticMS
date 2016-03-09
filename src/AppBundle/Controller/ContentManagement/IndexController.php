@@ -2,14 +2,12 @@
 
 namespace AppBundle\Controller\ContentManagement;
 
+use AppBundle\Controller\AppController;
+use AppBundle;
+use AppBundle\Repository\RevisionRepository;
+use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use AppBundle\Controller\AppController;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Entity\ContentType;
-use AppBundle;
-use Doctrine\ORM\EntityManager;
-use AppBundle\Repository\RevisionRepository;
 
 class IndexController extends AppController
 {
