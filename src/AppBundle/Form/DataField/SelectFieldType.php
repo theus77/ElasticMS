@@ -8,10 +8,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use AppBundle\Form\Field\AnalyzerPickerType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class SelectFieldType extends DataFieldType {
 	
-	private $choices;
 	/**
 	 *
 	 * {@inheritdoc}
@@ -31,22 +31,25 @@ class SelectFieldType extends DataFieldType {
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
 		
-		$this->choices = explode("\n", str_replace("\r", "", $options['choices']));
+		$choices = [];
+		$values = explode("\n", str_replace("\r", "", $options['choices']));
+		$labels = explode("\n", str_replace("\r", "", $options['labels']));
 		
-		$array = $this->choices;
-		dump(['toto', 'tata']);
+		foreach ($values as $id => $value){
+			if(isset($labels[$id])){
+				$choices[$labels[$id]] = $value;
+			}
+			else {
+				$choices[$value] = $value;
+			}
+		}
 		
-		//TODO check for required choices, multiple selection, ...
-		$builder->add ( 'text_value', ChoiceType::class, [ 
+		$builder->add ( $options['multiple']?'array_value':'text_value', ChoiceType::class, [ 
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
 				'required' => false,
-				'choices' => $array,
+				'choices' => $choices,
     			'empty_data'  => null,
-				'choice_label' => function ($value, $key, $index) {
-			        return $value;
-			        // or if you want to translate some key
-			        // return 'form.choice.'.$key;
-			    },
+				'multiple' => $options['multiple'],
 		] );
 	}
 	
@@ -60,6 +63,8 @@ class SelectFieldType extends DataFieldType {
 		/* set the default option value for this kind of compound field */
 		parent::configureOptions ( $resolver );
 		$resolver->setDefault ( 'choices', [] );
+		$resolver->setDefault ( 'labels', [] );
+		$resolver->setDefault ( 'multiple', false );
 	}
 	
 	/**
@@ -72,7 +77,11 @@ class SelectFieldType extends DataFieldType {
 		$optionsForm = $builder->get ( 'structuredOptions' );
 		
 		// String specific display options
-		$optionsForm->get ( 'displayOptions' )->add ( 'choices', TextareaType::class, [ 
+		$optionsForm->get ( 'displayOptions' )->add ( 'multiple', CheckboxType::class, [ 
+				'required' => false,
+		] )->add ( 'choices', TextareaType::class, [ 
+				'required' => false,
+		] )->add ( 'labels', TextareaType::class, [ 
 				'required' => false,
 		] );
 		

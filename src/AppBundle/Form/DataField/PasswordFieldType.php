@@ -14,7 +14,8 @@ use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use AppBundle\Entity\DataField;
-						
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+							
 /**
  * Defined a Container content type.
  * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
@@ -38,11 +39,14 @@ use AppBundle\Entity\DataField;
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder->add ( 'text_value', PasswordType::class, [
+		$builder->add ( 'password_value', PasswordType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'required' => false,
-				//TODO: always_empty doesnt work??
-				'always_empty' => false,
+		] );		
+		
+		$builder->add ( 'reset_password_value', CheckboxType::class, [
+				'label' => 'Reset the password',
+				'required' => false,
 		] );
 	}
 	

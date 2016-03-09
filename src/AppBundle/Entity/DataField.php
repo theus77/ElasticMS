@@ -332,6 +332,82 @@ class DataField
     }
 
     /**
+     * Set passwordValue
+     *
+     * @param string $passwordValue
+     *
+     * @return DataField
+     */
+    public function setPasswordValue($passwordValue)
+    {
+    	if(isset($passwordValue)){
+	        $this->textValue = $passwordValue;    		
+    	}
+
+        return $this;
+    }
+
+    /**
+     * Get passwordValue
+     *
+     * @return string
+     */
+    public function getPasswordValue()
+    {
+        return $this->textValue;
+    }
+    
+
+    /**
+     * Set resetPasswordValue
+     *
+     * @param string $resetPasswordValue
+     *
+     * @return DataField
+     */
+    public function setResetPasswordValue($resetPasswordValue)
+    {
+    	if(isset($resetPasswordValue) && $resetPasswordValue){
+    		$this->textValue = null;
+    	}
+    
+    	return $this;
+    }
+    
+    /**
+     * Get resetPasswordValue
+     *
+     * @return string
+     */
+    public function getResetPasswordValue()
+    {
+    	return false;
+    }
+
+    /**
+     * Set arrayValue
+     *
+     * @param array $arrayValue
+     *
+     * @return DataField
+     */
+    public function setArrayValue($arrayValue)
+    {
+        $this->textValue = implode("\n", $arrayValue);
+        return $this;
+    }
+
+    /**
+     * Get arrayValue
+     *
+     * @return string
+     */
+    public function getArrayValue()
+    {
+    	return explode("\n", str_replace("\r", "", $this->textValue));
+    }
+
+    /**
      * Set sha1
      *
      * @param binary $sha1
