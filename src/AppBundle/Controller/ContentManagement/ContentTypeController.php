@@ -427,7 +427,7 @@ class ContentTypeController extends AppController {
 		else{
 			/** @var FieldType $child */
 			foreach ($fieldType->getChildren() as $child){
-				if(!$child->getDeleted() && $this->Fields($formArray[$child->getName()], $child)) {
+				if(!$child->getDeleted() && $this->reorderFields($formArray[$child->getName()], $child)) {
 					return true;
 				}
 			}
