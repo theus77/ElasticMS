@@ -215,6 +215,13 @@ class ContentType
     /**
      * @var bool
      *
+     * @ORM\Column(name="edit_twig_with_wysiwyg", type="boolean")
+     */
+    private $editTwigWithWysiwyg;
+    
+    /**
+     * @var bool
+     *
      * @ORM\Column(name="active", type="boolean")
      */
     private $active;
@@ -227,6 +234,7 @@ class ContentType
     
     function __construct(){
      	$this->dirty = true;
+     	$this->editTwigWithWysiwyg = true;
     }
 
     public function generateMapping(){
@@ -979,5 +987,29 @@ class ContentType
     public function getDirty()
     {
         return $this->dirty;
+    }
+
+    /**
+     * Set editTwigWithWysiwyg
+     *
+     * @param boolean $editTwigWithWysiwyg
+     *
+     * @return ContentType
+     */
+    public function setEditTwigWithWysiwyg($editTwigWithWysiwyg)
+    {
+        $this->editTwigWithWysiwyg = $editTwigWithWysiwyg;
+
+        return $this;
+    }
+
+    /**
+     * Get editTwigWithWysiwyg
+     *
+     * @return boolean
+     */
+    public function getEditTwigWithWysiwyg()
+    {
+        return $this->editTwigWithWysiwyg;
     }
 }

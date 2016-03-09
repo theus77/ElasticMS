@@ -12,6 +12,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\FieldType\FieldTypeType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ContentTypeType extends AbstractType {
 	/**
@@ -32,7 +34,9 @@ class ContentTypeType extends AbstractType {
 // 		$builder->add ( 'dateField');
 // 		$builder->add ( 'startDateField');
 // 		$builder->add ( 'endDateField');
-// 		$builder->add ( 'locationField');
+		$builder->add ( 'editTwigWithWysiwyg', CheckboxType::class, [
+			'label' => 'Edit the Twig template with a WYSIWYG editor'
+		]);
 // 		$builder->add ( 'ouuidField');
 // 		$builder->add ( 'imageField');
 // 		$builder->add ( 'videoField');
@@ -62,10 +66,19 @@ class ContentTypeType extends AbstractType {
 		] );
 		$builder->add ( 'indexTwig', TextareaType::class, [
 				'required' => false,
+				'attr' => [
+						'class' => $options['twigWithWysiwyg']?'ckeditor':''
+				]
 		] );
 		
 		
 		$builder->add ( 'save', SubmitEmsType::class, [ 
+				'attr' => [ 
+						'class' => 'btn-primary btn-sm ' 
+				],
+				'icon' => 'fa fa-save'
+		] );		
+		$builder->add ( 'saveAndClose', SubmitEmsType::class, [ 
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm ' 
 				],
@@ -75,4 +88,14 @@ class ContentTypeType extends AbstractType {
 		return parent::buildForm($builder, $options);
 		 
 	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function configureOptions(OptionsResolver $resolver) {
+		$resolver->setDefault ( 'twigWithWysiwyg', true );
+	}
+	
 }

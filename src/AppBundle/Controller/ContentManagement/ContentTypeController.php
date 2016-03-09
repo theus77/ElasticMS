@@ -53,6 +53,7 @@ class ContentTypeController extends AppController {
 			$contentType = $repository->find ( $id );
 			
 			if ($contentType && count ( $contentType ) == 1) {
+				//TODO test if there something published for this content type 
 				$contentType->setActive ( false )->setDeleted ( true );
 				$em->persist ( $contentType );
 				$em->flush ();
@@ -62,7 +63,7 @@ class ContentTypeController extends AppController {
 				$this->addFlash ( 'warning', 'Content type ' . $id . ' not found deleted' );
 			}
 		}
-		return $this->redirectToRoute ( 'contenttype.list' );
+		return $this->redirectToRoute ( 'contenttype.index' );
 	}
 	
 	/**
@@ -463,14 +464,16 @@ class ContentTypeController extends AppController {
 		
 		$inputContentType = $request->request->get ( 'content_type' );
 		
-		$form = $this->createForm ( ContentTypeType::class, $contentType );
+		$form = $this->createForm ( ContentTypeType::class, $contentType, [
+			'twigWithWysiwyg' => $contentType->getEditTwigWithWysiwyg()
+		] );
 		
 		$form->handleRequest ( $request );
 		
 		if ($form->isSubmitted () && $form->isValid ()) {
 			
 			
-			if (array_key_exists ( 'save', $inputContentType )) {
+			if (array_key_exists ( 'save', $inputContentType ) || array_key_exists ( 'saveAndClose', $inputContentType )) {
 				$contentType->getFieldType ()->updateOrderKeys ();
 				$contentType->setDirty ( $contentType->getEnvironment ()->getManaged () );
 				
@@ -480,7 +483,12 @@ class ContentTypeController extends AppController {
 				$em->flush ();
 				
 				$this->addFlash ( 'warning', 'Content type has beend saved. Please consider to update the Elasticsearch mapping.' );
-				return $this->redirectToRoute ( 'contenttype.index' );
+				if (array_key_exists ( 'saveAndClose', $inputContentType )){
+					return $this->redirectToRoute ( 'contenttype.index' );					
+				}
+				return $this->redirectToRoute ( 'contenttype.edit', [
+						'id' => $id
+				] );
 			} else {
 				if ($this->addNewField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
