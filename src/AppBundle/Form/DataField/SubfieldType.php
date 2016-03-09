@@ -7,6 +7,7 @@ namespace AppBundle\Form\DataField;
 
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\Field\AnalyzerPickerType;
+use AppBundle\Entity\DataField;
 
 class SubfieldType extends DataFieldType {
 	
@@ -18,10 +19,18 @@ class SubfieldType extends DataFieldType {
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
 		$optionsForm = $builder->get ( 'structuredOptions' );
-
 	
 		// String specific mapping options
 		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);
+	}	
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */	
+	public static function buildObjectArray(DataField $data, array &$out) {
+		//do nothing as it's a virtual field
 	}
 	
 }

@@ -13,6 +13,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use AppBundle\Form\Field\SubmitEmsType;
 use AppBundle\Form\DataField\SubfieldType;
+use AppBundle\Form\Field\FieldTypePickerType;
 
 class FieldTypeType extends AbstractType
 {
@@ -37,17 +38,10 @@ class FieldTypeType extends AbstractType
     	
     	
     	if($dataFieldType->isContainer()) {
-	    	$builder->add ( 'ems:internal:add:field:class', ChoiceType::class, [
+	    	$builder->add ( 'ems:internal:add:field:class', FieldTypePickerType::class, [
 	    			'label' => 'Field\'s type',
 	    			'mapped' => false,
-	    			'required' => false,
-	    			'choices' => [
-	    				'Container' => 'AppBundle\Form\DataField\ContainerType',
-	    				'Ouuid' => 'AppBundle\Form\DataField\OuuidType',
-	    				'String' => 'AppBundle\Form\DataField\StringType',
-	    				'WYSIWYG' => 'AppBundle\Form\DataField\WysiwygType',
-	    				'TextArea' => 'AppBundle\Form\DataField\TextAreaType',
-	    			]
+	    			'required' => false
 	    	]);    	
 	    	$builder->add ( 'ems:internal:add:field:name', TextType::class, [
 	    			'label' => 'Field\'s name',

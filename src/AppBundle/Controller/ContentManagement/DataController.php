@@ -270,18 +270,24 @@ class DataController extends AppController
 	
 	
 	private function updateDataStructure(DataField $data, FieldType $meta){
-		/** @var FieldType $field */
-		foreach ($meta->getChildren() as $field){
-			$child = $data->__get('ems_'.$field->getName());
-			if(null == $child){
-				$child = new DataField();
-				$child->setFieldType($field);
-				$child->setOrderKey($field->getOrderKey());
-				$child->setParent($data);
-				$child->setRevisionId($data->getRevisionId());
-				$data->addChild($child);
-			}
-			$this->updateDataStructure($child, $field, null);
+		//no need to generate the structure for subfields (as they are virtual)
+		if($data->getFieldType()->getTypeClass()->isContainer()){
+			/** @var FieldType $field */
+			foreach ($meta->getChildren() as $field){
+				//no need to generate the structure for delete field
+				if(!$field->getDeleted()){
+					$child = $data->__get('ems_'.$field->getName());
+					if(null == $child){
+						$child = new DataField();
+						$child->setFieldType($field);
+						$child->setOrderKey($field->getOrderKey());
+						$child->setParent($data);
+						$child->setRevisionId($data->getRevisionId());
+						$data->addChild($child);
+					}
+					$this->updateDataStructure($child, $field, null);					
+				}
+			}			
 		}
 	}
 	

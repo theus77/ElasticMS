@@ -30,12 +30,15 @@ class ContainerType extends DataFieldType {
 		
 		/** @var FieldType $fieldType */
 		foreach ( $fieldType->getChildren () as $fieldType ) {
-			/* merge the default options with the ones specified by the user */
-			$options = array_merge ( [ 
-					'metadata' => $fieldType,
-					'label' => false 
-			], $fieldType->getDisplayOptions () );
-			$builder->add ( 'ems_' . $fieldType->getName (), $fieldType->getType (), $options );
+
+			if (! $fieldType->getDeleted ()) {
+				/* merge the default options with the ones specified by the user */
+				$options = array_merge ( [ 
+						'metadata' => $fieldType,
+						'label' => false 
+				], $fieldType->getDisplayOptions () );
+				$builder->add ( 'ems_' . $fieldType->getName (), $fieldType->getType (), $options );
+			}
 		}
 	}
 	
@@ -68,6 +71,7 @@ class ContainerType extends DataFieldType {
 	 *
 	 */
 	public static function buildObjectArray(DataField $data, array &$out) {
+		
 		/** @var DataField $child */
 		foreach ( $data->getChildren () as $child ) {
 			if (! $child->getFieldType ()->getDeleted ()) {
