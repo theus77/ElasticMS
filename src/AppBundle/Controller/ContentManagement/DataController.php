@@ -427,15 +427,13 @@ class DataController extends AppController
 					$revision->setModified(new \DateTime('now'));
 					$em->persist($revision);
 					$em->flush();
+					return $this->redirectToRoute('data.view', [
+							'ouuid' => $revision->getOuuid()
+					]);	
 				}
 				catch (\Exception $e){
-					//TODO
-// 					dump($e);
-					exit;
+					$this->addFlash('error', 'The draft has been saved but something when wrong when we tried to publish it. '.$revision->getContentType()->getName().':'.$revision->getOuuid());
 				}
-				return $this->redirectToRoute('data.view', [
-						'ouuid' => $revision->getOuuid()
-				]);	
 			}
 			
 			return $this->redirectToRoute('revision.edit', [
