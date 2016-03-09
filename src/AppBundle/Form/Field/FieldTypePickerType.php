@@ -14,6 +14,7 @@ class FieldTypePickerType extends SelectPickerType {
 			'AppBundle\Form\DataField\WysiwygFieldType',
 			'AppBundle\Form\DataField\TextareaFieldType',
 			'AppBundle\Form\DataField\SelectFieldType',
+			'AppBundle\Form\DataField\PasswordFieldType',
 	];
 	
 	/**
