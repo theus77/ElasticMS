@@ -22,6 +22,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use AppBundle\Form\DataField\SubfieldType;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -143,7 +144,6 @@ class ContentTypeController extends AppController {
 		try {
 			/** @var  Client $client */
 			$client = $this->get ( 'app.elasticsearch' );
-			
 			
 			$out = $client->indices ()->putMapping ( [ 
 					'index' => $envs,
@@ -330,7 +330,7 @@ class ContentTypeController extends AppController {
 	 * @param array $formArray        	
 	 * @param FieldType $fieldType        	
 	 */
-	private function addNewContentType(array $formArray, FieldType $fieldType) {
+	private function addNewField(array $formArray, FieldType $fieldType) {
 		if (array_key_exists ( 'add', $formArray )) {
 			
 			$child = new FieldType ();
@@ -343,7 +343,34 @@ class ContentTypeController extends AppController {
 		} else {
 			/** @var FieldType $child */
 			foreach ( $fieldType->getChildren () as $child ) {
-				if (! $child->getDeleted () && $this->addNewContentType ( $formArray [$child->getName ()], $child )) {
+				if (! $child->getDeleted () && $this->addNewField ( $formArray [$child->getName ()], $child )) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Try to find (recursively) if there is a new field to add to the content type
+	 * 
+	 * @param array $formArray        	
+	 * @param FieldType $fieldType        	
+	 */
+	private function addNewSubfield(array $formArray, FieldType $fieldType) {
+		if (array_key_exists ( 'subfield', $formArray )) {
+			
+			$child = new FieldType ();
+			$child->setName ( $formArray ['ems:internal:add:subfield:name'] );
+			$child->setType ( SubfieldType::class );
+			$child->setParent ( $fieldType );
+			$fieldType->addChild ( $child );
+			$this->addFlash('notice', 'The subfield '.$fieldType->getName().' has been prepared to be added');
+			return true;
+		} else {
+			/** @var FieldType $child */
+			foreach ( $fieldType->getChildren () as $child ) {
+				if (! $child->getDeleted () && $this->addNewSubfield ( $formArray [$child->getName ()], $child )) {
 					return true;
 				}
 			}
@@ -357,7 +384,7 @@ class ContentTypeController extends AppController {
 	 * @param array $formArray
 	 * @param FieldType $fieldType
 	 */
-	private function removeContentType(array $formArray, FieldType $fieldType){
+	private function removeField(array $formArray, FieldType $fieldType){
 		if(array_key_exists('remove', $formArray)){
 			$fieldType->setDeleted(true);
 			$this->addFlash('notice', 'The field '.$fieldType->getName().' has been prepared to be removed');
@@ -366,7 +393,7 @@ class ContentTypeController extends AppController {
 		else{
 			/** @var FieldType $child */
 			foreach ($fieldType->getChildren() as $child){
-				if(!$child->getDeleted() && $this->removeContentType($formArray[$child->getName()], $child)) {
+				if(!$child->getDeleted() && $this->removeField($formArray[$child->getName()], $child)) {
 					return true;
 				}
 			}
@@ -380,7 +407,7 @@ class ContentTypeController extends AppController {
 	 * @param array $formArray
 	 * @param FieldType $fieldType
 	 */	
-	private function reorderContentType(array $formArray, FieldType $fieldType){
+	private function reorderFields(array $formArray, FieldType $fieldType){
 		if(array_key_exists('reorder', $formArray)){
 			$keys = array_keys($formArray);
 			/** @var FieldType $child */
@@ -396,7 +423,7 @@ class ContentTypeController extends AppController {
 		else{
 			/** @var FieldType $child */
 			foreach ($fieldType->getChildren() as $child){
-				if(!$child->getDeleted() && $this->reorderContentType($formArray[$child->getName()], $child)) {
+				if(!$child->getDeleted() && $this->Fields($formArray[$child->getName()], $child)) {
 					return true;
 				}
 			}
@@ -442,16 +469,20 @@ class ContentTypeController extends AppController {
 		
 		if ($form->isSubmitted () && $form->isValid ()) {
 			
+			
 			if (array_key_exists ( 'save', $inputContentType )) {
 				$contentType->getFieldType ()->updateOrderKeys ();
 				$contentType->setDirty ( $contentType->getEnvironment ()->getManaged () );
+				
+// 				dump($contentType);
+// 				exit;
 				$em->persist ( $contentType );
 				$em->flush ();
 				
 				$this->addFlash ( 'warning', 'Content type has beend saved. Please consider to update the Elasticsearch mapping.' );
 				return $this->redirectToRoute ( 'contenttype.index' );
 			} else {
-				if ($this->addNewContentType ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				if ($this->addNewField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					$em->persist ( $contentType );
 					$em->flush ();
@@ -461,7 +492,17 @@ class ContentTypeController extends AppController {
 					] );
 				}
 				
-				if ($this->removeContentType ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				if ($this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+					$contentType->getFieldType ()->updateOrderKeys ();
+					$em->persist ( $contentType );
+					$em->flush ();
+					$this->addFlash ( 'notice', 'A new subfield has been added.' );
+					return $this->redirectToRoute ( 'contenttype.edit', [ 
+							'id' => $id 
+					] );
+				}
+				
+				if ($this->removeField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					$em->persist ( $contentType );
 					$em->flush ();
@@ -471,7 +512,7 @@ class ContentTypeController extends AppController {
 					] );
 				}
 				
-				if ($this->reorderContentType ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				if ($this->reorderFields ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					// $contentType->getFieldType()->updateOrderKeys();
 					$em->persist ( $contentType );
 					$em->flush ();

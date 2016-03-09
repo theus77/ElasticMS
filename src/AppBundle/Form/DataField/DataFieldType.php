@@ -98,7 +98,28 @@ class DataFieldType extends AbstractType {
 	 * @param FieldType $current
 	 */
 	public static function generateMapping(array $options, FieldType $current){
+		$out = [
+			$current->getName() => array_merge(
+					array_filter($options), 
+					['type' => 'string'])
+		];
+		
+		/* has subfields ?*/
+		if( $current->getChildren()->count() > 0){
+			$fields = [];
+			/** @var FieldType $child */
+			foreach ( $current->getChildren () as $child ) {
+				if (! $child->getDeleted ()) {
+					$fields = array_merge($fields, $child->generateMapping());
+				}
+			}
+			$out[$current->getName()]['fields'] = $fields;
+		}
+		
+		return $out;
+		
+		
 		/* Elasticsearch doesnt accept parameter with null value, that the goals of the array_filter call */
-		return [$current->getName() => array_merge(array_filter($options), ['type' => 'string'])];
+		return [];
 	}
 }

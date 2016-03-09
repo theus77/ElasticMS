@@ -62,12 +62,6 @@ class FieldTypeType extends AbstractType
 	    			'icon' => 'fa fa-plus'
 	    	] );
 
-	    	$builder->add ( 'reorder', SubmitEmsType::class, [
-	    			'attr' => [
-	    					'class' => 'btn-primary '
-	    			],
-	    			'icon' => 'fa fa-reorder'
-	    	] );
     	}
     	else if(strcmp(SubfieldType::class, $fieldType->getType()) !=0 ) {
     		
@@ -94,13 +88,22 @@ class FieldTypeType extends AbstractType
 	    	] );	    		
     	}
 
-    	if(isset($fieldType) && null != $fieldType->getChildren()){
+    	if(isset($fieldType) && null != $fieldType->getChildren() && $fieldType->getChildren()->count() > 0){
+
+//     		if($fieldType->getChildren()->count() > 1){
+	    		$builder->add ( 'reorder', SubmitEmsType::class, [
+	    				'attr' => [
+	    						'class' => 'btn-primary '
+	    				],
+	    				'icon' => 'fa fa-reorder'    			
+	    		] );
+//     		}
     		
-	    	$className = $fieldType->getType();
-	    	/** @var FieldType $instance */
-	    	$instance = new $className();
+// 	    	$className = $fieldType->getType();
+// 	    	/** @var FieldType $instance */
+// 	    	$instance = new $className();
 	    	
-			if($instance->isContainer()) {
+// 			if($instance->isContainer()) {
 				/** @var FieldType $field */
 				foreach ($fieldType->getChildren() as $idx => $field) {
 					if(!$field->getDeleted()){
@@ -110,7 +113,7 @@ class FieldTypeType extends AbstractType
 						]  );						
 					}
 				}
-			}
+// 			}
     	}
     }   
 
