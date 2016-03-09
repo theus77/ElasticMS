@@ -2,11 +2,8 @@
 
 namespace AppBundle\Entity;
 
-use Doctrine\ORM\Mapping as ORM;
-use AppBundle\Form\FieldType\DataFieldOptionsType;
-use AppBundle\Entity\FieldOptions\DataFieldOptions;
-use AppBundle\Form\FieldType\FieldTypeType;
 use AppBundle\Form\DataField\DataFieldType;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * FieldType
