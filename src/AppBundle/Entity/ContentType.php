@@ -2,7 +2,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Proxies\__CG__\AppBundle\Entity\FieldType;
+use AppBundle\Form\DataField\ContainerFieldType;
 
 /**
  * ContentType
@@ -235,6 +235,14 @@ class ContentType
     function __construct(){
      	$this->dirty = true;
      	$this->editTwigWithWysiwyg = true;
+
+     	$fieldType = new FieldType();
+     	$fieldType->setName ( 'source' );
+//      	$fieldType->setDeleted ( false );
+//      	$fieldType->setOrderKey( false );
+     	$fieldType->setType ( ContainerFieldType::class );
+     	$fieldType->setContentType ( $this );
+     	$this->setFieldType ( $fieldType );
     }
 
     public function generateMapping(){

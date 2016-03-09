@@ -66,3 +66,9 @@
 
 </div>
 {% endblock %} 
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'data-index-' ~ contentType.id
+	}%}
+{% endblock %}	

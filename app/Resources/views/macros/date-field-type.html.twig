@@ -1,0 +1,88 @@
+
+{%  macro renderDataField(dataField) %}
+	{{ attribute(_self, dataField.fieldType.type|replace({'\\': '_'}), [dataField]) }}
+{% endmacro %}
+
+{% macro AppBundle_Form_DataField_ContainerFieldType(dataField) %}
+    {% if dataField.fieldType.displayOptions.label is defined %}
+    	<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					{% if dataField.fieldType.displayOptions.icon is defined %}
+						<i class="{{ dataField.fieldType.displayOptions.icon }}"></i> 
+					{% endif %}
+					{% if dataField.fieldType.displayOptions.label is defined %}
+						{{ dataField.fieldType.displayOptions.label }}
+					{% else %}
+						{{ dataField.fieldType.name }}
+					{% endif %}
+				</h3>
+			</div>
+			<div class="panel-body">
+	{% endif %}
+		{% for child in dataField.children if not child.fieldType.deleted %}
+			<div class="{% if child.fieldType.displayOptions.class  %} {{ child.fieldType.displayOptions.class }} {% endif %}">
+				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
+			</div>
+		{% endfor %}
+    {% if dataField.fieldType.displayOptions.label is defined %}
+    		</div>
+		</div>
+	{% endif %}
+{% endmacro %}
+
+
+{% macro AppBundle_Form_DataField_OuuidFieldType(dataField) %}
+	<dl>
+		{% if dataField.fieldType.displayOptions.label is defined %}
+			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
+		{% else %}
+			<dt>{{ dataField.fieldType.name }}</dt>
+		{% endif %}
+		<dd>{{ dataField.textValue }}</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_DataField_TextFieldType(dataField) %}
+	<dl class="{% if dataField.fieldType.displayOptions.class is defined %}{{ dataField.fieldType.displayOptions.class }}{% endif %}">
+		{% if dataField.fieldType.displayOptions.label is defined %}
+			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
+		{% else %}
+			<dt>{{ dataField.fieldType.name }}</dt>
+		{% endif %}
+		
+		<dd>{{ dataField.textValue }}</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_DataField_TextareaFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
+		<dd>{{ dataField.textValue }}</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_DataField_WysiwygFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
+		<dd>
+			<div class="panel panel-default">
+				<div class="panel-body">	
+					{{ dataField.textValue|raw }}
+				</div>
+			</div>
+		</dd>
+	</dl>
+{% endmacro %}

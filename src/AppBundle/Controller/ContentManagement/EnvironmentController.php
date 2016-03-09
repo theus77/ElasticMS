@@ -441,58 +441,63 @@ class EnvironmentController extends AppController {
 	 */
 	public function indexAction(Request $request)
 	{
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine()->getManager();
-		/** @var EnvironmentRepository $repository */
-		$repository = $em->getRepository('AppBundle:Environment');
-	
-		$environments = $repository->findAll();
-	
-	
-		/** @var  Client $client */
-		$client = $this->get('app.elasticsearch');
-		$stats = $client->indices()->stats();
-	
-	
-		$temp = [];
-		$orphanIndexes = [];
-	
-		foreach ($client->indices()->getAliases() as $index => $aliases) {
-			if(count($aliases["aliases"]) == 0 && strcmp($index{0}, '.') != 0 ){
-				$orphanIndexes[] = [
-						'name'=> $index,
+		try{
+			/** @var EntityManager $em */
+			$em = $this->getDoctrine()->getManager();
+			/** @var EnvironmentRepository $repository */
+			$repository = $em->getRepository('AppBundle:Environment');
+		
+			$environments = $repository->findAll();
+		
+		
+			/** @var  Client $client */
+			$client = $this->get('app.elasticsearch');
+			$stats = $client->indices()->stats();
+		
+		
+			$temp = [];
+			$orphanIndexes = [];
+		
+			foreach ($client->indices()->getAliases() as $index => $aliases) {
+				if(count($aliases["aliases"]) == 0 && strcmp($index{0}, '.') != 0 ){
+					$orphanIndexes[] = [
+							'name'=> $index,
+							'total' => $stats['indices'][$index]['total']['docs']['count']
+		
+					];
+				}
+				foreach ($aliases["aliases"] as $alias => $other) {
+					$temp[$alias] = $index;
+				}
+					
+			}
+		
+			/** @var  Environment $environment */
+			foreach ($environments as $environment) {
+				if(isset($temp[$environment->getAlias()])){
+					$environment->setIndex($temp[$environment->getAlias()]);
+					$environment->setTotal($stats['indices'][$temp[$environment->getAlias()]]['total']['docs']['count']);
+					unset($temp[$environment->getAlias()]);
+				}
+			}
+			$unmanagedIndexes = [];
+			foreach ($temp as $alias => $index){
+				$unmanagedIndexes[] = [
+						'index' => $index,
+						'name' => $alias,
 						'total' => $stats['indices'][$index]['total']['docs']['count']
-	
 				];
 			}
-			foreach ($aliases["aliases"] as $alias => $other) {
-				$temp[$alias] = $index;
-			}
-				
+		
+			return $this->render( 'environment/index.html.twig', [
+					'environments' => $environments,
+					'orphanIndexes' => $orphanIndexes,
+					'unmanagedIndexes' => $unmanagedIndexes
+			]);
 		}
-	
-		/** @var  Environment $environment */
-		foreach ($environments as $environment) {
-			if(isset($temp[$environment->getAlias()])){
-				$environment->setIndex($temp[$environment->getAlias()]);
-				$environment->setTotal($stats['indices'][$temp[$environment->getAlias()]]['total']['docs']['count']);
-				unset($temp[$environment->getAlias()]);
-			}
+		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){
+			return $this->redirectToRoute('elasticsearch.status');
 		}
-		$unmanagedIndexes = [];
-		foreach ($temp as $alias => $index){
-			$unmanagedIndexes[] = [
-					'index' => $index,
-					'name' => $alias,
-					'total' => $stats['indices'][$index]['total']['docs']['count']
-			];
-		}
-	
-		return $this->render( 'environment/index.html.twig', [
-				'environments' => $environments,
-				'orphanIndexes' => $orphanIndexes,
-				'unmanagedIndexes' => $unmanagedIndexes
-		]);
 	}
 	
 	/**

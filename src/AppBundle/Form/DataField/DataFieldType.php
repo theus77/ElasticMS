@@ -17,7 +17,13 @@ use AppBundle\Entity\FieldType;
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
-class DataFieldType extends AbstractType {
+abstract class DataFieldType extends AbstractType {
+
+	/**
+	 * Used to display in the content type edit page (instaed of the class path)
+	 */
+	abstract public function getLabel();
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -39,7 +45,12 @@ class DataFieldType extends AbstractType {
 	 */
 	public function buildView(FormView $view, FormInterface $form, array $options) {
 		$view->vars ['class'] = $options ['class'];
-		$view->vars ['isContainer'] = $this->isContainer ();
+		$view->vars ['isContainer'] = $this->isContainer();
+		if( null == $options['label']){
+			/** @var FieldType $fieldType */
+			$fieldType = $options ['metadata'];
+			$view->vars ['label'] = $fieldType->getName();
+		}
 	}
 	
 	/**

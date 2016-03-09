@@ -4,27 +4,39 @@ namespace AppBundle\Form\DataField;
 
 
 use AppBundle\Form\Field\AnalyzerPickerType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType as TextareaSymfonyType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-
-class WysiwygType extends DataFieldType {
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+	
+/**
+ * Defined a Container content type.
+ * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
+ *
+ * @author Mathieu De Keyzer <ems@theus.be>
+ *        
+ */
+ class TextareaFieldType extends DataFieldType {
 	/**
 	 *
-	 * @param FormBuilderInterface $builder        	
-	 * @param array $options        	
+	 * {@inheritdoc}
+	 *
 	 */
+	public function getLabel(){
+		return 'Textarea field';
+	}
+
+    /**
+     * {@inheritdoc}
+     */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder->add ( 'text_value', TextareaSymfonyType::class, [ 
-				'attr' => [ 
-						'class' => 'ckeditor' 
-				],
+		$builder->add ( 'text_value', TextareaType::class, [
 				'label' => $options['label'],
 				'required' => false,
-		] );
+		]);
 	}
+
 
 	/**
 	 * {@inheritdoc}

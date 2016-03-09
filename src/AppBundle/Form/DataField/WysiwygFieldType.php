@@ -10,25 +10,30 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * Defined a Container content type.
- * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
- *
- * @author Mathieu De Keyzer <ems@theus.be>
- *        
- */
- class TextAreaType extends DataFieldType {
-
-    /**
-     * {@inheritdoc}
-     */
+class WysiwygFieldType extends DataFieldType {
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getLabel(){
+		return 'WYSIWYG field';
+	}
+	
+	/**
+	 *
+	 * @param FormBuilderInterface $builder        	
+	 * @param array $options        	
+	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder->add ( 'text_value', TextareaSymfonyType::class, [
+		$builder->add ( 'text_value', TextareaSymfonyType::class, [ 
+				'attr' => [ 
+						'class' => 'ckeditor' 
+				],
 				'label' => $options['label'],
 				'required' => false,
-		]);
+		] );
 	}
-
 
 	/**
 	 * {@inheritdoc}

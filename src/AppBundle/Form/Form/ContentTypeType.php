@@ -35,7 +35,8 @@ class ContentTypeType extends AbstractType {
 // 		$builder->add ( 'startDateField');
 // 		$builder->add ( 'endDateField');
 		$builder->add ( 'editTwigWithWysiwyg', CheckboxType::class, [
-			'label' => 'Edit the Twig template with a WYSIWYG editor'
+			'label' => 'Edit the Twig template with a WYSIWYG editor',
+			'required' => false,
 		]);
 // 		$builder->add ( 'ouuidField');
 // 		$builder->add ( 'imageField');

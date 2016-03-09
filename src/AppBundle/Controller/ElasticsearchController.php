@@ -66,57 +66,61 @@ class ElasticsearchController extends Controller
 	 */
 	public function searchAction($query, Request $request, $page)
 	{
-		
-		$q = $request->query->get('q');
-		
-		if(isset($q)){
-			return $this->redirectToRoute('elasticsearch.search', array('query' => $q));
-		}
-		
-		
-		if(! isset($query)){
-			$es_query = '{
-			    "query": {
-			    	"match_all" : { }
-			    },
-			    "highlight" : {
-			        "fields" : {
-			            "_all" : {}
-			        }
-			    } }';
-		}
-		else {
-			$es_query = '
-			{
-			   "query": {
-			      "match": {
-			         "_all": {
-			            "query": '.json_encode($query).',
-			            "operator": "and"
-			         }
-			      }
-			   },
-			    "highlight" : {
-			        "fields" : {
-			            "_all" : {}
-			        }
-			    }
-			}';	
-		}
-		
-		$client = $this->get('app.elasticsearch');
-		$results = $client->search(['body' => $es_query, 'version' => true, 'size' => $this->container->getParameter('paging_size'), 'from' => ($page-1)*$this->container->getParameter('paging_size')]);
-
+		try {
+			$q = $request->query->get('q');
+			
+			if(isset($q)){
+				return $this->redirectToRoute('elasticsearch.search', array('query' => $q));
+			}
+			
+			
+			if(! isset($query)){
+				$es_query = '{
+				    "query": {
+				    	"match_all" : { }
+				    },
+				    "highlight" : {
+				        "fields" : {
+				            "_all" : {}
+				        }
+				    } }';
+			}
+			else {
+				$es_query = '
+				{
+				   "query": {
+				      "match": {
+				         "_all": {
+				            "query": '.json_encode($query).',
+				            "operator": "and"
+				         }
+				      }
+				   },
+				    "highlight" : {
+				        "fields" : {
+				            "_all" : {}
+				        }
+				    }
+				}';	
+			}
+			
+			$client = $this->get('app.elasticsearch');
+			$results = $client->search(['body' => $es_query, 'version' => true, 'size' => $this->container->getParameter('paging_size'), 'from' => ($page-1)*$this->container->getParameter('paging_size')]);
 	
-		return $this->render( 'elasticsearch/search.html.twig', [
-				'results' => $results,
-				'lastPage' => ceil($results['hits']['total']/$this->container->getParameter('paging_size')),
-				'paginationPath' => 'elasticsearch.search',
-				'currentFilters' => [
-						'query' => $query,
-						'page' =>  $page
-				]
-		] );
+		
+			return $this->render( 'elasticsearch/search.html.twig', [
+					'results' => $results,
+					'lastPage' => ceil($results['hits']['total']/$this->container->getParameter('paging_size')),
+					'paginationPath' => 'elasticsearch.search',
+					'currentFilters' => [
+							'query' => $query,
+							'page' =>  $page
+					]
+			] );
+		}
+		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){
+			return $this->redirectToRoute('elasticsearch.status');
+		}
 	}
 	
 	

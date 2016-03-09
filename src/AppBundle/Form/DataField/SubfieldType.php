@@ -10,6 +10,14 @@ use AppBundle\Form\Field\AnalyzerPickerType;
 use AppBundle\Entity\DataField;
 
 class SubfieldType extends DataFieldType {
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getLabel(){
+		return 'Virtual subfield (used to define alternatives analyzers)';
+	}
 	
 	/**
 	 *

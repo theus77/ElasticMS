@@ -10,7 +10,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-		
+use AppBundle\Entity\FieldType;
+			
 /**
  * Defined a Container content type.
  * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
@@ -18,7 +19,15 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
- class StringType extends DataFieldType {
+ class TextFieldType extends DataFieldType {
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getLabel(){
+		return 'Text field';
+	}
 	
 	/**
 	 *
@@ -26,11 +35,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
+
+		/** @var FieldType $fieldType */
+		$fieldType = $options ['metadata'];
 		
 		if($options['prefixIcon'] || $options['prefixText'] || $options['suffixIcon'] || $options['suffixText'] ){
 			$builder->add ( 'text_value', IconTextType::class, [ 
 					'required' => false,
-					'label' => $options ['label'],
+					'label' => (null != $options ['label']?$options ['label']:' slsls'),
 					'icon' => $options['prefixIcon'],
 					'prefixText' => $options['prefixText'],
 					'suffixIcon' => $options['suffixIcon'],
@@ -39,8 +51,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		}
 		else{
 			$builder->add ( 'text_value', TextType::class, [
+					'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 					'required' => false,
-					'label' => $options ['label'],
 			] );			
 		}
 		
@@ -51,11 +63,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 	 * {@inheritdoc}
 	 *
 	 */
-	public function buildView(FormView $view, FormInterface $form, array $options) {
-		/* get options for twig context */
-		parent::buildView ( $view, $form, $options );
-// 		$view->vars ['prefixIcon'] = $options ['prefixIcon'];
-	}
+// 	public function buildView(FormView $view, FormInterface $form, array $options) {
+// 		/* get options for twig context */
+// // 		parent::buildView ( $view, $form, $options );
+// // 		$view->vars ['prefixIcon'] = $options ['prefixIcon'];
+// 	}
 	
 	/**
 	 *

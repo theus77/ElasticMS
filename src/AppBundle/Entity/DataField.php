@@ -2,8 +2,8 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Form\DataField\OuuidFieldType;
 use Doctrine\ORM\Mapping as ORM;
-use AppBundle\Form\DataField\OuuidType;
 
 /**
  * DataField
@@ -130,7 +130,7 @@ class DataField
     }
     
     public function propagateOuuid($ouuid) {
-    	if(strcmp(OuuidType::class, $this->getFieldType()->getType()) == 0) {
+    	if(strcmp(OuuidFieldType::class, $this->getFieldType()->getType()) == 0) {
     		dump($this);
     		$this->setTextValue($ouuid);
     	}

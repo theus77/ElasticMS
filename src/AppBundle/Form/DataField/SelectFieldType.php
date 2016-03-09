@@ -6,7 +6,15 @@ use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType as ChoiceSymfonyType;
 use Symfony\Component\Form\FormBuilderInterface;
 
-class SelectPickerType extends DataFieldType {
+class SelectFieldType extends DataFieldType {
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getLabel(){
+		return 'Select field';
+	}
 	/**
 	 *
 	 * @param FormBuilderInterface $builder        	

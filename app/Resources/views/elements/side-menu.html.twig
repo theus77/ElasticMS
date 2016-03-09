@@ -49,7 +49,7 @@
 	          		{% endif %}
 	          	</a>
 	          	<ul class="treeview-menu">
-	            	<li class=""><a href="{{ path('data.index', { contentTypeId: contentType.id }) }}">Index all {{ contentType.pluralName|humanize }}</a></li>
+	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('data.index', { contentTypeId: contentType.id }) }}">Index all {{ contentType.pluralName|humanize }}</a></li>
 	            	{% if contentType.locationField %}
 	            	  <li class=""><a href="#">Google map view</a></li>
 	            	{% endif%}

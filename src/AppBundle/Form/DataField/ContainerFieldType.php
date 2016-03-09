@@ -17,7 +17,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
-class ContainerType extends DataFieldType {
+class ContainerFieldType extends DataFieldType {
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getLabel(){
+		return 'Visual container (invisible in Elasticsearch)';
+	}
+	
+	
 	/**
 	 *
 	 * {@inheritdoc}

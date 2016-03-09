@@ -7,7 +7,8 @@ use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\FieldType;
-use AppBundle\Form\DataField\ContainerType;
+use AppBundle\Form\DataField\ContainerFieldType;
+use AppBundle\Form\DataField\SubfieldType;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Form\ContentTypeType;
 use AppBundle\Repository\ContentTypeRepository;
@@ -22,7 +23,6 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Form\DataField\SubfieldType;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -225,6 +225,7 @@ class ContentTypeController extends AppController {
 			}
 			
 			if ($form->isValid ()) {
+				
 				$em->persist ( $contentType );
 				$em->flush ();
 				
@@ -339,7 +340,7 @@ class ContentTypeController extends AppController {
 			$child->setType ( $formArray ['ems:internal:add:field:class'] );
 			$child->setParent ( $fieldType );
 			$fieldType->addChild ( $child );
-			$this->addFlash('notice', 'The field '.$fieldType->getName().' has been prepared to be added');
+			$this->addFlash('notice', 'The field '.$child->getName().' has been prepared to be added');
 			return true;
 		} else {
 			/** @var FieldType $child */
@@ -454,14 +455,6 @@ class ContentTypeController extends AppController {
 			return $this->redirectToRoute ( 'contenttype.index' );
 		}
 		
-		if (null == $contentType->getFieldType ()) {
-			$fieldType = new FieldType ();
-			$fieldType->setName ( 'source' );
-			$fieldType->setType ( ContainerType::class );
-			$fieldType->setContentType ( $contentType );
-			$contentType->setFieldType ( $fieldType );
-		}
-		
 		$inputContentType = $request->request->get ( 'content_type' );
 		
 		$form = $this->createForm ( ContentTypeType::class, $contentType, [
@@ -471,18 +464,19 @@ class ContentTypeController extends AppController {
 		$form->handleRequest ( $request );
 		
 		if ($form->isSubmitted () && $form->isValid ()) {
-			
+			$contentType->getFieldType()->setName('source');
 			
 			if (array_key_exists ( 'save', $inputContentType ) || array_key_exists ( 'saveAndClose', $inputContentType )) {
 				$contentType->getFieldType ()->updateOrderKeys ();
 				$contentType->setDirty ( $contentType->getEnvironment ()->getManaged () );
-				
-// 				dump($contentType);
+
+
 // 				exit;
 				$em->persist ( $contentType );
 				$em->flush ();
-				
-				$this->addFlash ( 'warning', 'Content type has beend saved. Please consider to update the Elasticsearch mapping.' );
+				if($contentType->getDirty()){
+					$this->addFlash ( 'warning', 'Content type has beend saved. Please consider to update the Elasticsearch mapping.' );					
+				}
 				if (array_key_exists ( 'saveAndClose', $inputContentType )){
 					return $this->redirectToRoute ( 'contenttype.index' );					
 				}
@@ -492,6 +486,7 @@ class ContentTypeController extends AppController {
 			} else {
 				if ($this->addNewField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
+					
 					$em->persist ( $contentType );
 					$em->flush ();
 					$this->addFlash ( 'notice', 'A new field has been added.' );

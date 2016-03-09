@@ -66,12 +66,10 @@
 
 {# Labels #}
 {% block container_label -%}
-
 	{% if data.fieldType.displayOptions.label is defined  %}
 		<div class="panel-heading">
 			<h3 class="panel-title">
 				{% if data.fieldType.displayOptions.icon is defined %}<i class="{{ data.fieldType.displayOptions.icon }}"></i>&nbsp;{% endif %}
-				{{ data.fieldType.displayOptions.label }}
 			</h3>
 		</div>
 	{% endif %}

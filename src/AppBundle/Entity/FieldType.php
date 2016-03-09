@@ -4,6 +4,7 @@ namespace AppBundle\Entity;
 
 use AppBundle\Form\DataField\DataFieldType;
 use Doctrine\ORM\Mapping as ORM;
+use AppBundle\Form\DataField\ContainerFieldType;
 
 /**
  * FieldType
@@ -360,17 +361,16 @@ class FieldType
     	}
         return $parent->contentType;
     }
- 
-    
-    
-    /**
-     * Constructor
-     */
-    public function __construct()
-    {
-    	$this->children = new \Doctrine\Common\Collections\ArrayCollection();
+	
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+		
+		$this->children = new \Doctrine\Common\Collections\ArrayCollection ();
 		$this->deleted = false;
 		$this->orderKey = 0;
+		
     }
 
     /**
