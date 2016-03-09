@@ -63,17 +63,6 @@ use AppBundle\Entity\FieldType;
 	 * {@inheritdoc}
 	 *
 	 */
-// 	public function buildView(FormView $view, FormInterface $form, array $options) {
-// 		/* get options for twig context */
-// // 		parent::buildView ( $view, $form, $options );
-// // 		$view->vars ['prefixIcon'] = $options ['prefixIcon'];
-// 	}
-	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
 	public function configureOptions(OptionsResolver $resolver) {
 		/* set the default option value for this kind of compound field */
 		parent::configureOptions ( $resolver );

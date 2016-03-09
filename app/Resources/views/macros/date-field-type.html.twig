@@ -32,6 +32,19 @@
 {% endmacro %}
 
 
+
+
+{% macro AppBundle_Form_DataField_SelectFieldType(dataField) %}
+	<dl>
+		{% if dataField.fieldType.displayOptions.label is defined %}
+			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
+		{% else %}
+			<dt>{{ dataField.fieldType.name }}</dt>
+		{% endif %}
+		<dd>{{ dataField.textValue }}</dd>
+	</dl>
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_OuuidFieldType(dataField) %}
 	<dl>
 		{% if dataField.fieldType.displayOptions.label is defined %}

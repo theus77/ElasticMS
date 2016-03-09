@@ -4,6 +4,8 @@ namespace AppBundle\Entity;
 
 use AppBundle\Form\DataField\OuuidFieldType;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * DataField
@@ -11,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="data_field")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\DataFieldRepository")
  * @ORM\HasLifecycleCallbacks()
+ * @Assert\Callback({"Vendor\Package\Validator", "validate"})
  */
 class DataField
 {
@@ -114,6 +117,16 @@ class DataField
      */
     private $children;
 
+    
+    /**
+     * @Assert\Callback
+     */
+    public function isDataFieldValid(ExecutionContextInterface $context)
+    {
+    	//TODO: why is it not working?
+    	$context->addViolationAt('textValue', 'Haaaaha', array(), null);
+    }
+    
     /**
      * @ORM\PrePersist
      * @ORM\PreUpdate

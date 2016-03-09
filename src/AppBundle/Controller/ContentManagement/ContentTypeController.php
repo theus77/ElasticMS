@@ -146,6 +146,8 @@ class ContentTypeController extends AppController {
 			/** @var  Client $client */
 			$client = $this->get ( 'app.elasticsearch' );
 			
+// 			dump($contentType->generateMapping ()); exit;
+			
 			$out = $client->indices ()->putMapping ( [ 
 					'index' => $envs,
 					'type' => $contentType->getName (),
