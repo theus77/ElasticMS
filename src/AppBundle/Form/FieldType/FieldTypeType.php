@@ -28,16 +28,12 @@ class FieldTypeType extends AbstractType
     	/** @var FieldType $fieldType */
     	$fieldType = $options['data'];
 
-    	$builder->add ( 'type', HiddenType::class );
+//     	$builder->add ( 'type', HiddenType::class );
     	$builder->add ( 'name', HiddenType::class );
     	
     	
     	$dataFieldType = $fieldType->getTypeClass();
     	$dataFieldType->buildOptionsForm($builder, $options);
-    	
-    	
-//     	$builder->add ( 'structuredOptions', $fieldType->getOptionsFormType());
-    	
     	
     	
     	if($dataFieldType->isContainer()) {

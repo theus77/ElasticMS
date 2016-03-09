@@ -357,8 +357,8 @@ class FieldType
      */
     public function getContentType()
     {
-    	$parent = $this->parent;
-    	while($parent != null){
+    	$parent = $this;
+    	while($parent->parent != null){
     		$parent = $parent->parent;
     	}
         return $parent->contentType;

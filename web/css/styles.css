@@ -8805,3 +8805,9 @@ button.close {
 ul.sortable > li {
   cursor: pointer;
 }
+
+/* line 2, ../../sass/_bootstrap_fix.scss */
+li.list-group-item > ul.list-group {
+  margin-top: 20px;
+  margin-bottom: 6px;
+}

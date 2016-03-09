@@ -491,6 +491,10 @@ class ContentTypeController extends AppController {
 				'type' => $contentType->getName () 
 		] );
 		
+		if($contentType->getDirty()){
+			$this->addFlash('warning', $contentType->getName().' is dirty. Consider to update its mapping.');
+		}
+		
 		return $this->render ( 'contenttype/edit.html.twig', [ 
 				'form' => $form->createView (),
 				'contentType' => $contentType,

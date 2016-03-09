@@ -67,7 +67,9 @@
 						<div class="tab-content">
 							{% if contentType.environment.managed %}
 								<div class="tab-pane active" id="tab_1">
-									{{ form_row(form.fieldType) }}
+									<ul class="list-group">
+										{{ form_row(form.fieldType) }}
+									</ul>
 								</div>
 							{% endif %}	
 							{% if mapping %}
@@ -83,11 +85,13 @@
 				</div>
 
 
-					{% if contentType.environment.managed %}
-						<div class="col-md-12">
-							{{ form_row(form.fieldType) }}
-						</div>
-					{% endif %}
+{# 					{% if contentType.environment.managed %}#}
+{# 						<div class="col-md-12">test#}
+{# 							<ul class="list-group sortable">#}
+{# 								{{ form_row(form.fieldType) }}#}
+{# 							</ul>#}
+{# 						</div>#}
+{# 					{% endif %}#}
 										
 				</div>
 				<!-- /.box-body -->		
