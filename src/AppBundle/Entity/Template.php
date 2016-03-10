@@ -3,8 +3,6 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 /**
  * DataField
@@ -12,7 +10,6 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * @ORM\Table(name="template")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
  * @ORM\HasLifecycleCallbacks()
- * @Assert\Callback({"Vendor\Package\Validator", "validate"})
  */
 class Template
 {
@@ -42,14 +39,14 @@ class Template
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255, unique=true)
+     * @ORM\Column(name="name", type="string", length=255)
      */
     private $name; 
 
     /**
      * @var string
      *
-     * @ORM\Column(name="icon", type="string", length=255, unique=true)
+     * @ORM\Column(name="icon", type="string", length=255, nullable=true)
      */
     private $icon; 
     
@@ -86,14 +83,6 @@ class Template
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
     private $contentType;
-    
-    /**
-     * @Assert\Callback
-     */
-    public function isDataFieldValid(ExecutionContextInterface $context)
-    {
-    	//TODO: looks like not working
-    }
     
     /**
      * @ORM\PrePersist

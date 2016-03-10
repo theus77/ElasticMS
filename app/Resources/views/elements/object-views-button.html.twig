@@ -7,6 +7,24 @@
 	</button>
 	<ul class="dropdown-menu" role="menu">
 {# 		{% if recursiveView is not defined or not recursiveView  %}#}
+			{% for template in contentType.templates %}
+				<li>
+					{% if template.body and template.externalLink %}
+						<a href="{{ include(template_from_string(template.body, {
+									environment: environment,
+									contentType: contentType
+								})) }}" target="_blank">
+							<i class="{{ template.icon|raw }}"></i>
+							{{ template.name }}
+						</a>
+					{% else %}
+						<a href="#">
+							<i class="{{ template.icon|raw }}"></i>
+							{{ template.name }}
+						</a>
+					{% endif %}
+				</li>
+			{% endfor %}
 			<li>
 				<a href="{{ path('data.view', {'environmentName': environment.name, 'type': contentType.name, 'ouuid': ouuid} ) }}">
 					<span class="entity">&infin;</span>
