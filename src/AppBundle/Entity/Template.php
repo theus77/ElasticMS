@@ -9,12 +9,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 /**
  * DataField
  *
- * @ORM\Table(name="link")
+ * @ORM\Table(name="template")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
  * @ORM\HasLifecycleCallbacks()
  * @Assert\Callback({"Vendor\Package\Validator", "validate"})
  */
-class Link
+class Template
 {
     /**
      * @var int
@@ -45,13 +45,34 @@ class Link
      * @ORM\Column(name="name", type="string", length=255, unique=true)
      */
     private $name; 
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="icon", type="string", length=255, unique=true)
+     */
+    private $icon; 
     
     /**
      * @var string
      *
-     * @ORM\Column(name="template", type="text", length=4096)
+     * @ORM\Column(name="body", type="text")
      */
-    private $template;
+    private $body;
+    
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="edit_with_wysiwyg", type="boolean")
+     */
+    private $editWithWysiwyg;
+    
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="external_link", type="boolean")
+     */
+    private $externalLink;
     
     /**
      * @var int
@@ -88,7 +109,6 @@ class Link
     		$this->orderKey = 0;
     	}
     }
-    
 
     /**
      * Get id
@@ -105,7 +125,7 @@ class Link
      *
      * @param \DateTime $created
      *
-     * @return Link
+     * @return Template
      */
     public function setCreated($created)
     {
@@ -129,7 +149,7 @@ class Link
      *
      * @param \DateTime $modified
      *
-     * @return Link
+     * @return Template
      */
     public function setModified($modified)
     {
@@ -153,7 +173,7 @@ class Link
      *
      * @param string $name
      *
-     * @return Link
+     * @return Template
      */
     public function setName($name)
     {
@@ -173,27 +193,99 @@ class Link
     }
 
     /**
-     * Set template
+     * Set icon
      *
-     * @param string $template
+     * @param string $icon
      *
-     * @return Link
+     * @return Template
      */
-    public function setTemplate($template)
+    public function setIcon($icon)
     {
-        $this->template = $template;
+        $this->icon = $icon;
 
         return $this;
     }
 
     /**
-     * Get template
+     * Get icon
      *
      * @return string
      */
-    public function getTemplate()
+    public function getIcon()
     {
-        return $this->template;
+        return $this->icon;
+    }
+
+    /**
+     * Set body
+     *
+     * @param string $body
+     *
+     * @return Template
+     */
+    public function setBody($body)
+    {
+        $this->body = $body;
+
+        return $this;
+    }
+
+    /**
+     * Get body
+     *
+     * @return string
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * Set editWithWysiwyg
+     *
+     * @param boolean $editWithWysiwyg
+     *
+     * @return Template
+     */
+    public function setEditWithWysiwyg($editWithWysiwyg)
+    {
+        $this->editWithWysiwyg = $editWithWysiwyg;
+
+        return $this;
+    }
+
+    /**
+     * Get editWithWysiwyg
+     *
+     * @return boolean
+     */
+    public function getEditWithWysiwyg()
+    {
+        return $this->editWithWysiwyg;
+    }
+
+    /**
+     * Set externalLink
+     *
+     * @param boolean $externalLink
+     *
+     * @return Template
+     */
+    public function setExternalLink($externalLink)
+    {
+        $this->externalLink = $externalLink;
+
+        return $this;
+    }
+
+    /**
+     * Get externalLink
+     *
+     * @return boolean
+     */
+    public function getExternalLink()
+    {
+        return $this->externalLink;
     }
 
     /**
@@ -201,7 +293,7 @@ class Link
      *
      * @param integer $orderKey
      *
-     * @return Link
+     * @return Template
      */
     public function setOrderKey($orderKey)
     {
@@ -225,7 +317,7 @@ class Link
      *
      * @param \AppBundle\Entity\ContentType $contentType
      *
-     * @return Link
+     * @return Template
      */
     public function setContentType(\AppBundle\Entity\ContentType $contentType = null)
     {

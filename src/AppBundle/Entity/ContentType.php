@@ -233,14 +233,15 @@ class ContentType
     private $environment;
     
     /**
-     * @ORM\OneToMany(targetEntity="Link", mappedBy="contentType", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="Template", mappedBy="contentType", cascade={"persist", "remove"})
      * @ORM\OrderBy({"orderKey" = "ASC"})
      */
-    private $links;
+    private $templates;
     
     function __construct(){
-        $this->links = new \Doctrine\Common\Collections\ArrayCollection();
-        
+
+    	$this->templates = new \Doctrine\Common\Collections\ArrayCollection();
+    	
      	$this->dirty = true;
      	$this->editTwigWithWysiwyg = true;
 
@@ -1030,36 +1031,36 @@ class ContentType
     }
 
     /**
-     * Add link
+     * Add template
      *
-     * @param \AppBundle\Entity\Link $link
+     * @param \AppBundle\Entity\Template $template
      *
      * @return ContentType
      */
-    public function addLink(\AppBundle\Entity\Link $link)
+    public function addTemplate(\AppBundle\Entity\Template $template)
     {
-        $this->links[] = $link;
+        $this->templates[] = $template;
 
         return $this;
     }
 
     /**
-     * Remove link
+     * Remove template
      *
-     * @param \AppBundle\Entity\Link $link
+     * @param \AppBundle\Entity\Template $template
      */
-    public function removeLink(\AppBundle\Entity\Link $link)
+    public function removeTemplate(\AppBundle\Entity\Template $template)
     {
-        $this->links->removeElement($link);
+        $this->templates->removeElement($template);
     }
 
     /**
-     * Get links
+     * Get templates
      *
      * @return \Doctrine\Common\Collections\Collection
      */
-    public function getLinks()
+    public function getTemplates()
     {
-        return $this->links;
+        return $this->templates;
     }
 }
