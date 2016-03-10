@@ -24,6 +24,9 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Repository\EnvironmentRepository;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use AppBundle\Repository\TemplateRepository;
+use AppBundle\Entity\Environment;
+use AppBundle\Entity\Template;
 
 class DataController extends AppController
 {
@@ -151,7 +154,7 @@ class DataController extends AppController
 		return $this->render( 'data/revisions-data.html.twig', [
 				'revision' =>  $revision,
 				'revisionsSummary' => $revisionsSummary,
-				'availableEnv' => $availableEnv
+				'availableEnv' => $availableEnv,
 		] );
 	}
 
@@ -398,6 +401,68 @@ class DataController extends AppController
 		]);
 		
 	}
+
+	/**
+	 * @Route("/data/custom-view/{environmentName}/{templateId}/{ouuid}", name="data.customview"))
+	 */
+	public function customViewAction($environmentName, $templateId, $ouuid, Request $request)
+	{	
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var TemplateRepository $templateRepository */
+		$templateRepository = $em->getRepository('AppBundle:Template');
+		
+		/** @var Template $template **/
+		$template = $templateRepository->find($templateId);
+			
+		if(!$template) {
+			throw new NotFoundHttpException('Template type not found');
+		}
+		
+		/** @var EnvironmentRepository $environmentRepository */
+		$environmentRepository = $em->getRepository('AppBundle:Environment');
+		
+		/** @var Environment $environment **/
+		$environment = $environmentRepository->findBy([
+			'name' => $environmentName,
+		]);
+			
+		if(!$environment || count($environment) != 1) {
+			throw new NotFoundHttpException('Environment type not found');
+		}
+		
+		$environment = $environment[0];
+		
+		/** @var Client $client */
+		$client = $this->getElasticsearch();
+		
+		$object = $client->get([
+				'index' => $environment->getAlias(),
+				'type' => $template->getContentType()->getName(),
+				'id' => $ouuid
+		]);
+		
+		$twig = $this->getTwig();
+		
+		try {
+			$body = $twig->createTemplate($template->getBody());
+		}
+		catch (\Twig_Error $e){
+			$this->addFlash('error', 'There is something wrong with the template '.$contentType->getName());
+			$body = $twig->createTemplate('');
+		}
+		
+		
+		return $this->render( 'data/custom-view.html.twig', [
+				'template' =>  $template,
+				'object' => $object,
+				'environment' => $environment,
+				'contentType' => $template->getContentType(),
+				'body' => $body
+		] );
+		
+	}
 	
 	/**
 	 * @Route("/data/draft/edit/{revisionId}", name="revision.edit"))
@@ -488,12 +553,15 @@ class DataController extends AppController
 					$revision->setModified(new \DateTime('now'));
 					$em->persist($revision);
 					$em->flush();
-					return $this->redirectToRoute('data.view', [
-							'ouuid' => $revision->getOuuid()
+					return $this->redirectToRoute('data.revisions', [
+							'ouuid' => $revision->getOuuid(),
+							'type' => $revision->getContentType()->getName(),
+							
 					]);	
 				}
 				catch (\Exception $e){
 					$this->addFlash('error', 'The draft has been saved but something when wrong when we tried to publish it. '.$revision->getContentType()->getName().':'.$revision->getOuuid());
+					$this->addFlash('error', $e->getMessage());
 				}
 			}
 			

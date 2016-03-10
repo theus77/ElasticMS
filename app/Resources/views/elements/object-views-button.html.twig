@@ -12,13 +12,18 @@
 					{% if template.body and template.externalLink %}
 						<a href="{{ include(template_from_string(template.body, {
 									environment: environment,
-									contentType: contentType
+									contentType: contentType,
+									object: object,
+									source: object.source
 								})) }}" target="_blank">
 							<i class="{{ template.icon|raw }}"></i>
 							{{ template.name }}
 						</a>
 					{% else %}
-						<a href="#">
+						<a href="{{ path('data.customview', {
+									environmentName: environment.name,
+									ouuid: object._id,
+									templateId: template.id}) }}">
 							<i class="{{ template.icon|raw }}"></i>
 							{{ template.name }}
 						</a>
@@ -26,7 +31,7 @@
 				</li>
 			{% endfor %}
 			<li>
-				<a href="{{ path('data.view', {'environmentName': environment.name, 'type': contentType.name, 'ouuid': ouuid} ) }}">
+				<a href="{{ path('data.view', {'environmentName': environment.name, 'type': contentType.name, 'ouuid': object._id} ) }}">
 					<span class="entity">&infin;</span>
 					Recursive view
 				</a>

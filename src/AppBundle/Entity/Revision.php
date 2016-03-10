@@ -148,6 +148,18 @@ class Revision
     		}
     	}
     }
+    
+
+    public function getObject(){
+    	$object = [
+    			'_index' => 'N/A',
+    			'_source' => $this->getDataField()->getObjectArray(),
+    			'_id' => $this->ouuid,
+    			'_type' => $this->getContentType()->getName()
+    	];
+    	
+    	return $object;
+    }
 
     /**
      * Get id

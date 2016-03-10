@@ -159,6 +159,7 @@ class DataField
     	return $out;
     }
 
+
     public function orderChildren(){
     	$temp = new \Doctrine\Common\Collections\ArrayCollection();
     	foreach ($this->getFieldType()->getChildren() as $childField){
