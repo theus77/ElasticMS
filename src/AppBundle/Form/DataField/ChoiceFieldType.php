@@ -10,7 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use AppBundle\Form\Field\AnalyzerPickerType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
-class SelectFieldType extends DataFieldType {
+class ChoiceFieldType extends DataFieldType {
 	
 	/**
 	 *
@@ -18,7 +18,7 @@ class SelectFieldType extends DataFieldType {
 	 *
 	 */
 	public function getLabel(){
-		return 'Select field';
+		return 'Choice field';
 	}
 	
 	
@@ -51,6 +51,7 @@ class SelectFieldType extends DataFieldType {
 				'choices' => $choices,
     			'empty_data'  => null,
 				'multiple' => $options['multiple'],
+				'expanded' => $options['expanded'],
 		] );
 	}
 	
@@ -66,6 +67,7 @@ class SelectFieldType extends DataFieldType {
 		$resolver->setDefault ( 'choices', [] );
 		$resolver->setDefault ( 'labels', [] );
 		$resolver->setDefault ( 'multiple', false );
+		$resolver->setDefault ( 'expanded', false );
 	}
 	
 	/**
@@ -79,6 +81,8 @@ class SelectFieldType extends DataFieldType {
 		
 		// String specific display options
 		$optionsForm->get ( 'displayOptions' )->add ( 'multiple', CheckboxType::class, [ 
+				'required' => false,
+		] )->add ( 'expanded', CheckboxType::class, [ 
 				'required' => false,
 		] )->add ( 'choices', TextareaType::class, [ 
 				'required' => false,

@@ -21,7 +21,7 @@
 			<div class="panel-body">
 	{% endif %}
 		{% for child in dataField.children if not child.fieldType.deleted %}
-			<div class="{% if child.fieldType.displayOptions.class  %} {{ child.fieldType.displayOptions.class }} {% endif %}">
+			<div class="{% if child.fieldType.displayOptions.class  %}{{ child.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
 				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
 			</div>
 		{% endfor %}
@@ -41,7 +41,18 @@
 		{% else %}
 			<dt>{{ dataField.fieldType.name }}</dt>
 		{% endif %}
-		<dd>{{ dataField.textValue }}</dd>
+		<dd>
+			{% if dataField.fieldType.displayOptions.multiple %}
+				<ul>
+					{% for value in dataField.arrayValue %}
+						<li>{{ value }}</li>
+					{% endfor %}
+				</ul>
+			{% else %}
+				{{ dataField.textValue }}
+			{% endif %}
+		
+		</dd>
 	</dl>
 {% endmacro %}
 
@@ -57,7 +68,7 @@
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_TextFieldType(dataField) %}
-	<dl class="{% if dataField.fieldType.displayOptions.class is defined %}{{ dataField.fieldType.displayOptions.class }}{% endif %}">
+	<dl>
 		{% if dataField.fieldType.displayOptions.label is defined %}
 			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
 		{% else %}
@@ -77,7 +88,13 @@
 				{{ dataField.fieldType.name }}
 			{% endif %}
 		</dt>
-		<dd>{{ dataField.textValue }}</dd>
+		<dd>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					{{ dataField.textValue }}
+				</div>
+			</div>
+		</dd>
 	</dl>
 {% endmacro %}
 
@@ -110,15 +127,11 @@
 			{% endif %}
 		</dt>
 		<dd>
-			<div class="panel panel-default">
-				<div class="panel-body">
-					{% if dataField.textValue %}	
-						***************
-					{% else %}
-						not defined
-					{% endif %}
-				</div>
-			</div>
+			{% if dataField.textValue %}	
+				***************
+			{% else %}
+				not defined
+			{% endif %}
 		</dd>
 	</dl>
 {% endmacro %}
@@ -133,11 +146,41 @@
 			{% endif %}
 		</dt>
 		<dd>
-			<div class="panel panel-default">
-				<div class="panel-body">	
-					{{ dataField.textValue|raw }}
-				</div>
-			</div>
+			{{ dataField.textValue|raw }}
+		</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_DataField_RadioFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
+		<dd>
+			{{ dataField.textValue|raw }}
+		</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_DataField_ChoiceFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
+		<dd>
+			<ul>
+				{% for value in dataField.arrayValue %}
+					<li>{{ value }}</li>
+				{% endfor %}
+			</ul>
 		</dd>
 	</dl>
 {% endmacro %}

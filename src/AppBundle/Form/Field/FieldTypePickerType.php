@@ -16,6 +16,8 @@ class FieldTypePickerType extends SelectPickerType {
 			'AppBundle\Form\DataField\SelectFieldType',
 			'AppBundle\Form\DataField\PasswordFieldType',
 			'AppBundle\Form\DataField\EmailFieldType',
+			'AppBundle\Form\DataField\RadioFieldType',
+			'AppBundle\Form\DataField\ChoiceFieldType',
 	];
 	
 	/**
