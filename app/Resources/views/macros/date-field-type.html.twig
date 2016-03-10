@@ -178,9 +178,28 @@
 		<dd>
 			<ul>
 				{% for value in dataField.arrayValue %}
-					<li>{{ value }}</li>
+					<li>{{ value|raw }}</li>
 				{% endfor %}
 			</ul>
+		</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_DataField_CheckboxFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name|raw }}
+			{% endif %}
+		</dt>
+		<dd>
+			{% if dataField.booleanValue %}
+		 		<i class="fa fa-check-square-o"></i>
+			{% else %}
+				<i class="fa fa-square-o"></i>
+			{% endif %}
 		</dd>
 	</dl>
 {% endmacro %}

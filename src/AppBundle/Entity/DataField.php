@@ -470,6 +470,30 @@ class DataField
     }
 
     /**
+     * Get booleanValue
+     *
+     * @return boolean
+     */
+    public function getBooleanValue()
+    {
+        return $this->integerValue != 0;
+    }
+
+    /**
+     * Set booleanValue
+     *
+     * @param boolean $booleanValue
+     *
+     * @return DataField
+     */
+    public function setBooleanValue($booleanValue)
+    {
+        $this->integerValue = $booleanValue?1:0;
+
+        return $this;
+    }
+
+    /**
      * Get integerValue
      *
      * @return integer
