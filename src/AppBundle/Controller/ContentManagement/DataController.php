@@ -22,13 +22,15 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Repository\EnvironmentRepository;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 
 class DataController extends AppController
 {
 	/**
 	 * @Route("/data/draft/{contentTypeId}", name="data.draft_in_progress"))
 	 */
-	public function viewDraftInProgressAction($contentTypeId, Request $request)
+	public function draftInProgressAction($contentTypeId, Request $request)
 	{
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
@@ -59,23 +61,82 @@ class DataController extends AppController
 	}
 	
 	/**
-	 * @Route("/data/view/{ouuid}", name="data.view")
+	 * @Route("/data/view/{environmentName}/{type}/{ouuid}", name="data.view")
 	 */
-	public function viewDataAction($ouuid, Request $request)
+	public function viewDataAction($environmentName, $type, $ouuid, Request $request)
 	{
+		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
+		
+		/** @var EnvironmentRepository $environmentRepo */
+		$environmentRepo = $em->getRepository('AppBundle:Environment');
+		$environments = $environmentRepo->findBy([
+				'name' => $environmentName,
+		]);
+		if(!$environments || count($environments) != 1) {
+			throw new NotFoundHttpException('Environment not found');
+		}
+		
+		/** @var ContentTypeRepository $contentTypeRepo */
+		$contentTypeRepo = $em->getRepository('AppBundle:ContentType');
+		$contentTypes = $contentTypeRepo->findBy([
+				'name' => $type,
+				'deleted' => false,
+		]);
+		if(!$contentTypes || count($contentTypes) != 1) {
+			throw new NotFoundHttpException('Content Type not found');
+		}
+		
+		try{
+			/** @var Client $client */
+			$client = $this->getElasticsearch();
+			$result = $client->get([
+					'index' => $environments[0]->getAlias(),
+					'type' => $type,
+					'id' => $ouuid,
+			]);
+		}
+		catch(Missing404Exception $e){
+			throw new NotFoundHttpException($type.' not found');			
+		}
+		
+		dump($result);
+		return $this->render( 'data/view-data.html.twig', [
+				'object' =>  $result,
+				'environment' => $environments[0],
+				'contentType' => $contentTypes[0],
+		] );
+	}
 	
+	/**
+	 * @Route("/data/revisions/{type}/{ouuid}", name="data.revisions")
+	 */
+	public function revisionsDataAction($type, $ouuid, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var ContentTypeRepository $contentTypeRepo */
+		$contentTypeRepo = $em->getRepository('AppBundle:ContentType');
+		
+		$contentTypes = $contentTypeRepo->findBy([
+				'deleted' => false,
+				'name' => $type,
+		]);
+		if(!$contentTypes || count($contentTypes) != 1) {
+			throw new NotFoundHttpException('Content Type not found');
+		}
+		
 		$repository = $em->getRepository('AppBundle:Revision');
-	
-	
 		$revision = $repository->findBy([
 				'endTime' => null,
-				'ouuid' => $ouuid
+				'ouuid' => $ouuid,
+				'contentType' => $contentTypes[0],
 		]);
 		
 	
 		if(!$revision || count($revision) != 1) {
-			throw new NotFoundHttpException('Unknown revision');
+			throw new NotFoundHttpException('Revision not found');
 		}
 		/** @var Revision $revision */
 		$revision = $revision[0];
@@ -87,7 +148,7 @@ class DataController extends AppController
 				$revision->getContentType()->getEnvironment());
 		
 	
-		return $this->render( 'data/view-data.html.twig', [
+		return $this->render( 'data/revisions-data.html.twig', [
 				'revision' =>  $revision,
 				'revisionsSummary' => $revisionsSummary,
 				'availableEnv' => $availableEnv

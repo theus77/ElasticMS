@@ -59,7 +59,7 @@ class PublishController extends AppController
 		$objectArray = $revision->getDataField()->getObjectArray();
 		$status = $client->index([
 				'id' => $revision->getOuuid(),
-				'index' => $environment->getName(),
+				'index' => $environment->getAlias(),
 				'type' => $revision->getContentType()->getName(),
 				'body' => $objectArray
 		]);
@@ -67,8 +67,9 @@ class PublishController extends AppController
 		$em->persist($revision);
 		$em->flush();
 		
-		return $this->redirectToRoute('data.view', [
-				'ouuid' => $revision->getOuuid()
+		return $this->redirectToRoute('data.revisions', [
+				'ouuid' => $revision->getOuuid(),
+				'type'=> $revision->getContentType()->getName()
 		]);
 		
 	}

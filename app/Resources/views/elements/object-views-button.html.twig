@@ -1,0 +1,18 @@
+<div class="btn-group">
+	<button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+		<i class="fa fa-eye"></i>
+		Views in {{ environment.name }}
+		<span class="caret"></span>
+		<span class="sr-only">Toggle dropdown of {{ contentType.name }}'s custom views</span>
+	</button>
+	<ul class="dropdown-menu" role="menu">
+{# 		{% if recursiveView is not defined or not recursiveView  %}#}
+			<li>
+				<a href="{{ path('data.view', {'environmentName': environment.name, 'type': contentType.name, 'ouuid': ouuid} ) }}">
+					<span class="entity">&infin;</span>
+					Recursive view
+				</a>
+			</li>
+{# 		{% endif %}#}
+	</ul>
+</div>

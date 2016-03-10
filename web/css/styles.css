@@ -8806,8 +8806,17 @@ ul.sortable > li {
   cursor: pointer;
 }
 
+/* Is it not a bootstrap bug that nested lists are so ugly? */
 /* line 2, ../../sass/_bootstrap_fix.scss */
 li.list-group-item > ul.list-group {
   margin-top: 20px;
   margin-bottom: 6px;
+}
+
+/* Similar to glyphicon but with html5 entities */
+/* i.e. <span class="entity">&infin;</span> */
+/* line 9, ../../sass/_bootstrap_fix.scss */
+span.entity, i.entity {
+  margin-right: 6px;
+  font-size: 1.5em;
 }

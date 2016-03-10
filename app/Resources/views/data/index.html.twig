@@ -9,58 +9,60 @@
 {% block body %}
 <div class="row">
 	<div class="col-xs-12">
-		<div class="box">
-			<div class="box-header">
-			{% include 'elements/pagination.html.twig' with {
-				'lastPage': lastPage,
-				'currentPage': currentFilters.page,
-				'currentFilters': currentFilters,
-				'paginationPath': paginationPath,
-				'showAlwaysFirstAndLast': false
-			} %}
-			</div>
-			<div class="box-body">
+	
+		<div class="btn-toolbar" role="toolbar" style="margin: 0;">
+	      <div class="btn-group pull-right">
+	           {% include 'elements/pagination.html.twig' with {
+						'lastPage': lastPage,
+						'currentPage': currentFilters.page,
+						'currentFilters': currentFilters,
+						'paginationPath': paginationPath,
+						'showAlwaysFirstAndLast': false
+				} %}
+	      </div>
+	    </div>
+		
+		<div>&nbsp;</div>	
+			
 			{% for object in results.hits.hits %}
 			
-			<div class="panel panel-default">
-			  <div class="panel-heading text-{{ contentType.color }}">
-			  	<i class="{% if contentType.icon %}{{ contentType.icon }} {% else %} fa fa-question {% endif %} "></i> 
-				{% if (contentType.labelField) and (attribute(attribute(object, '_source'), contentType.labelField)  is defined ) %}
-					{{ attribute(attribute(object, '_source'), contentType.labelField) }} <small>({{ object._id }})</small>
-				{% else %}
-					{{ object._id }}
-				{% endif %}
-			  </div>
-			  {% if contentType.indexTwig %}
-			  <div class="panel-body">
-				{{ object._ems_twig_rendering|raw }}
-			  </div>
-			  {% endif %}
-			  {% if contentType.environment.managed %}
-				  <div class="panel-footer">
-				  	<div class="btn-group">
-					  	{% include 'elements/get-button.html.twig' with {
-							'url':  path('data.view', {'ouuid': object._id} ),
-							'label': 'View',
-							'icon': 'eye'
-						}%}
-					</div>
+				<div class="box box-info">
+				  <div class="box-header text-{{ contentType.color }}">
+				  	<i class="{% if contentType.icon %}{{ contentType.icon }} {% else %} fa fa-question {% endif %} "></i> 
+					{% if (contentType.labelField) and (attribute(attribute(object, '_source'), contentType.labelField)  is defined ) %}
+						{{ attribute(attribute(object, '_source'), contentType.labelField) }} <small>({{ object._id }})</small>
+					{% else %}
+						{{ object._id }}
+					{% endif %}
 				  </div>
-			{% endif %}
-			</div>			
+				  {% if contentType.indexTwig %}
+				  <div class="box-body">
+					{{ object._ems_twig_rendering|raw }}
+				  </div>
+				  {% endif %}
+					  <div class="box-footer">
+					  	{% include 'elements/object-toolbar.html.twig' with {
+							'object':  object,
+							'contentType': contentType,
+							'environment': contentType.environment
+						}%}
+					  </div>
+				</div>			
 
 			{% endfor %}
-			</div>
-			<div class="box-footer">
-			{% include 'elements/pagination.html.twig' with {
-				'lastPage': lastPage,
-				'currentPage': currentFilters.page,
-				'currentFilters': currentFilters,
-				'paginationPath': paginationPath,
-				'showAlwaysFirstAndLast': false
-			} %}
-			</div>
-		</div>
+
+		<div class="btn-toolbar" role="toolbar" style="margin: 0;">
+	      <div class="btn-group pull-right">
+	           {% include 'elements/pagination.html.twig' with {
+						'lastPage': lastPage,
+						'currentPage': currentFilters.page,
+						'currentFilters': currentFilters,
+						'paginationPath': paginationPath,
+						'showAlwaysFirstAndLast': false
+				} %}
+	      </div>
+	    </div>
+	    
 	</div>
 	
 
