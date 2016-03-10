@@ -232,7 +232,15 @@ class ContentType
      */
     private $environment;
     
+    /**
+     * @ORM\OneToMany(targetEntity="Link", mappedBy="contentType", cascade={"persist", "remove"})
+     * @ORM\OrderBy({"orderKey" = "ASC"})
+     */
+    private $links;
+    
     function __construct(){
+        $this->links = new \Doctrine\Common\Collections\ArrayCollection();
+        
      	$this->dirty = true;
      	$this->editTwigWithWysiwyg = true;
 
@@ -1019,5 +1027,39 @@ class ContentType
     public function getEditTwigWithWysiwyg()
     {
         return $this->editTwigWithWysiwyg;
+    }
+
+    /**
+     * Add link
+     *
+     * @param \AppBundle\Entity\Link $link
+     *
+     * @return ContentType
+     */
+    public function addLink(\AppBundle\Entity\Link $link)
+    {
+        $this->links[] = $link;
+
+        return $this;
+    }
+
+    /**
+     * Remove link
+     *
+     * @param \AppBundle\Entity\Link $link
+     */
+    public function removeLink(\AppBundle\Entity\Link $link)
+    {
+        $this->links->removeElement($link);
+    }
+
+    /**
+     * Get links
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getLinks()
+    {
+        return $this->links;
     }
 }
