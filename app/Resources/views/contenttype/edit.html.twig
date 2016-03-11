@@ -74,7 +74,7 @@
 								</div>
 							{% endif %}	
 							{% if mapping %}
-								{% import "view/macros.html.twig" as macros %}
+								{% import "macros/view.html.twig" as macros %}
 								<div class="tab-pane{% if not contentType.environment.managed %} active{% endif %}" id="tab_2">
 									{{ macros.renderMapping(mapping) }}
 								</div>
