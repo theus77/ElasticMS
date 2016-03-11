@@ -10,6 +10,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Form\Field\ViewTypePickerType;
 
 
 class ViewType extends AbstractType {
@@ -30,7 +31,7 @@ class ViewType extends AbstractType {
 		->add ( 'icon', IconPickerType::class, [
 			'required' => false,
 		])
-		->add ( 'type', IconTextType::class, [
+		->add ( 'type', ViewTypePickerType::class, [
 			'required' => false,
 		])
 // 		->add ( 'editWithWysiwyg', CheckboxType::class, [

@@ -21,6 +21,8 @@ abstract class DataFieldType extends AbstractType {
 
 	/**
 	 * Used to display in the content type edit page (instaed of the class path)
+	 * 
+	 * @return string
 	 */
 	abstract public function getLabel();
 	
@@ -34,8 +36,7 @@ abstract class DataFieldType extends AbstractType {
 				'data_class' => 'AppBundle\Entity\DataField',
 				'class' => null, // used to specify a bootstrap class arround the compoment
 				'metadata' => null, // used to keep a link to the FieldType
-		] 
- );
+		]);
 	}
 	
 	/**
