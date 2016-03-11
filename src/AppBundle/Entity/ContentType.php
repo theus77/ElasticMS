@@ -238,9 +238,16 @@ class ContentType
      */
     private $templates;
     
+    /**
+     * @ORM\OneToMany(targetEntity="View", mappedBy="contentType", cascade={"persist", "remove"})
+     * @ORM\OrderBy({"orderKey" = "ASC"})
+     */
+    private $views;
+    
     function __construct(){
 
     	$this->templates = new \Doctrine\Common\Collections\ArrayCollection();
+    	$this->views = new \Doctrine\Common\Collections\ArrayCollection();
     	
      	$this->dirty = true;
      	$this->editTwigWithWysiwyg = true;
@@ -1062,5 +1069,39 @@ class ContentType
     public function getTemplates()
     {
         return $this->templates;
+    }
+
+    /**
+     * Add view
+     *
+     * @param \AppBundle\Entity\View $view
+     *
+     * @return ContentType
+     */
+    public function addView(\AppBundle\Entity\View $view)
+    {
+        $this->views[] = $view;
+
+        return $this;
+    }
+
+    /**
+     * Remove view
+     *
+     * @param \AppBundle\Entity\View $view
+     */
+    public function removeView(\AppBundle\Entity\View $view)
+    {
+        $this->views->removeElement($view);
+    }
+
+    /**
+     * Get views
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getViews()
+    {
+        return $this->views;
     }
 }
