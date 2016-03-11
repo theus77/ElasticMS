@@ -90,6 +90,10 @@ class ElasticsearchController extends Controller
 				));
 			}
 			
+			if(strcmp("*", $field) == 0){
+				$field = null;
+			}
+			
 
 			/** @var EntityManager $em */
 			$em = $this->getDoctrine()->getManager();
