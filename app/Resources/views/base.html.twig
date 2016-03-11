@@ -102,7 +102,7 @@ desired effect
                     <a href="#">
                       <div class="pull-left">
                         <!-- User Image -->
-                        <img src="{{ asset('bower/AdminLTE/dist/img/user2-160x160.jpg') }}" class="img-circle" alt="User Image">
+                        <img src="{{ asset('images/anonymous.gif') }}" data-original="{{ asset('bower/AdminLTE/dist/img/user2-160x160.jpg') }}" class="lazy img-circle" alt="User Image">
                       </div>
                       <!-- Message title and timestamp -->
                       <h4>
@@ -412,6 +412,8 @@ desired effect
 <script src="{{ asset('bower/ckeditor/ckeditor.js') }}"></script>
 <!-- Select Picker App -->
 <script src="{{ asset('bower/bootstrap-select/dist/js/bootstrap-select.js') }}"></script>
+<!-- lazy loading -->
+<script src="{{ asset('bower/jquery_lazyload/jquery.lazyload.js') }}"></script>
 <!-- This app -->
 <script src="{{ url('app.js') }}"></script>
 

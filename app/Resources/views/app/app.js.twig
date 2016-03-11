@@ -28,8 +28,15 @@ $(document).ready(function() {
     	$('#'+side_menu_target).parents('li').addClass('active');
 	} 
 	
+	
 });
 
+$(window).load(function() {
+	$("img.lazy").show().lazyload({
+	    effect : "fadeIn",
+	    threshold : 200
+	});
+});
 
 
 

@@ -1,5 +1,5 @@
 {% if app.user %}
-	<img src="http://www.gravatar.com/avatar/df5cb42a86d5ded57a694955887c476d?d={{ "http://www.gravatar.com/avatar"|url_encode }}" class="{{ class }}" alt="{{ app.user.username }}">
+	<img src="{{ asset('images/anonymous.gif') }}" data-original="http://www.gravatar.com/avatar/df5cb42a86d5ded57a694955887c476d?d={{ "http://www.gravatar.com/avatar"|url_encode }}" class="{{ class }} lazy" alt="{{ app.user.username }}">
 {% else %}
 	<img src="{{ asset('images/anonymous.gif') }}" class="{{ class }}" alt="Anonymous">
 {% endif %}

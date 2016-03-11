@@ -30,6 +30,7 @@
     "bootstrap-select": "^1.10.0",
     "components-font-awesome": "^4.5.0",
     "Ionicons": "ionicons#^2.0.1",
-    "jquery-ui": "^1.11.4"
+    "jquery-ui": "^1.11.4",
+    "jquery_lazyload": "jquery.lazyload#^1.9.7"
   }
 }

@@ -8,7 +8,7 @@
       <div class="user-panel">
         <div class="pull-left image">
         	{% if app.user %}
-	          <img src="http://www.gravatar.com/avatar/df5cb42a86d5ded57a694955887c476d?d={{ "http://www.gravatar.com/avatar"|url_encode }}" class="img-circle" alt="{{ app.user.username }}">
+	          <img src="{{ asset('images/anonymous.gif') }}" data-original="http://www.gravatar.com/avatar/df5cb42a86d5ded57a694955887c476d?d={{ "http://www.gravatar.com/avatar"|url_encode }}" class="lazy img-circle" alt="{{ app.user.username }}">
 	        {% else %}
 	          <img src="{{ asset('images/anonymous.gif') }}" class="img-circle" alt="Anonymous">
         	{% endif %}
