@@ -29,8 +29,8 @@
 				<div class="box box-info">
 				  <div class="box-header text-{{ contentType.color }}">
 				  	<i class="{% if contentType.icon %}{{ contentType.icon }} {% else %} fa fa-question {% endif %} "></i> 
-					{% if (contentType.labelField) and (attribute(attribute(object, '_source'), contentType.labelField)  is defined ) %}
-						{{ attribute(attribute(object, '_source'), contentType.labelField) }} <small>({{ object._id }})</small>
+					{% if contentType.labelField and attribute(object._source, contentType.labelField)  is defined %}
+						{{ attribute(object._source, contentType.labelField) }} <small>({{ object._id }})</small>
 					{% else %}
 						{{ object._id }}
 					{% endif %}

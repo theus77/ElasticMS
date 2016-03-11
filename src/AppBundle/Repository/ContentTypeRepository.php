@@ -10,4 +10,23 @@ namespace AppBundle\Repository;
  */
 class ContentTypeRepository extends \Doctrine\ORM\EntityRepository
 {
+	
+	public function findAllAsAssociativeArray(){
+		$qb = $this->createQueryBuilder('ct');
+		$qb->select('ct.name name, ct.color color, ct.icon icon, ct.labelField labelField, ct.indexTwig indexTwig');
+		$qb->where($qb->expr()->eq('ct.deleted', 0));
+		
+		$out = [];
+		$result = $qb->getQuery()->getResult();
+		foreach ($result as $record){
+			$out[$record['name']] = [
+					'color' => $record['color'],
+					'icon' => $record['icon'],
+					'labelField' => $record['labelField'],
+					'indexTwig' => $record['indexTwig'],
+			];
+		}
+		
+		return $out;
+	}
 }

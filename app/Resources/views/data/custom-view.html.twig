@@ -27,12 +27,12 @@
 				<h3 class="box-title">View {{ template.name }}</h3>
 			</div>
 			<div class="box-body">
-				{{ include(template_from_string(template.body, {
+				{% include template_from_string(template.body) with {
 									environment: environment,
 									contentType: contentType,
 									object: object,
 									source: object._source
-								})) }}
+								} %}
 			</div>
 			<!-- /.box-body -->
 			<div class="box-footer">

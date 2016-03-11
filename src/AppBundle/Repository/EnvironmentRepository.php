@@ -34,5 +34,24 @@ class EnvironmentRepository extends \Doctrine\ORM\EntityRepository
 		return $qb->getQuery()->getResult();
 	}
 	
+
+
+	public function findAllAsAssociativeArray($field){
+		$qb = $this->createQueryBuilder('e');
+		$qb->select('e.'.$field.' key, e.name name, e.color color, e.alias alias, e.managed managed');
+	
+		$out = [];
+		$result = $qb->getQuery()->getResult();
+		foreach ($result as $record){
+			$out[$record['key']] = [
+					'color' => $record['color'],
+					'name' => $record['name'],
+					'alias' => $record['alias'],
+					'managed' => $record['managed'],
+			];
+		}
+	
+		return $out;
+	}
 	
 }

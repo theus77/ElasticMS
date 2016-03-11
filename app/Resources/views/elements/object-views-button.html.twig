@@ -10,12 +10,12 @@
 			{% for template in contentType.templates %}
 				<li>
 					{% if template.body and template.externalLink %}
-						<a href="{{ include(template_from_string(template.body, {
+						<a href="{% include template_from_string(template.body) with {
 									environment: environment,
 									contentType: contentType,
 									object: object,
 									source: object._source
-								})) }}" target="_blank">
+								} %}" target="_blank">
 							<i class="{{ template.icon|raw }}"></i>
 							{{ template.name }}
 							<i class="fa fa-external-link pull-right"></i>

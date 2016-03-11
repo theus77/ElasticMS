@@ -1,52 +1,180 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Search for "{{ currentFilters.query }}"{% endblock %}
-{% block pagetitle %}Search result for <em>{{ currentFilters.query }}</em>{% endblock %} 
+{% block pagetitle %}
+	{% if currentFilters.query  %}
+		Search result for <em>{{ currentFilters.query }}</em>
+	{% else %}
+		All documents
+	{% endif %}
+
+
+{% endblock %} 
 {% block subtitle %}<small><span class=" badge">{{ results.hits.total }}</span></small>{% endblock %} 
 
 
 
 {% block body %}
+
 <div class="row">
-	<div id="search-page" class="col-xs-12">
+	<div id="search-page" class="col-md-9">
 		<div class="box">
-			<div class="box-header">
-			{% include 'elements/pagination.html.twig' with {
-				'lastPage': lastPage,
-				'currentPage': currentFilters.page,
-				'currentFilters': currentFilters,
-				'paginationPath': paginationPath,
-				'showAlwaysFirstAndLast': false
-			} %}
-			</div>
+			{% set hasFacets= currentFilters.index or currentFilters.type %}
+			{% if lastPage > 1 or hasFacets %}
+				<div class="box-header">
+				
+				{% if hasFacets %}
+					Facets : 
+					{% if currentFilters.index %}
+						<a href="{{ path(paginationPath, currentFilters|merge({index: null})) }}">
+							<span class=" badge bg-{{ attribute(alias, currentFilters.index).color }}" >
+								<i class="fa fa-close"></i>
+								{{ attribute(alias, currentFilters.index).name|humanize }}
+							</span>
+						</a>
+					{% endif %}
+					{% if currentFilters.type %}
+						{% if attribute(types, currentFilters.type) is defined %}
+							<a href="{{ path(paginationPath, currentFilters|merge({type: null})) }}">
+								<span class=" badge bg-{{ attribute(types, currentFilters.type).color }}" >
+									<i class="fa fa-close"></i>
+									{{ currentFilters.type|humanize }}
+								</span>
+							</a>
+						{% else %}
+							<a href="{{ path(paginationPath, currentFilters|merge({type: null})) }}">
+								<span class="badge" >
+									<i class="fa fa-close"></i>
+									{{  currentFilters.type|humanize }}
+								</span>
+							</a>
+						{% endif %}
+					{% endif %}
+				{% endif %}				
+				
+				{% include 'elements/pagination.html.twig' with {
+					'lastPage': lastPage,
+					'currentPage': currentFilters.page,
+					'currentFilters': currentFilters,
+					'paginationPath': paginationPath,
+					'showAlwaysFirstAndLast': false
+				} %}
+				</div>
+			{% endif %}
 			<div class="box-body">
 			{% for result in results.hits.hits %}
 			
 			<div class="panel panel-default">
 			  <div class="panel-heading">
-			  	<i class="fa fa-question"></i> 
-			  	{{ result._index }} / {{ result._type }} / {{ result._id }}
-			  	<span class=" badge pull-right">{{ (result._score*100)|round }}</span>
+			  	<span class="text-{{ attribute(alias, result._index).color }}">
+				 	{{ attribute(alias, result._index).name|humanize }} 
+			  	</span>
+			  	|
+			  	{% if attribute(types, result._type) is defined %}
+			  		<span class="text-{{ attribute(types, result._type).color }}">
+					  	<i class="{{ attribute(types, result._type).icon }}"></i> 
+					  	{{ result._type|humanize }} | 
+					  	
+					  	
+					  	{% set contentType=attribute(types, result._type) %}
+						{% if (contentType.labelField and attribute(result._source, contentType.labelField)  is defined ) %}
+							{{ attribute(result._source, contentType.labelField) }} <small>({{ result._id }})</small>
+						{% else %}
+							{{ result._id }}
+						{% endif %}
+			  		</span>
+			  	{% else %}
+				  	<i class="fa fa-question"></i> 
+				  	{{ result._type|humanize }} | {{ result._id }}
+			  	{% endif %}
+			  
+			  
+{# 			  	<span class=" badge pull-right">{{ (result._score*100)|round }}</span>#}
 			  </div>
-			  <div class="panel-body">
-			    {{ result.highlight._all.0|raw }}
-			  </div>
+			  	{% if result.highlight is defined and result.highlight %}
+				  	<div class="panel-body">
+				  		<div class="col-xs-12">
+					  		{{ result.highlight._all.0 }}
+				  		</div>
+			  		</div>
+			  	{% endif %}
+			  	{% if attribute(types, result._type) is defined %}
+			  		<div class="panel-body">
+					  	<div class="col-xs-12">
+							{% include template_from_string(attribute(types, result._type).indexTwig) with {
+									environment: attribute(alias, result._index),
+									contentType: attribute(types, result._type),
+									object: result,
+									source: result._source
+								} %}
+				  		</div>
+					</div>
+			  	{% endif %}
 			</div>			
 
 			{% endfor %}
 			</div>
-			<div class="box-footer">
-			{% include 'elements/pagination.html.twig' with {
-				'lastPage': lastPage,
-				'currentPage': currentFilters.page,
-				'currentFilters': currentFilters,
-				'paginationPath': paginationPath,
-				'showAlwaysFirstAndLast': false
-			} %}
-			</div>
+			{% if lastPage > 1 %}
+				<div class="box-footer">
+				{% include 'elements/pagination.html.twig' with {
+					'lastPage': lastPage,
+					'currentPage': currentFilters.page,
+					'currentFilters': currentFilters,
+					'paginationPath': paginationPath,
+					'showAlwaysFirstAndLast': false
+				} %}
+				</div>
+			{% endif %}
 		</div>
 	</div>
-	
+	<div id="search-facets" class="col-md-3">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title"><i class="fa fa-database"></i> Environments</h3>
+			</div>
+			<div class="box-body">
+				<ul class="list-group">
+				{% for index in results.aggregations.indexes.buckets %}
+					<li class="list-group-item">
+						<a href="{{ path(paginationPath, currentFilters|merge({index: index.key})) }}" class="text-{{ attribute(alias, index.key).color }}">
+							{{ attribute(alias, index.key).name|humanize }} 
+							<span class=" badge pull-right bg-{{ attribute(alias, index.key).color }}">{{ index.doc_count }}</span>
+						</a>
+					</li>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+		
+		
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title"><i class="fa fa-sitemap"></i> Content types</h3>
+			</div>
+			<div class="box-body">
+				<ul class="list-group">
+				{% for index in results.aggregations.types.buckets %}
+					<li class="list-group-item">
+						{% if attribute(types, index.key) is defined %}
+								<a href="{{ path(paginationPath, currentFilters|merge({type: index.key})) }}" class="text-{{ attribute(types, index.key).color }}">
+									<i class="{{ attribute(types, index.key).icon }}"></i>
+									{{ index.key|humanize }} 
+									<span class=" badge pull-right bg-{{ attribute(types, index.key).color }}">{{ index.doc_count }}</span>
+								</a>
+						{% else %}
+							<a href="{{ path(paginationPath, currentFilters|merge({type: index.key})) }}" class="text-black">
+								<i class="fa fa-question"></i>
+								{{ index.key|humanize }}
+								<span class=" badge pull-right">{{ index.doc_count }}</span>
+							</a>
+						{% endif %}
+					</li>
+				{% endfor %}
+				</ul>
+			</div>
+		</div>
+		
+	</div>
 
 </div>
 {% endblock %} 

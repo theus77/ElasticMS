@@ -79,7 +79,7 @@ class Template
     private $orderKey;
 
     /**
-     * @ORM\ManyToOne(targetEntity="ContentType")
+     * @ORM\ManyToOne(targetEntity="ContentType", inversedBy="templates")
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
     private $contentType;

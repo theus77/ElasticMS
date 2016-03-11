@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %}Nothing has been found{% endblock %}
+{% block pagetitle %}Nothing has been found{% endblock %} 
+{% block body %}
+<div class="col-md-12">
+	<div class="box box box-solid">
+		<div class="box-header with-border">
+			<h3 class="box-title">
+				<h4>
+					<i class="icon fa fa-ban"></i> Nothing has been found for your search : <em>{{ currentFilters.query }}</em>
+				</h4>
+			</h3>
+		</div>
+	</div>
+
+</div>
+{% endblock %}
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'elasticsearch-status'
+	}%}
+{% endblock %}	
