@@ -324,29 +324,28 @@ class EnvironmentController extends AppController {
 		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
 		$contentTypes = $contentTypeRepository->findAll();
+		/** @var ContentType $contentType */
+		
+
+		$client->indices()->create([
+				'index' => $indexName,
+				'body' => ContentType::getIndexAnalysisConfiguration(),
+		]);
+		$this->addFlash('notice', 'A new index '.$indexName.' has been created');
 		
 		$mapping = [];
+		
 		/** @var ContentType $contentType */
 		foreach ($contentTypes as $contentType){
 			if($contentType->getEnvironment()->getManaged()){
-				$mapping = array_merge($mapping, $contentType->generateMapping());
+				$out = $client->indices ()->putMapping ( [
+						'index' => $indexName,
+						'type' => $contentType->getName (),
+						'body' => $contentType->generateMapping ()
+				] );
+				$this->addFlash('notice', 'A new mapping for '.$contentType->getName ().' has been defined');
 			}
 		}
-		
-
-		if(count($mapping) == 0){
-			$client->indices()->create([
-					'index' => $indexName,
-			]);
-		}
-		else{
-			$client->indices()->create([
-					'index' => $indexName,
-					'body' => ["mappings" => $mapping],
-			]);
-		}
-			
-		$this->addFlash('notice', 'A new index '.$indexName.' has been created');	
 			
 		$this->reindexAll($environment, $indexName);
 	

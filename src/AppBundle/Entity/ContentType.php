@@ -261,17 +261,34 @@ class ContentType
      	$this->setFieldType ( $fieldType );
     }
 
+    public static function getIndexAnalysisConfiguration(){
+    	return '{
+		   "index" : {
+		      "analysis" : {
+		         "analyzer" : {
+		            "for_all_field" : {
+		               "char_filter" : [
+		                  "html_strip"
+		               ],
+		               "tokenizer" : "standard"
+		            }
+		         }
+		      }
+		   }
+		}';
+    }
+    
     public function generateMapping(){
     	$out = [
     		$this->name => [
     			"_all" => [
     				"store" => true,
     				"enabled" => true,
+    				"analyzer" => "for_all_field",
     			],
     			"properties" => [
-    					
     			],
-    		]
+    		],
     	];
     	
     	if(isset($this->fieldType)){
