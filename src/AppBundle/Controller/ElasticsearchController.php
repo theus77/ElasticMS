@@ -119,33 +119,13 @@ class ElasticsearchController extends Controller
 				}
 			}
 			
-			
-			if(! isset($query)){
-				$es_query = '{
-    			    "query": {
-				    	"match_all" : { }
-				    },
-				   "aggs": {
-				      "types": {
-				         "terms": {
-				            "field": "_type"
-				         }
-				      },
-				      "indexes": {
-				         "terms": {
-				            "field": "_index"
-				         }
-				      }
-				   }}';
-			}
-			else {
 				
-				$es_query = 
+			$es_query = 
 				'{
 				   "query": {
 				      "query_string": {
 				         "default_field": '.((isset($field) && strlen($field)) > 0?json_encode($field):'"_all"').',
-				         "query": '.json_encode($query).',
+				         "query": '.(isset($query)?json_encode($query):'"*"').',
 				         "default_operator": "AND"
 				      }
 				   },
@@ -167,9 +147,6 @@ class ElasticsearchController extends Controller
 				      }
 				   }
 				}';	
-			}
-			
-// 			echo $es_query; exit;	
 			
 			$results = $client->search([
 					'body' => $es_query, 
