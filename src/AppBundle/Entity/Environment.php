@@ -74,6 +74,13 @@ class Environment
     private $color;
     
     /**
+     * @var string
+     *
+     * @ORM\Column(name="baseUrl", type="string", length=1024, nullable=true)
+     */
+    private $baseUrl;
+    
+    /**
      * @var bool
      *
      * @ORM\Column(name="managed", type="boolean")
@@ -339,5 +346,29 @@ class Environment
     public function getAlias()
     {
         return $this->alias;
+    }
+
+    /**
+     * Set baseUrl
+     *
+     * @param string $baseUrl
+     *
+     * @return Environment
+     */
+    public function setBaseUrl($baseUrl)
+    {
+        $this->baseUrl = $baseUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get baseUrl
+     *
+     * @return string
+     */
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
     }
 }

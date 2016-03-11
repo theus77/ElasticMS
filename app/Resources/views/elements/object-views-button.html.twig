@@ -14,10 +14,11 @@
 									environment: environment,
 									contentType: contentType,
 									object: object,
-									source: object.source
+									source: object._source
 								})) }}" target="_blank">
 							<i class="{{ template.icon|raw }}"></i>
 							{{ template.name }}
+							<i class="fa fa-external-link pull-right"></i>
 						</a>
 					{% else %}
 						<a href="{{ path('data.customview', {

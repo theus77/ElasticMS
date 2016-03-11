@@ -8,6 +8,7 @@ use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class EditEnvironmentType extends AbstractType {
 	/**
@@ -25,6 +26,9 @@ class EditEnvironmentType extends AbstractType {
 			'icon' => 'fa fa-tag'
 		] )
 		->add ( 'color', ColorPickerType::class, [
+				'required' => false,
+		])
+		->add ( 'baseUrl', TextType::class, [
 				'required' => false,
 		])
 		->add ( 'save', SubmitEmsType::class, [ 
