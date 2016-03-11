@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Form\Form\TemplateType;
 use AppBundle\Entity\Template;
 use AppBundle\Repository\TemplateRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 class TemplateController extends AppController
 {
@@ -127,10 +128,10 @@ class TemplateController extends AppController
 	
 	/**
 	 * @Route("/template/remove/{id}", name="template.remove")
+     * @Method({"POST"})
 	 */
 	public function removeAction($id, Request $request)
 	{
-		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
 		/** @var TemplateRepository $templateRepository */
@@ -143,18 +144,9 @@ class TemplateController extends AppController
 			throw new NotFoundHttpException('Template type not found');
 		}
 		
-
-		if($request->isMethod('GET') ){
-			$this->addFlash('error', 'You are not able to remove a template with a GET');
-		}
-		else{			
-			$em->remove($template);
-			$em->flush();
-	
-			$this->addFlash('notice', 'A template has been removed');
-		}
-		
-		
+		$em->remove($template);
+		$em->flush();
+		$this->addFlash('notice', 'A template has been removed');		
 			
 		return $this->redirectToRoute('template.index', [
 				'type' => $template->getContentType()->getName()

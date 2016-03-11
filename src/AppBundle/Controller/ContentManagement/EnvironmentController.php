@@ -22,6 +22,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 class EnvironmentController extends AppController {
 	
@@ -31,46 +32,44 @@ class EnvironmentController extends AppController {
 	 * @param string $name
 	 *        	alias name
 	 * @param Request $request
-	 *        	@Route("/environment/attach/{name}", name="environment.attach"))
+	 * 
+	 * @Route("/environment/attach/{name}", name="environment.attach"))
+     * @Method({"POST"})
 	 */
 	public function attachAction($name, Request $request) {
-		if ($request->isMethod ( 'POST' )) {
-			/** @var  Client $client */
-			$client = $this->get ( 'app.elasticsearch' );
-			try {
-				$indexes = $client->indices ()->get ( [ 
-						'index' => $name 
+		/** @var  Client $client */
+		$client = $this->get ( 'app.elasticsearch' );
+		try {
+			$indexes = $client->indices ()->get ( [ 
+					'index' => $name 
+			] );
+			if (strcmp ( $name, array_keys ( $indexes ) [0] ) != 0) {
+				/** @var EntityManager $em */
+				$em = $this->getDoctrine ()->getManager ();
+				
+				$environmetRepository = $em->getRepository ( 'AppBundle:Environment' );
+				$anotherObject = $environmetRepository->findBy ( [ 
+						'name' => $name 
 				] );
-				if (strcmp ( $name, array_keys ( $indexes ) [0] ) != 0) {
-					/** @var EntityManager $em */
-					$em = $this->getDoctrine ()->getManager ();
+				
+				if (count ( $anotherObject ) == 0) {
+					$environment = new Environment ();
+					$environment->setName ( $name );
+					$environment->setAlias ( $name );
+					$environment->setManaged ( false );
 					
-					$environmetRepository = $em->getRepository ( 'AppBundle:Environment' );
-					$anotherObject = $environmetRepository->findBy ( [ 
-							'name' => $name 
+					$em->persist ( $environment );
+					$em->flush ();
+					
+					$this->addFlash ( 'notice', 'Alias ' . $name . ' has been attached.' );
+					
+					return $this->redirectToRoute ( 'environment.edit', [ 
+							'id' => $environment->getId () 
 					] );
-					
-					if (count ( $anotherObject ) == 0) {
-						$environment = new Environment ();
-						$environment->setName ( $name );
-						$environment->setAlias ( $name );
-						$environment->setManaged ( false );
-						
-						$em->persist ( $environment );
-						$em->flush ();
-						
-						$this->addFlash ( 'notice', 'Alias ' . $name . ' has been attached.' );
-						
-						return $this->redirectToRoute ( 'environment.edit', [ 
-								'id' => $environment->getId () 
-						] );
-					}
 				}
-			} catch ( Missing404Exception $e ) {
-				$this->addFlash ( 'error', 'Something went wrong with Elasticsearch: ' . $e->getMessage () . '!' );
 			}
-		} else {
-			$this->addFlash ( 'warning', 'You are not able to attach an alias with a GET call!' );
+		} catch ( Missing404Exception $e ) {
+			$this->addFlash ( 'error', 'Something went wrong with Elasticsearch: ' . $e->getMessage () . '!' );
 		}
 		
 		return $this->redirectToRoute ( 'environment.index' );
@@ -82,7 +81,9 @@ class EnvironmentController extends AppController {
 	 *
 	 * @param integer $id        	
 	 * @param Request $request
-	 *        	@Route("/environment/remove/{id}", name="environment.remove"))
+	 * 
+	 * @Route("/environment/remove/{id}", name="environment.remove"))
+     * @Method({"POST"})
 	 *        	
 	 */
 	public function removeAction($id, Request $request) {
@@ -92,33 +93,30 @@ class EnvironmentController extends AppController {
 		$repository = $em->getRepository ( 'AppBundle:Environment' );
 		/** @var  Environment $environment */
 		$environment = $repository->find ( $id );
-		if ($request->isMethod ( 'POST' ) && $environment) {
 			
-			/** @var  Client $client */
-			$client = $this->get ( 'app.elasticsearch' );
-			if ($environment->getManaged ()) {
-				try {
-					$indexes = $client->indices ()->get ( [ 
-							'index' => $environment->getAlias () 
-					] );
-					$client->indices ()->deleteAlias ( [ 
-							'name' => $environment->getAlias (),
-							'index' => array_keys ( $indexes ) [0] 
-					] );
-				} catch ( Missing404Exception $e ) {
-					$this->addFlash ( 'warning', 'Alias ' . $environment->getAlias () . ' not found in Elasticsearch' );
-				}
+		/** @var  Client $client */
+		$client = $this->get ( 'app.elasticsearch' );
+		if ($environment->getManaged ()) {
+			try {
+				$indexes = $client->indices ()->get ( [ 
+						'index' => $environment->getAlias () 
+				] );
+				$client->indices ()->deleteAlias ( [ 
+						'name' => $environment->getAlias (),
+						'index' => array_keys ( $indexes ) [0] 
+				] );
+			} catch ( Missing404Exception $e ) {
+				$this->addFlash ( 'warning', 'Alias ' . $environment->getAlias () . ' not found in Elasticsearch' );
 			}
-			if ($environment->getRevisions ()->count () != 0) {
-				$this->addFlash ( 'error', 'The environement ' . $environment->getName () . ' is not empty.' );
-			} else {
-				$this->addFlash ( 'notice', 'The environment '.$environment->getName().' has been removed' );
-				$em->remove ( $environment );
-				$em->flush ();
-			}
-		} else {
-			$this->addFlash ( 'warning', 'You are not authorized to remove an environement with a GET' );
 		}
+		if ($environment->getRevisions ()->count () != 0) {
+			$this->addFlash ( 'error', 'The environement ' . $environment->getName () . ' is not empty.' );
+		} else {
+			$this->addFlash ( 'notice', 'The environment '.$environment->getName().' has been removed' );
+			$em->remove ( $environment );
+			$em->flush ();
+		}
+		
 		return $this->redirectToRoute ( 'environment.index' );
 	}
 	

@@ -22,6 +22,8 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -32,36 +34,35 @@ use Symfony\Component\HttpFoundation\Request;
 class ContentTypeController extends AppController {
 	/**
 	 * Logically delete a content type.
-	 * GET calls are n't supported.
+	 * GET calls aren't supported.
 	 *
 	 * @param integer $id
 	 *        	identifier of the content type to delete
 	 * @param Request $request
-	 *        	@Route("/content-type/remove/{id}", name="contenttype.remove"))
+	 * 
+	 * @Route("/content-type/remove/{id}", name="contenttype.remove"))
+     * @Method({"POST"})
+	 *        
 	 */
 	public function removeAction($id, Request $request) {
-		if ($request->isMethod ( 'GET' )) {
-			$this->addFlash ( 'error', 'You are\'t not able to delete a Content Type wit a GET!' );
-		} else {
-			/** @var EntityManager $em */
-			$em = $this->getDoctrine ()->getManager ();
-			/** @var ContentTypeRepository $repository */
-			$repository = $em->getRepository ( 'AppBundle:ContentType' );
-			
-			/** @var ContentType $contentType */
-			$contentType = $repository->find ( $id );
-			
-			if ($contentType && count ( $contentType ) == 1) {
-				//TODO test if there something published for this content type 
-				$contentType->setActive ( false )->setDeleted ( true );
-				$em->persist ( $contentType );
-				$em->flush ();
-				$this->addFlash ( 'warning', 'Content type ' . $contentType->getName () . ' has been deleted' );
-			} else {
-				
-				$this->addFlash ( 'warning', 'Content type ' . $id . ' not found deleted' );
-			}
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine ()->getManager ();
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository ( 'AppBundle:ContentType' );
+		
+		/** @var ContentType $contentType */
+		$contentType = $repository->find ( $id );
+		
+		if (!$contentType || count ( $contentType ) != 1) {
+			throw new NotFoundHttpException('Content Type not found');
 		}
+		
+		//TODO test if there something published for this content type 
+		$contentType->setActive ( false )->setDeleted ( true );
+		$em->persist ( $contentType );
+		$em->flush ();
+		$this->addFlash ( 'warning', 'Content type ' . $contentType->getName () . ' has been deleted' );
+		
 		return $this->redirectToRoute ( 'contenttype.index' );
 	}
 	
@@ -71,13 +72,11 @@ class ContentTypeController extends AppController {
 	 *
 	 * @param integer $id        	
 	 * @param Request $request
-	 *        	@Route("/content-type/activate/{id}", name="contenttype.activate"))
+	 * 
+	 * @Route("/content-type/activate/{id}", name="contenttype.activate"))
+     * @Method({"POST"})
 	 */
 	public function activateAction($id, Request $request) {
-		if ($request->isMethod ( 'GET' )) {
-			$this->addFlash ( 'error', 'You can\'t activate a content type with a GET!' );
-			return $this->redirectToRoute ( 'contenttype.list' );
-		}
 		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine ()->getManager ();
@@ -110,11 +109,10 @@ class ContentTypeController extends AppController {
 	 * @param integer $id        	
 	 * @param Request $request        	
 	 * @throws BadRequestHttpException @Route("/content-type/refresh-mapping/{id}", name="contenttype.refreshmapping"))
+	 * 
+     * @Method({"POST"})
 	 */
 	public function refreshMappingAction($id, Request $request) {
-		if ($request->isMethod ( 'GET' )) {
-			$this->addFlash ( 'error', 'You can\'t refresh a content type\'s mapping with a GET!' );
-		}
 		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine ()->getManager ();

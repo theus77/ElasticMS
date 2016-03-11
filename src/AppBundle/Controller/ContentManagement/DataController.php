@@ -27,6 +27,7 @@ use Elasticsearch\Common\Exceptions\Missing404Exception;
 use AppBundle\Repository\TemplateRepository;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\Template;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
 class DataController extends AppController
 {
@@ -223,12 +224,10 @@ class DataController extends AppController
 	/**
 	 *
 	 * @Route("/data/new-draft/{ouuid}", name="revision.new-draft"))
+     * @Method({"POST"})
 	 */
 	public function newDraftAction($ouuid, Request $request)
 	{
-		if($request->isMethod('GET') ){
-			throw new BadRequestHttpException('This method doesn\'t allow GET request');
-		}
 		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
@@ -274,12 +273,10 @@ class DataController extends AppController
 	/**
 	 * 
 	 * @Route("/data/draft/discard/{revisionId}", name="revision.discard"))
+     * @Method({"POST"})
 	 */
 	public function discardRevisionAction($revisionId, Request $request)
 	{
-		if($request->isMethod('GET') ){
-			throw new BadRequestHttpException('This method doesn\'t allow GET request');
-		}
 		
 		/** @var EntityManager $em */ 
 		$em = $this->getDoctrine()->getManager();
@@ -358,11 +355,9 @@ class DataController extends AppController
 	
 	/**
 	 * @Route("/data/revision/re-index/{revisionId}", name="revision.reindex"))
+     * @Method({"POST"})
 	 */
 	public function reindexRevisionAction($revisionId, Request $request){
-		if($request->isMethod('GET') ){
-			throw new BadRequestHttpException('This method doesn\'t allow GET request');
-		}
 		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
