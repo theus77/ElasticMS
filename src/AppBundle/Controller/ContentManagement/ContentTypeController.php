@@ -7,7 +7,6 @@ use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\FieldType;
-use AppBundle\Form\DataField\ContainerFieldType;
 use AppBundle\Form\DataField\SubfieldType;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Form\ContentTypeType;

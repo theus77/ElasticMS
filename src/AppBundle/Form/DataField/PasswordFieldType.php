@@ -2,19 +2,13 @@
 
 namespace AppBundle\Form\DataField;
 
-use AppBundle\Form\Field\AnalyzerPickerType;
-use AppBundle\Form\Field\IconPickerType;
-use AppBundle\Form\Field\IconTextType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormView;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Entity\FieldType;
-use Symfony\Component\Form\Extension\Core\Type\PasswordType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use AppBundle\Entity\DataField;
+use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 							
 /**
  * Defined a Container content type.

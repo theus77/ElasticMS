@@ -160,7 +160,7 @@ class EnvironmentController extends AppController {
 			] );
 			
 			if (count ( $anotherObject ) != 0) {
-				//TODO: test name fomat
+				//TODO: test name format
 				$form->get ( 'name' )->addError ( new FormError ( 'Another environment named ' . $environment->getName () . ' already exists' ) );
 			} else {
 				

@@ -1,13 +1,12 @@
 <?php
 namespace AppBundle\Controller;
 
+use AppBundle\Repository\ContentTypeRepository;
+use AppBundle\Repository\EnvironmentRepository;
+use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use Doctrine\ORM\EntityManager;
-use AppBundle\Repository\ContentTypeRepository;
-use AppBundle\Repository\EnvironmentRepository;
-use AppBundle\Form\Form\SearchType;
 
 class ElasticsearchController extends Controller
 {

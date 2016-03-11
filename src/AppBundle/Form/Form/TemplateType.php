@@ -2,16 +2,14 @@
 
 namespace AppBundle\Form\Form;
 
-use AppBundle\Entity\Revision;
-use AppBundle\Form\Field\ColorPickerType;
+use AppBundle\Entity\Template;
+use AppBundle\Form\Field\IconPickerType;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\Field\IconPickerType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use AppBundle\Entity\Template;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+
 
 class TemplateType extends AbstractType {
 	/**

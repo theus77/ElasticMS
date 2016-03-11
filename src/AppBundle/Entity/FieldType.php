@@ -4,7 +4,6 @@ namespace AppBundle\Entity;
 
 use AppBundle\Form\DataField\DataFieldType;
 use Doctrine\ORM\Mapping as ORM;
-use AppBundle\Form\DataField\ContainerFieldType;
 
 /**
  * FieldType
