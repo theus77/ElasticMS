@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManager;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
+use AppBundle\Form\Form\SearchType;
 
 class ElasticsearchController extends Controller
 {
@@ -71,17 +72,22 @@ class ElasticsearchController extends Controller
 	{
 		try {
 			$q = $request->query->get('q');
-			
-			if(isset($q)){
-				return $this->redirectToRoute('elasticsearch.search', array('query' => $q));
-			}
-			
-
 			$typeFacet = $request->query->get('type');
 			$indexFacet = $request->query->get('index');
+			$field = $request->query->get('field');
 			$page = $request->query->get('page');
 			if(!isset($page)){
 				$page = 1;
+			}
+			
+			if(isset($q)){
+				return $this->redirectToRoute('elasticsearch.search', array(
+						'query' => $q,
+						'field' => $field,
+						'page' => $page,
+						'type' => $typeFacet,
+						'index' => $indexFacet
+				));
 			}
 			
 
@@ -106,7 +112,6 @@ class ElasticsearchController extends Controller
 			$mapAlias = [];
 			foreach ($assocAliases as $index => $aliasNames){
 				foreach ($aliasNames['aliases'] as $alias => $options){
-// 					dump( $index.' : '. $alias);
 					if(isset($environments[$alias])){
 						$mapAlias[$index] = $environments[$alias];
 						break;
@@ -134,21 +139,21 @@ class ElasticsearchController extends Controller
 				   }}';
 			}
 			else {
-				$es_query = '
-				{
+				
+				$es_query = 
+				'{
 				   "query": {
-				      "match": {
-				         "_all": {
-				            "query": '.json_encode($query).',
-				            "operator": "and"
-				         }
+				      "query_string": {
+				         "default_field": '.((isset($field) && strlen($field)) > 0?json_encode($field):'"_all"').',
+				         "query": '.json_encode($query).',
+				         "default_operator": "AND"
 				      }
 				   },
-				    "highlight" : {
-				        "fields" : {
-				            "_all" : {}
-				        }
-				    },
+				   "highlight": {
+				      "fields": {
+				         "_all": {}
+				      }
+				   },
 				   "aggs": {
 				      "types": {
 				         "terms": {
@@ -160,57 +165,39 @@ class ElasticsearchController extends Controller
 				            "field": "_index"
 				         }
 				      }
-				   }}}';	
+				   }
+				}';	
 			}
+			
+// 			echo $es_query; exit;	
 			
 			$results = $client->search([
 					'body' => $es_query, 
 					'version' => true, 
+// 					'df'=> isset($field)?$field:'_all',
 					'index' => isset($indexFacet)?$indexFacet:array_keys($environments),
 					'type' => isset($typeFacet)?$typeFacet:array_keys($types),
 					'size' => $this->container->getParameter('paging_size'), 
 					'from' => ($page-1)*$this->container->getParameter('paging_size')]);
 	
 		
-			if( $results['hits']['total'] == 0 ){
-				return $this->render( 'elasticsearch/no-result.html.twig', [
-// 						'results' => $results,
-// 						'lastPage' => ceil($results['hits']['total']/$this->container->getParameter('paging_size')),
-// 						'paginationPath' => 'elasticsearch.search',
-						'currentFilters' => [
-								'query' => $query,
-								'page' =>  $page,
-								'type' => $typeFacet,
-								'index' => $indexFacet
-						]
-				] );
-			}
-			else{
-				$lastPage = ceil($results['hits']['total']/$this->container->getParameter('paging_size'));
-				
-				if(count($results['hits']['hits']) == 0){
-					return $this->redirectToRoute('elasticsearch.search', array(
-						'query' => $query,
-						'page' =>  1,
-						'type' => $typeFacet,
-						'index' => $indexFacet
-					));
-				}
-				
-				return $this->render( 'elasticsearch/search.html.twig', [
-						'results' => $results,
-						'lastPage' => $lastPage,
-						'paginationPath' => 'elasticsearch.search',
-						'currentFilters' => [
-								'query' => $query,
-								'page' =>  $page,
-								'type' => $typeFacet,
-								'index' => $indexFacet
-						],
-						'types' => $types,
-						'alias' => $mapAlias,
-				] );
-			}
+
+			$lastPage = ceil($results['hits']['total']/$this->container->getParameter('paging_size'));
+			
+			return $this->render( 'elasticsearch/search.html.twig', [
+					'results' => $results,
+					'lastPage' => $lastPage,
+					'paginationPath' => 'elasticsearch.search',
+					'currentFilters' => [
+							'query' => $query,
+							'page' =>  $page,
+							'type' => $typeFacet,
+							'index' => $indexFacet,
+							'field' => $field,
+					],
+					'types' => $types,
+					'alias' => $mapAlias,
+			] );
 		}
 		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){
 			return $this->redirectToRoute('elasticsearch.status');
