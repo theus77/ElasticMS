@@ -86,8 +86,10 @@ class DataController extends AppController
 				'name' => $type,
 				'deleted' => false,
 		]);
-		if(!$contentTypes || count($contentTypes) != 1) {
-			throw new NotFoundHttpException('Content Type not found');
+		
+		$contentType = null;
+		if($contentTypes && count($contentTypes) == 1) {
+			$contentType = $contentTypes[0];
 		}
 		
 		try{
@@ -103,11 +105,10 @@ class DataController extends AppController
 			throw new NotFoundHttpException($type.' not found');			
 		}
 		
-		dump($result);
 		return $this->render( 'data/view-data.html.twig', [
 				'object' =>  $result,
 				'environment' => $environments[0],
-				'contentType' => $contentTypes[0],
+				'contentType' => $contentType,
 		] );
 	}
 	

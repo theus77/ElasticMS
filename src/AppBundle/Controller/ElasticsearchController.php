@@ -115,7 +115,6 @@ class ElasticsearchController extends Controller
 			}
 			
 			
-			
 			if(! isset($query)){
 				$es_query = '{
     			    "query": {

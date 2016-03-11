@@ -13,18 +13,13 @@ class ContentTypeRepository extends \Doctrine\ORM\EntityRepository
 	
 	public function findAllAsAssociativeArray(){
 		$qb = $this->createQueryBuilder('ct');
-		$qb->select('ct.name name, ct.color color, ct.icon icon, ct.labelField labelField, ct.indexTwig indexTwig');
 		$qb->where($qb->expr()->eq('ct.deleted', 0));
 		
 		$out = [];
 		$result = $qb->getQuery()->getResult();
+		/** @var \AppBundle\Entity\ContentType $record */
 		foreach ($result as $record){
-			$out[$record['name']] = [
-					'color' => $record['color'],
-					'icon' => $record['icon'],
-					'labelField' => $record['labelField'],
-					'indexTwig' => $record['indexTwig'],
-			];
+			$out[$record->getName()] = $record;
 		}
 		
 		return $out;
