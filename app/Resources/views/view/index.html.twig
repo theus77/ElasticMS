@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}List templates for {{ contentType.name }}{% endblock %}
-{% block pagetitle %}List templates for content type {{ contentType.name }}{% endblock %} 
+{% block title %}List view for {{ contentType.name }}{% endblock %}
+{% block pagetitle %}List view for content type {{ contentType.name }}{% endblock %} 
 
 
 {% block body %}
@@ -9,10 +9,10 @@
 	<div class="col-md-12">
 		<div class="box ">
 			<div class="box-header with-border">
-				<i class="fa fa-file-text-o"></i>
-				<h3 class="box-title">Templates for content type {{ contentType.name }}</h3>
+				<i class="fa fa-tv"></i>
+				<h3 class="box-title">Views for content type {{ contentType.name }}</h3>
 				<div class="btn-group  pull-right">
-					<a class="btn btn-xs btn-primary" href="{{ url('template.add', {'type':contentType.name }) }}"><i class="fa fa-plus"></i> Add template</a>
+					<a class="btn btn-xs btn-primary" href="{{ url('view.add', {'type':contentType.name }) }}"><i class="fa fa-plus"></i> Add view</a>
 				</div>
 			</div>
 			<!-- /.box-header -->
@@ -23,26 +23,24 @@
 							<th class="text-center" style="width: 10px">#</th>
 							<th class="text-center" style="width: 20px">Icon</th>
 							<th>Name</th>
-							<th class="text-center" style="width: 30px">Link</th>
 							<th>Action</th>
 						</tr>
-						{% for template in contentType.templates %}
+						{% for view in contentType.views %}
 							<tr>
 								<td class="text-center">{{ loop.index }}.</td>
-								<td class="text-center"><i class="{% if template.icon %}{{ template.icon }}{% else %}fa fa-file-text-o{% endif %}"></i></td>
-								<td>{{ template.name|humanize }}</td>
-								<td class="text-center">{% if template.externalLink %}<i class="fa fa-check"></i>{% endif %}</td>
+								<td class="text-center"><i class="{% if view.icon %}{{ view.icon }}{% else %}fa fa-file-text-o{% endif %}"></i></td>
+								<td>{{ view.name|humanize }}</td>
 								<td>
 								
 									<div class="btn-group">
 										{% include 'elements/get-button.html.twig' with {
-											'url':  path('template.edit', {'id': template.id}),
+											'url':  path('view.edit', {'id': view.id}),
 											'label': 'Edit',
 											'icon': 'pencil'
 										}%}
 										{% include 'elements/post-button.html.twig' with {
-											'url': path('template.remove', {'id': template.id}),
-											'message': 'Delete the template ' ~ template.name|humanize ~ ' ?',
+											'url': path('view.remove', {'id': view.id}),
+											'message': 'Delete the view ' ~ view.name|humanize ~ ' ?',
 											'label': 'Delete',
 											'icon': 'trash'
 										}%}
