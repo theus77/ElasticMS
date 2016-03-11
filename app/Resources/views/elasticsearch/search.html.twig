@@ -150,7 +150,7 @@
 			  	{% if result.highlight is defined and result.highlight %}
 				  	<div class="panel-body">
 				  		<div class="col-xs-12">
-					  		{{ result.highlight._all.0 }}
+					  		{{ result.highlight._all.0|e|replace({'&lt;em&gt;': '<em>', '&lt;/em&gt;': '</em>'})|raw }}
 				  		</div>
 			  		</div>
 			  	{% endif %}
