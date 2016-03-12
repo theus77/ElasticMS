@@ -13,6 +13,9 @@ use AppBundle\Form\Form\ViewType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use AppBundle\Entity\View;
 use AppBundle\Repository\ViewRepository;
+use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\IconPickerType;
+use AppBundle\Form\Field\SubmitEmsType;
 
 class ViewController extends AppController
 {
@@ -106,7 +109,20 @@ class ViewController extends AppController
 			throw new NotFoundHttpException('View type not found');
 		}
 		
-		$form = $this->createForm ( $view->getType(), $view );
+		$form = $this->createFormBuilder ( $view )
+		->add ( 'name', IconTextType::class, [
+				'icon' => 'fa fa-tag'
+		] )
+		->add ( 'icon', IconPickerType::class, [
+				'required' => false,
+		])
+		->add ( 'structuredOptions', $view->getType())
+		->add ( 'save', SubmitEmsType::class, [
+				'attr' => [
+						'class' => 'btn-primary btn-sm '
+				],
+				'icon' => 'fa fa-save'
+		] )->getForm ();
 		
 		$form->handleRequest ( $request );
 		
