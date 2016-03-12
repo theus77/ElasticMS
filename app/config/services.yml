@@ -17,3 +17,13 @@ services:
         class: Twig_Extension_StringLoader
         tags:
              - { name: 'twig.extension' }
+    ems.form.view.keywords:
+        class: AppBundle\Form\View\KeywordsViewType
+        arguments: ['@twig']
+        tags:
+            - { name: ems.form.viewtype, alias: keywords }
+            - { name: form.type }
+    ems.form.field.viewtypepickertype:
+        class: AppBundle\Form\Field\ViewTypePickerType
+        tags:
+            - { name: form.type }

@@ -16,6 +16,7 @@ use AppBundle\Repository\ViewRepository;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Field\IconPickerType;
 use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Form\View\KeywordsViewType;
 
 class ViewController extends AppController
 {
@@ -116,7 +117,7 @@ class ViewController extends AppController
 		->add ( 'icon', IconPickerType::class, [
 				'required' => false,
 		])
-		->add ( 'structuredOptions', $view->getType())
+		->add ( 'structuredOptions', get_class($this->get($view->getType())))
 		->add ( 'save', SubmitEmsType::class, [
 				'attr' => [
 						'class' => 'btn-primary btn-sm '

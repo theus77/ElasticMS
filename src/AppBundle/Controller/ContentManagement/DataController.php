@@ -28,6 +28,9 @@ use AppBundle\Repository\TemplateRepository;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\Template;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use AppBundle\Repository\ViewRepository;
+use AppBundle\Entity\View;
+use AppBundle\Form\Form\ViewType;
 
 class DataController extends AppController
 {
@@ -396,6 +399,28 @@ class DataController extends AppController
 				'ouuid' => $revision->getOuuid()
 		]);
 		
+	}
+
+	/**
+	 * @Route("/data/custom-index-view/{viewId}", name="data.customindexview"))
+	 */
+	public function customIndexViewAction($viewId, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var ViewRepository $viewRepository */
+		$viewRepository = $em->getRepository('AppBundle:View');
+		
+		$view = $viewRepository->find($viewId);
+		/** @var View $view **/
+			
+		if(!$view) {
+			throw new NotFoundHttpException('View type not found');
+		}
+ 		$viewType = $this->get($view->getType());
+		
+		//TODO get arguments
+		return $this->render( 'view/custom/'.$viewType->getBlockPrefix().'.html.twig', []);		
 	}
 
 	/**

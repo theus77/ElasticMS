@@ -26,7 +26,7 @@
 			
 			{% for object in results.hits.hits %}
 			
-				<div class="box box-info">
+				<div class="box">
 				  <div class="box-header text-{{ contentType.color }}">
 				  	<i class="{% if contentType.icon %}{{ contentType.icon }} {% else %} fa fa-question {% endif %} "></i> 
 					{% if contentType.labelField and attribute(object._source, contentType.labelField)  is defined %}

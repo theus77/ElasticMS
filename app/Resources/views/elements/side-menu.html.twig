@@ -50,24 +50,13 @@
 	          	</a>
 	          	<ul class="treeview-menu">
 	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('data.index', { contentTypeId: contentType.id }) }}">Index all {{ contentType.pluralName|humanize }}</a></li>
-	            	{% if contentType.locationField %}
-	            	  <li class=""><a href="#">Google map view</a></li>
-	            	{% endif%}
-	            	{% if contentType.startDateField %}
-	            	  <li class=""><a href="#">Timeline view</a></li>
-	            	{% endif%}
-	            	{% if contentType.dateField %}
-	            	  <li class=""><a href="#">Calendar view</a></li>
-	            	{% endif%}
-	            	{% if contentType.parentField %}
-	            	  <li class=""><a href="#">Hierarchical view</a></li>
-	            	{% endif%}
-	            	{% if contentType.imageField %}
-	            	  <li class=""><a href="#">Galerie view</a></li>
-	            	{% endif%}
-	            	{% if draftCounterGroupedByContentType[contentType.id] is defined %}
-	          			<li class=""><a id="menu-data-draft-{{ contentType.id }}" href="{{ path('data.draft_in_progress', { contentTypeId: contentType.id } ) }}"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span></a></li>
-	            	{% endif %}
+	            	{% for view in contentType.views %}
+	            		<li>
+	            			<a id="menu-data-view-{{ contentType.id }}-{{ view.id }}" href="{{ path('data.customindexview', { viewId: view.id }) }}">
+	            				{{ view.name }}
+	            			</a>
+	            		</li>
+	            	{% endfor %}
 	            	{% if contentType.environment.managed %}
 	            		<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentTypeId: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
 	            	{% endif %}

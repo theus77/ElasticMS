@@ -3,13 +3,9 @@
 namespace AppBundle\Form\View;
 
 use AppBundle\Entity\DataField;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\Field\IconTextType;
-use AppBundle\Form\Field\IconPickerType;
-use AppBundle\Form\Field\SubmitEmsType;
 use AppBundle\Form\View\ViewType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -19,13 +15,18 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
  */
 class KeywordsViewType extends ViewType {
 
+	private $twig;
+	
+	public function __construct($twig){
+		$this->twig = $twig;
+	}
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 */
 	public function getLabel(){
-		return "a view where all properties of kind (such as keyword) are listed on a single page";
+		return "Keywords: a view where all properties of kind (such as keyword) are listed on a single page";
 	}
 	
 	/**
@@ -48,6 +49,15 @@ class KeywordsViewType extends ViewType {
 		->add ( 'aggsQuery', TextareaType::class, [
 				'label' => 'The aggregations Elasticsearch query [Twig]'
 		] );
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getBlockPrefix() {
+		return 'keywords_view';
 	}
 	
 }
