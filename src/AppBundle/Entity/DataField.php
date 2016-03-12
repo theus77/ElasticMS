@@ -237,30 +237,6 @@ class DataField
     }
 
     /**
-     * Set integreValue
-     *
-     * @param integer $integreValue
-     *
-     * @return DataField
-     */
-    public function setIntegreValue($integreValue)
-    {
-        $this->integreValue = $integreValue;
-
-        return $this;
-    }
-
-    /**
-     * Get integreValue
-     *
-     * @return int
-     */
-    public function getIntegreValue()
-    {
-        return $this->integreValue;
-    }
-
-    /**
      * Set floatValue
      *
      * @param float $floatValue

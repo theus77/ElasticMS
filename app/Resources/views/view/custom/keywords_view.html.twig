@@ -1,15 +1,23 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}<!-- TODO -->{% endblock %}
-{% block pagetitle %}<!-- TODO -->{% endblock %} 
-{% block subtitle %}<!-- TODO -->{% endblock %} 
+{% block title %}{{ view.name }} of {{contentType.name|humanize}}{% endblock %}
+{% block pagetitle %}{{ view.name }} of {{contentType.name|humanize}}{% endblock %} 
+{# {% block subtitle %}<!-- TODO -->{% endblock %} #}
 
 
-{% block body %}<!-- TODO -->{% endblock %} 
+{% block body %}
+
+<div class="row">
+	{% for keyword in keywords %}
+			{% include template_from_string(view.structuredOptions.template) %}
+	{% endfor %}
+</div>
+
+{% endblock %} 
 
 
 {% block javascripts %}
 	{% include 'app/menu.html.twig' with {
-		'item':  'contenttype-index'
+		'item':  'data-view-'~ contentType.id ~ '-' ~ view.id
 	}%}
 {% endblock %}	

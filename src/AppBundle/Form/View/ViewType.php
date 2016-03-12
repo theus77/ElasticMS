@@ -5,6 +5,7 @@ namespace AppBundle\Form\View;
 use AppBundle\Entity\DataField;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Entity\View;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -27,6 +28,13 @@ abstract class ViewType extends AbstractType {
 	 * @return string
 	 */
 	abstract public function getName();
+	
+	/**
+	 * Get arguments that should passed to the associated twig template
+	 * 
+	 * @return array
+	 */
+	abstract public function getParameters(View $view);
 
 	/**
 	 *

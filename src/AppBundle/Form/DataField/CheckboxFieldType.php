@@ -7,6 +7,7 @@ use AppBundle\Form\Field\AnalyzerPickerType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Entity\DataField;
 
 class CheckboxFieldType extends DataFieldType {
 
@@ -26,11 +27,29 @@ class CheckboxFieldType extends DataFieldType {
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
+		
+		/** @var FieldType $fieldType */
+		$fieldType = $builder->getOptions () ['metadata'];
 	
 		$builder->add ( 'boolean_value', CheckboxType::class, [
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
 				'required' => false,
 		] );
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function buildObjectArray(DataField $data, array &$out) {
+		if (! $data->getFieldType ()->getDeleted ()) {
+			/**
+			 * by default it serialize the text value.
+			 * It can be overrided.
+			 */
+			$out [$data->getFieldType ()->getName ()] = $data->getIntegerValue();
+		}
 	}
 	
 	/**

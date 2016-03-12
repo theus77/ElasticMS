@@ -395,8 +395,9 @@ class DataController extends AppController
 		catch (\Exception $e){
 			$this->addFlash('warning', 'Reindexing has failed: '.$e->getMessage());
 		}
-		return $this->redirectToRoute('data.view', [
-				'ouuid' => $revision->getOuuid()
+		return $this->redirectToRoute('data.revisions', [
+				'ouuid' => $revision->getOuuid(),
+				'type' => $revision->getContentType()->getName()
 		]);
 		
 	}
@@ -417,10 +418,11 @@ class DataController extends AppController
 		if(!$view) {
 			throw new NotFoundHttpException('View type not found');
 		}
+		
+		/** @var \AppBundle\Form\View\ViewType $viewType */
  		$viewType = $this->get($view->getType());
 		
-		//TODO get arguments
-		return $this->render( 'view/custom/'.$viewType->getBlockPrefix().'.html.twig', []);		
+		return $this->render( 'view/custom/'.$viewType->getBlockPrefix().'.html.twig', $viewType->getParameters($view));		
 	}
 
 	/**

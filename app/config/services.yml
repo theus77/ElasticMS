@@ -19,7 +19,7 @@ services:
              - { name: 'twig.extension' }
     ems.form.view.keywords:
         class: AppBundle\Form\View\KeywordsViewType
-        arguments: ['@twig']
+        arguments: ['@twig', '@app.elasticsearch']
         tags:
             - { name: ems.form.viewtype, alias: keywords }
             - { name: form.type }
