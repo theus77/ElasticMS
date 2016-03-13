@@ -21,7 +21,7 @@
 			<div class="panel-body">
 	{% endif %}
 		{% for child in dataField.children if not child.fieldType.deleted %}
-			<div class="{% if child.fieldType.displayOptions.class  %}{{ child.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
+			<div class="{% if child.fieldType.displayOptions.class is defined and child.fieldType.displayOptions.class  %}{{ child.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
 				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
 			</div>
 		{% endfor %}
