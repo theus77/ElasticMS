@@ -14,7 +14,17 @@ use Symfony\Component\Form\FormBuilderInterface;
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
- class EmailFieldType extends DataFieldType {
+ class EmailFieldType extends DataFieldType {	
+	
+	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'fa fa-envelope';
+	}
+	
 	/**
 	 *
 	 * {@inheritdoc}

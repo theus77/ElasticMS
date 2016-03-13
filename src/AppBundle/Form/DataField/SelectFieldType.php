@@ -21,6 +21,15 @@ class SelectFieldType extends DataFieldType {
 		return 'Select field';
 	}
 	
+	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'fa fa-caret-square-o-down';
+	}
+	
 	
 	/**
 	 *

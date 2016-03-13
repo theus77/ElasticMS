@@ -24,7 +24,16 @@ abstract class DataFieldType extends AbstractType {
 	 * 
 	 * @return string
 	 */
-	abstract public function getLabel();
+	abstract public function getLabel();	
+	
+	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'fa fa-square';
+	}
 	
 	/**
 	 *

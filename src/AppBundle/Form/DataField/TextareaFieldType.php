@@ -26,6 +26,15 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 	public function getLabel(){
 		return 'Textarea field';
 	}
+	
+	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'fa fa-edit';
+	}
 
     /**
      * {@inheritdoc}

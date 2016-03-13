@@ -20,6 +20,15 @@ class SubfieldType extends DataFieldType {
 	}
 	
 	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'fa fa-sitemap';
+	}
+	
+	/**
 	 *
 	 * {@inheritdoc}
 	 *

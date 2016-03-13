@@ -20,6 +20,15 @@ class RadioFieldType extends DataFieldType {
 		return 'Radio field';
 	}
 	
+	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'fa fa-dot-circle-o';
+	}
+	
 	
 	/**
 	 *

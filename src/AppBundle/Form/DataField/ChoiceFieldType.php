@@ -21,6 +21,15 @@ class ChoiceFieldType extends DataFieldType {
 		return 'Choice field';
 	}
 	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function getIcon(){
+		return 'glyphicon glyphicon-check';
+	}
+	
 	
 	/**
 	 *

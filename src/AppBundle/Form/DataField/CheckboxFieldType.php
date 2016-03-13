@@ -20,6 +20,15 @@ class CheckboxFieldType extends DataFieldType {
 		return 'Checkbox field';
 	}
 	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function getIcon(){
+		return 'glyphicon glyphicon-check';
+	}
+	
 	
 	/**
 	 *

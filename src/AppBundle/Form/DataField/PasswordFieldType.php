@@ -28,6 +28,15 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 	}
 	
 	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'glyphicon glyphicon-asterisk';
+	}
+	
+	/**
 	 *
 	 * {@inheritdoc}
 	 *

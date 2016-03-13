@@ -869,7 +869,7 @@ class IconPickerType extends SelectPickerType {
 		 'plus-square' => 'fa fa-plus-square',
 		 'stethoscope' => 'fa fa-stethoscope',
 		 'user-md' => 'fa fa-user-md',
-		 'wheelchai' => 'fa fa-wheelchai',
+		 'wheelchair' => 'fa fa-wheelchair',
 		'asterisk' => 'glyphicon glyphicon-asterisk',
 		'plus' => 'glyphicon glyphicon-plus',
 		'euro' => 'glyphicon glyphicon-euro',

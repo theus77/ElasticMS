@@ -21,6 +21,15 @@ class WysiwygFieldType extends DataFieldType {
 	}
 	
 	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'fa fa-newspaper-o';
+	}
+	
+	/**
 	 *
 	 * @param FormBuilderInterface $builder        	
 	 * @param array $options        	

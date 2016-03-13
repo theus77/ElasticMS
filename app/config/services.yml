@@ -17,13 +17,76 @@ services:
         class: Twig_Extension_StringLoader
         tags:
              - { name: 'twig.extension' }
-    ems.form.view.keywords:
+#### Begin list available ems ViewType ###
+    ems.fieldtype.container:
+        class: AppBundle\Form\DataField\ContainerFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: container }
+            - { name: form.type }
+    ems.fieldtype.ouuid:
+        class: AppBundle\Form\DataField\OuuidFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: ouuid }
+            - { name: form.type }
+    ems.fieldtype.text:
+        class: AppBundle\Form\DataField\TextFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: text }
+            - { name: form.type }
+    ems.fieldtype.wysiwyg:
+        class: AppBundle\Form\DataField\WysiwygFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: wysiwyg }
+            - { name: form.type }
+    ems.fieldtype.textarea:
+        class: AppBundle\Form\DataField\TextareaFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: textarea }
+            - { name: form.type }
+    ems.fieldtype.select:
+        class: AppBundle\Form\DataField\SelectFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: select }
+            - { name: form.type }
+    ems.fieldtype.password:
+        class: AppBundle\Form\DataField\PasswordFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: password }
+            - { name: form.type }
+    ems.fieldtype.email:
+        class: AppBundle\Form\DataField\EmailFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: email }
+            - { name: form.type }
+    ems.fieldtype.radio:
+        class: AppBundle\Form\DataField\RadioFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: radio }
+            - { name: form.type }
+    ems.fieldtype.choice:
+        class: AppBundle\Form\DataField\ChoiceFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: choice }
+            - { name: form.type }
+    ems.fieldtype.checkbox:
+        class: AppBundle\Form\DataField\CheckboxFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: checkbox }
+            - { name: form.type }
+#### End list available ems views ###
+#### Begin list available ems FieldDataType ###
+    ems.view.keywords:
         class: AppBundle\Form\View\KeywordsViewType
         arguments: ['@twig', '@app.elasticsearch']
         tags:
             - { name: ems.form.viewtype, alias: keywords }
             - { name: form.type }
+#### End list available ems views ###
     ems.form.field.viewtypepickertype:
         class: AppBundle\Form\Field\ViewTypePickerType
+        tags:
+            - { name: form.type }
+    ems.form.field.datafieldtypepickertype:
+        class: AppBundle\Form\Field\FieldTypePickerType
         tags:
             - { name: form.type }

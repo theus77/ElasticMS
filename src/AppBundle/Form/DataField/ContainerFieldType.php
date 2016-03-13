@@ -25,6 +25,15 @@ class ContainerFieldType extends DataFieldType {
 	 */
 	public function getLabel(){
 		return 'Visual container (invisible in Elasticsearch)';
+	}	
+	
+	/**
+	 * Get a icon to visually identify a FieldType
+	 * 
+	 * @return string
+	 */
+	public static function getIcon(){
+		return 'glyphicon glyphicon-modal-window';
 	}
 	
 	
