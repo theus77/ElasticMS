@@ -8,6 +8,7 @@ namespace AppBundle\Form\DataField;
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\Field\AnalyzerPickerType;
 use AppBundle\Entity\DataField;
+use AppBundle\Entity\FieldType;
 
 class SubfieldType extends DataFieldType {
 	/**
@@ -40,7 +41,19 @@ class SubfieldType extends DataFieldType {
 		// String specific mapping options
 		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);
 	}	
-
+	
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */	
+	public static function generateMapping(FieldType $current){
+		return [
+				'fields' => [$current->getName() => array_merge(["type" => "string"],  array_filter($current->getMappingOptions()))]
+		];
+	}
+	
 	/**
 	 *
 	 * {@inheritdoc}

@@ -11,9 +11,17 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\DataField\DataFieldType;
+use AppBundle\Entity\DataField;
 
 class FieldTypeType extends AbstractType
 {
+	/** @var FieldTypePickerType $fieldTypePickerType */
+	private $fieldTypePickerType;
+	
+	public function __construct(FieldTypePickerType $fieldTypePickerType) {
+		$this->fieldTypePickerType = $fieldTypePickerType;
+	}
 	
 
 	/**
@@ -26,11 +34,11 @@ class FieldTypeType extends AbstractType
     	/** @var FieldType $fieldType */
     	$fieldType = $options['data'];
 
-//     	$builder->add ( 'type', HiddenType::class );
-    	$builder->add ( 'name', HiddenType::class );
+    	$builder->add ( 'name', HiddenType::class ); 
+    	
+    	$dataFieldType = $this->fieldTypePickerType->getDataFieldType($fieldType->getType());
     	
     	
-    	$dataFieldType = $fieldType->getTypeClass();
     	$dataFieldType->buildOptionsForm($builder, $options);
     	
     	
@@ -81,30 +89,23 @@ class FieldTypeType extends AbstractType
 
     	if(isset($fieldType) && null != $fieldType->getChildren() && $fieldType->getChildren()->count() > 0){
 
-//     		if($fieldType->getChildren()->count() > 1){
-	    		$builder->add ( 'reorder', SubmitEmsType::class, [
-	    				'attr' => [
-	    						'class' => 'btn-primary '
-	    				],
-	    				'icon' => 'fa fa-reorder'    			
-	    		] );
-//     		}
-    		
-// 	    	$className = $fieldType->getType();
-// 	    	/** @var FieldType $instance */
-// 	    	$instance = new $className();
-	    	
-// 			if($instance->isContainer()) {
-				/** @var FieldType $field */
-				foreach ($fieldType->getChildren() as $idx => $field) {
-					if(!$field->getDeleted()){
-						$builder->add ( $field->getName(), FieldTypeType::class, [
-								'data' => $field,
-								'container' => true,
-						]  );						
-					}
+
+    		$builder->add ( 'reorder', SubmitEmsType::class, [
+    				'attr' => [
+    						'class' => 'btn-primary '
+    				],
+    				'icon' => 'fa fa-reorder'    			
+    		] );
+
+			/** @var FieldType $field */
+			foreach ($fieldType->getChildren() as $idx => $field) {
+				if(!$field->getDeleted()){
+					$builder->add ( $field->getName(), FieldTypeType::class, [
+							'data' => $field,
+							'container' => true,
+					]  );						
 				}
-// 			}
+			}
     	}
     }   
 
@@ -121,6 +122,49 @@ class FieldTypeType extends AbstractType
         ));
     }
 	
+    public function generateObject(DataField $dataField){
+    	$out = [];
+    	
+    	/** @var DataFieldType $dataFieldType */
+    	$dataFieldType = $this->fieldTypePickerType->getDataFieldType($dataField->getFieldType()->getType());
+    	 
+    	$dataFieldType->buildObjectArray($dataField, $out);
+    	
+    	/** @var DataField $child */
+    	foreach ( $dataField->getChildren () as $child ) {
+	    	if (! $child->getFieldType()->getDeleted ()) {
+	    		if(isset($jsonName)){
+	    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateObject($child));
+	    		}
+	    		else{
+	    			$out = array_merge($out, $this->generateObject($child));
+	    		}
+	    	}
+    	}
+    	return $out;
+    }
+    
+    public function generateMapping(FieldType $fieldType) {
+    	/** @var DataFieldType $dataFieldType */
+    	$dataFieldType = $this->fieldTypePickerType->getDataFieldType($fieldType->getType());
+    	
+    	$out = $dataFieldType->generateMapping($fieldType);
+    	
+    	$jsonName = $dataFieldType->getJsonName($fieldType);
+    	/** @var FieldType $child */
+    	foreach ( $fieldType->getChildren () as $child ) {
+	    	if (! $child->getDeleted ()) {
+	    		if(isset($jsonName)){
+	    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateMapping($child));
+	    		}
+	    		else{
+		    		$out = array_merge($out, $this->generateMapping($child));	    			
+	    		}
+	    	}
+    	}
+    	return $out;
+    }
+    
 	/**
 	 *
 	 * {@inheritdoc}

@@ -144,7 +144,6 @@ class DataField
     
     public function propagateOuuid($ouuid) {
     	if(strcmp(OuuidFieldType::class, $this->getFieldType()->getType()) == 0) {
-    		dump($this);
     		$this->setTextValue($ouuid);
     	}
     	foreach ($this->children as $child){
@@ -152,12 +151,6 @@ class DataField
     	}
     }
     
-    public function getObjectArray(){
-    	$out = [];
-    	$classname = $this->getFieldType()->getType();
-    	$classname::buildObjectArray($this, $out);    	
-    	return $out;
-    }
 
 
     public function orderChildren(){

@@ -10,6 +10,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\DataField\Options\OptionsType;
 use AppBundle\Entity\FieldType;
+use AppBundle\Form\Field\FieldTypePickerType;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -112,35 +113,20 @@ abstract class DataFieldType extends AbstractType {
 		$builder->add ( 'structuredOptions', OptionsType::class );
 	}
 	
+
+	public static function getJsonName(FieldType $current){
+		return $current->getName();
+	}
+	
 	/**
 	 * Build an elasticsearch mapping options as an array
 	 * 
 	 * @param array $options
 	 * @param FieldType $current
 	 */
-	public static function generateMapping(array $options, FieldType $current){
-		$out = [
-			$current->getName() => array_merge(
-					array_filter($options), 
-					['type' => 'string'])
+	public static function generateMapping(FieldType $current){
+		return [
+			$current->getName() => array_merge(["type" => "string"],  array_filter($current->getMappingOptions()))
 		];
-		
-		/* has subfields ?*/
-		if( $current->getChildren()->count() > 0){
-			$fields = [];
-			/** @var FieldType $child */
-			foreach ( $current->getChildren () as $child ) {
-				if (! $child->getDeleted ()) {
-					$fields = array_merge($fields, $child->generateMapping());
-				}
-			}
-			$out[$current->getName()]['fields'] = $fields;
-		}
-		
-		return $out;
-		
-		
-		/* Elasticsearch doesnt accept parameter with null value, that the goals of the array_filter call */
-		return [];
 	}
 }

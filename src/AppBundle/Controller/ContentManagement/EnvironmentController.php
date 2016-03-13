@@ -341,7 +341,7 @@ class EnvironmentController extends AppController {
 				$out = $client->indices ()->putMapping ( [
 						'index' => $indexName,
 						'type' => $contentType->getName (),
-						'body' => $contentType->generateMapping ()
+						'body' => $this->get('ems.service.mapping')->generateMapping ($contentType)
 				] );
 				$this->addFlash('notice', 'A new mapping for '.$contentType->getName ().' has been defined');
 			}
@@ -365,7 +365,8 @@ class EnvironmentController extends AppController {
 		$client = $this->get('app.elasticsearch');
 		/** @var \AppBundle\Entity\Revision $revision */
 		foreach ($environment->getRevisions() as $revision) {
-			$objectArray = $revision->getDataField()->getObjectArray();
+			$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
+			dump($objectArray);
 			$status = $client->index([
 					'index' => $alias,
 					'id' => $revision->getOuuid(),

@@ -278,26 +278,6 @@ class ContentType
 		}';
     }
     
-    public function generateMapping(){
-    	$out = [
-    		$this->name => [
-    			"_all" => [
-    				"store" => true,
-    				"enabled" => true,
-    				"analyzer" => "for_all_field",
-    			],
-    			"properties" => [
-    			],
-    		],
-    	];
-    	
-    	if(isset($this->fieldType)){
-    		$out[$this->name]['properties'] =  $this->fieldType->generateMapping();
-    	}
-    	
-    	return $out;
-    }
-    
     /**
      * @ORM\PrePersist
      * @ORM\PreUpdate

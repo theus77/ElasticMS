@@ -66,6 +66,17 @@ class CheckboxFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
+	public static function generateMapping(FieldType $current){
+		return [
+				$current->getName() => array_merge(["type" => "boolean"],  array_filter($current->getMappingOptions()))
+		];
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
 		$optionsForm = $builder->get ( 'structuredOptions' );

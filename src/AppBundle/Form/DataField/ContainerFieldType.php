@@ -91,14 +91,7 @@ class ContainerFieldType extends DataFieldType {
 	 */
 	public static function buildObjectArray(DataField $data, array &$out) {
 		
-		/** @var DataField $child */
-		foreach ( $data->getChildren () as $child ) {
-			if (! $child->getFieldType ()->getDeleted ()) {
-				/* foreach valid children the subobject array is created */
-				$classname = $child->getFieldType ()->getType ();
-				$classname::buildObjectArray ( $child, $out );
-			}
-		}
+		
 	}
 	
 	/**
@@ -133,15 +126,16 @@ class ContainerFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public static function generateMapping(array $options, FieldType $current) {
-		$out = [ ];
+	public static function getJsonName(FieldType $current){
+		return null;
+	}
 	
-		/** @var FieldType $child */
-		foreach ( $current->getChildren () as $child ) {
-			if (! $child->getDeleted ()) {
-				$out = array_merge($out, $child->generateMapping());
-			}
-		}
-		return $out;
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function generateMapping(FieldType $current) {
+		return [];
 	}
 }

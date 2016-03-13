@@ -2,7 +2,6 @@
 
 namespace AppBundle\Entity;
 
-use AppBundle\Form\DataField\DataFieldType;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -305,10 +304,6 @@ class FieldType
     	return [];
     }
     
-    public function generateMapping(){
-    	return  $this->getTypeClass()->generateMapping($this->getMappingOptions(), $this);
-    }
-    
     /**
      * Set orderKey
      *
@@ -364,8 +359,8 @@ class FieldType
 	/**
 	 * Constructor
 	 */
-	public function __construct() {
-		
+	public function __construct() 
+	{
 		$this->children = new \Doctrine\Common\Collections\ArrayCollection ();
 		$this->deleted = false;
 		$this->orderKey = 0;
@@ -377,15 +372,8 @@ class FieldType
      *
      * @return FieldType
      */
-    public function __get($key){
-//     	if(strpos($key, 'ems_') !== 0){
-//     		dump('warning not ems prefixed call');
-//      		throw new \Exception('unprotected ems set');
-//     	}
-//     	else{
-//     		$key = substr($key, 4);
-//     	}
-    	
+    public function __get($key)
+    {
     	/** @var FieldType $fieldType */
     	foreach ($this->children as $fieldType){
     		if(strcmp($key,  $fieldType->getName()) == 0){
@@ -401,15 +389,8 @@ class FieldType
      *
      * @return DataField
      */
-    public function __set($key, $input ){
-//     	if(strpos($key, 'ems_') !== 0){
-//     		dump('warning not ems prefixed call');
-//      		throw new \Exception('unprotected ems set');
-//     	}
-//     	else{
-//     		$key = substr($key, 4);
-//     	}
-    	
+    public function __set($key, $input )
+    {
     	$found = false;
     	/** @var FieldType $child */
     	foreach ($this->children as &$child){
@@ -426,21 +407,7 @@ class FieldType
     	return $this;
     }
     
-    /**
-     * Get an instance of the corresponding DataFieldType 
-     *
-     *
-     * @return DataFieldType
-     */
-    public function getTypeClass(){
-	    return new $this->type;
-    }
-    
 
-
-//     public function getOptionsFormType(){
-//     	return $this->getTypeClass()->getOptionsFormType();
-//     }
     
     /**
      * Set parent

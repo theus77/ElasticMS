@@ -143,29 +143,29 @@ class ContentTypeController extends AppController {
 			/** @var  Client $client */
 			$client = $this->get ( 'app.elasticsearch' );
 			
-// 			dump($contentType->generateMapping ()); exit;
 			
 			$out = $client->indices ()->putMapping ( [ 
 					'index' => $envs,
 					'type' => $contentType->getName (),
-					'body' => $contentType->generateMapping ()
+					'body' => $this->get('ems.service.mapping')->generateMapping ($contentType)
 			] );
 			
 			if (isset ( $out ['acknowledged'] ) && $out ['acknowledged']) {
+				$contentType->setDirty ( false );
 				$this->addFlash ( 'notice', 'Mappings successfully updated' );
 			} else {
+				$contentType->setDirty ( true );
 				$this->addFlash ( 'warning', '<p><strong>Something went wrong. Try again</strong></p>
 						<p>Message from Elasticsearch: ' . print_r ( $out, true ) . '</p>' );
 			}
 			
-			$contentType->setDirty ( false );
-			$em->persist ( $contentType );
-			$em->flush ();
 		} catch ( BadRequest400Exception $e ) {
+			$contentType->setDirty ( true );
 			$this->addFlash ( 'error', '<p><strong>You should try to rebuild the indexes</strong></p>
 					<p>Message from Elasticsearch: ' . $e->getMessage () . '</p>' );
 		}
-		
+		$em->persist ( $contentType );
+		$em->flush ();		
 		return $this->redirectToRoute ( 'contenttype.index' );
 	}
 	

@@ -335,8 +335,9 @@ class DataController extends AppController
 	
 	
 	private function updateDataStructure(DataField $data, FieldType $meta){
+		
 		//no need to generate the structure for subfields (as they are virtual)
-		if($data->getFieldType()->getTypeClass()->isContainer()){
+		if($this->get($data->getFieldType()->getType())->isContainer()){
 			/** @var FieldType $field */
 			foreach ($meta->getChildren() as $field){
 				//no need to generate the structure for delete field

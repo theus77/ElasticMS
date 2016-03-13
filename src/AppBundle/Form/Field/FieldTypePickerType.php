@@ -19,6 +19,11 @@ class FieldTypePickerType extends SelectPickerType {
 		$this->dataFieldTypes[$dataFieldTypeId] = $dataField;
 	}
 	
+	public function getDataFieldType($dataFieldTypeId)
+	{
+		return $this->dataFieldTypes[$dataFieldTypeId];
+	}
+	
 	/**
 	 * @param OptionsResolver $resolver
 	 */
