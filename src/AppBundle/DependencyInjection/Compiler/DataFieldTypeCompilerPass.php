@@ -29,7 +29,7 @@ class DataFieldTypeCompilerPass implements CompilerPassInterface
 			foreach ($tags as $attributes) {
 				$definition->addMethodCall(
 					'addDataFieldType',
-					array(new Reference($id), $id)
+					array(new Reference($id))
 					
 				);
 			}

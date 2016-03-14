@@ -23,6 +23,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 
 class EnvironmentController extends AppController {
 	
@@ -337,13 +338,19 @@ class EnvironmentController extends AppController {
 		
 		/** @var ContentType $contentType */
 		foreach ($contentTypes as $contentType){
-			if($contentType->getEnvironment()->getManaged()){
-				$out = $client->indices ()->putMapping ( [
-						'index' => $indexName,
-						'type' => $contentType->getName (),
-						'body' => $this->get('ems.service.mapping')->generateMapping ($contentType)
-				] );
-				$this->addFlash('notice', 'A new mapping for '.$contentType->getName ().' has been defined');
+			if($contentType->getEnvironment()->getManaged() && !$contentType->getDeleted()){
+				try {
+					$out = $client->indices ()->putMapping ( [
+							'index' => $indexName,
+							'type' => $contentType->getName (),
+							'body' => $this->get('ems.service.mapping')->generateMapping ($contentType)
+					] );
+					$this->addFlash('notice', 'A new mapping for '.$contentType->getName ().' has been defined');					
+				}
+				catch (BadRequest400Exception $e){
+					$this->addFlash('error', 'Error on putting mapping for '.$contentType->getName ().'!  Message: '.$e->getMessage());
+					$this->addFlash('error', print_r($this->get('ems.service.mapping')->generateMapping ($contentType), true));
+				}
 			}
 		}
 			

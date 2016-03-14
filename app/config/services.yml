@@ -73,11 +73,6 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: checkbox }
             - { name: form.type }
-    ems.fieldtype.subfield:
-        class: AppBundle\Form\DataField\SubfieldType
-        tags:
-            - { name: ems.form.datafieldtype, alias: subfield }
-            - { name: form.type }
 #### End list available ems views ###
 #### Begin list available ems FieldDataType ###
     ems.view.keywords:

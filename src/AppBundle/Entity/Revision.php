@@ -150,10 +150,10 @@ class Revision
     }
     
 
-    public function getObject(){
+    public function getObject($object){
     	$object = [
     			'_index' => 'N/A',
-    			'_source' => $this->getDataField()->getObjectArray(),
+    			'_source' => $object,
     			'_id' => $this->ouuid,
     			'_type' => $this->getContentType()->getName()
     	];

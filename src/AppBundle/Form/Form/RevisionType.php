@@ -30,7 +30,8 @@ class RevisionType extends AbstractType {
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm ' 
 				],
-				'icon' => 'glyphicon glyphicon-open' 
+				'icon' => 'glyphicon glyphicon-open' ,
+				'label' => 'Done'
 		] );
 	}
 	

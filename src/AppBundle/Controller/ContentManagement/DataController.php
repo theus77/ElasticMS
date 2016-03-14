@@ -155,11 +155,13 @@ class DataController extends AppController
 		$availableEnv = $em->getRepository('AppBundle:Environment')->findAvailableEnvironements(
 				$revision->getContentType()->getEnvironment());
 		
+		$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
 	
 		return $this->render( 'data/revisions-data.html.twig', [
 				'revision' =>  $revision,
 				'revisionsSummary' => $revisionsSummary,
 				'availableEnv' => $availableEnv,
+				'object' => $revision->getObject($objectArray),
 		] );
 	}
 
@@ -336,8 +338,10 @@ class DataController extends AppController
 	
 	private function updateDataStructure(DataField $data, FieldType $meta){
 		
-		//no need to generate the structure for subfields (as they are virtual)
-		if($this->get($data->getFieldType()->getType())->isContainer()){
+		//no need to generate the structure for subfields (
+		$type = $data->getFieldType()->getType();
+		$datFieldType = new $type;
+		if($datFieldType->isContainer()){
 			/** @var FieldType $field */
 			foreach ($meta->getChildren() as $field){
 				//no need to generate the structure for delete field
@@ -380,9 +384,10 @@ class DataController extends AppController
 		
 	
 		try{
+			
+			$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
 			/** @var \AppBundle\Entity\Environment $environment */
 			foreach ($revision->getEnvironments() as $environment ){
-				$objectArray = $revision->getDataField()->getObjectArray();
 				$status = $client->index([
 						'id' => $revision->getOuuid(),
 						'index' => $this->getParameter('instance_id').$environment->getName(),
@@ -538,7 +543,7 @@ class DataController extends AppController
 				//TODO: test if draft and last version publish in
 				try{
 					
-					$objectArray = $revision->getDataField()->getObjectArray();
+					$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
 					
 					if( null == $revision->getOuuid() ) {
 						$status = $client->create([

@@ -81,7 +81,7 @@
 									{% for env in rev.environments %}
 										
 											{% include 'elements/object-views-button.html.twig' with { 
-												'object':  revision.object,
+												'object':  object,
 												'contentType': revision.contentType,
 												'environment': env
 											}%}

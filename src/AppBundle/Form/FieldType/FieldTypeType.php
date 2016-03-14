@@ -36,7 +36,8 @@ class FieldTypeType extends AbstractType
 
     	$builder->add ( 'name', HiddenType::class ); 
     	
-    	$dataFieldType = $this->fieldTypePickerType->getDataFieldType($fieldType->getType());
+    	$type = $fieldType->getType();
+    	$dataFieldType = new $type;
     	
     	
     	$dataFieldType->buildOptionsForm($builder, $options);
@@ -145,8 +146,9 @@ class FieldTypeType extends AbstractType
     }
     
     public function generateMapping(FieldType $fieldType) {
+    	$type = $fieldType->getType();
     	/** @var DataFieldType $dataFieldType */
-    	$dataFieldType = $this->fieldTypePickerType->getDataFieldType($fieldType->getType());
+    	$dataFieldType = new $type();
     	
     	$out = $dataFieldType->generateMapping($fieldType);
     	
