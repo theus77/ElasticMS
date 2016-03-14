@@ -9,6 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use AppBundle\Form\Field\AnalyzerPickerType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use AppBundle\Entity\DataField;
 
 class SelectFieldType extends DataFieldType {
 	
@@ -82,12 +83,30 @@ class SelectFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
+	public static function buildObjectArray(DataField $data, array &$out) {
+		if (! $data->getFieldType ()->getDeleted ()) {
+			if($data->getFieldType()->getDisplayOptions()['multiple']){
+				$out [$data->getFieldType ()->getName ()] = $data->getArrayValue();
+			}
+			else{
+				parent::buildObjectArray($data, $out);
+			}
+			
+		}
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
 		$optionsForm = $builder->get ( 'structuredOptions' );
 		
 		// String specific display options
-		$optionsForm->get ( 'displayOptions' )->add ( 'multiple', CheckboxType::class, [ 
+		$optionsForm->get ( 'displayOptions' )
+		->add ( 'multiple', CheckboxType::class, [ 
 				'required' => false,
 		] )->add ( 'choices', TextareaType::class, [ 
 				'required' => false,

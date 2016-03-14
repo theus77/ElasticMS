@@ -73,6 +73,19 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: checkbox }
             - { name: form.type }
+    ems.fieldtype.number:
+        class: AppBundle\Form\DataField\NumberFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: number }
+            - { name: form.type }
+    ems.fieldtype.date:
+        class: AppBundle\Form\DataField\DateFieldType
+        #arguments: ['%date_format%']
+        #calls:
+        #    - [setDateFormat, ['%date_format%']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: date }
+            - { name: form.type }
 #### End list available ems views ###
 #### Begin list available ems FieldDataType ###
     ems.view.keywords:

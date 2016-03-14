@@ -28,6 +28,13 @@ $(document).ready(function() {
     	$('#'+side_menu_target).parents('li').addClass('active');
 	} 
 	
+	$('input.datepicker').each(function( index ) {
+	  console.log( $(this).attr('data-date-format') );
+	  $(this).datepicker({
+	    format: $(this).attr('data-date-format'),
+	    todayBtn: true
+	  })
+	});
 	
 });
 
