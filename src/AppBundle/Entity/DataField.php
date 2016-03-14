@@ -523,7 +523,7 @@ class DataField
     
     public function __set($key, $input){
     	if(strpos($key, 'ems_') !== 0){
-    		dump('warning not ems prefixed call');
+//     		dump('warning not ems prefixed call');
      		throw new \Exception('unprotected ems set');
     	}
     	else{
@@ -554,7 +554,7 @@ class DataField
      public function __get($key){
      	
      	if(strpos($key, 'ems_') !== 0){
-     		dump('warning not ems prefixed call');
+//      		dump('warning not ems prefixed call');
      		throw new \Exception('unprotected ems get');
      	}
      	else{

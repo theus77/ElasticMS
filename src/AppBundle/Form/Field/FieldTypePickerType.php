@@ -29,7 +29,6 @@ class FieldTypePickerType extends SelectPickerType {
 	 */
 	public function configureOptions(OptionsResolver $resolver)
 	{
-		dump($this->dataFieldTypes);
 		
 		$resolver->setDefaults(array(
 			'choices' => array_keys($this->dataFieldTypes),
