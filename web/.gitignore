@@ -1,2 +1,2 @@
-/app_giib.php
-/app_instru.php
+!/app_dev.php
+/app_*.php

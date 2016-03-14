@@ -1,2 +1,2 @@
-/config_giib.yml
-/config_instru.yml
+!/config_dev.yml
+/config_*.yml
