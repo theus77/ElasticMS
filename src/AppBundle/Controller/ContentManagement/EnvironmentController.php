@@ -147,6 +147,7 @@ class EnvironmentController extends AppController {
 		
 		if ($form->isSubmitted () && $form->isValid ()) {
 			
+			
 			/** @var Environment $environment */
 			$environment = $form->getData ();
 			
@@ -162,52 +163,60 @@ class EnvironmentController extends AppController {
 				//TODO: test name format
 				$form->get ( 'name' )->addError ( new FormError ( 'Another environment named ' . $environment->getName () . ' already exists' ) );
 			} else {
-				
-				/** @var  Client $client */
-				$client = $this->get ( 'app.elasticsearch' );
-				
 				$environment->setAlias ( $this->getParameter ( 'instance_id' ) . $environment->getName () );
-				$environment->setManaged ( true );
-				try {
-					$indexes = $client->indices ()->get ( [ 
-							'index' => $environment->getAlias () 
-					] );
-					$form->get ( 'name' )->addError ( new FormError ( 'Another index named ' . $environment->getName () . ' already exists' ) );
+				$environment->setManaged ( true );		
+				$em = $this->getDoctrine ()->getManager ();
+				$em->persist ( $environment );
+				$em->flush ();
+				$this->reindexAllInNewIndex($environment, true);
+				$this->addFlash('notice', 'A new environement '.$environment->getName().' has been created');
+				return $this->redirectToRoute ( 'environment.index' );
+				
+// 				/** @var  Client $client */
+// 				$client = $this->get ( 'app.elasticsearch' );
+				
+// 				$environment->setAlias ( $this->getParameter ( 'instance_id' ) . $environment->getName () );
+// 				$environment->setManaged ( true );
+// 				try {
+// 					$indexes = $client->indices ()->get ( [ 
+// 							'index' => $environment->getAlias () 
+// 					] );
+// 					$form->get ( 'name' )->addError ( new FormError ( 'Another index named ' . $environment->getName () . ' already exists' ) );
 					
-				} catch ( Missing404Exception $e ) {
-					/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
-					$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
-					$contentTypes = $contentTypeRepository->findAll();
+// 				} catch ( Missing404Exception $e ) {
+// 					/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
+// 					$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
+// 					$contentTypes = $contentTypeRepository->findAll();
 					
-					$mapping = [];
-					/** @var ContentType $contentType */
-					foreach ($contentTypes as $contentType){
-						if($contentType->getEnvironment()->getManaged()){
-							$mapping = array_merge($mapping, $contentType->generateMapping());
-						}
-					}
+// 					$mapping = [];
+// 					/** @var ContentType $contentType */
+// 					foreach ($contentTypes as $contentType){
+// 						if($contentType->getEnvironment()->getManaged()){
+// 							$mapping = array_merge($mapping, $contentType->generateMapping());
+// 						}
+// 					}
 					
 					
 					
-					$body = '{'.
-							(count($mapping)>0?'"mappings" : {'.json_encode ( $mapping ).'},':'').
-		    				'"aliases" : {
-		        			' . json_encode ( $environment->getAlias () ) . ' : {}}}';
+// 					$body = '{'.
+// 							(count($mapping)>0?'"mappings" : {'.json_encode ( $mapping ).'},':'').
+// 		    				'"aliases" : {
+// 		        			' . json_encode ( $environment->getAlias () ) . ' : {}}}';
 					
-					$client->indices ()->create ( [ 
-							'index' => $environment->getAlias () . $this->getFormatedTimestamp (),
-							'body' =>  $body
-					] );
-					if ($form->isValid ()) {
-						$em = $this->getDoctrine ()->getManager ();
-						$em->persist ( $environment );
-						$em->flush ();
-						$this->addFlash('notice', 'A new environement '.$environment->getName().' has been created');
+// 					$client->indices ()->create ( [ 
+// 							'index' => $environment->getAlias () . $this->getFormatedTimestamp (),
+// 							'body' =>  $body
+// 					] );
+// 					if ($form->isValid ()) {
+// 						$em = $this->getDoctrine ()->getManager ();
+// 						$em->persist ( $environment );
+// 						$em->flush ();
+// 						$this->addFlash('notice', 'A new environement '.$environment->getName().' has been created');
 						
 						
-						return $this->redirectToRoute ( 'environment.index' );
-					}
-				}
+// 						return $this->redirectToRoute ( 'environment.index' );
+// 					}
+// 				}
 				
 			}
 		}
@@ -314,7 +323,7 @@ class EnvironmentController extends AppController {
 	 * 
 	 * @param Environment $environment
 	 */
-	private function reindexAllInNewIndex(Environment $environment){
+	private function reindexAllInNewIndex(Environment $environment, $newEnv = false){
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
 		/** @var  Client $client */
@@ -353,10 +362,12 @@ class EnvironmentController extends AppController {
 				}
 			}
 		}
-			
-		$this->reindexAll($environment, $indexName);
+		
+		if(!$newEnv){
+			$this->reindexAll($environment, $indexName);			
+		}
 	
-		$this->switchAlias($client, $environment->getAlias(), $indexName);
+		$this->switchAlias($client, $environment->getAlias(), $indexName, $newEnv);
 		$this->addFlash('notice', 'The alias <strong>'.$environment->getName().'</strong> is now pointing to '.$indexName);
 	
 	}
@@ -512,7 +523,7 @@ class EnvironmentController extends AppController {
 	 * @param string $alias
 	 * @param string $to
 	 */
-	private function switchAlias(Client $client, $alias, $to){
+	private function switchAlias(Client $client, $alias, $to, $newEnv=false){
 		try{		
 			$result = $client->indices()->getAlias(['name' => $alias]);
 			$index = array_keys ( $result ) [0];
@@ -533,7 +544,9 @@ class EnvironmentController extends AppController {
 			$client->indices ()->updateAliases ( $params );
 		}
 		catch(Missing404Exception $e){
-			$this->addFlash ( 'warning', 'Alias '.$alias.' not found' );
+			if(!$newEnv){
+				$this->addFlash ( 'warning', 'Alias '.$alias.' not found' );				
+			}
 			$client->indices()->putAlias([
 					'index' => $to,
 					'name' => $alias
