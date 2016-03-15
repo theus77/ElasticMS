@@ -89,7 +89,6 @@
 									   	
 										
 										{% for env in rev.environments %}
-											
 												{% include 'elements/object-views-button.html.twig' with { 
 													'object':  object,
 													'contentType': revision.contentType,
@@ -126,6 +125,26 @@
 											   </ul>
 											</div>
 										  {% endif %}
+										
+										  {% if (rev.environments|length > 0 and rev.endTime) or (rev.environments|length > 1 and not rev.endTime) %}
+										  <div class="btn-group">
+											  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											    	<span class="fa fa-close"></span>&nbsp;
+													Unpublish from
+													<span class="caret"></span>
+											  </button>
+											   <ul class="dropdown-menu">
+											   		{% for env in availableEnv %}
+														{% if env in rev.environments %}
+												   			<li>
+												   				<a href="{{ path('revision.unpublish', {'revisionId': rev.id, 'envId': env.id}) }}">{{ env.name|humanize }}</a>
+												   			</li>
+												   		{% endif %}
+											   		{% endfor %}
+											   </ul>
+											</div>
+										  {% endif %}
+										  
 									{% endif %}
 								</div>
 							</td>
