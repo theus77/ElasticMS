@@ -30,7 +30,7 @@
 			<div class="box-body">{{ macros.renderDataField(revision.dataField) }}</div>
 			<!-- /.box-body -->
 			<div class="box-footer">
-				<div class="btn-group pull-right">
+				<div class="btn-group">
 					{% if revision.draft %} 
 						{% include 'elements/get-button.html.twig' with { 
 							'url': path('revision.edit', {'revisionId': revision.id}), 
@@ -38,7 +38,7 @@
 							'icon': 'pencil' }%}
 					{% else %} 
 						{% include 'elements/post-button.html.twig' with { 
-							'url': path('revision.new-draft', {'ouuid': revision.ouuid}), 
+							'url': path('revision.new-draft', {'ouuid': revision.ouuid, 'type':revision.contentType.name }), 
 							'label': 'Edit', 
 							'icon': 'pencil' }%} 
 					{% endif %}</div>
@@ -73,55 +73,60 @@
 							</td>
 							<td>
 								<div class="btn-group">
-									
-									{# TODO: better way to determine if there is a environement to publish this revision in ? #}
-									{% set hasEnv = false %}
-									{% for env in availableEnv %}
-										{% if env not in rev.environments %}
-								   			{% set hasEnv = true %}
-									   	{% endif %}
-								   	{% endfor %}
-								   	
-									
-									{% for env in rev.environments %}
+									{% if rev.draft %} 	
+										{% include 'elements/get-button.html.twig' with { 
+											'url': path('revision.edit', {'revisionId': revision.id}), 
+											'label': 'Edit draft', 
+											'icon': 'pencil' }%}
+									{% else %}
+										{# TODO: better way to determine if there is a environement to publish this revision in ? #}
+										{% set hasEnv = false %}
+										{% for env in availableEnv %}
+											{% if env not in rev.environments %}
+									   			{% set hasEnv = true %}
+										   	{% endif %}
+									   	{% endfor %}
+									   	
 										
-											{% include 'elements/object-views-button.html.twig' with { 
-												'object':  object,
-												'contentType': revision.contentType,
-												'environment': env
-											}%}
-							   		{% endfor %}
-								   		
-									{% include 'elements/get-button.html.twig' with { 
-										'url': path('revision.edit', {'revisionId': rev.id}), 
-										'label': 'Edit', 
-										'icon': 'pencil' }%}
-									{% if rev.environments|length %}
-										{% include 'elements/post-button.html.twig' with { 
-											'url': path('revision.reindex', {'revisionId': rev.id}), 
-											'label': 'Re-index', 
-											'icon': 'recycle'}%}
+										{% for env in rev.environments %}
+											
+												{% include 'elements/object-views-button.html.twig' with { 
+													'object':  object,
+													'contentType': revision.contentType,
+													'environment': env
+												}%}
+								   		{% endfor %}
+									   		
+										{% include 'elements/get-button.html.twig' with { 
+											'url': path('revision.edit', {'revisionId': rev.id}), 
+											'label': 'Edit revision', 
+											'icon': 'pencil' }%}
+										{% if rev.environments|length %}
+											{% include 'elements/post-button.html.twig' with { 
+												'url': path('revision.reindex', {'revisionId': rev.id}), 
+												'label': 'Re-index', 
+												'icon': 'recycle'}%}
+										{% endif %}
+										
+										  {% if hasEnv  %}
+										  <div class="btn-group">
+											  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+											    	<span class="glyphicon glyphicon-open"></span>&nbsp;
+													Publish to
+													<span class="caret"></span>
+											  </button>
+											   <ul class="dropdown-menu">
+											   		{% for env in availableEnv %}
+														{% if env not in rev.environments %}
+												   			<li>
+												   				<a href="{{ path('revision.publish_to', {'revisionId': rev.id, 'envId': env.id}) }}">{{ env.name|humanize }}</a>
+												   			</li>
+												   		{% endif %}
+											   		{% endfor %}
+											   </ul>
+											</div>
+										  {% endif %}
 									{% endif %}
-									
-									  {% if hasEnv  %}
-									  <div class="btn-group">
-										  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-										    	<span class="glyphicon glyphicon-open"></span>&nbsp;
-												Publish to
-												<span class="caret"></span>
-										  </button>
-										   <ul class="dropdown-menu">
-										   		{% for env in availableEnv %}
-													{% if env not in rev.environments %}
-											   			<li>
-											   				<a href="{{ path('revision.publish_to', {'revisionId': rev.id, 'envId': env.id}) }}">{{ env.name|humanize }}</a>
-											   			</li>
-											   		{% endif %}
-										   		{% endfor %}
-										   </ul>
-										</div>
-									  {% endif %}
-										
 								</div>
 							</td>
 						</tr>
