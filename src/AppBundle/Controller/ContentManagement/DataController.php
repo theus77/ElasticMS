@@ -292,6 +292,72 @@ class DataController extends AppController
 	
 	/**
 	 * 
+	 * @Route("/data/delete/{type}/{ouuid}", name="object.delete"))
+     * @Method({"POST"})
+	 */
+	public function deleteAction($type, $ouuid, Request $request)
+	{
+
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var ContentTypeRepository $contentTypeRepo */
+		$contentTypeRepo = $em->getRepository('AppBundle:ContentType');
+		
+		$contentTypes = $contentTypeRepo->findBy([
+				'deleted' => false,
+				'name' => $type,
+		]);
+		if(!$contentTypes || count($contentTypes) != 1) {
+			throw new NotFoundHttpException('Content Type not found');
+		}
+		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		
+		
+		$revisions = $repository->findBy([
+				'ouuid' => $ouuid,
+				'contentType' => $contentTypes[0]
+		]);
+		
+		
+		/** @var Client $client */
+		$client = $this->get('app.elasticsearch');
+		
+		/** @var Revision $revision */
+		foreach ($revisions as $revision){
+			/** @var Environment $environment */
+			foreach ($revision->getEnvironments() as $environment){
+				try{					
+					$client->delete([
+						'index' => $environment->getAlias(),
+						'type' => $revision->getContentType()->getName(),
+						'id' => $revision->getOuuid(),
+					]);
+					$this->addFlash('notice', 'The object has been unpublished from environment '.$environment->getName());					
+				}
+				catch(Missing404Exception $e){
+					if(!$revision->getDeleted()) {
+						$this->addFlash('warning', 'The object was already removed from environment '.$environment->getName());						
+					}
+				}
+			}
+			$revision->setDeleted(true);
+			$em->persist($revision);
+		}
+		$this->addFlash('notice', count($revisions).' have been marked as deleted! ');
+		$em->flush();
+
+
+		return $this->redirectToRoute('data.index', [
+				'contentTypeId' => $contentTypes[0]->getId()
+		]);
+	}
+	
+	
+	/**
+	 * 
 	 * @Route("/data/draft/discard/{revisionId}", name="revision.discard"))
      * @Method({"POST"})
 	 */

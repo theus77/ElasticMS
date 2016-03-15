@@ -383,14 +383,16 @@ class EnvironmentController extends AppController {
 		$client = $this->get('app.elasticsearch');
 		/** @var \AppBundle\Entity\Revision $revision */
 		foreach ($environment->getRevisions() as $revision) {
-			$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
-			dump($objectArray);
-			$status = $client->index([
-					'index' => $alias,
-					'id' => $revision->getOuuid(),
-					'type' => $revision->getContentType()->getName(),
-					'body' => $objectArray
-			]);
+			if(!$revision->getDeleted()){
+				$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
+				dump($objectArray);
+				$status = $client->index([
+						'index' => $alias,
+						'id' => $revision->getOuuid(),
+						'type' => $revision->getContentType()->getName(),
+						'body' => $objectArray
+				]);				
+			}
 		}
 			
 		$this->addFlash('notice', count($environment->getRevisions()).' objects have been reindexed in '.$alias);
