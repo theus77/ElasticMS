@@ -7,7 +7,38 @@
 
 
 {% block body %}
+
 <div class="row">
+
+	<div id="search-index-page" class="col-md-12">
+		{{ form_start(form) }}
+		<div class="box ">
+			<div class="box-header with-border">
+				<h3>
+					<i class="fa fa-search"></i> Search form
+				</h3>
+			</div>
+			<div class="box-body">
+				<div class="row">
+					<span class=" col-md-2">
+						{{ form_row(form.boolean) }}
+					</span>
+				</div>
+				<div class="row" id="list-of-search-filters" data-prototype="{{ form_row(form.filters.vars.prototype)|e }}" data-index="{{ form.filters|length }}">
+					{{ form_widget(form.filters) }}
+				</div>
+			</div>
+			<div class="box-footer">
+				<div class="btn-group">
+					<a class="btn btn-primary" href="#" id="add-search-filter-button"><i class="fa fa-plus"></i> Add filter</a>
+					{{ form_widget(form.search) }}
+				</div>
+			</div>
+		</div>
+		{{ form_end(form) }}
+	</div>
+
+
 	<div class="col-xs-12">
 	
 		<div class="btn-toolbar" role="toolbar" style="margin: 0;">
@@ -73,4 +104,48 @@
 	{% include 'app/menu.html.twig' with {
 		'item':  'data-index-' ~ contentType.id
 	}%}
+	
+<script type="text/javascript">
+<!--
+
+//-->
+
+
+
+$(window).load(function() {
+	$('#add-search-filter-button').on('click', function(e) {
+		// prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        var $listFilters = $('#list-of-search-filters');
+        var prototype = $listFilters.data('prototype');
+        var index = $listFilters.data('index');
+     	// Replace '__name__' in the prototype's HTML to
+        // instead be a number based on how many items we have
+        var newForm = $(prototype.replace(/__name__/g, index));
+
+     	// increase the index with one for the next item
+        $listFilters.data('index', index + 1);
+
+        newForm.find('.remove-filter').on('click', function(e) {
+    		// prevent the link from creating a "#" on the URL
+            e.preventDefault();
+
+            console.log($(this).parents('.filter-container').remove());
+            
+    	});
+
+        $listFilters.append(newForm);
+        
+	});
+
+	$('.remove-filter').on('click', function(e) {
+		// prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        console.log($(this).parents('.filter-container').remove());
+        
+	});
+});
+</script>
 {% endblock %}	

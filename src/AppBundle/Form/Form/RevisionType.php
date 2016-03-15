@@ -11,8 +11,8 @@ use AppBundle\Form\Field\SubmitEmsType;
 class RevisionType extends AbstractType {
 	/**
 	 *
-	 * @param FormBuilderInterface $builder        	
-	 * @param array $options        	
+	 * {@inheritdoc}
+	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		
@@ -40,7 +40,8 @@ class RevisionType extends AbstractType {
 	
 	/**
 	 *
-	 * @param OptionsResolver $resolver        	
+	 * {@inheritdoc}
+	 *
 	 */
 	public function configureOptions(OptionsResolver $resolver) {
 		$resolver->setDefaults ( array (
