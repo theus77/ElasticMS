@@ -266,6 +266,7 @@ class ContentType
      	$fieldType->setType ( ContainerFieldType::class );
      	$fieldType->setContentType ( $this );
      	$this->setFieldType ( $fieldType );
+     	$this->setAskForOuuid( true );
     }
 
     public static function getIndexAnalysisConfiguration(){
