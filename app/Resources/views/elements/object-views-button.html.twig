@@ -41,6 +41,10 @@
 	{# 		{% endif %}#}
 		</ul>
 	</div>
+	{% include 'elements/post-button.html.twig' with { 
+			'url': path('revision.new-draft', {'ouuid': object._id, 'type': contentType.name}), 
+			'label': 'Edit', 
+			'icon': 'pencil' }%} 
 {% else %}
 
 		<a class="btn btn-sm btn-primary " href="{{ path('data.view', {'environmentName': environment.name, 'type': object._type, 'ouuid': object._id} ) }}">

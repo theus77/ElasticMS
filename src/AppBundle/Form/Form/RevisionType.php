@@ -26,13 +26,16 @@ class RevisionType extends AbstractType {
 						'class' => 'btn-primary btn-sm ' 
 				],
 				'icon' => 'fa fa-save' 
-		] )->add ( 'publish', SubmitEmsType::class, [ 
+		] );
+		if($revision->getDraft()){
+			$builder->add ( 'publish', SubmitEmsType::class, [ 
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm ' 
 				],
 				'icon' => 'glyphicon glyphicon-open' ,
-				'label' => 'Done'
-		] );
+				'label' => 'Finalize draft'
+			] );
+		}
 	}
 	
 	/**

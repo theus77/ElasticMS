@@ -228,14 +228,26 @@ class DataController extends AppController
 	
 	/**
 	 *
-	 * @Route("/data/new-draft/{ouuid}", name="revision.new-draft"))
+	 * @Route("/data/new-draft/{type}/{ouuid}", name="revision.new-draft"))
      * @Method({"POST"})
 	 */
-	public function newDraftAction($ouuid, Request $request)
+	public function newDraftAction($type, $ouuid, Request $request)
 	{
 		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
+		
+		/** @var ContentTypeRepository $contentTypeRepo */
+		$contentTypeRepo = $em->getRepository('AppBundle:ContentType');
+		$contentTypes = $contentTypeRepo->findBy([
+				'name' => $type,
+				'deleted' => false,
+		]);
+		
+		if(count($contentTypes) != 1) {
+			throw new NotFoundHttpException('Unknown revision');
+		}
+		$contentType = $contentTypes[0];
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
@@ -244,12 +256,15 @@ class DataController extends AppController
 		$revisions = $repository->findBy([
 				'ouuid' => $ouuid,
 				'endTime' => null,
+				'contentType' => $contentType,
 		]);
 		
 		if(count($revisions) != 1 || null != $revisions[0]->getEndTime()) {
 			throw new NotFoundHttpException('Unknown revision');
 		}
 		$revision = $revisions[0];
+		
+		
 		
 		if($revision->getDraft()){
 			return $this->redirectToRoute('revision.edit', [
@@ -492,6 +507,60 @@ class DataController extends AppController
 		] );
 		
 	}
+
+
+	/**
+	 * @Route("/data/revision/{revisionId}.json", name="revision.ajaxupdate"))
+     * @Method({"POST"})
+	 */
+	public function ajaxUpdateAction($revisionId, Request $request)
+	{
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		/** @var Revision $revision */
+		$revision = $repository->find($revisionId);
+		
+		if(!$revision) {
+			throw new NotFoundHttpException('Unknown revision');
+		}		
+		
+		if(null != $revision->getContentType()->getFieldType()){
+			if(null == $revision->getDataField()){
+				$data = new DataField();
+				$data->setFieldType($revision->getContentType()->getFieldType());
+				$data->setRevisionId($revision->getId());
+				$data->setOrderKey($revision->getContentType()->getFieldType()->getOrderKey());
+				$revision->setDataField($data);
+			}
+				
+			$this->updateDataStructure($revision->getDataField(), $revision->getContentType()->getFieldType());
+		
+		}
+		
+		$form = $this->createForm(RevisionType::class, $revision);
+		$form->handleRequest($request);
+		
+		if( $form->isValid() ){
+			/** @var Revision $revision */
+			$revision = $form->getData();
+			$em->persist($revision);
+			$em->flush();			
+		}
+		else{
+			foreach ($form->getErrors(true, true) as $error){
+				
+				dump($error);
+			}
+		}
+		
+		return $this->render( 'data/ajax-revision.json.twig', [
+				'revision' =>  $revision,
+				'errors' => $form->getErrors(true, true),
+				'form' => $form->createView(),
+		] );
+	}
 	
 	/**
 	 * @Route("/data/draft/edit/{revisionId}", name="revision.edit"))
@@ -594,11 +663,19 @@ class DataController extends AppController
 				}
 			}
 			
-			return $this->redirectToRoute('revision.edit', [
-					'revisionId' => $revision->getId()
-			]);
+			return $this->redirectToRoute('data.revisions', [
+							'ouuid' => $revision->getOuuid(),
+							'type' => $revision->getContentType()->getName(),
+			]);// ('revision.edit', [ 'revisionId' => $revision->getId() ])
 				
 		}
+// 		else{
+// 			foreach ($form->getErrors(true, true) as $error){
+				
+// 				dump($error);
+// 			}
+// 			exit;
+// 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [
 				'revision' =>  $revision,

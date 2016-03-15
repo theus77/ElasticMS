@@ -39,8 +39,7 @@
 					{% else %} 
 						{% include 'elements/post-button.html.twig' with { 
 							'url': path('revision.new-draft', {'ouuid': revision.ouuid}), 
-							'message': 'Inititate a new draft ?', 
-							'label': 'New draft', 
+							'label': 'Edit', 
 							'icon': 'pencil' }%} 
 					{% endif %}</div>
 			</div>
