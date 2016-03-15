@@ -644,7 +644,7 @@ class DataController extends AppController
 			
 		
 		
-		if ($form->isSubmitted() && $form->isValid()) {			
+		if (($form->isSubmitted() && $form->isValid()) || ! $contentType->getAskForOuuid()) {			
 
 			/** @var Revision $revision */
 			$revision = $form->getData();
@@ -664,7 +664,7 @@ class DataController extends AppController
 				}
 			}			
 			
-			if($form->isValid()) {
+			if($form->isValid() || ! $contentType->getAskForOuuid()) {
 				$now = new \DateTime('now');
 				$revision->setContentType($contentType);
 				$revision->setDraft(true);

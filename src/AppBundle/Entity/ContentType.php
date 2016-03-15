@@ -104,6 +104,13 @@ class ContentType
     /**
      * @var bool
      *
+     * @ORM\Column(name="ask_for_ouuid", type="boolean")
+     */
+    private $askForOuuid;
+    
+    /**
+     * @var bool
+     *
      * @ORM\Column(name="dirty", type="boolean")
      */
     private $dirty;
@@ -1100,5 +1107,29 @@ class ContentType
     public function getViews()
     {
         return $this->views;
+    }
+
+    /**
+     * Set askForOuuid
+     *
+     * @param boolean $askForOuuid
+     *
+     * @return ContentType
+     */
+    public function setAskForOuuid($askForOuuid)
+    {
+        $this->askForOuuid = $askForOuuid;
+
+        return $this;
+    }
+
+    /**
+     * Get askForOuuid
+     *
+     * @return boolean
+     */
+    public function getAskForOuuid()
+    {
+        return $this->askForOuuid;
     }
 }

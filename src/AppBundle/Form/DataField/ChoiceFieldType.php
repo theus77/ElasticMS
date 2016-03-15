@@ -9,6 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use AppBundle\Form\Field\AnalyzerPickerType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use AppBundle\Entity\DataField;
 
 class ChoiceFieldType extends DataFieldType {
 	
@@ -29,7 +30,24 @@ class ChoiceFieldType extends DataFieldType {
 	public static function getIcon(){
 		return 'glyphicon glyphicon-check';
 	}
-	
+
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function buildObjectArray(DataField $data, array &$out) {
+		if (! $data->getFieldType ()->getDeleted ()) {
+			if($data->getFieldType()->getDisplayOptions()['multiple']){
+				$out [$data->getFieldType ()->getName ()] = $data->getArrayValue();
+			}
+			else{
+				parent::buildObjectArray($data, $out);
+			}
+				
+		}
+	}
 	
 	/**
 	 *

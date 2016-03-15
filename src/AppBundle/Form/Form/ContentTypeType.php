@@ -38,6 +38,10 @@ class ContentTypeType extends AbstractType {
 			'label' => 'Edit the Twig template with a WYSIWYG editor',
 			'required' => false,
 		]);
+		$builder->add ( 'askForOuuid', CheckboxType::class, [
+			'label' => 'Ask for OUUID',
+			'required' => false,
+		]);
 // 		$builder->add ( 'ouuidField');
 // 		$builder->add ( 'imageField');
 // 		$builder->add ( 'videoField');
