@@ -1,18 +1,8 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{% if currentFilters.query  %}Search for "{{ currentFilters.query }}"{% else %}All documents{% endif %}{% endblock %}
+{% block title %}Search engine: {{ results.hits.total }} results{% endblock %}
 {% block pagetitle %}
-	{% if currentFilters.query  %}
-		Search result for <em>{{ currentFilters.query }}</em>
-		{% if currentFilters.field  %}
-			in a field like <em>{{ currentFilters.field }}</em>
-		{% endif %}
-	{% else %}
-		All documents
-		{% if currentFilters.field  %}
-			with a field like <em>{{ currentFilters.field }}</em>
-		{% endif %}
-	{% endif %}
+	Search
 {% endblock %} 
 {% block subtitle %}<small><span class=" badge">{{ results.hits.total }}</span></small>{% endblock %} 
 
@@ -21,15 +11,9 @@
 {% block body %}
 
 <div class="row">
-	<div id="search-page" class="col-md-9">
+	<div id="search-page" class="col-md-12">
 
-		<form name="search" method="get">
-			{% if currentFilters.type %}
-				<input type="hidden" name="type" value="{{ currentFilters.type }}">
-			{% endif %}
-			{% if currentFilters.index %}
-				<input type="hidden" name="index" value="{{ currentFilters.index }}">
-			{% endif %}
+		{{ form_start(form) }}
 		
 			<div class="box ">
 				<div class="box-header with-border">
@@ -39,79 +23,71 @@
 				</div>
 				<div class="box-body">
 					<div class="row">
-						<div class="col-md-4">
-							<div class="form-group">
-								<label class="control-label" for="search_field">Field</label>
-{# 								<div class="input-group">#}
-{# 									<span class="input-group-addon"><i class="fa fa-tag"></i></span>#}
-									<input type="text" id="search_field" name="field"
-										class="form-control" value="{% if currentFilters.field is defined %}{{ currentFilters.field }}{% endif %}">
-{# 								</div>#}
-							</div>
-						</div>
-						<div class="col-md-8">
-							<div class="form-group">
-								<label class="control-label" for="search_q">Search pattern</label>
-{# 								<div class="input-group">#}
-{# 									<span class="input-group-addon"><i class="fa fa-tag"></i></span>#}
-									<input type="text" id="search_q" name="q"
-										class="form-control" value="{{ currentFilters.query }}">
-{# 								</div>#}
-							</div>
-						</div>
+						<span class=" col-md-2">
+							{{ form_row(form.boolean) }}
+						</span>
+					</div>
+					<div class="row" id="list-of-search-filters" data-prototype="{{ form_row(form.filters.vars.prototype)|e }}" data-index="{{ form.filters|length }}">
+						{{ form_widget(form.filters) }}
 					</div>
 				</div>
+				{% set hasFacets= form.aliasFacet or form.typeFacet %}
+				{% if hasFacets %}
+				<div class="box-body">
+							Facets : 
+							{% if form.aliasFacet.vars.value %}
+								<a href="{{ path(paginationPath, app.request.query|merge({'search_form[aliasFacet]': '', token: ''})) }}">
+									<span class=" badge bg-{{ attribute(alias, form.aliasFacet.vars.value).color }}" >
+										<i class="fa fa-close"></i>
+										{{ attribute(alias, form.aliasFacet.vars.value).name|humanize }}
+									</span>
+								</a>
+							{% endif %}
+							{% if form.typeFacet.vars.value %}
+								{% if attribute(types, form.typeFacet.vars.value ) is defined %}
+									<a href="{{ path(paginationPath, app.request.query|merge({'search_form[typeFacet]': '', token: ''})) }}">
+										<span class=" badge bg-{{ attribute(types, form.typeFacet.vars.value).color }}" >
+											<i class="fa fa-close"></i>
+											{{ form.typeFacet.vars.value|humanize }}
+										</span>
+									</a>
+								{% else %}
+									<a href="{{ path(paginationPath, app.request.query|merge({'search_form[typeFacet]': '', token: ''})) }}">
+										<span class="badge" >
+											<i class="fa fa-close"></i>
+											{{  form.typeFacet.vars.value|humanize }}
+										</span>
+									</a>
+								{% endif %}
+							{% endif %}
+				</div>
+				{% endif %}						
 				<div class="box-footer">
 					<div class="form-group">
-						<button type="submit" id="search_search" name="search"
-							class="btn-primary btn-sm  btn">
-							<span class="fa fa-search"></span>&nbsp; Search
-						</button>
+						<div class="btn-group">
+							<a class="btn btn-primary" href="#" id="add-search-filter-button"><i class="fa fa-plus"></i> Add filter</a>
+							{{ form_widget(form.search) }}
+						</div>
 					</div>
 				</div>
 			</div>
-		</form>
+		{{ form_end(form) }}
 
 
+	</div>
+	<div id="search-page" class="col-md-9">
 		{% if results.hits.total > 0 %}
 		<div class="box">
-			{% set hasFacets= currentFilters.index or currentFilters.type %}
+			
 			{% if lastPage > 1 or hasFacets %}
 				<div class="box-header">
 				
-				{% if hasFacets %}
-					Facets : 
-					{% if currentFilters.index %}
-						<a href="{{ path(paginationPath, currentFilters|merge({index: null})) }}">
-							<span class=" badge bg-{{ attribute(alias, currentFilters.index).color }}" >
-								<i class="fa fa-close"></i>
-								{{ attribute(alias, currentFilters.index).name|humanize }}
-							</span>
-						</a>
-					{% endif %}
-					{% if currentFilters.type %}
-						{% if attribute(types, currentFilters.type) is defined %}
-							<a href="{{ path(paginationPath, currentFilters|merge({type: null})) }}">
-								<span class=" badge bg-{{ attribute(types, currentFilters.type).color }}" >
-									<i class="fa fa-close"></i>
-									{{ currentFilters.type|humanize }}
-								</span>
-							</a>
-						{% else %}
-							<a href="{{ path(paginationPath, currentFilters|merge({type: null})) }}">
-								<span class="badge" >
-									<i class="fa fa-close"></i>
-									{{  currentFilters.type|humanize }}
-								</span>
-							</a>
-						{% endif %}
-					{% endif %}
-				{% endif %}				
+			
 				
 				{% include 'elements/pagination.html.twig' with {
 					'lastPage': lastPage,
-					'currentPage': currentFilters.page,
-					'currentFilters': currentFilters,
+					'currentPage': page,
+					'currentFilters': app.request.query,
 					'paginationPath': paginationPath,
 					'showAlwaysFirstAndLast': false
 				} %}
@@ -122,8 +98,8 @@
 			
 			<div class="panel panel-default">
 			  <div class="panel-heading">
-			  	<span class="text-{{ attribute(alias, result._index).color }}">
-				 	{{ attribute(alias, result._index).name|humanize }} 
+			  	<span class="text-{{ attribute(indexes, result._index).color }}">
+				 	{{ attribute(indexes, result._index).name|humanize }} 
 			  	</span>
 			  	|
 			  	{% if attribute(types, result._type) is defined %}
@@ -158,7 +134,7 @@
 			  		<div class="panel-body">
 					  	<div class="col-xs-12">
 							{% include template_from_string(attribute(types, result._type).indexTwig) with {
-									environment: attribute(alias, result._index),
+									environment: attribute(indexes, result._index),
 									contentType: attribute(types, result._type),
 									object: result,
 									source: result._source
@@ -169,13 +145,13 @@
 			  		<div class="box-footer">
 			  			{% if attribute(types, result._type) is defined %}
 						  	{% include 'elements/object-toolbar.html.twig' with {
-								environment: attribute(alias, result._index),
+								environment: attribute(indexes, result._index),
 								contentType: attribute(types, result._type),
 								object: result,
 							}%}
 						{% else %}
 						  	{% include 'elements/object-toolbar.html.twig' with {
-								environment: attribute(alias, result._index),
+								environment: attribute(indexes, result._index),
 								contentType: null,
 								object: result,
 							}%}
@@ -189,8 +165,8 @@
 				<div class="box-footer">
 				{% include 'elements/pagination.html.twig' with {
 					'lastPage': lastPage,
-					'currentPage': currentFilters.page,
-					'currentFilters': currentFilters,
+					'currentPage': page,
+					'currentFilters': app.request.query,
 					'paginationPath': paginationPath,
 					'showAlwaysFirstAndLast': false
 				} %}
@@ -199,7 +175,7 @@
 		</div>
 	</div>
 	<div id="search-facets" class="col-md-3">
-		{% if not currentFilters.index %}
+		{% if not form.aliasFacet.vars.value %}
 			<div class="box">
 				<div class="box-header">
 					<h3 class="box-title"><i class="fa fa-database"></i> Environments</h3>
@@ -208,9 +184,9 @@
 					<ul class="list-group">
 					{% for index in results.aggregations.indexes.buckets %}
 						<li class="list-group-item">
-							<a href="{{ path(paginationPath, currentFilters|merge({index: index.key})) }}" class="text-{{ attribute(alias, index.key).color }}">
-								{{ attribute(alias, index.key).name|humanize }} 
-								<span class=" badge pull-right bg-{{ attribute(alias, index.key).color }}">{{ index.doc_count }}</span>
+							<a href="{{ path(paginationPath, app.request.query|merge({'search_form[aliasFacet]': attribute(indexes, index.key).alias, token: ''})) }}" class="text-{{ attribute(indexes, index.key).color }}">
+								{{ attribute(indexes, index.key).name|humanize }} 
+								<span class=" badge pull-right bg-{{ attribute(indexes, index.key).color }}">{{ index.doc_count }}</span>
 							</a>
 						</li>
 					{% endfor %}
@@ -219,7 +195,7 @@
 			</div>
 		{% endif %}
 		
-		{% if not currentFilters.type %}
+		{% if not form.typeFacet.vars.value %}
 			<div class="box">
 				<div class="box-header">
 					<h3 class="box-title"><i class="fa fa-sitemap"></i> Content types</h3>
@@ -229,13 +205,13 @@
 					{% for index in results.aggregations.types.buckets %}
 						<li class="list-group-item">
 							{% if attribute(types, index.key) is defined %}
-									<a href="{{ path(paginationPath, currentFilters|merge({type: index.key})) }}" class="text-{{ attribute(types, index.key).color }}">
+									<a href="{{ path(paginationPath, app.request.query|merge({'search_form[typeFacet]': index.key, 'search_form[_token]': '', page: 1})) }}" class="text-{{ attribute(types, index.key).color }}">
 										<i class="{{ attribute(types, index.key).icon }}"></i>
 										{{ index.key|humanize }} 
 										<span class=" badge pull-right bg-{{ attribute(types, index.key).color }}">{{ index.doc_count }}</span>
 									</a>
 							{% else %}
-								<a href="{{ path(paginationPath, currentFilters|merge({type: index.key})) }}" class="text-black">
+								<a href="{{ path(paginationPath, app.request.query|merge({'search_form[typeFacet]': index.key, 'search_form[_token]': '', page: 1})) }}" class="text-black">
 									<i class="fa fa-question"></i>
 									{{ index.key|humanize }}
 									<span class=" badge pull-right">{{ index.doc_count }}</span>
@@ -252,3 +228,53 @@
 
 </div>
 {% endblock %} 
+
+{% block javascripts %}
+{# 	{% include 'app/menu.html.twig' with {#}
+{# 		'item':  'data-index-' ~ contentType.id#}
+{# 	}%}#}
+	
+<script type="text/javascript">
+<!--
+
+//-->
+
+
+
+$(window).load(function() {
+	$('#add-search-filter-button').on('click', function(e) {
+		// prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        var $listFilters = $('#list-of-search-filters');
+        var prototype = $listFilters.data('prototype');
+        var index = $listFilters.data('index');
+     	// Replace '__name__' in the prototype's HTML to
+        // instead be a number based on how many items we have
+        var newForm = $(prototype.replace(/__name__/g, index));
+
+     	// increase the index with one for the next item
+        $listFilters.data('index', index + 1);
+
+        newForm.find('.remove-filter').on('click', function(e) {
+    		// prevent the link from creating a "#" on the URL
+            e.preventDefault();
+
+            console.log($(this).parents('.filter-container').remove());
+            
+    	});
+
+        $listFilters.append(newForm);
+        
+	});
+
+	$('.remove-filter').on('click', function(e) {
+		// prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        console.log($(this).parents('.filter-container').remove());
+        
+	});
+});
+</script>
+{% endblock %}	

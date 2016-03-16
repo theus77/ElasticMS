@@ -92,41 +92,41 @@
 
 {% block search_filter_row -%}
 	<div class="filter-container row">
-		<div class="col-xs-12 ">
-			<div class="col-md-1">
-				{{- form_label(form.inverted) -}}
-			</div>
-			<div class="col-md-2">
-				{{- form_label(form.field) -}}
-			</div>
-			<div class="col-md-3">
-				{{- form_label(form.operator) -}}
-			</div>
-			<div class="col-md-4">
-				{{- form_label(form.pattern) -}}
-			</div>
-			<div class="col-md-1">
-				{{- form_label(form.boost) -}}
-			</div>
-			<div class="col-md-1">
-				&nbsp;
-			</div>
-		</div>
+{# 		<div class="col-xs-12 ">#}
+{# 			<div class="col-md-1">#}
+{# 				{{- form_label(form.inverted) -}}#}
+{# 			</div>#}
+{# 			<div class="col-md-2">#}
+{# 				{{- form_label(form.field) -}}#}
+{# 			</div>#}
+{# 			<div class="col-md-3">#}
+{# 				{{- form_label(form.operator) -}}#}
+{# 			</div>#}
+{# 			<div class="col-md-4">#}
+{# 				{{- form_label(form.pattern) -}}#}
+{# 			</div>#}
+{# 			<div class="col-md-1">#}
+{# 				{{- form_label(form.boost) -}}#}
+{# 			</div>#}
+{# 			<div class="col-md-1">#}
+{# 				&nbsp;#}
+{# 			</div>#}
+{# 		</div>#}
 		<div class="col-xs-12">
 			<div class="col-md-1">
-				{{- form_widget(form.inverted) -}}
+				{{- form_row(form.inverted) -}}
 			</div>
 			<div class="col-md-2">
-				{{- form_widget(form.field) -}}
+				{{- form_row(form.field) -}}
 			</div>
 			<div class="col-md-3">
-				{{- form_widget(form.operator) -}}
+				{{- form_row(form.operator) -}}
 			</div>
 			<div class="col-md-4">
-				{{- form_widget(form.pattern) -}}
+				{{- form_row(form.pattern) -}}
 			</div>
 			<div class="col-md-1">
-				{{- form_widget(form.boost) -}}
+				{{- form_row(form.boost) -}}
 			</div>
 			<div class="col-md-1">
 				<a class="btn btn-primary remove-filter" href="#"><i class="fa fa-trash"></i></a>

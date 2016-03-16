@@ -13,6 +13,10 @@ class SearchFilter
 	private $operator;
 	private $boost;
 	
+	function __construct(){
+		$this->operator = "query_and";
+	}
+	
 	function generateEsFilter(){
 		$out = false;
 		if($this->field || $this->pattern) {

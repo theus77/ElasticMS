@@ -10,6 +10,7 @@ use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use AppBundle\Form\Subform\SearchFilterType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class SearchFormType extends AbstractType {
 	/**
@@ -25,6 +26,8 @@ class SearchFormType extends AbstractType {
 				],
 				'label' => 'Boolean operator'
 		]);
+		$builder->add('aliasFacet', HiddenType::class);
+		$builder->add('typeFacet', HiddenType::class);
 		$builder->add('filters', CollectionType::class, array(
 				// each entry in the array will be an "email" field
 				'entry_type'   => SearchFilterType::class,

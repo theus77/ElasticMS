@@ -7,6 +7,8 @@ use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use AppBundle\Form\Form\SearchFormType;
+use AppBundle\Entity\Form\Search;
 
 class ElasticsearchController extends Controller
 {
@@ -70,30 +72,43 @@ class ElasticsearchController extends Controller
 	public function searchAction($query, Request $request)
 	{
 		try {
-			$q = $request->query->get('q');
-			$typeFacet = $request->query->get('type');
-			$indexFacet = $request->query->get('index');
-			$field = $request->query->get('field');
-			$page = $request->query->get('page');
-			if(!isset($page)){
+			
+			if(null != $request->query->get('page')){
+				$page = $request->query->get('page');
+			}
+			else{
 				$page = 1;
 			}
 			
-			if(isset($q)){
-				return $this->redirectToRoute('elasticsearch.search', array(
-						'query' => $q,
-						'field' => $field,
-						'page' => $page,
-						'type' => $typeFacet,
-						'index' => $indexFacet
-				));
-			}
 			
-			if(strcmp("*", $field) == 0){
-				$field = null;
-			}
-			
+			$search = new Search();
 
+
+			
+			$form = $this->createForm ( SearchFormType::class, $search, [
+					'method' => 'GET'
+			] );
+
+			$form->handleRequest ( $request );
+			
+			$form->isValid();
+			
+			/** @var Search $search */
+			$search = $form->getData();
+			
+			
+			$body = [];
+			/** @var SearchFilter $filter */
+			foreach ($search->getFilters() as $filter){
+					
+				$esFilter = $filter->generateEsFilter();
+					
+				if($esFilter){
+					$body["query"][$search->getBoolean()][] = $esFilter;
+				}	
+					
+			}			
+			
 			/** @var EntityManager $em */
 			$em = $this->getDoctrine()->getManager();
 			
@@ -113,70 +128,73 @@ class ElasticsearchController extends Controller
 			$assocAliases = $client->indices()->getAliases();
 			
 			$mapAlias = [];
+			$mapIndex = [];
 			foreach ($assocAliases as $index => $aliasNames){
 				foreach ($aliasNames['aliases'] as $alias => $options){
 					if(isset($environments[$alias])){
-						$mapAlias[$index] = $environments[$alias];
+						$mapAlias[$environments[$alias]['alias']] = $environments[$alias];
+						$mapIndex[$index] = $environments[$alias];
 						break;
 					}
 				}
 			}
 			
-				
-			$es_query = 
-				'{
-				   "query": {
-				      "query_string": {
-				         "default_field": '.((isset($field) && strlen($field)) > 0?json_encode($field):'"_all"').',
-				         "query": '.(isset($query)?json_encode($query):'"*"').',
-				         "default_operator": "AND"
-				      }
-				   },
-				   "highlight": {
-				      "fields": {
-				         "_all": {}
-				      }
-				   },
-				   "aggs": {
-				      "types": {
-				         "terms": {
-				            "field": "_type"
-				         }
-				      },
-				      "indexes": {
-				         "terms": {
-				            "field": "_index"
-				         }
-				      }
-				   }
-				}';	
-			
-			$results = $client->search([
-					'body' => $es_query, 
+// 			dump($mapAlias);
+			$params = [
 					'version' => true, 
 // 					'df'=> isset($field)?$field:'_all',
-					'index' => isset($indexFacet)?$indexFacet:array_keys($environments),
-					'type' => isset($typeFacet)?$typeFacet:array_keys($types),
+					'index' => $search->getAliasFacet() != null?$search->getAliasFacet():array_keys($environments),
+					'type' => $search->getTypeFacet() != null?$search->getTypeFacet():array_keys($types),
 					'size' => $this->container->getParameter('paging_size'), 
-					'from' => ($page-1)*$this->container->getParameter('paging_size')]);
+					'from' => ($page-1)*$this->container->getParameter('paging_size')
+				
+			];
+		
+			
+			
+			$body = array_merge($body, json_decode('{
+			   "highlight": {
+			      "fields": {
+			         "_all": {}
+			      }
+			   },
+			   "aggs": {
+			      "types": {
+			         "terms": {
+			            "field": "_type"
+			         }
+			      },
+			      "indexes": {
+			         "terms": {
+			            "field": "_index"
+			         }
+			      }
+			   }
+			}', true));
+			
+
+			
+			$params['body'] = $body;
+			
+// 			dump($params);
+			$results = $client->search($params);
 	
 		
-
 			$lastPage = ceil($results['hits']['total']/$this->container->getParameter('paging_size'));
+			
+// 			dump($request);
+
+// 			if($lastPage)
 			
 			return $this->render( 'elasticsearch/search.html.twig', [
 					'results' => $results,
 					'lastPage' => $lastPage,
 					'paginationPath' => 'elasticsearch.search',
-					'currentFilters' => [
-							'query' => $query,
-							'page' =>  $page,
-							'type' => $typeFacet,
-							'index' => $indexFacet,
-							'field' => $field,
-					],
 					'types' => $types,
 					'alias' => $mapAlias,
+					'indexes' => $mapIndex,
+					'form' => $form->createView(),
+					'page' => $page,
 			] );
 		}
 		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){
