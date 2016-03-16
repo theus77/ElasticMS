@@ -1,16 +1,59 @@
 <?php
 namespace AppBundle\Entity\Form;
 
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- * RebuildIndex
+ * SearchFilter
+ *
+ * @ORM\Table(name="search_filter")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\SearchFilterRepository")
  */
 class SearchFilter
 {
+	/**
+	 * @var int
+	 *
+	 * @ORM\Column(name="id", type="bigint")
+	 * @ORM\Id
+	 * @ORM\GeneratedValue(strategy="AUTO")
+	 */
+	private $id;
+		
+    
+	/**
+	 * @var string $pattern
+	 * 
+     * @ORM\Column(name="pattern", type="string", length=200)
+	 */
 	private $pattern;
+	
+	/**
+	 * @var string $field
+	 * 
+     * @ORM\Column(name="field", type="string", length=100)
+	 */
 	private $field;
+	
+	/**
+	 * @var bool $inverted
+	 * 
+     * @ORM\Column(name="inverted", type="boolean")
+	 */
 	private $inverted;
+	
+	/**
+	 * @var string $operator
+	 * 
+     * @ORM\Column(name="operator", type="string", length=50)
+	 */
 	private $operator;
+	
+	/**
+	 * @var float $boost
+	 * 
+     * @ORM\Column(name="boost", type="decimal", scale=2)
+	 */
 	private $boost;
 	
 	function __construct(){
@@ -182,4 +225,14 @@ class SearchFilter
 		return $this;
 	}
 	
+
+    /**
+     * Get id
+     *
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 }

@@ -230,10 +230,13 @@
 {% endblock %} 
 
 {% block javascripts %}
-{# 	{% include 'app/menu.html.twig' with {#}
-{# 		'item':  'data-index-' ~ contentType.id#}
-{# 	}%}#}
-	
+
+{% if form.typeFacet.vars.value %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'data-index-' ~ attribute(types, form.typeFacet.vars.value ).id
+	}%}
+{% endif %}
+
 <script type="text/javascript">
 <!--
 
