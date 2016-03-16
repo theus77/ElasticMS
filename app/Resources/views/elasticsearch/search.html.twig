@@ -232,7 +232,7 @@
 
 {% block javascripts %}
 
-{% if form.typeFacet.vars.value %}
+{% if form.typeFacet.vars.value and attribute(types, form.typeFacet.vars.value ) is defined%}
 	{% include 'app/menu.html.twig' with {
 		'item':  'data-index-' ~ attribute(types, form.typeFacet.vars.value ).id
 	}%}
