@@ -51,7 +51,7 @@
 	          		{% endif %}
 	          	</a>
 	          	<ul class="treeview-menu">
-	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', { 'search_form[typeFacet]': contentType.name }) }}">Search {{ contentType.pluralName|humanize }}</a></li>
+	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', { 'search_form[typeFacet]': contentType.name, 'search_form[aliasFacet]': contentType.environment.alias }) }}">Search {{ contentType.pluralName|humanize }}</a></li>
 	            	{% for view in contentType.views %}
 	            		<li>
 	            			<a id="menu-data-view-{{ contentType.id }}-{{ view.id }}" href="{{ path('data.customindexview', { viewId: view.id }) }}">

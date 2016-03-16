@@ -169,101 +169,6 @@ class DataController extends AppController
 	}
 
 	/**
-	 * @Route("/data/index/{contentTypeId}/{page}.{_format}", defaults={"page": 1, "_format": "html"}, name="data.index")
-	 */
-	public function indexAction($contentTypeId, $_format, $page, Request $request)
-	{
-		$repository = $this->getDoctrine()->getManager()->getRepository('AppBundle:ContentType');
-		/** @var ContentType $contentType */
-		$contentType = $repository->find($contentTypeId);
-	
-	
-		if(!$contentType){
-			throw new NotFoundHttpException("Content type not found");
-		}
-		
-		$search = new Search();
-		
-		
-		$form = $this->createForm ( SearchFormType::class, $search, [
-				'method' => 'GET'
-		] );
-		
-		$form->handleRequest ( $request );
-		
-		/** @var Search $search */
-		$search = $form->getData();
-		
-		$body = [];
-		/** @var SearchFilter $filter */
-		foreach ($search->getFilters() as $filter){
-			
-			$esFilter = $filter->generateEsFilter();
-			
-			if($esFilter){
-				$body["query"][$search->getBoolean()][] = $esFilter;
-			}
-			
-			
-		}
-		
-// 		dump($body); //exit;
-		
-		/** @var Client $client */
-		$client = $this->getElasticsearch();
-		$params = [
-				'index' => $contentType->getEnvironment()->getAlias(),
-				'version' => true,
-				'size' => $this->container->getParameter('paging_size'),
-				'from' => ($page-1)*$this->container->getParameter('paging_size'),
-				'type' => $contentType->getName(),
-		];
-		if(count($body)>0){
-			$params['body'] = $body;
-		}
-		$results = $client->search($params);
-			
-		if( null != $contentType->getIndexTwig() ) {
-			$twig = $this->getTwig();
-			try {
-				$template = $twig->createTemplate($contentType->getIndexTwig());
-			}
-			catch (\Twig_Error $e){
-				$this->addFlash('error', 'There is something wrong with the index twig of '.$contentType->getName());
-				$template = $twig->createTemplate('');
-			}
-			foreach ($results['hits']['hits'] as &$hit){
-				try {
-
-					$hit['_ems_twig_rendering'] = $template->render([
-							'source' => $hit['_source'],
-							'object' => $hit,
-					]);
-				}
-				catch (\Twig_Error $e){
-					$hit['_ems_twig_rendering'] = "Error in the template: ".$e->getMessage();
-				}
-			}
-		}
-			
-		return $this->render( 'data/index.'.$_format.'.twig', [
-				'results' => $results,
-				'lastPage' => ceil($results['hits']['total']/$this->container->getParameter('paging_size')),
-				'paginationPath' => 'data.index',
-				'currentFilters' => [
-						'contentTypeId' => $contentTypeId,
-						'page' =>  $page,
-						'_format' => $_format
-				],
-				'contentType' =>  $contentType,
-				'form' => $form->createView(),
-		] );
-				
-		
-	
-	}
-	
-	/**
 	 *
 	 * @Route("/data/new-draft/{type}/{ouuid}", name="revision.new-draft"))
      * @Method({"POST"})
@@ -387,8 +292,9 @@ class DataController extends AppController
 		$em->flush();
 
 
-		return $this->redirectToRoute('data.index', [
-				'contentTypeId' => $contentTypes[0]->getId()
+		return $this->redirectToRoute('elasticsearch.search', [
+				'search_form[typeFacet]' => $contentTypes[0]->getName(),
+				'search_form[aliasFacet]' => $contentTypes[0]->getEnvironment()->getAlias(),
 		]);
 	}
 	

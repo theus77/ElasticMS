@@ -31,18 +31,10 @@
 						{{ form_widget(form.filters) }}
 					</div>
 				</div>
-				{% set hasFacets= form.aliasFacet or form.typeFacet %}
+				{% set hasFacets= form.aliasFacet.vars.value or form.typeFacet.vars.value %}
 				{% if hasFacets %}
 				<div class="box-body">
 							Facets : 
-							{% if form.aliasFacet.vars.value %}
-								<a href="{{ path(paginationPath, app.request.query|merge({'search_form[aliasFacet]': '', token: ''})) }}">
-									<span class=" badge bg-{{ attribute(alias, form.aliasFacet.vars.value).color }}" >
-										<i class="fa fa-close"></i>
-										{{ attribute(alias, form.aliasFacet.vars.value).name|humanize }}
-									</span>
-								</a>
-							{% endif %}
 							{% if form.typeFacet.vars.value %}
 								{% if attribute(types, form.typeFacet.vars.value ) is defined %}
 									<a href="{{ path(paginationPath, app.request.query|merge({'search_form[typeFacet]': '', token: ''})) }}">
@@ -59,6 +51,14 @@
 										</span>
 									</a>
 								{% endif %}
+							{% endif %}
+							{% if form.aliasFacet.vars.value %}
+								<a href="{{ path(paginationPath, app.request.query|merge({'search_form[aliasFacet]': '', token: ''})) }}">
+									<span class=" badge bg-{{ attribute(alias, form.aliasFacet.vars.value).color }}" >
+										<i class="fa fa-close"></i>
+										{{ attribute(alias, form.aliasFacet.vars.value).name|humanize }}
+									</span>
+								</a>
 							{% endif %}
 				</div>
 				{% endif %}						
@@ -175,25 +175,6 @@
 		</div>
 	</div>
 	<div id="search-facets" class="col-md-3">
-		{% if not form.aliasFacet.vars.value %}
-			<div class="box">
-				<div class="box-header">
-					<h3 class="box-title"><i class="fa fa-database"></i> Environments</h3>
-				</div>
-				<div class="box-body">
-					<ul class="list-group">
-					{% for index in results.aggregations.indexes.buckets %}
-						<li class="list-group-item">
-							<a href="{{ path(paginationPath, app.request.query|merge({'search_form[aliasFacet]': attribute(indexes, index.key).alias, token: ''})) }}" class="text-{{ attribute(indexes, index.key).color }}">
-								{{ attribute(indexes, index.key).name|humanize }} 
-								<span class=" badge pull-right bg-{{ attribute(indexes, index.key).color }}">{{ index.doc_count }}</span>
-							</a>
-						</li>
-					{% endfor %}
-					</ul>
-				</div>
-			</div>
-		{% endif %}
 		
 		{% if not form.typeFacet.vars.value %}
 			<div class="box">
@@ -217,6 +198,26 @@
 									<span class=" badge pull-right">{{ index.doc_count }}</span>
 								</a>
 							{% endif %}
+						</li>
+					{% endfor %}
+					</ul>
+				</div>
+			</div>
+		{% endif %}
+		
+		{% if not form.aliasFacet.vars.value %}
+			<div class="box">
+				<div class="box-header">
+					<h3 class="box-title"><i class="fa fa-database"></i> Environments</h3>
+				</div>
+				<div class="box-body">
+					<ul class="list-group">
+					{% for index in results.aggregations.indexes.buckets %}
+						<li class="list-group-item">
+							<a href="{{ path(paginationPath, app.request.query|merge({'search_form[aliasFacet]': attribute(indexes, index.key).alias, token: ''})) }}" class="text-{{ attribute(indexes, index.key).color }}">
+								{{ attribute(indexes, index.key).name|humanize }} 
+								<span class=" badge pull-right bg-{{ attribute(indexes, index.key).color }}">{{ index.doc_count }}</span>
+							</a>
 						</li>
 					{% endfor %}
 					</ul>
