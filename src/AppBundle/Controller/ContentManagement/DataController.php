@@ -672,10 +672,18 @@ class DataController extends AppController
 				}
 			}
 			
-			return $this->redirectToRoute('data.revisions', [
-							'ouuid' => $revision->getOuuid(),
-							'type' => $revision->getContentType()->getName(),
-			]);// ('revision.edit', [ 'revisionId' => $revision->getId() ])
+			if(null != $revision->getOuuid()){
+				return $this->redirectToRoute('data.revisions', [
+								'ouuid' => $revision->getOuuid(),
+								'type' => $revision->getContentType()->getName(),
+				]);// ('revision.edit', [ 'revisionId' => $revision->getId() ])				
+			}
+			else{
+
+				return $this->redirectToRoute('data.draft_in_progress', [
+						'contentTypeId' => $revision->getContentType()->getId(),
+				]);
+			}
 				
 		}
 // 		else{
