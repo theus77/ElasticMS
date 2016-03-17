@@ -4,11 +4,17 @@ parameters:
     templating: value
 
 services:
+    app.twig_extension:
+        class: AppBundle\Twig\AppExtension
+        arguments: ['@doctrine']
+        public: false
+        tags:
+            - { name: twig.extension, priority: -2000 }
     app.listener.request:
         class: AppBundle\EventListener\RequestListener
         arguments: ['@twig', '@doctrine']
         tags:
-            - { name: kernel.event_listener, event: kernel.request, method: provideTemplateTwigObjects }
+            - { name: kernel.event_listener, event: kernel.controller, method: provideTemplateTwigObjects, priority: -20 }
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
         factory: [AppBundle\Factories\ElasticsearchClientBuilderFactory, build]

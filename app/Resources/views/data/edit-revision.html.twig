@@ -13,7 +13,7 @@
                 You are editing an already publish revision. Are you sure that is a good idea?
                 Is not a better idea to create a draft: 
                 {% include 'elements/post-button.html.twig' with { 
-							'url': path('revision.new-draft', {'ouuid': revision.ouuid}),
+							'url': path('revision.new-draft', {'ouuid': revision.ouuid, 'type': revision.contentType.name }),
 							'label': 'Edit draft', 
 							'icon': 'pencil' }%} .
         </div>

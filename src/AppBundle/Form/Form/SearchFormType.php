@@ -11,6 +11,8 @@ use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use AppBundle\Form\Subform\SearchFilterType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\FormInterface;
 
 class SearchFormType extends AbstractType {
 	/**
@@ -39,16 +41,37 @@ class SearchFormType extends AbstractType {
 // 				),
 		))->add('search', SubmitEmsType::class, [
 				'attr' => [ 
-						'class' => 'btn-primary' 
+						'class' => 'btn-primary btn-md' 
 				],
 				'icon' => 'fa fa-search'
 		]);
+		
+		if(!$options['savedSearch']){
+			$builder->add('save', SubmitEmsType::class, [
+					'attr' => [ 
+							'class' => 'btn-primary btn-md' 
+					],
+					'icon' => 'fa fa-save',
+			]);
+			
+		}
 	}
 	
 	public function configureOptions(OptionsResolver $resolver)
 	{
 		$resolver->setDefaults([
 				'data_class' => 'AppBundle\Entity\Form\Search',
+				'savedSearch' => false,
 		]);
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function buildView(FormView $view, FormInterface $form, array $options) {
+		/* give options for twig context */
+		parent::buildView ( $view, $form, $options );
 	}
 }

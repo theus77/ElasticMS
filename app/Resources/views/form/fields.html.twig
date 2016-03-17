@@ -114,6 +114,7 @@
 {# 		</div>#}
 		<div class="col-xs-12">
 			<div class="col-md-1">
+					<label class="control-label">&nbsp;</label>
 				{{- form_row(form.inverted) -}}
 			</div>
 			<div class="col-md-2">
@@ -129,7 +130,19 @@
 				{{- form_row(form.boost) -}}
 			</div>
 			<div class="col-md-1">
-				<a class="btn btn-primary remove-filter" href="#"><i class="fa fa-trash"></i></a>
+				<div class="form-group">
+					<label class="control-label">&nbsp;</label>
+{# 					<fieldset class="btn-group">#}
+{# 						{{  form|dump }}#}
+						
+						{% if not form|firstInArray(form.parent.children)  %}
+							<a class="btn btn-primary remove-filter form-control" href="#">
+								<i class="fa fa-trash"></i>
+							</a>
+						{% endif %}					
+{# 						<button class="btn btn-primary remove-filter" href="#"><i class="fa fa-trash"></i></button>					#}
+{# 					</fieldset>#}
+				</div>
 			</div>
 			
 			{{- form_errors(form) -}}

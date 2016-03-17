@@ -9,6 +9,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Form\Form\SearchFormType;
 use AppBundle\Entity\Form\Search;
+use Doctrine\DBAL\Types\TextType;
+use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Entity\Form\SearchFilter;
 
 class ElasticsearchController extends Controller
 {
@@ -47,6 +50,25 @@ class ElasticsearchController extends Controller
 	
 
 	/**
+	 * @Route("/elasticsearch/delete-search/{id}", name="elasticsearch.search.delete"))
+	 */
+	public function deleteSearchAction($id, Request $request)
+	{
+		$em = $this->getDoctrine()->getManager();
+		$repository = $em->getRepository('AppBundle:Form\Search');
+		
+		$search = $repository->find($id);
+		if(!$search) {
+			$this->createNotFoundException('Preset saved search not found');
+		}
+		
+		$em->remove($search);
+		$em->flush();
+		
+		return $this->redirectToRoute("elasticsearch.search");
+	}
+
+	/**
 	 * @Route("/elasticsearch/index/delete/{name}", name="elasticsearch.index.delete"))
 	 */
 	public function deleteIndexAction($name, Request $request)
@@ -72,6 +94,34 @@ class ElasticsearchController extends Controller
 	public function searchAction($query, Request $request)
 	{
 		try {
+			$search = new Search();
+			
+			if ($request->getMethod() == "POST"){
+// 				$request->query->get('search_form')['name'] = $request->request->get('form')['name'];
+				$request->request->set('search_form', $request->query->get('search_form'));
+				
+				
+				$form = $this->createForm ( SearchFormType::class, $search);
+				
+				$form->handleRequest ( $request );
+				/** @var Search $search */
+				$search = $form->getData();
+				$search->setName($request->request->get('form')['name']);
+				$search->setUser($this->getUser()->getUsername());
+				
+				/** @var SearchFilter $filter */
+				foreach ($search->getFilters() as $filter){
+					$filter->setSearch($search);
+				}
+				
+				$em = $this->getDoctrine()->getManager();
+				$em->persist($search);
+				$em->flush();
+				
+				return $this->redirectToRoute('elasticsearch.search', [
+						'searchId' => $search->getId()
+				]);	
+			}
 			
 			if(null != $request->query->get('page')){
 				$page = $request->query->get('page');
@@ -80,18 +130,44 @@ class ElasticsearchController extends Controller
 				$page = 1;
 			}
 			
+			$searchId = $request->query->get('searchId');
+			if(null != $searchId){
+				$em = $this->getDoctrine()->getManager();
+				$repository = $em->getRepository('AppBundle:Form\Search');
+				$search = $repository->find($request->query->get('searchId'));
+				if(! $search){
+					$this->createNotFoundException('Preset search not found');
+				}
+			}
 			
-			$search = new Search();
-
-
 			
 			$form = $this->createForm ( SearchFormType::class, $search, [
-					'method' => 'GET'
+					'method' => 'GET',
+					'savedSearch' => $searchId,
 			] );
 
 			$form->handleRequest ( $request );
 			
-			$form->isValid();
+			if($form->isValid() && $request->query->get('search_form') && array_key_exists('save', $request->query->get('search_form'))) {
+				
+				$form = $this->createFormBuilder($search)
+				->add('name', \Symfony\Component\Form\Extension\Core\Type\TextType::class)
+				->add('save_search', SubmitEmsType::class, [
+						'label' => 'Save',
+						'attr' => [
+								'class' => 'btn btn-primary pull-right'
+						],
+						'icon' => 'fa fa-save',
+				])
+				->getForm();
+				
+				return $this->render( 'elasticsearch/save-search.html.twig', [
+						'form' => $form->createView(),
+				] );				
+			}
+			else if($form->isValid() && $request->query->get('search_form') && array_key_exists('delete', $request->query->get('search_form'))) {
+					$this->addFlash('notice', 'Search has been deleted');
+			}
 			
 			/** @var Search $search */
 			$search = $form->getData();
@@ -185,6 +261,11 @@ class ElasticsearchController extends Controller
 // 			dump($request);
 
 // 			if($lastPage)
+
+			$currentFilters = $request->query;
+// 			$currentFilters->set('page', 1);
+			$currentFilters->remove('search_form[_token]');
+				
 			
 			return $this->render( 'elasticsearch/search.html.twig', [
 					'results' => $results,
@@ -195,6 +276,8 @@ class ElasticsearchController extends Controller
 					'indexes' => $mapIndex,
 					'form' => $form->createView(),
 					'page' => $page,
+					'searchId' => $searchId,
+					'currentFilters' => $request->query,
 			] );
 		}
 		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){

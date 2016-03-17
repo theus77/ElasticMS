@@ -37,14 +37,14 @@ class Search
 	/**
 	 * @var string $typeFacet
 	 * 
-     * @ORM\Column(name="type_facet", type="string", length=100)
+     * @ORM\Column(name="type_facet", type="string", length=100, nullable=true)
 	 */
 	private $typeFacet;
 	
 	/**
 	 * @var string $typeFacet
 	 * 
-     * @ORM\Column(name="alias_facet", type="string", length=100)
+     * @ORM\Column(name="alias_facet", type="string", length=100, nullable=true)
 	 */
 	private $aliasFacet;
 	

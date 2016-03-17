@@ -19,26 +19,31 @@ class SearchFilter
 	 * @ORM\GeneratedValue(strategy="AUTO")
 	 */
 	private $id;
-		
-    
+
+	/**
+	 * @ORM\ManyToOne(targetEntity="Search", inversedBy="filters")
+	 * @ORM\JoinColumn(name="search_id", referencedColumnName="id")
+	 */
+	private $search;
+	
 	/**
 	 * @var string $pattern
 	 * 
-     * @ORM\Column(name="pattern", type="string", length=200)
+     * @ORM\Column(name="pattern", type="string", length=200, nullable=true)
 	 */
 	private $pattern;
 	
 	/**
 	 * @var string $field
 	 * 
-     * @ORM\Column(name="field", type="string", length=100)
+     * @ORM\Column(name="field", type="string", length=100, nullable=true)
 	 */
 	private $field;
 	
 	/**
 	 * @var bool $inverted
 	 * 
-     * @ORM\Column(name="inverted", type="boolean")
+     * @ORM\Column(name="inverted", type="boolean", nullable=true)
 	 */
 	private $inverted;
 	
@@ -52,7 +57,7 @@ class SearchFilter
 	/**
 	 * @var float $boost
 	 * 
-     * @ORM\Column(name="boost", type="decimal", scale=2)
+     * @ORM\Column(name="boost", type="decimal", scale=2, nullable=true)
 	 */
 	private $boost;
 	
@@ -234,5 +239,29 @@ class SearchFilter
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Set search
+     *
+     * @param \AppBundle\Entity\Form\Search $search
+     *
+     * @return SearchFilter
+     */
+    public function setSearch(\AppBundle\Entity\Form\Search $search = null)
+    {
+        $this->search = $search;
+
+        return $this;
+    }
+
+    /**
+     * Get search
+     *
+     * @return \AppBundle\Entity\Form\Search
+     */
+    public function getSearch()
+    {
+        return $this->search;
     }
 }
