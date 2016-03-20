@@ -36,26 +36,27 @@
 
           		
       <!-- Sidebar Menu -->
-      {% set searches = app.user.username|searches %}
-      {% if searches|length > 0 %}
-      <ul class="sidebar-menu">
-        <li class="header">{{ app.user.username }}</li>
-        <!-- Optionally, you can add icons to the links -->
-          <li class="">
-          	<a href="#" class="">
-          		<i class="fa fa-search"></i> <span>Searches</span>
-          		<i class="fa fa-angle-left pull-right"></i>
-          		
-          	</a>
-          	<ul class="treeview-menu">
-          		{% for search in searches %}
-          			<li class=""><a id="menu-search-preset-{{ search.id }}" href="{{ path('elasticsearch.search', { 'searchId': search.id  }) }}"> {{ search.name|humanize }}</a></li>
-          		{% endfor %}
-          	</ul>
-          </li>
-		</ul>
-		{% endif %}
-		
+      {% if app.user %}
+	      {% set searches = app.user.username|searches %}
+	      {% if searches|length > 0 %}
+	      <ul class="sidebar-menu">
+	        <li class="header">{{ app.user.username }}</li>
+	        <!-- Optionally, you can add icons to the links -->
+	          <li class="">
+	          	<a href="#" class="">
+	          		<i class="fa fa-search"></i> <span>Searches</span>
+	          		<i class="fa fa-angle-left pull-right"></i>
+	          		
+	          	</a>
+	          	<ul class="treeview-menu">
+	          		{% for search in searches %}
+	          			<li class=""><a id="menu-search-preset-{{ search.id }}" href="{{ path('elasticsearch.search', { 'searchId': search.id  }) }}"> {{ search.name|humanize }}</a></li>
+	          		{% endfor %}
+	          	</ul>
+	          </li>
+			</ul>
+			{% endif %}
+	{% endif %}
 		
 	{% if contentTypes|length > 0 %}
       <ul class="sidebar-menu">
