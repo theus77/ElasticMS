@@ -53,6 +53,15 @@ DirectoryIndex app.php
     RewriteCond %{REQUEST_FILENAME} -f
     RewriteRule ^ - [L]
 
+    RewriteCond %{HTTP_HOST} ^giib.local$
+    RewriteRule ^ %{ENV:BASE}/app_giib.php [L]
+    RewriteCond %{HTTP_HOST} ^ems.local$
+    RewriteRule ^ %{ENV:BASE}/app_dev.php [L]
+    RewriteCond %{HTTP_HOST} ^instru.local$
+    RewriteRule ^ %{ENV:BASE}/app_instru.php [L]
+    RewriteCond %{HTTP_HOST} ^perso.local$
+    RewriteRule ^ %{ENV:BASE}/app_perso.php [L]
+    
     # Rewrite all other queries to the front controller.
     RewriteRule ^ %{ENV:BASE}/app.php [L]
 </IfModule>
