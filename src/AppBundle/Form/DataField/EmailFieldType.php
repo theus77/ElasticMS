@@ -41,7 +41,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		$builder->add ( 'text_value', EmailType::class, [
-				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
+				'label' => (null != $options ['label']?$options ['label']:'Email field type'),
 				'required' => false,
 		] );
 	}
