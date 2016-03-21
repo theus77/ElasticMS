@@ -527,6 +527,13 @@ class EnvironmentController extends AppController {
 	 */
 	private function switchAlias(Client $client, $alias, $to, $newEnv=false){
 		try{		
+			
+			while ($status = $client->cluster()->health() && $status['number_of_pending_tasks'] > 0){
+				$this->addFlash ( 'notice', $status['number_of_pending_tasks'].' pending task, wait for 0' );
+				sleep(2);
+			}	
+			
+			
 			$result = $client->indices()->getAlias(['name' => $alias]);
 			$index = array_keys ( $result ) [0];
 			$params ['body'] = [ 
