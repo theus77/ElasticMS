@@ -164,7 +164,7 @@
 {%- endblock container_row %}
 
 {% block tabsfieldtype_row -%}
-	<div class="nav-tabs-custom">
+		<div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
               {% for tab in  form.iterator %}
 	              <li class="{% if loop.index == 1%}active{% endif %}"><a href="#{{ tab.vars.id}}__tab" data-toggle="tab" aria-expanded="false">{{- form_label(tab) -}}</a></li>
@@ -185,7 +185,7 @@
               {% endfor %}
             </div>
             <!-- /.tab-content -->
-          </div>             
+         </div>             
 {%- endblock tabsfieldtype_row %}
 
 
