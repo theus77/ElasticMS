@@ -138,6 +138,7 @@ class DataController extends AppController
 			throw new NotFoundHttpException('Content Type not found');
 		}
 		
+		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
 		$revision = $repository->findBy([
 				'endTime' => null,
@@ -153,7 +154,7 @@ class DataController extends AppController
 		$revision = $revision[0];
 		$revision->getDataField()->orderChildren();
 		
-		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid);
+		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid, $contentTypes[0]);
 		
 		$availableEnv = $em->getRepository('AppBundle:Environment')->findAvailableEnvironements(
 				$revision->getContentType()->getEnvironment());
@@ -284,6 +285,7 @@ class DataController extends AppController
 						$this->addFlash('warning', 'The object was already removed from environment '.$environment->getName());						
 					}
 				}
+				$revision->removeEnvironment($environment);
 			}
 			$revision->setDeleted(true);
 			$em->persist($revision);

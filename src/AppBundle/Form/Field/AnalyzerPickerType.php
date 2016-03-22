@@ -8,6 +8,7 @@ class AnalyzerPickerType extends SelectPickerType {
 	
 	private $choices = [
     				'Not defined' => null,
+    				'Standard' => 'standard', 
     				'Arabic' => 'arabic', 
     				'Armenian' => 'armenian', 
     				'Basque' => 'basque', 

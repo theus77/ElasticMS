@@ -4,6 +4,7 @@ namespace AppBundle\Repository;
 
 use AppBundle\Entity\Revision;
 use AppBundle\Entity\Environment;
+use AppBundle\Entity\ContentType;
 
 /**
  * RevisionRepository
@@ -29,14 +30,16 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 	}
 
 
-	public function getAllRevisionsSummary($ouuid) {
+	public function getAllRevisionsSummary($ouuid, ContentType $contentType) {
 	
 		$qb = $this->createQueryBuilder('r');
 		$qb->select('r', 'e');
 		$qb->leftJoin('r.environments', 'e');
 		$qb->where($qb->expr()->eq('r.ouuid', ':ouuid'));
+		$qb->andWhere($qb->expr()->eq('r.contentType', ':contentType'));
 		$qb->orderBy('r.startTime', 'ASC');
 		$qb->setParameter('ouuid', $ouuid);
+		$qb->setParameter('contentType', $contentType);
 	
 		return $qb->getQuery()->getResult();
 	}

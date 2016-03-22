@@ -62,6 +62,7 @@ class SearchFormType extends AbstractType {
 		$resolver->setDefaults([
 				'data_class' => 'AppBundle\Entity\Form\Search',
 				'savedSearch' => false,
+				'csrf_protection' => false,
 		]);
 	}
 	

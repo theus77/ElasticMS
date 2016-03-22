@@ -480,7 +480,7 @@ class EnvironmentController extends AppController {
 				if(count($aliases["aliases"]) == 0 && strcmp($index{0}, '.') != 0 ){
 					$orphanIndexes[] = [
 							'name'=> $index,
-							'total' => $stats['indices'][$index]['total']['docs']['count']
+							'total' => $stats['indices'][$index]['primaries']['docs']['count']
 		
 					];
 				}
@@ -494,7 +494,7 @@ class EnvironmentController extends AppController {
 			foreach ($environments as $environment) {
 				if(isset($temp[$environment->getAlias()])){
 					$environment->setIndex($temp[$environment->getAlias()]);
-					$environment->setTotal($stats['indices'][$temp[$environment->getAlias()]]['total']['docs']['count']);
+					$environment->setTotal($stats['indices'][$temp[$environment->getAlias()]]['primaries']['docs']['count']);
 					unset($temp[$environment->getAlias()]);
 				}
 			}
@@ -503,7 +503,7 @@ class EnvironmentController extends AppController {
 				$unmanagedIndexes[] = [
 						'index' => $index,
 						'name' => $alias,
-						'total' => $stats['indices'][$index]['total']['docs']['count']
+						'total' => $stats['indices'][$index]['primaries']['docs']['count']
 				];
 			}
 		
@@ -526,14 +526,9 @@ class EnvironmentController extends AppController {
 	 * @param string $to
 	 */
 	private function switchAlias(Client $client, $alias, $to, $newEnv=false){
-		try{		
+		try{
 			
-			while ($status = $client->cluster()->health() && $status['number_of_pending_tasks'] > 0){
-				$this->addFlash ( 'notice', $status['number_of_pending_tasks'].' pending task, wait for 0' );
-				sleep(2);
-			}	
-			
-			
+			sleep(2);
 			$result = $client->indices()->getAlias(['name' => $alias]);
 			$index = array_keys ( $result ) [0];
 			$params ['body'] = [ 
