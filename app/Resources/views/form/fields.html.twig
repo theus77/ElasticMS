@@ -163,6 +163,32 @@
 	</div>               
 {%- endblock container_row %}
 
+{% block tabsfieldtype_row -%}
+	<div class="nav-tabs-custom">
+            <ul class="nav nav-tabs">
+              {% for tab in  form.iterator %}
+	              <li class="{% if loop.index == 1%}active{% endif %}"><a href="#{{ tab.vars.id}}__tab" data-toggle="tab" aria-expanded="false">{{- form_label(tab) -}}</a></li>
+              {% endfor %}
+            </ul>
+            <div class="tab-content">
+              {% for tab in  form.iterator %}
+	              <div class="tab-pane{% if loop.index == 1%} active{% endif %}" id="{{ tab.vars.id}}__tab">
+	              	<fieldset>
+					{% if loop.index == 1%}
+	               		{{- form_widget(tab) -}}
+	               	{% else %}
+	               		{{- form_widget(tab) -}}
+	               	{% endif %}
+	                {{- form_errors(tab) -}}
+	              	</fieldset>
+	              </div>
+              {% endfor %}
+            </div>
+            <!-- /.tab-content -->
+          </div>             
+{%- endblock tabsfieldtype_row %}
+
+
 {% block datafieldtype_row -%}
 <div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
 	{% if isContainer %}

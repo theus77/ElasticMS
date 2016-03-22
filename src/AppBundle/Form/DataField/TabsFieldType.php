@@ -17,14 +17,14 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
-class ContainerFieldType extends DataFieldType {
+class TabsFieldType extends DataFieldType {
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 */
 	public function getLabel(){
-		return 'Visual container (invisible in Elasticsearch)';
+		return 'Visual tab container (invisible in Elasticsearch)';
 	}	
 	
 	/**
@@ -32,8 +32,17 @@ class ContainerFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
+	public function getBlockPrefix() {
+		return 'tabsfieldtype';
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
 	public static function getIcon(){
-		return 'glyphicon glyphicon-modal-window';
+		return 'fa fa-object-group';
 	}
 	
 	
@@ -43,7 +52,7 @@ class ContainerFieldType extends DataFieldType {
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-		/* get the metadata assiciate */
+		/* get the metadata associate */
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
 		
@@ -61,28 +70,6 @@ class ContainerFieldType extends DataFieldType {
 		}
 	}
 	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function buildView(FormView $view, FormInterface $form, array $options) {
-		/* give options for twig context */
-		parent::buildView ( $view, $form, $options );
-		$view->vars ['icon'] = $options ['icon'];
-	}
-	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function configureOptions(OptionsResolver $resolver) {
-		/* set the default option value for this kind of compound field */
-		parent::configureOptions ( $resolver );
-		/* an optional icon can't be specified ritgh to the container label */
-		$resolver->setDefault ( 'icon', null );
-	}
 	
 	/**
 	 *
@@ -90,7 +77,6 @@ class ContainerFieldType extends DataFieldType {
 	 *
 	 */
 	public static function buildObjectArray(DataField $data, array &$out) {
-		
 		
 	}
 	
@@ -112,12 +98,8 @@ class ContainerFieldType extends DataFieldType {
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
 		$optionsForm = $builder->get ( 'structuredOptions' );
-		// container aren't mapped in elasticsearch
+		// tabs aren't mapped in elasticsearch
 		$optionsForm->remove ( 'mappingOptions' );
-		// an optional icon can't be specified ritgh to the container label
-		$optionsForm->get ( 'displayOptions' )->add ( 'icon', IconPickerType::class, [ 
-				'required' => false 
-		] );
 	}
 
 

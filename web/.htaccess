@@ -61,6 +61,8 @@ DirectoryIndex app.php
     RewriteRule ^ %{ENV:BASE}/app_instru.php [L]
     RewriteCond %{HTTP_HOST} ^perso.local$
     RewriteRule ^ %{ENV:BASE}/app_perso.php [L]
+    RewriteCond %{HTTP_HOST} ^c2blb.local$
+    RewriteRule ^ %{ENV:BASE}/app_c2blb.php [L]
     
     # Rewrite all other queries to the front controller.
     RewriteRule ^ %{ENV:BASE}/app.php [L]

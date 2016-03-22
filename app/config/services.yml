@@ -29,6 +29,11 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: container }
             - { name: form.type }
+    ems.fieldtype.tabs:
+        class: AppBundle\Form\DataField\TabsFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: tabs }
+            - { name: form.type }
     ems.fieldtype.ouuid:
         class: AppBundle\Form\DataField\OuuidFieldType
         tags:
