@@ -12,6 +12,7 @@ use Doctrine\ORM\EntityManager;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
 
 class ElasticsearchController extends Controller
 {
@@ -86,6 +87,89 @@ class ElasticsearchController extends Controller
 			$this->addFlash('warning', 'Elasticsearch index not found');
 		}
 		return $this->redirectToRoute('environment.index');
+	}
+	
+	/**
+	 * @Route("/search.json", name="elasticsearch.api.search"))
+	 */
+	public function searchApiAction(Request $request)
+	{
+		$pattern = $request->query->get('q');
+		$environment = $request->request->get('environment');
+		$type = $request->request->get('type');
+		
+		
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+			
+		/** @var ContentTypeRepository $contentTypeRepository */
+		$contentTypeRepository = $em->getRepository ( 'AppBundle:ContentType' );
+		
+		$types = $contentTypeRepository->findAllAsAssociativeArray();
+			
+		/** @var EnvironmentRepository $environmentRepository */
+		$environmentRepository = $em->getRepository ( 'AppBundle:Environment' );
+			
+		$environments = $environmentRepository->findAllAsAssociativeArray('alias');
+		
+		if(!$type){
+			$type = array_keys($types);
+		}
+		
+		
+		$alias = array_keys($environments);
+		if($environment){
+			foreach ($environments as $item){
+				if(strcmp($environment, $item['name']) == 0){
+					$alias = $item['alias'];
+				}
+			}			
+		}
+		
+		
+		
+		$params = [
+				'index' => $alias,
+				'type' => $type,
+				'size' => $this->container->getParameter('paging_size'),
+				'body' => [
+						'query' => [
+								'and' => [
+										
+								]
+						]
+				]
+		
+		];
+		
+		
+		$patterns = explode(' ', $pattern);
+		
+		for($i=0; $i < (count($patterns)-1); ++$i){
+			$params['body']['query']['and'][] = [
+					'match' => [
+							'_all' => $patterns[$i]
+					]
+			];
+		}
+		
+		$params['body']['query']['and'][] = [
+				'wildcard' => [
+						'_all' => $patterns[$i].'*'
+				]
+		];
+		
+
+		/** @var \Elasticsearch\Client $client */
+		$client = $this->get('app.elasticsearch');
+		
+		$results = $client->search($params);
+		
+		return $this->render( 'elasticsearch/search.json.twig', [
+				'results' => $results,
+				'types' => $types,
+		] );
+		
 	}
 	
 	/**

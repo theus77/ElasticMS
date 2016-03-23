@@ -1,0 +1,24 @@
+{
+	"total_count": {{results.hits.total}},
+	"incomplete_results": {{ (results.hits.total != results.hits.hits|length)|json_encode() }},
+	"items": [
+	{% for item in results.hits.hits %}
+		{% if loop.index > 1 %},{% endif %}
+		{
+			"id": {{ (item._type~':'~item._id)|json_encode()|raw }},
+			"type": {{ item._type|json_encode()|raw }},
+			"ouuid": {{ item._id|json_encode()|raw }},
+			{% if attribute(types, item._type).labelField is defined %}
+				{% set labelField = attribute(types, item._type).labelField %}
+				{% if attribute(item._source, labelField) is defined %}
+					"text": {{ attribute(item._source, labelField)|json_encode()|raw }}
+				{% else %}
+					"text": {{ item._id|json_encode()|raw }}
+				{% endif %}
+			{% else %}
+				"text": {{ item._id|json_encode()|raw }}
+			{% endif %}
+		}
+	{% endfor %}
+	]
+}

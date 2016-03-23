@@ -47,7 +47,7 @@ class SelectFieldType extends DataFieldType {
 		$labels = explode("\n", str_replace("\r", "", $options['labels']));
 		
 		foreach ($values as $id => $value){
-			if(isset($labels[$id])){
+			if(isset($labels[$id]) && strlen($labels[$id]) > 0){
 				$choices[$labels[$id]] = $value;
 			}
 			else {

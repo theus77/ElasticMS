@@ -39,6 +39,11 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: ouuid }
             - { name: form.type }
+    ems.fieldtype.dataLink:
+        class: AppBundle\Form\DataField\DataLinkFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: datalink }
+            - { name: form.type }
     ems.fieldtype.text:
         class: AppBundle\Form\DataField\TextFieldType
         tags:
@@ -106,6 +111,14 @@ services:
             - { name: ems.form.viewtype, alias: keywords }
             - { name: form.type }
 #### End list available ems views ###
+    ems.form.factories.objectChoiceListFactory:
+        class: AppBundle\Form\Factory\ObjectChoiceListFactory
+        arguments: ['@app.elasticsearch', '@doctrine']
+    ems.form.field.objectpickertype:
+        class: AppBundle\Form\Field\ObjectPickerType
+        arguments: ['@ems.form.factories.objectChoiceListFactory']
+        tags:
+            - { name: form.type }
     ems.form.field.viewtypepickertype:
         class: AppBundle\Form\Field\ViewTypePickerType
         tags:

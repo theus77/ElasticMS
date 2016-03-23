@@ -56,6 +56,28 @@
 {% endmacro %}
 
 
+{% macro AppBundle_Form_DataField_DataLinkFieldType(dataField) %}
+	<dl>
+		{% if dataField.fieldType.displayOptions.label is defined %}
+			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
+		{% else %}
+			<dt>{{ dataField.fieldType.name }}</dt>
+		{% endif %}
+		<dd>
+			{% if dataField.fieldType.displayOptions.multiple %}
+				<ul>
+					{% for value in dataField.arrayValue %}
+						<li>{{ value }}</li>
+					{% endfor %}
+				</ul>
+			{% else %}
+				{{ dataField.textValue }}
+			{% endif %}
+		
+		</dd>
+	</dl>
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_SelectFieldType(dataField) %}
 	<dl>
 		{% if dataField.fieldType.displayOptions.label is defined %}
