@@ -95,8 +95,8 @@ class ElasticsearchController extends Controller
 	public function searchApiAction(Request $request)
 	{
 		$pattern = $request->query->get('q');
-		$environment = $request->request->get('environment');
-		$type = $request->request->get('type');
+		$environment = $request->query->get('environment');
+		$type = $request->query->get('type');
 		
 		
 		/** @var EntityManager $em */

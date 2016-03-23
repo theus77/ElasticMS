@@ -103,17 +103,22 @@ function formatRepo (repo) {
 
 $(window).load(function() {
    		$(".objectpicker").each(function(index){
- 		remoteUrl = $( this ).data('remote-url'); 
 
+
+   			environment = $( this ).data('environment'); 
+   			type = $( this ).data('type'); 
+   			
 	 		$( this ).select2({
 			  ajax: {
-			    url: remoteUrl, //'https://api.github.com/search/repositories',
+			    url: '{{ url("elasticsearch.api.search") }}',
 			    dataType: 'json',
 			    delay: 250,
 			    data: function (params) {
 			      return {
 			        q: params.term, // search term
-			        page: params.page
+			        page: params.page,
+			        environment: environment,
+			        type: type
 			      };
 			    },
 			    processResults: function (data, params) {
@@ -132,7 +137,7 @@ $(window).load(function() {
 			    },
 			    cache: true
 			  },
-			  escapeMarkup: function (markup) { console.log(markup); return markup; }, // let our custom formatter work
+			  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
 			  minimumInputLength: 1,
 			  templateResult: formatRepo, // omitted for brevity, see the source of this page
 			  templateSelection: formatRepoSelection // omitted for brevity, see the source of this page

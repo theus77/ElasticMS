@@ -41,7 +41,6 @@ class ObjectChoiceList implements ChoiceListInterface {
      */
     public function getStructuredValues(){
 		$out = [[]];
-		dump('getStructuredValues');
 		foreach ($this->choices as $key => $choice){
 			$out[0][$key] = $key;
 		}
@@ -88,7 +87,6 @@ class ObjectChoiceList implements ChoiceListInterface {
 			}
 			if(strpos($choice, ':') !== false){
 				$ref = explode(':', $choice);
-				dump($ref);
 				/** @var \AppBundle\Entity\ContentType $contentType */
 				$contentType = $contentTypes[$ref[0]];
 				$item = $this->client->get([

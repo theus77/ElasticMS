@@ -2,17 +2,15 @@
 
 namespace AppBundle\Form\Field;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\ChoiceList\Factory\ChoiceListFactoryInterface;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 
 class ObjectPickerType extends Select2Type {
 	private $choiceLoader;
-	
+
 	
 	public function __construct(ChoiceListFactoryInterface $factory){
 		parent::__construct($factory);
@@ -32,16 +30,11 @@ class ObjectPickerType extends Select2Type {
 		$resolver->setDefaults(array(
 			'required' => false,
 			'choice_loader' => $this->choiceLoader,
-			'attr' => [
-					'data-remote-url' => '/search.json'
-			],
-			'choice_attr' => function($category, $key, $index) {
-				dump('choice_attr');
-				dump($key);
-				return [
-						'data-content' => json_encode($key)
-				];
-			},
+// 			'choice_attr' => function($category, $key, $index) {
+// 				return [
+// 						'data-content' => json_encode($key)
+// 				];
+// 			},
 		    'choice_label' => function ($value, $key, $index) {
 		    	$out = '<i class="'.$key['_typeIcon'].'"></i> ';
 		    	
@@ -55,8 +48,6 @@ class ObjectPickerType extends Select2Type {
 		    	return $out;
 		    },
 			'choice_value' => function ($value) {
-				dump('choice_value');
-				dump($value);
 		       return $value;
 		    },
 		    'multiple' => false,
@@ -64,6 +55,16 @@ class ObjectPickerType extends Select2Type {
 		    'environment' => null,
 		    
 		));
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function buildView(FormView $view, FormInterface $form, array $options) {
+		$view->vars ['attr']['data-environment'] = $options['environment'];
+		$view->vars ['attr']['data-type'] = $options['type'];
 	}
 	
 	/**

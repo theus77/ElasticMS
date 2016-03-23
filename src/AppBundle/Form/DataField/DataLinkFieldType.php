@@ -11,7 +11,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use AppBundle\Form\Field\ObjectPickerType;
-					
+use Symfony\Component\Routing\Router;
+						
 /**
  * Defined a Container content type.
  * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
@@ -20,6 +21,7 @@ use AppBundle\Form\Field\ObjectPickerType;
  *        
  */
  class DataLinkFieldType extends DataFieldType {
+ 	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -47,6 +49,8 @@ use AppBundle\Form\Field\ObjectPickerType;
 
 		/** @var FieldType $fieldType */
 		$fieldType = $options ['metadata'];
+		
+		
 		
 		$builder->add ( 'array_value', ObjectPickerType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
