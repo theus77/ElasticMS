@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ view.name }} of {{contentType.name|humanize}}{% endblock %}
+{% block pagetitle %}{{ view.name }} of {{contentType.name|humanize}}{% endblock %} 
+{# {% block subtitle %}<!-- TODO -->{% endblock %} #}
+
+
+{% block body %}
+
+<div class="row">
+
+	<div class="col-md-12">
+		<div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">Configuration</h3>
+			</div>
+			<!-- /.box-header -->
+			<!-- form start -->
+				<div class="box-body">
+					{% for criteria in criterionList %}
+						<div class="form-group col-md-3">
+							<label for="criterion_{{ loop.index }}">
+								{% if loop.index == criterionList|length %}
+									Column
+								{% elseif (loop.index+1) == criterionList|length  %}
+									Row
+								{% else %}
+									Criterion {{ loop.index }}
+								{% endif %}
+							</label>
+							<select class="form-control" id="criterion_{{ loop.index }}">
+								{% set currentCirterion = loop.index %}
+								
+									{% for option in criterionList %}
+			                    		<option value="{{ option }}" {% if currentCirterion == loop.index %}selected{% endif %}>{{ option|humanize }}</option>
+			                    	{% endfor %}
+			                </select>
+						</div>
+					{% endfor %}
+				</div>
+				<!-- /.box-body -->
+	
+				<div class="box-footer">
+					<button type="submit" class="btn btn-primary" id="applyConfig">Apply</button>
+				</div>
+		</div>
+	</div>
+
+
+	
+
+</div>
+
+{% endblock %} 
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'data-view-'~ contentType.id ~ '-' ~ view.id
+	}%}
+	
+	<script type="text/javascript">
+<!--
+
+//-->
+
+
+
+
+
+
+
+
+</script>
+{% endblock %}	

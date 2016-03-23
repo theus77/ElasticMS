@@ -110,6 +110,12 @@ services:
         tags:
             - { name: ems.form.viewtype, alias: keywords }
             - { name: form.type }
+    ems.view.criteria:
+        class: AppBundle\Form\View\CriteriaViewType
+        arguments: ['@twig', '@app.elasticsearch']
+        tags:
+            - { name: ems.form.viewtype, alias: criteria }
+            - { name: form.type }
 #### End list available ems views ###
     ems.form.factories.objectChoiceListFactory:
         class: AppBundle\Form\Factory\ObjectChoiceListFactory
