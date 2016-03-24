@@ -99,6 +99,10 @@ abstract class DataFieldType extends AbstractType {
 	public static function isContainer() {
 		return false;
 	}
+
+	public function isNested(){
+		return false;
+	}
 	
 	/**
 	 * Build a Field specific options sub-form (or compount field) (used in edit content type).

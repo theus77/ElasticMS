@@ -131,12 +131,17 @@ class FieldTypeType extends AbstractType
     	 
     	$dataFieldType->buildObjectArray($dataField, $out);
     	
+    	
+
     	/** @var DataField $child */
     	foreach ( $dataField->getChildren () as $child ) {
 	    	if (! $child->getFieldType()->getDeleted ()) {
-	    		if(isset($jsonName)){
-	    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateObject($child));
+	    		if( $dataFieldType->isNested() ){
+					$out[$dataFieldType->getJsonName($dataField->getFieldType())] = array_merge($out[$dataFieldType->getJsonName($dataField->getFieldType())], $this->generateObject($child));
 	    		}
+// 	    		else if(isset($jsonName)){
+// 	    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateObject($child));
+// 	    		}
 	    		else{
 	    			$out = array_merge($out, $this->generateObject($child));
 	    		}
@@ -157,7 +162,12 @@ class FieldTypeType extends AbstractType
     	foreach ( $fieldType->getChildren () as $child ) {
 	    	if (! $child->getDeleted ()) {
 	    		if(isset($jsonName)){
-	    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateMapping($child));
+	    			if(isset($out[$jsonName]["properties"])){
+		    			$out[$jsonName]["properties"] = array_merge($out[$jsonName]["properties"], $this->generateMapping($child));
+	    			}
+	    			else{
+		    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateMapping($child));	    				
+	    			}
 	    		}
 	    		else{
 		    		$out = array_merge($out, $this->generateMapping($child));	    			

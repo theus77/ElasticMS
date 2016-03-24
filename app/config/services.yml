@@ -29,6 +29,11 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: container }
             - { name: form.type }
+    ems.fieldtype.nested:
+        class: AppBundle\Form\DataField\NestedFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: nested }
+            - { name: form.type }
     ems.fieldtype.tabs:
         class: AppBundle\Form\DataField\TabsFieldType
         tags:

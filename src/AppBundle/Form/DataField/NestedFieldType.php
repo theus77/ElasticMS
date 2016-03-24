@@ -9,22 +9,23 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 /**
- * Defined a Container content type.
- * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
+ * Defined a Nested obecjt.
+ * It's used to  groups subfields together.
  *
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
-class ContainerFieldType extends DataFieldType {
+class NestedFieldType extends DataFieldType {
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 */
 	public function getLabel(){
-		return 'Visual container (invisible in Elasticsearch)';
+		return 'Nested object';
 	}	
 	
 	/**
@@ -70,6 +71,7 @@ class ContainerFieldType extends DataFieldType {
 		/* give options for twig context */
 		parent::buildView ( $view, $form, $options );
 		$view->vars ['icon'] = $options ['icon'];
+		$view->vars ['multiple'] = $options ['multiple'];
 	}
 	
 	/**
@@ -82,6 +84,7 @@ class ContainerFieldType extends DataFieldType {
 		parent::configureOptions ( $resolver );
 		/* an optional icon can't be specified ritgh to the container label */
 		$resolver->setDefault ( 'icon', null );
+		$resolver->setDefault ( 'multiple', false );
 	}
 	
 	/**
@@ -90,8 +93,15 @@ class ContainerFieldType extends DataFieldType {
 	 *
 	 */
 	public static function buildObjectArray(DataField $data, array &$out) {
-		
-		
+		if (! $data->getFieldType ()->getDeleted ()) {
+			$out [$data->getFieldType ()->getName ()] = [];
+		}
+	}
+
+
+
+	public function isNested(){
+		return true;
 	}
 	
 	/**
@@ -112,22 +122,14 @@ class ContainerFieldType extends DataFieldType {
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
 		$optionsForm = $builder->get ( 'structuredOptions' );
-		// container aren't mapped in elasticsearch
+		// nested doesn't not have that much options in elasticsearch
 		$optionsForm->remove ( 'mappingOptions' );
 		// an optional icon can't be specified ritgh to the container label
 		$optionsForm->get ( 'displayOptions' )->add ( 'icon', IconPickerType::class, [ 
 				'required' => false 
+		] )->add ( 'multiple', CheckboxType::class, [ 
+				'required' => false,
 		] );
-	}
-
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public static function getJsonName(FieldType $current){
-		return null;
 	}
 	
 	/**
@@ -136,6 +138,10 @@ class ContainerFieldType extends DataFieldType {
 	 *
 	 */
 	public static function generateMapping(FieldType $current) {
-		return [];
+		return [
+			$current->getName() => [
+				"type" => "nested",
+				"properties" => [],
+		]];
 	}
 }

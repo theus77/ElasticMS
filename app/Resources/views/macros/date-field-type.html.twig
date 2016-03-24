@@ -31,6 +31,34 @@
 	{% endif %}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_NestedFieldType(dataField) %}
+    {% if dataField.fieldType.displayOptions.label is defined %}
+    	<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">
+					{% if dataField.fieldType.displayOptions.icon is defined %}
+						<i class="{{ dataField.fieldType.displayOptions.icon }}"></i> 
+					{% endif %}
+					{% if dataField.fieldType.displayOptions.label is defined %}
+						{{ dataField.fieldType.displayOptions.label }}
+					{% else %}
+						{{ dataField.fieldType.name }}
+					{% endif %}
+				</h3>
+			</div>
+			<div class="panel-body">
+	{% endif %}
+		{% for child in dataField.children if not child.fieldType.deleted %}
+			<div class="{% if child.fieldType.displayOptions.class is defined and child.fieldType.displayOptions.class  %}{{ child.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
+				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
+			</div>
+		{% endfor %}
+    {% if dataField.fieldType.displayOptions.label is defined %}
+    		</div>
+		</div>
+	{% endif %}
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_TabsFieldType(dataField) %}
 		<div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
