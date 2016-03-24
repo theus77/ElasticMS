@@ -16,6 +16,7 @@
 			</div>
 			<!-- /.box-header -->
 			<!-- form start -->
+			<form action="{{ url('views.criteria.table') }}" method="get" name="criteriaconfig">
 				<div class="box-body">
 					{% for criteria in criterionList %}
 						<div class="form-group col-md-3">
@@ -25,10 +26,10 @@
 								{% elseif (loop.index+1) == criterionList|length  %}
 									Row
 								{% else %}
-									Criterion {{ loop.index }}
+									Criterion {{ loop.index }} (field)
 								{% endif %}
 							</label>
-							<select class="form-control" id="criterion_{{ loop.index }}">
+							<select data-filter="criterion_filter_{{ loop.index }}"  class="form-control select2 select2FieldTarget" id="criterion_{{ loop.index }}" name="criterion[{{ loop.index-1 }}][field]">
 								{% set currentCirterion = loop.index %}
 								
 									{% for option in criterionList %}
@@ -36,6 +37,15 @@
 			                    	{% endfor %}
 			                </select>
 						</div>
+						{% if loop.index < (criterionList|length - 1)  %}
+							<div class="form-group col-md-3">
+								<label for="criterion_filter_{{ loop.index }}">
+									Criterion {{ loop.index }} (filter)
+								</label>
+								<select data-field-target="criterion_{{ loop.index }}" class="form-control select2Filter" id="criterion_filter_{{ loop.index }}" name="criterion[{{ loop.index-1 }}][filter]">
+				                </select>
+							</div>
+						{% endif %}
 					{% endfor %}
 				</div>
 				<!-- /.box-body -->
@@ -43,12 +53,14 @@
 				<div class="box-footer">
 					<button type="submit" class="btn btn-primary" id="applyConfig">Apply</button>
 				</div>
+			</form>
 		</div>
 	</div>
+</div>
 
-
-	
-
+<div class="row">
+	<div class="col-md-12" id="table_container">
+	</div>
 </div>
 
 {% endblock %} 
@@ -63,8 +75,120 @@
 <!--
 
 //-->
+function formatRepo (repo) {
+    if (repo.loading) return repo.text;
 
+    var markup = "<div class='select2-result-repository clearfix'>" +
+      repo.text + "</div>";
+      
+    return markup;
+  }
 
+  function formatRepoSelection (repo) {
+    return repo.text;
+  }
+
+$(window).load(function() {
+
+	$('#applyConfig').click(function(event){
+		event.preventDefault();
+		var formContent = $("form[name=criteriaconfig").serialize();
+
+		$('#table_container').empty();
+		
+		$.get("{{ url('views.criteria.table') }}", formContent+'&contentTypeId={{ contentType.id }}')
+		  .done(function(message) {
+
+			  $('#table_container').append(message);
+
+			  $('#table_container select').select2({
+				  ajax: {
+					    url: '{{ url("elasticsearch.api.search") }}',
+					    dataType: 'json',
+					    delay: 250,
+					    data: function (params) {
+					      return {
+					        q: params.term, // search term
+//					        environment: ,
+// 					        type: type,
+					        page: params.page
+					      };
+					    },
+					    processResults: function (data, params) {
+					      // parse the results into the format expected by Select2
+					      // since we are using custom formatting functions we do not need to
+					      // alter the remote JSON data, except to indicate that infinite
+					      // scrolling can be used
+					      params.page = params.page || 1;
+					
+					      return {
+					        results: data.items,
+					        pagination: {
+					          more: (params.page * 30) < data.total_count
+					        }
+					      };
+					    },
+					    cache: true
+					  },
+					  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+					  minimumInputLength: 1,
+					  templateResult: formatRepo, // omitted for brevity, see the source of this page
+					  templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+					});
+			  
+		  })
+		  .fail(function() {
+			alert( "Unable to retrieve the criteria table." );
+		  })
+		  .always(function() {
+// 			globalWaitingResponse = false;
+		});
+	});
+
+	$(".select2Filter").each(function(){
+		
+		var targetField = $("#"+$(this).data('field-target'));
+
+		$( this ).select2({
+			  ajax: {
+			    url: '{{ url("views.criteria.fieldFilter") }}',
+			    dataType: 'json',
+			    delay: 250,
+			    data: function (params) {
+				    
+			      return {
+			        q: params.term, // search term
+			        page: params.page,
+			        targetField: targetField.val(),
+			        contentTypeId: {{ contentType.id|json_encode|raw }}
+			        
+			      };
+			    },
+			    processResults: function (data, params) {
+			      // parse the results into the format expected by Select2
+			      // since we are using custom formatting functions we do not need to
+			      // alter the remote JSON data, except to indicate that infinite
+			      // scrolling can be used
+			      params.page = params.page || 1;
+			
+			      return {
+			        results: data.items,
+			        pagination: {
+			          more: (params.page * 30) < data.total_count
+			        }
+			      };
+			    },
+			    cache: true
+			  },
+			  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+			  minimumInputLength: 0,
+			  templateResult: formatRepo, // omitted for brevity, see the source of this page
+			  templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+			});
+		
+	});
+	
+});
 
 
 

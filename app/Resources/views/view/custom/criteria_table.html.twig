@@ -1,0 +1,63 @@
+	<form role="form">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">Data Table With Full Features</h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<div id="example1_wrapper"
+					class="dataTables_wrapper form-inline dt-bootstrap">
+					<div class="row">
+						<div class="col-sm-12">
+							<table id="example1"
+								class="table table-bordered table-striped dataTable" role="grid"
+								aria-describedby="example1_info">
+								<thead>
+									<tr role="row">
+										<th rowspan="1" colspan="1">&nbsp;</th>
+										{% for columnIdx in table|first|keys %}
+											<th rowspan="1" colspan="1">{{ columnIdx|humanize }}</th>	
+										{% endfor %}
+									</tr>
+								</thead>
+								<tbody>
+									{% for rowIdx in table|keys %}
+										<tr role="row">
+											<th>{{ rowIdx|humanize }}</th>
+											{% for row in attribute(table, rowIdx) %}
+												<td class="row">
+{# 													<div class="form-group col-md-12">#}
+								                  <select style="width: 100%" multiple>
+								                  	{% for card in row %}
+									                    <option selected>{{ card }}</option>
+								                  	{% endfor %}
+								                  </select>
+{# 													</div>#}
+												</td>
+											{% endfor %}
+										</tr>
+									{% endfor %}
+{# 									<tr role="row" class="odd">#}
+{# 										<td class="sorting_1">Gecko</td>#}
+{# 										<td>Firefox 1.0</td>#}
+{# 										<td>Win 98+ / OSX.2+</td>#}
+{# 										<td>1.7</td>#}
+{# 										<td>A</td>#}
+{# 									</tr>#}
+								</tbody>
+								<tfoot>
+									<tr>
+										<th rowspan="1" colspan="1">&nbsp;</th>
+										{% for columnIdx in table|first|keys %}
+											<th rowspan="1" colspan="1">{{ columnIdx|humanize }}</th>	
+										{% endfor %}
+									</tr>
+								</tfoot>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-body -->
+		</div>
+	</form>

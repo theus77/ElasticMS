@@ -54,38 +54,9 @@
 
 
 {% block javascripts %}
-	{% if revision.draft %}
-		{% include 'app/menu.html.twig' with {
-			'item':  'data-draft-' ~ revision.contentType.id
-		}%}
+
 <script type="text/javascript">
-<!--
 
-//-->
-
-var globalWaitingResponse = false;
-
-function onFormChange(){
-	if(!globalWaitingResponse){
-		globalWaitingResponse = true;
-		$.post('{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}', $("form[name={{ form.vars.id }}]").serialize())
-		  .done(function(message) {
-			  var response = jQuery.parseJSON( message );
-
-			  $('.has-error').removeClass('has-error');
-			  
-			  $(response.errors).each(function(index, item){
-				  $('#'+item.propertyPath).parent().addClass('has-error');
-			  });
-		  })
-		  .fail(function() {
-			alert( "The autosave returns an error! Please try to refresh the page." );
-		  })
-		  .always(function() {
-			globalWaitingResponse = false;
-		});
-	}
-}
 
 function formatRepo (repo) {
     if (repo.loading) return repo.text;
@@ -101,8 +72,8 @@ function formatRepo (repo) {
   }
 
 
-$(window).load(function() {
-   		$(".objectpicker").each(function(index){
+  $(window).load(function() {
+	  		$(".objectpicker").each(function(index){
 
 
    			environment = $( this ).data('environment'); 
@@ -145,6 +116,48 @@ $(window).load(function() {
 
     
     });
+
+  });
+
+</script>
+
+
+	{% if revision.draft %}
+		{% include 'app/menu.html.twig' with {
+			'item':  'data-draft-' ~ revision.contentType.id
+		}%}
+<script type="text/javascript">
+<!--
+
+//-->
+
+var globalWaitingResponse = false;
+
+function onFormChange(){
+	if(!globalWaitingResponse){
+		globalWaitingResponse = true;
+		$.post("{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}", $("form[name={{ form.vars.id }}]").serialize())
+		  .done(function(message) {
+			  var response = jQuery.parseJSON( message );
+
+			  $('.has-error').removeClass('has-error');
+			  
+			  $(response.errors).each(function(index, item){
+				  $('#'+item.propertyPath).parent().addClass('has-error');
+			  });
+		  })
+		  .fail(function() {
+			alert( "The autosave returns an error! Please try to refresh the page." );
+		  })
+		  .always(function() {
+			globalWaitingResponse = false;
+		});
+	}
+}
+
+
+$(window).load(function() {
+
 
 
 

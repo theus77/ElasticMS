@@ -12,7 +12,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use AppBundle\Form\Field\ObjectPickerType;
 use Symfony\Component\Routing\Router;
-						
+use AppBundle\Entity\DataField;
+							
 /**
  * Defined a Container content type.
  * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
@@ -38,6 +39,23 @@ use Symfony\Component\Routing\Router;
 	 */
 	public static function getIcon(){
 		return 'fa fa-sitemap';
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function buildObjectArray(DataField $data, array &$out) {
+		if (! $data->getFieldType ()->getDeleted ()) {
+			if($data->getFieldType()->getDisplayOptions()['multiple']){
+				$out [$data->getFieldType ()->getName ()] = $data->getArrayValue();
+			}
+			else{
+				parent::buildObjectArray($data, $out);
+			}
+				
+		}
 	}
 	
 	/**
