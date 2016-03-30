@@ -49,7 +49,7 @@ use AppBundle\Entity\DataField;
 	public static function buildObjectArray(DataField $data, array &$out) {
 		if (! $data->getFieldType ()->getDeleted ()) {
 			if($data->getFieldType()->getDisplayOptions()['multiple']){
-				$out [$data->getFieldType ()->getName ()] = $data->getArrayValue();
+				$out [$data->getFieldType ()->getName ()] = $data->getArrayTextValue();
 			}
 			else{
 				parent::buildObjectArray($data, $out);
@@ -70,7 +70,7 @@ use AppBundle\Entity\DataField;
 		
 		
 		
-		$builder->add ( 'array_value', ObjectPickerType::class, [
+		$builder->add ( 'array_text_value', ObjectPickerType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'required' => false,
 				'multiple' => $options['multiple'],

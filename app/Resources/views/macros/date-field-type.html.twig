@@ -94,7 +94,7 @@
 		<dd>
 			{% if dataField.fieldType.displayOptions.multiple %}
 				<ul>
-					{% for value in dataField.arrayValue %}
+					{% for value in dataField.arrayTextValue %}
 						<li>{{ value }}</li>
 					{% endfor %}
 				</ul>
@@ -301,7 +301,7 @@
 			{% endif %}
 		</dt>
 		<dd>
-			{{ dataField.textValue }}
+			{{ dataField.dateValue }}
 		</dd>
 	</dl>
 {% endmacro %}

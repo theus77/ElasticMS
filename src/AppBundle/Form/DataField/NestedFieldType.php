@@ -127,8 +127,6 @@ class NestedFieldType extends DataFieldType {
 		// an optional icon can't be specified ritgh to the container label
 		$optionsForm->get ( 'displayOptions' )->add ( 'icon', IconPickerType::class, [ 
 				'required' => false 
-		] )->add ( 'multiple', CheckboxType::class, [ 
-				'required' => false,
 		] );
 	}
 	
