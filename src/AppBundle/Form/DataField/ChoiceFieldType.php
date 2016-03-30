@@ -40,7 +40,7 @@ class ChoiceFieldType extends DataFieldType {
 	public static function buildObjectArray(DataField $data, array &$out) {
 		if (! $data->getFieldType ()->getDeleted ()) {
 			if($data->getFieldType()->getDisplayOptions()['multiple']){
-				$out [$data->getFieldType ()->getName ()] = $data->getArrayValue();
+				$out [$data->getFieldType ()->getName ()] = $data->getArrayTextValue();
 			}
 			else{
 				parent::buildObjectArray($data, $out);
@@ -72,7 +72,7 @@ class ChoiceFieldType extends DataFieldType {
 			}
 		}
 		
-		$builder->add ( $options['multiple']?'array_value':'text_value', ChoiceType::class, [ 
+		$builder->add ( $options['multiple']?'array_text_value':'text_value', ChoiceType::class, [ 
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
 				'required' => false,
 				'choices' => $choices,

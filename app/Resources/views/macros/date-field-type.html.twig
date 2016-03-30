@@ -116,7 +116,7 @@
 		<dd>
 			{% if dataField.fieldType.displayOptions.multiple %}
 				<ul>
-					{% for value in dataField.arrayValue %}
+					{% for value in dataField.arrayTextValue if value  %}
 						<li>{{ value }}</li>
 					{% endfor %}
 				</ul>
@@ -249,7 +249,7 @@
 		</dt>
 		<dd>
 			<ul>
-				{% for value in dataField.arrayValue %}
+				{% for value in dataField.arrayTextValue if value %}
 					<li>{{ value|raw }}</li>
 				{% endfor %}
 			</ul>
