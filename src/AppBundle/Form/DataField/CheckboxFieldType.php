@@ -57,7 +57,7 @@ class CheckboxFieldType extends DataFieldType {
 			 * by default it serialize the text value.
 			 * It can be overrided.
 			 */
-			$out [$data->getFieldType ()->getName ()] = $data->getIntegerValue();
+			$out [$data->getFieldType ()->getName ()] = $data->getBooleanValue();
 		}
 	}
 	

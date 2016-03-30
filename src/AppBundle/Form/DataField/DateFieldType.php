@@ -40,7 +40,7 @@ class DateFieldType extends DataFieldType {
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
 	
-		$builder->add ( 'text_value', TextType::class, [
+		$builder->add ( 'date_value', TextType::class, [
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
 				'required' => false,
 				'attr' => [
@@ -61,6 +61,15 @@ class DateFieldType extends DataFieldType {
 						"type" => "date",
 				],  array_filter($current->getMappingOptions()))
 		];
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public static function buildObjectArray(DataField $data, array &$out) {
+		if (! $data->getFieldType ()->getDeleted ()) {
+			$out [$data->getFieldType ()->getName ()] = $data->getDateValue();
+		}
 	}
 	
 	/**

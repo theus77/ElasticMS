@@ -358,7 +358,15 @@ class DataField
 			$value = new DataValue ();
 			$this->dataValues->set ( 0, $value );
 		}
-		$value->setDateValue( $dateValue );
+		
+		$dateFormat = $this->getFieldType()->getMappingOptions()['format'];
+
+		//TODO: naive approch....find a way to comvert java date format into php
+		$dateFormat = str_replace('dd', 'd', $dateFormat);
+		$dateFormat = str_replace('mm', 'm', $dateFormat);
+		$dateFormat = str_replace('yyyy', 'Y', $dateFormat);
+		
+		$value->setDateValue( \DateTime::createFromFormat($dateFormat, $dateValue) );
 		$value->setIndexKey(0);
 		$value->setDataField($this);
 		
@@ -374,7 +382,14 @@ class DataField
 		/** @var DataValue $value */
 		$value = $this->dataValues->get ( 0 );
 		if ($value) {
-			return $value->getDateValue();
+			$dateFormat = $this->getFieldType()->getMappingOptions()['format'];
+			
+			//TODO: naive approch.... find a way to comvert java date format into php
+			$dateFormat = str_replace('dd', 'd', $dateFormat);
+			$dateFormat = str_replace('mm', 'm', $dateFormat);
+			$dateFormat = str_replace('yyyy', 'Y', $dateFormat);
+			
+			return $value->getDateValue()->format($dateFormat);
 		}
 		
 		return null;
@@ -395,7 +410,6 @@ class DataField
 			}
 		}
 		$count = 0;
-		dump($arrayValue);
 		foreach ($arrayValue as $textValue) {
 			$data = $this->dataValues->get($count);
 			if(!isset($data)) {
@@ -474,8 +488,7 @@ class DataField
 		/** @var DataValue $value */
 		$value = $this->dataValues->get ( 0 );
 		if ($value) {
-			dump($value);
-			return $value->getIntegerValue() !== 0;
+			return $value->getIntegerValue() != 0;
 		}
 		
 		return null;
