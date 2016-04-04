@@ -6,6 +6,10 @@ use AppBundle\Form\DataField\OuuidFieldType;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
+use AppBundle\Form\DataField\CollectionFieldType;
+use AppBundle\Form\DataField\DateFieldType;
 
 /**
  * DataField
@@ -15,7 +19,7 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  * @ORM\HasLifecycleCallbacks()
  * @Assert\Callback({"Vendor\Package\Validator", "validate"})
  */
-class DataField
+class DataField implements \ArrayAccess, \IteratorAggregate
 {
     /**
      * @var int
@@ -82,6 +86,51 @@ class DataField
      */
     private $dataValues;
 
+    
+    public function setChildrenFieldType(FieldType $fieldType){
+    	//TODO: test if sub colletion for nested collection
+    	/** @var FieldType $subType */
+    	$this->children->first();
+    	foreach ($fieldType->getChildren() as $subType){
+    		if(! $subType->getDeleted() ){
+    			$child = $this->children->current();
+	    		if($child){
+	    			$child->setFieldType($subType);
+	    			$child->setOrderKey($subType->getOrderKey());
+	    			$child->setChildrenFieldType($subType);		
+	    		}  		
+	    		$this->children->next();
+    		}
+    	}
+    }
+    
+    public function offsetSet($offset, $value) {
+    	/** @var DataField $value */
+    	$value->setParent($this);
+    	$value->setRevisionIdRecursively($this->getRevisionId());
+    	$value->setOrderKey($offset);
+    	$value->setChildrenFieldType($this->fieldType);
+    	return $this->children->offsetSet($offset, $value);
+    }
+    
+    public function offsetExists($offset) {
+    	return $this->children->offsetExists($offset);
+    }
+    
+    public function offsetUnset($offset) {
+    	return $this->children->offsetUnset($offset);
+    }
+    
+    public function offsetGet($offset) {
+    	return $this->children->offsetGet($offset);
+    }   
+    
+    
+
+    public function getIterator() {
+    	return $this->children->getIterator();
+    }
+    
     
     /**
      * @Assert\Callback
@@ -180,20 +229,88 @@ class DataField
     		$key = substr($key, 4);
     	}
     	
-    	$found = false;
-    	/** @var DataField $dataField */
-    	foreach ($this->children as &$dataField){
-    		if(null != $dataField->getFieldType() && !$dataField->getFieldType()->getDeleted() && strcmp($key,  $dataField->getFieldType()->getName()) == 0){
-    			$found = true;
-    			$dataField = $input;
-    			break;
-    		}
+    	if($input instanceof DataField){
+	    	$found = false;
+	    	/** @var DataField $input */
+	    	$input->setParent($this);
+	    	$input->setRevisionId($this->getRevisionId());
+	    	
+	    	
+	    	/** @var DataField $dataField */
+	    	foreach ($this->children as &$dataField){
+	    		if(null != $dataField->getFieldType() && !$dataField->getFieldType()->getDeleted() && strcmp($key,  $dataField->getFieldType()->getName()) == 0){
+	    			$found = true;
+	    			$dataField = $input;
+	    			break;
+	    		}
+	    	}
+	    	if(! $found){    		
+		    	$this->children->add($input);
+	    	}    		
     	}
-    	if(! $found){    		
-	    	$this->children->add($input);
+    	else {
+    		throw new \Exception('__set a DataField wich is not a valid object'.$key);
     	}
 	    	
     	return $this;
+    }
+
+
+    public function setRevisionIdRecursively($revisionId)
+    {
+    	$this->revision_id = $revisionId;
+    	foreach ($this->children as $child){
+    		$child->setRevisionIdRecursively($revisionId);
+    	}
+    
+    	return $this;
+    }
+    
+    public function updateDataStructure(FieldType $meta){
+    
+    	//no need to generate the structure for subfields (
+    	$type = $this->getFieldType()->getType();
+    	$datFieldType = new $type;
+    	if($datFieldType->isContainer()){
+    		/** @var FieldType $field */
+    		foreach ($meta->getChildren() as $field){
+    			//no need to generate the structure for delete field
+    			if(!$field->getDeleted()){
+    				$child = $this->__get('ems_'.$field->getName());
+    				if(null == $child){
+    					$child = new DataField();
+    					$child->setFieldType($field);
+    					$child->setOrderKey($field->getOrderKey());
+    					$child->setParent($this);
+    					$child->setRevisionId($this->getRevisionId());
+    					$this->addChild($child);
+    				}
+    				if( strcmp($field->getType(), CollectionFieldType::class) != 0 ) {
+    					$child->updateDataStructure($field);
+    				}
+    			}
+    		}
+    	}
+    }
+    
+    
+    public function linkFieldType(PersistentCollection $fieldTypes){
+    	
+    	$index = 0;
+    	/** @var FieldType $fieldType */
+    	foreach ($fieldTypes as $fieldType){
+    		if(!$fieldType->getDeleted()){
+    			/** @var DataField $child */
+    			$child = $this->children->get($index);
+    			$child->setFieldType($fieldType);
+    			$child->setParent($this);
+	    		$child->setRevisionId($this->getRevisionId());
+	    		$child->linkFieldType($fieldType->getChildren());
+	    		++$index;
+    		}
+    	}
+    
+    	
     }
     
     /**
@@ -210,12 +327,18 @@ class DataField
      		$key = substr($key, 4);
      	}
      	
-    	/** @var DataField $dataField */
-    	foreach ($this->children as $dataField){
-    		if(null != $dataField->getFieldType() && !$dataField->getFieldType()->getDeleted() && strcmp($key,  $dataField->getFieldType()->getName()) == 0){
-    			return $dataField;
-    		}
-    	}
+     	if($this->getFieldType() && strcmp ($this->getFieldType()->getType(), CollectionFieldType::class) == 0){
+      		//Symfony wants iterate on children
+     		return $this;
+     	}
+     	else {     		
+	    	/** @var DataField $dataField */
+	    	foreach ($this->children as $dataField){
+	    		if(null != $dataField->getFieldType() && !$dataField->getFieldType()->getDeleted() && strcmp($key,  $dataField->getFieldType()->getName()) == 0){	    			
+	    			return $dataField;
+	    		}
+	    	}
+     	}
     	
     	return null;
     }

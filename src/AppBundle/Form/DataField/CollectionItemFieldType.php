@@ -9,7 +9,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 /**
  * Defined a Nested obecjt.
@@ -18,14 +17,14 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
-class NestedFieldType extends DataFieldType {
+class CollectionItemFieldType extends DataFieldType {
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 */
 	public function getLabel(){
-		return 'Nested object';
+		return 'Collection item object (this message should neve seen anywhere)';
 	}	
 	
 	/**
@@ -34,7 +33,16 @@ class NestedFieldType extends DataFieldType {
 	 *
 	 */
 	public static function getIcon(){
-		return 'glyphicon glyphicon-modal-window';
+		return 'fa fa-question';
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getBlockPrefix() {
+		return 'collectionitemtype';
 	}
 	
 	
@@ -62,30 +70,25 @@ class NestedFieldType extends DataFieldType {
 		}
 	}
 	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function buildView(FormView $view, FormInterface $form, array $options) {
-		/* give options for twig context */
-		parent::buildView ( $view, $form, $options );
-		$view->vars ['icon'] = $options ['icon'];
-		$view->vars ['multiple'] = $options ['multiple'];
-	}
+// 	/**
+// 	 *
+// 	 * {@inheritdoc}
+// 	 *
+// 	 */
+// 	public function buildView(FormView $view, FormInterface $form, array $options) {
+// 		/* give options for twig context */
+// 		parent::buildView ( $view, $form, $options );
+// 	}
 	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function configureOptions(OptionsResolver $resolver) {
-		/* set the default option value for this kind of compound field */
-		parent::configureOptions ( $resolver );
-		/* an optional icon can't be specified ritgh to the container label */
-		$resolver->setDefault ( 'icon', null );
-		$resolver->setDefault ( 'multiple', false );
-	}
+// 	/**
+// 	 *
+// 	 * {@inheritdoc}
+// 	 *
+// 	 */
+// 	public function configureOptions(OptionsResolver $resolver) {
+// 		/* set the default option value for this kind of compound field */
+// 		parent::configureOptions ( $resolver );
+// 	}
 	
 	/**
 	 *
@@ -124,21 +127,21 @@ class NestedFieldType extends DataFieldType {
 		return true;
 	}
 	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
-		parent::buildOptionsForm ( $builder, $options );
-		$optionsForm = $builder->get ( 'structuredOptions' );
-		// nested doesn't not have that much options in elasticsearch
-		$optionsForm->remove ( 'mappingOptions' );
-		// an optional icon can't be specified ritgh to the container label
-		$optionsForm->get ( 'displayOptions' )->add ( 'icon', IconPickerType::class, [ 
-				'required' => false 
-		] );
-	}
+// 	/**
+// 	 *
+// 	 * {@inheritdoc}
+// 	 *
+// 	 */
+// 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
+// 		parent::buildOptionsForm ( $builder, $options );
+// 		$optionsForm = $builder->get ( 'structuredOptions' );
+// 		// nested doesn't not have that much options in elasticsearch
+// 		$optionsForm->remove ( 'mappingOptions' );
+// 		// an optional icon can't be specified ritgh to the container label
+// 		$optionsForm->get ( 'displayOptions' )->add ( 'icon', IconPickerType::class, [ 
+// 				'required' => false 
+// 		] );
+// 	}
 	
 	/**
 	 *

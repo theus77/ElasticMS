@@ -5,27 +5,29 @@ namespace AppBundle\Form\DataField;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
 use AppBundle\Form\Field\IconPickerType;
+use AppBundle\Form\Field\SubmitEmsType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 /**
- * Defined a Nested obecjt.
- * It's used to  groups subfields together.
+ * Defined a Container content type.
+ * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
  *
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
-class NestedFieldType extends DataFieldType {
+class CollectionFieldType extends DataFieldType {
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 */
 	public function getLabel(){
-		return 'Nested object';
+		return 'Collection (manage array of children types)';
 	}	
 	
 	/**
@@ -34,7 +36,7 @@ class NestedFieldType extends DataFieldType {
 	 *
 	 */
 	public static function getIcon(){
-		return 'glyphicon glyphicon-modal-window';
+		return 'fa fa-plus fa-rotate';
 	}
 	
 	
@@ -46,20 +48,26 @@ class NestedFieldType extends DataFieldType {
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		/* get the metadata associate */
 		/** @var FieldType $fieldType */
-		$fieldType = $builder->getOptions () ['metadata'];
+		$fieldType = clone $builder->getOptions () ['metadata'];
 		
-		/** @var FieldType $fieldType */
-		foreach ( $fieldType->getChildren () as $fieldType ) {
-
-			if (! $fieldType->getDeleted ()) {
-				/* merge the default options with the ones specified by the user */
-				$options = array_merge ( [ 
+		$builder->add('ems_' . $fieldType->getName(), CollectionType::class, array(
+				// each entry in the array will be an "email" field
+				'entry_type' => CollectionItemFieldType::class,
+				// these options are passed to each "email" type
+				'entry_options' => $options,
+				'allow_add' => true,
+				'allow_delete' => true,
+				'prototype' => true,
+				'entry_options' => [
 						'metadata' => $fieldType,
-						'label' => false 
-				], $fieldType->getDisplayOptions () );
-				$builder->add ( 'ems_' . $fieldType->getName (), $fieldType->getType (), $options );
-			}
-		}
+				],
+		))->add ( 'add_nested', SubmitEmsType::class, [ 
+				'attr' => [ 
+						'class' => 'btn-primary btn-sm add-content-button' 
+				],
+				'label' => 'Add',
+				'icon' => 'fa fa-plus' 
+		] );
 	}
 	
 	/**
@@ -71,7 +79,7 @@ class NestedFieldType extends DataFieldType {
 		/* give options for twig context */
 		parent::buildView ( $view, $form, $options );
 		$view->vars ['icon'] = $options ['icon'];
-		$view->vars ['multiple'] = $options ['multiple'];
+		$view->vars ['singularLabel'] = $options ['singularLabel'];
 	}
 	
 	/**
@@ -84,35 +92,18 @@ class NestedFieldType extends DataFieldType {
 		parent::configureOptions ( $resolver );
 		/* an optional icon can't be specified ritgh to the container label */
 		$resolver->setDefault ( 'icon', null );
-		$resolver->setDefault ( 'multiple', false );
+		$resolver->setDefault ( 'singularLabel', null );
 	}
 	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public static function buildObjectArray(DataField $data, array &$out) {
-		if($data->getFieldType () == null){
-			$tmp = [];
-			/** @var DataField $child */
-			foreach ($data->getChildren() as $child){
-				$className = $child->getFieldType()->getType();
-				$class = new $className;
-				$class->buildObjectArray($child, $tmp);
-			}
-			$out [] = $tmp;
-		}
-		else if (! $data->getFieldType ()->getDeleted ()) {
-			$out [$data->getFieldType ()->getName ()] = [];
-		}
-	}
-
-
-
-	public function isNested(){
-		return true;
-	}
+// 	/**
+// 	 *
+// 	 * {@inheritdoc}
+// 	 *
+// 	 */
+// 	public static function buildObjectArray(DataField $data, array &$out) {
+		
+		
+// 	}
 	
 	/**
 	 *
@@ -132,12 +123,47 @@ class NestedFieldType extends DataFieldType {
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
 		$optionsForm = $builder->get ( 'structuredOptions' );
-		// nested doesn't not have that much options in elasticsearch
+		// container aren't mapped in elasticsearch
 		$optionsForm->remove ( 'mappingOptions' );
 		// an optional icon can't be specified ritgh to the container label
-		$optionsForm->get ( 'displayOptions' )->add ( 'icon', IconPickerType::class, [ 
+		$optionsForm->get ( 'displayOptions' )->add ( 'singularLabel', TextType::class, [ 
+				'required' => false 
+		] )->add ( 'icon', IconPickerType::class, [ 
 				'required' => false 
 		] );
+	}
+	
+
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function buildObjectArray(DataField $data, array &$out) {
+		if (! $data->getFieldType ()->getDeleted ()) {
+			$out [$data->getFieldType ()->getName ()] = [];
+		}
+	}
+	
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getBlockPrefix() {
+		return 'collectionfieldtype';
+	}
+
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function getJsonName(FieldType $current){
+		return null;
 	}
 	
 	/**
@@ -146,10 +172,6 @@ class NestedFieldType extends DataFieldType {
 	 *
 	 */
 	public static function generateMapping(FieldType $current) {
-		return [
-			$current->getName() => [
-				"type" => "nested",
-				"properties" => [],
-		]];
+		return [];
 	}
 }

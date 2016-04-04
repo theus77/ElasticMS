@@ -32,6 +32,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Form\DataField\CollectionFieldType;
 
 class DataController extends AppController
 {
@@ -359,31 +360,32 @@ class DataController extends AppController
 		]);			
 	}
 	
-	
-	private function updateDataStructure(DataField $data, FieldType $meta){
-		
-		//no need to generate the structure for subfields (
-		$type = $data->getFieldType()->getType();
-		$datFieldType = new $type;
-		if($datFieldType->isContainer()){
-			/** @var FieldType $field */
-			foreach ($meta->getChildren() as $field){
-				//no need to generate the structure for delete field
-				if(!$field->getDeleted()){
-					$child = $data->__get('ems_'.$field->getName());
-					if(null == $child){
-						$child = new DataField();
-						$child->setFieldType($field);
-						$child->setOrderKey($field->getOrderKey());
-						$child->setParent($data);
-						$child->setRevisionId($data->getRevisionId());
-						$data->addChild($child);
-					}
-					$this->updateDataStructure($child, $field, null);					
-				}
-			}			
-		}
-	}
+
+	//TODO: block to remove
+//	private function updateDataStructure(DataField $data, FieldType $meta){
+//		
+//		//no need to generate the structure for subfields (
+//		$type = $data->getFieldType()->getType();
+//		$datFieldType = new $type;
+//		if($datFieldType->isContainer()){
+//			/** @var FieldType $field */
+//			foreach ($meta->getChildren() as $field){
+//				//no need to generate the structure for delete field
+//				if(!$field->getDeleted()){
+//					$child = $data->__get('ems_'.$field->getName());
+//					if(null == $child){
+//						$child = new DataField();
+//						$child->setFieldType($field);
+//						$child->setOrderKey($field->getOrderKey());
+//						$child->setParent($data);
+//						$child->setRevisionId($data->getRevisionId());
+//						$data->addChild($child);
+//					}
+//					$this->updateDataStructure($child, $field, null);					
+//				}
+//			}			
+//		}
+//	}
 	
 	/**
 	 * @Route("/data/revision/re-index/{revisionId}", name="revision.reindex"))
@@ -544,7 +546,7 @@ class DataController extends AppController
 				$revision->setDataField($data);
 			}
 				
-			$this->updateDataStructure($revision->getDataField(), $revision->getContentType()->getFieldType());
+			$revision->getDataField()->updateDataStructure($revision->getContentType()->getFieldType());
 		
 		}
 		
@@ -597,7 +599,7 @@ class DataController extends AppController
 				$revision->setDataField($data);			
 			}
 			
-			$this->updateDataStructure($revision->getDataField(), $revision->getContentType()->getFieldType());
+			$revision->getDataField()->updateDataStructure($revision->getContentType()->getFieldType());
 
 		}
 
@@ -617,11 +619,11 @@ class DataController extends AppController
 				/** @var Client $client */
 				$client = $this->get('app.elasticsearch'); 
 				
+				$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
 				
 				//TODO: test if draft and last version publish in
 				try{
 					
-					$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
 					
 					if( null == $revision->getOuuid() ) {
 						$status = $client->create([

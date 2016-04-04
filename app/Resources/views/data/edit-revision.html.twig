@@ -156,18 +156,43 @@ function onFormChange(){
 }
 
 
-$(window).load(function() {
-
-
-
-
-
-	
+$(window).ready(function() {	
 	$("form[name={{ form.vars.id }}] input").keypress(onFormChange);
 	$("form[name={{ form.vars.id }}] input").change(onFormChange);
 	$("form[name={{ form.vars.id }}] select").change(onFormChange);
 	$("form[name={{ form.vars.id }}] textarea").keypress(onFormChange);
-	for (var i in CKEDITOR.instances) {
+
+	$('.add-content-button').on('click', function(e) {
+		// prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+
+        var panel = $(this).closest('.collection-panel');
+        var index = panel.data('index');
+		var prototype = panel.data('prototype');
+     	// Replace '__name__' in the prototype's HTML to
+        // instead be a number based on how many items we have
+        var newForm = $(prototype.replace(/__name__/g, index));
+     	// increase the index with one for the next item
+        panel.data('index', index + 1);
+
+        panel.children('.panel-body').append(newForm);
+        
+
+//TODO: remove child button
+//         newForm.find('.remove-filter').on('click', function(e) {
+//     		// prevent the link from creating a "#" on the URL
+//             e.preventDefault();
+//             console.log($(this).parents('.filter-container').remove());
+            
+//     	});
+        
+	});
+});
+
+
+$(window).load(function() {
+		for (var i in CKEDITOR.instances) {
         CKEDITOR.instances[i].on('key', onFormChange );
 	}
 });

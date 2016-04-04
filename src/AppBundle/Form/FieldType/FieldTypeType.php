@@ -2,7 +2,10 @@
 
 namespace AppBundle\Form\FieldType;
 
+use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
+use AppBundle\Form\DataField\CollectionItemFieldType;
+use AppBundle\Form\DataField\DataFieldType;
 use AppBundle\Form\DataField\SubfieldType;
 use AppBundle\Form\Field\FieldTypePickerType;
 use AppBundle\Form\Field\SubmitEmsType;
@@ -11,8 +14,6 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Form\DataField\DataFieldType;
-use AppBundle\Entity\DataField;
 
 class FieldTypeType extends AbstractType
 {
@@ -126,8 +127,12 @@ class FieldTypeType extends AbstractType
     public function generateObject(DataField $dataField){
     	$out = [];
     	
+    	
+    	$dataFieldType = new CollectionItemFieldType();
     	/** @var DataFieldType $dataFieldType */
-    	$dataFieldType = $this->fieldTypePickerType->getDataFieldType($dataField->getFieldType()->getType());
+    	if(null != $dataField->getFieldType()){
+	    	$dataFieldType = $this->fieldTypePickerType->getDataFieldType($dataField->getFieldType()->getType());    		
+    	}
     	 
     	$dataFieldType->buildObjectArray($dataField, $out);
     	
@@ -135,7 +140,7 @@ class FieldTypeType extends AbstractType
 
     	/** @var DataField $child */
     	foreach ( $dataField->getChildren () as $child ) {
-	    	if (! $child->getFieldType()->getDeleted ()) {
+	    	if ($child->getFieldType() == null || ! $child->getFieldType()->getDeleted ()) {
 	    		if( $dataFieldType->isNested() ){
 					$out[$dataFieldType->getJsonName($dataField->getFieldType())] = array_merge($out[$dataFieldType->getJsonName($dataField->getFieldType())], $this->generateObject($child));
 	    		}
