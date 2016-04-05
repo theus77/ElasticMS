@@ -57,115 +57,50 @@
 
 <script type="text/javascript">
 
-
-function formatRepo (repo) {
-    if (repo.loading) return repo.text;
-
-    var markup = "<div class='select2-result-repository clearfix'>" +
-      repo.text + "</div>";
-      
-    return markup;
-  }
-
-  function formatRepoSelection (repo) {
-    return repo.text;
-  }
-
-
-  $(window).load(function() {
-	  		$(".objectpicker").each(function(index){
-
-
-   			environment = $( this ).data('environment'); 
-   			type = $( this ).data('type'); 
-   			
-	 		$( this ).select2({
-			  ajax: {
-			    url: '{{ url("elasticsearch.api.search") }}',
-			    dataType: 'json',
-			    delay: 250,
-			    data: function (params) {
-			      return {
-			        q: params.term, // search term
-			        page: params.page,
-			        environment: environment,
-			        type: type
-			      };
-			    },
-			    processResults: function (data, params) {
-			      // parse the results into the format expected by Select2
-			      // since we are using custom formatting functions we do not need to
-			      // alter the remote JSON data, except to indicate that infinite
-			      // scrolling can be used
-			      params.page = params.page || 1;
-			
-			      return {
-			        results: data.items,
-			        pagination: {
-			          more: (params.page * 30) < data.total_count
-			        }
-			      };
-			    },
-			    cache: true
-			  },
-			  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-			  minimumInputLength: 1,
-			  templateResult: formatRepo, // omitted for brevity, see the source of this page
-			  templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
-			});
-
-    
-    });
-
-  });
-
-</script>
-
-
-	{% if revision.draft %}
-		{% include 'app/menu.html.twig' with {
-			'item':  'data-draft-' ~ revision.contentType.id
-		}%}
-<script type="text/javascript">
-<!--
-
-//-->
-
 var globalWaitingResponse = false;
 
 function onFormChange(){
-	if(!globalWaitingResponse){
-		globalWaitingResponse = true;
-		$.post("{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}", $("form[name={{ form.vars.id }}]").serialize())
-		  .done(function(message) {
-			  var response = jQuery.parseJSON( message );
-
-			  $('.has-error').removeClass('has-error');
-			  
-			  $(response.errors).each(function(index, item){
-				  $('#'+item.propertyPath).parent().addClass('has-error');
-			  });
-		  })
-		  .fail(function() {
-			alert( "The autosave returns an error! Please try to refresh the page." );
-		  })
-		  .always(function() {
-			globalWaitingResponse = false;
-		});
-	}
+	{% if revision.draft %}
+		if(!globalWaitingResponse){
+			globalWaitingResponse = true;
+			$.post("{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}", $("form[name={{ form.vars.id }}]").serialize())
+			  .done(function(message) {
+				  var response = jQuery.parseJSON( message );
+	
+				  $('.has-error').removeClass('has-error');
+				  
+				  $(response.errors).each(function(index, item){
+					  $('#'+item.propertyPath).parent().addClass('has-error');
+				  });
+			  })
+			  .fail(function() {
+				alert( "The autosave returns an error! Please try to refresh the page." );
+			  })
+			  .always(function() {
+				globalWaitingResponse = false;
+			});
+		}
+	{% endif %}
 }
 
-
-$(window).ready(function() {	
-	$("form[name={{ form.vars.id }}] input").keypress(onFormChange);
-	$("form[name={{ form.vars.id }}] input").change(onFormChange);
-	$("form[name={{ form.vars.id }}] select").change(onFormChange);
-	$("form[name={{ form.vars.id }}] textarea").keypress(onFormChange);
-
-	$('.add-content-button').on('click', function(e) {
+function addEventListeners(target){
+	target.find('.remove-content-button').on('click', function(e) {
 		// prevent the link from creating a "#" on the URL
         e.preventDefault();
+        
+        var panel = $(this).closest('.collection-item-panel');
+        panel.remove();
+        onFormChange();
+	});
 
+	target.find("input").keypress(onFormChange);
+	target.find("input").change(onFormChange);
+	target.find("select").change(onFormChange);
+	target.find("textarea").keypress(onFormChange);
+
+	target.find('.add-content-button').on('click', function(e) {
+		// prevent the link from creating a "#" on the URL
+        e.preventDefault();
 
         var panel = $(this).closest('.collection-panel');
         var index = panel.data('index');
@@ -176,34 +111,91 @@ $(window).ready(function() {
      	// increase the index with one for the next item
         panel.data('index', index + 1);
 
-        panel.children('.panel-body').append(newForm);
-        
+        addEventListeners(newForm);
 
-//TODO: remove child button
-//         newForm.find('.remove-filter').on('click', function(e) {
-//     		// prevent the link from creating a "#" on the URL
-//             e.preventDefault();
-//             console.log($(this).parents('.filter-container').remove());
-            
-//     	});
+        panel.children('.panel-body').append(newForm);
+        onFormChange();
         
 	});
+	
+	target.find(".objectpicker").each(function(index){
+		environment = $( this ).data('environment'); 
+		type = $( this ).data('type'); 
+
+	   	$( this ).select2({
+			ajax: {
+				url: '{{ url("elasticsearch.api.search") }}',
+		    	dataType: 'json',
+		    	delay: 250,
+		    	data: function (params) {
+		      		return {
+			        q: params.term, // search term
+			        page: params.page,
+			        environment: environment,
+			        type: type
+			      };
+			    },
+				processResults: function (data, params) {
+					// parse the results into the format expected by Select2
+					// since we are using custom formatting functions we do not need to
+					// alter the remote JSON data, except to indicate that infinite
+					// scrolling can be used
+					params.page = params.page || 1;
+			
+			      	return {
+				        results: data.items,
+				        pagination: {
+				          more: (params.page * 30) < data.total_count
+				        }
+			      	};
+		    	},
+		    	cache: true
+		  	},
+		  	escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+		  	minimumInputLength: 1,
+		  	templateResult: formatRepo, // omitted for brevity, see the source of this page
+		  	templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+		});
+    });	
+}
+
+function formatRepo (repo) {
+    if (repo.loading) return repo.text;
+
+    var markup = "<div class='select2-result-repository clearfix'>" +
+      repo.text + "</div>";
+      
+	return markup;
+}
+
+function formatRepoSelection (repo) {
+    return repo.text;
+}
+
+
+$(window).ready(function() {	
+	addEventListeners($('form[name={{ form.vars.id }}]'));
 });
 
 
 $(window).load(function() {
-		for (var i in CKEDITOR.instances) {
+	/** TODO:  quid d'un CKEditor ajouté au vol*/
+	for (var i in CKEDITOR.instances) {
         CKEDITOR.instances[i].on('key', onFormChange );
 	}
 });
 
-
 </script>
-		
+
+	{% if revision.draft %}
+		{% include 'app/menu.html.twig' with {
+			'item':  'data-draft-' ~ revision.contentType.id
+		}%}
 	{% else %}
 		{% include 'app/menu.html.twig' with {
 			'item':  'data-index-' ~ revision.contentType.id
 		}%}
 	{% endif %}
+	
 {% endblock %}	
 

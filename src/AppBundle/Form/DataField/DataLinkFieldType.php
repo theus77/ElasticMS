@@ -70,7 +70,7 @@ use AppBundle\Entity\DataField;
 		
 		
 		
-		$builder->add ( 'array_text_value', ObjectPickerType::class, [
+		$builder->add ( $options['multiple']?'array_text_value':'text_value', ObjectPickerType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'required' => false,
 				'multiple' => $options['multiple'],

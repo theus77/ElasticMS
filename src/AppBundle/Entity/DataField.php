@@ -75,7 +75,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     private $parent;
     
     /**
-     * @ORM\OneToMany(targetEntity="DataField", mappedBy="parent", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="DataField", mappedBy="parent", cascade={"persist", "remove"}, orphanRemoval=true)
      * @ORM\OrderBy({"orderKey" = "ASC"})
      */
     private $children;
@@ -184,9 +184,11 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    	foreach ($children as $childField){
 	    		if(!$childField->getDeleted()){    			
 		    		$value = $this->__get('ems_'.$childField->getName());
-		    		$value->setOrderKey($childField->getOrderKey());
-		    		if(isset($value)){
-			    		$temp->add($value);
+		    		if($value){
+			    		$value->setOrderKey($childField->getOrderKey());
+			    		if(isset($value)){
+				    		$temp->add($value);
+			    		}		    			
 		    		}
 	    		}
 	    	}    		
@@ -653,6 +655,20 @@ class DataField implements \ArrayAccess, \IteratorAggregate
         return $this;
     }
 	
+    
+    public function setMarked($marked)
+    {
+    	$this->marked = $marked;
+    
+    	return $this;
+    }
+    
+    
+    public function isMarked()
+    {
+    	return $this->marked;
+    }
+    
 	
     /****************************
      * Generated methods

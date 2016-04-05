@@ -161,8 +161,9 @@ class ContentTypeController extends AppController {
 			
 		} catch ( BadRequest400Exception $e ) {
 			$contentType->setDirty ( true );
+			$message = json_decode($e->getPrevious()->getMessage(), true);
 			$this->addFlash ( 'error', '<p><strong>You should try to rebuild the indexes</strong></p>
-					<p>Message from Elasticsearch: ' . $e->getMessage () . '</p>' );
+					<p>Message from Elasticsearch: <b>' . $message['error']['type']. '</b>'.$message['error']['reason'] . '</p>' );
 		}
 		$em->persist ( $contentType );
 		$em->flush ();		

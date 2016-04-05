@@ -27,7 +27,6 @@ class Mapping
 						"_all" => [
 								"store" => true,
 								"enabled" => true,
-								"analyzer" => "for_all_field",
 						],
 							"properties" => [
 						],

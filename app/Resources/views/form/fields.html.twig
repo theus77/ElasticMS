@@ -90,13 +90,11 @@
 {%- endblock collectionfieldtype_label %}
 
 {% block collectionitemtype_label -%}
-	<div class="panel-heading">
-		{% set parent = form.parent.parent %}
-		{% if parent.vars.icon is defined %}<i class="{{ parent.vars.icon }}"></i>&nbsp;{% endif %}
-		<label>
-			{{ parent.vars.singularLabel }} #{{ name }}
-		</label>
-	</div>
+	{% set parent = form.parent.parent %}
+	{% if parent.vars.icon is defined %}<i class="{{ parent.vars.icon }}"></i>&nbsp;{% endif %}
+	<label>
+		{{ parent.vars.singularLabel }} #{{ name }}
+	</label>
 {%- endblock collectionitemtype_label %}
 
 {# Rows #}
@@ -233,9 +231,15 @@
 {% endblock collectionfieldtype_row %}
 
 {% block collectionitemtype_row -%}
-<div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+<div class="form-group collection-item-panel{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
 	<div class="panel panel-default">
-		{{ form_label(form) }}
+		<div class="panel-heading">
+			{{ form_label(form) }}
+	  		<div class="btn-group pull-right">
+	  			{{- form_widget(form.remove_collection_item) -}}
+			</div>
+	  	</div>		
+		
 	  	<div class="panel-body">
 	    	{{- form_widget(form) -}}
 	  	</div>

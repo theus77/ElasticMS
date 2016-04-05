@@ -9,6 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\SubmitEmsType;
 
 /**
  * Defined a Nested obecjt.
@@ -68,6 +69,14 @@ class CollectionItemFieldType extends DataFieldType {
 				$builder->add ( 'ems_' . $fieldType->getName (), $fieldType->getType (), $options );
 			}
 		}
+		
+		$builder->add ( 'remove_collection_item', SubmitEmsType::class, [
+				'attr' => [
+						'class' => 'btn-danger btn-sm remove-content-button'
+				],
+				'label' => 'Remove',
+				'icon' => 'fa fa-trash'
+		] );
 	}
 	
 // 	/**
