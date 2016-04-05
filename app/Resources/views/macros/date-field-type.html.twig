@@ -3,6 +3,48 @@
 	{{ attribute(_self, dataField.fieldType.type|replace({'\\': '_'}), [dataField]) }}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_CollectionFieldType(dataField) %}
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 class="panel-title">
+				{% if dataField.fieldType.displayOptions.icon is defined %}
+					<i class="{{ dataField.fieldType.displayOptions.icon }}"></i> 
+				{% endif %}
+				{% if dataField.fieldType.displayOptions.label is defined %}
+					{{ dataField.fieldType.displayOptions.label }}
+				{% else %}
+				{% endif %}
+				({{ dataField.fieldType.name }})
+			</h3>
+		</div>
+		<div class="panel-body">
+			{% for child in dataField.children %}
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h3 class="panel-title">
+							{% if dataField.fieldType.displayOptions.icon is defined %}
+								<i class="{{ dataField.fieldType.displayOptions.icon }}"></i> 
+							{% endif %}
+							{% if dataField.fieldType.displayOptions.singularLabel is defined %}
+								{{ dataField.fieldType.displayOptions.singularLabel }}
+							{% endif %}
+							#{{ loop.index0 }}
+							({{ dataField.fieldType.name }}.{{ loop.index0 }})
+						</h3>
+					</div>
+					<div class="panel-body">
+						{% for grandchild in child.children %}
+							<div class="{% if grandchild.fieldType.displayOptions.class is defined and grandchild.fieldType.displayOptions.class  %}{{ grandchild.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
+								{{ attribute(_self, grandchild.fieldType.type|replace({'\\': '_'}), [grandchild]) }}
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_ContainerFieldType(dataField) %}
     {% if dataField.fieldType.displayOptions.label is defined %}
     	<div class="panel panel-default">

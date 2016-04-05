@@ -163,7 +163,7 @@ class CollectionFieldType extends DataFieldType {
 	 *
 	 */
 	public static function getJsonName(FieldType $current){
-		return null;
+		return $current->getName();
 	}
 	
 	/**
@@ -172,6 +172,9 @@ class CollectionFieldType extends DataFieldType {
 	 *
 	 */
 	public static function generateMapping(FieldType $current) {
-		return [];
+		return [$current->getName () => [
+				'type' => 'nested',
+				'properties' => []
+		]];
 	}
 }

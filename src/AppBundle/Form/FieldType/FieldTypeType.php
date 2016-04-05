@@ -140,7 +140,15 @@ class FieldTypeType extends AbstractType
 
     	/** @var DataField $child */
     	foreach ( $dataField->getChildren () as $child ) {
-	    	if ($child->getFieldType() == null || ! $child->getFieldType()->getDeleted ()) {
+    		//its a Collection Item
+	    	if ($child->getFieldType() == null){
+	    		$subOut = [];
+	    		foreach ( $child->getChildren () as $grandchild ) {
+	    			$subOut = array_merge($subOut, $this->generateObject($grandchild));
+	    		}
+	    		$out[$dataFieldType->getJsonName($dataField->getFieldType())][] = $subOut;
+	    	}
+	    	else if (! $child->getFieldType()->getDeleted ()) {
 	    		if( $dataFieldType->isNested() ){
 					$out[$dataFieldType->getJsonName($dataField->getFieldType())] = array_merge($out[$dataFieldType->getJsonName($dataField->getFieldType())], $this->generateObject($child));
 	    		}

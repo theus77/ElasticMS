@@ -32,7 +32,6 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Form\DataField\CollectionFieldType;
 
 class DataController extends AppController
 {
@@ -659,7 +658,7 @@ class DataController extends AppController
 					$revision->addEnvironment($revision->getContentType()->getEnvironment());
 					$revision->getDataField()->propagateOuuid($revision->getOuuid());
 					$revision->setDraft(false);
-					$revision->setModified(new \DateTime('now'));
+// 					$revision->setModified(new \DateTime('now'));
 					$em->persist($revision);
 					$em->flush();
 					return $this->redirectToRoute('data.revisions', [

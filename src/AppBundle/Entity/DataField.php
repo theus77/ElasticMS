@@ -157,7 +157,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     }
     
     public function propagateOuuid($ouuid) {
-    	if(strcmp(OuuidFieldType::class, $this->getFieldType()->getType()) == 0) {
+    	if( $this->getFieldType()  && strcmp(OuuidFieldType::class, $this->getFieldType()->getType()) == 0 ) {
     		$this->setTextValue($ouuid);
     	}
     	foreach ($this->children as $child){
@@ -168,18 +168,31 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 
 
     public function orderChildren(){
-    	$temp = new \Doctrine\Common\Collections\ArrayCollection();
-    	foreach ($this->getFieldType()->getChildren() as $childField){
-    		if(!$childField->getDeleted()){    			
-	    		$value = $this->__get('ems_'.$childField->getName());
-	    		if(isset($value)){
-		    		$temp->add($value);
+    	$children = null;
+    	
+    	if($this->getFieldType() == null){
+    		$children = $this->getParent()->getFieldType()->getChildren();
+    	}
+    	else if(strcmp($this->getFieldType()->getType(), CollectionFieldType::class) != 0){
+    		$children = $this->getFieldType()->getChildren() ;
+    	}
+    	
+    	
+    	if($children){
+	    	$temp = new \Doctrine\Common\Collections\ArrayCollection();
+	    	/** @var FieldType $childField */
+	    	foreach ($children as $childField){
+	    		if(!$childField->getDeleted()){    			
+		    		$value = $this->__get('ems_'.$childField->getName());
+		    		$value->setOrderKey($childField->getOrderKey());
+		    		if(isset($value)){
+			    		$temp->add($value);
+		    		}
 	    		}
-    		}
+	    	}    		
+	    	$this->children = $temp;
     	}
 
-    	$this->children = $temp;
-    	
     	foreach ($this->children as $child){
     		$child->orderChildren();
     	}
