@@ -1,7 +1,22 @@
-	<form role="form">
+	<form role="form" id="criteria-form" data-filters="{{ criteriaFilters|json_encode }}">
 		<div class="box">
 			<div class="box-header">
-				<h3 class="box-title">Data Table With Full Features</h3>
+				<h3 class="box-title">
+				
+				{% for criterion in criteriaFilters %}
+					{% if loop.index0 == 0 %}
+						for
+						{% if criteriaFilters|length > 1 %}
+							criteria
+						{% else %}
+							criterion
+						{% endif %}
+					{% else %}
+						and 
+					{% endif %}
+					<b>{{ criterion.name|humanize }}</b> = <b>{{ criterion.value }}</b>
+				{% endfor %}
+				</h3>
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
@@ -24,12 +39,12 @@
 									{% for rowIdx in table|keys %}
 										<tr role="row">
 											<th>{{ rowIdx|humanize }}</th>
-											{% for row in attribute(table, rowIdx) %}
-												<td class="row">
+											{% for col in attribute(table, rowIdx) %}
+												<td class="row" data-filters="[{ &quot;id&quot;:{{ rowFieldType.id|e }}, &quot;name&quot;: &quot;{{ rowFieldType.name|e }}&quot;, &quot;value&quot;: &quot;{{ rowIdx|e }}&quot; },{ &quot;id&quot;:{{ columnFieldType.id|e }}, &quot;name&quot;: &quot;{{ columnFieldType.name|e }}&quot;, &quot;value&quot;: &quot;{{ attribute(table|first|keys, loop.index0) }}&quot;}]">
 {# 													<div class="form-group col-md-12">#}
 								                  <select style="width: 100%" multiple>
-								                  	{% for card in row %}
-									                    <option selected>{{ card }}</option>
+								                  	{% for card in col %}
+									                    <option value="{{ card.value }}" selected>{{ card.label }}</option>
 								                  	{% endfor %}
 								                  </select>
 {# 													</div>#}

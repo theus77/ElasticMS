@@ -166,15 +166,9 @@ class DataController extends AppController
 				'object' => $revision->getObject($objectArray),
 		] );
 	}
-
-	/**
-	 *
-	 * @Route("/data/new-draft/{type}/{ouuid}", name="revision.new-draft"))
-     * @Method({"POST"})
-	 */
-	public function newDraftAction($type, $ouuid, Request $request)
-	{
-		
+	
+	
+	public function initNewDraft($type, $ouuid){
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
 		
@@ -186,7 +180,7 @@ class DataController extends AppController
 		]);
 		
 		if(count($contentTypes) != 1) {
-			throw new NotFoundHttpException('Unknown revision');
+			throw new NotFoundHttpException('Unknown content type');
 		}
 		$contentType = $contentTypes[0];
 		
@@ -204,29 +198,33 @@ class DataController extends AppController
 			throw new NotFoundHttpException('Unknown revision');
 		}
 		$revision = $revisions[0];
-		
-		
-		
-		if($revision->getDraft()){
-			return $this->redirectToRoute('revision.edit', [
-					'revisionId' => $revision->getId()
-			]);
+
+		$revision->getDataField()->propagateOuuid($revision->getOuuid());
+		if(! $revision->getDraft()){
+			$now = new \DateTime();
+
+			$newDraft = new Revision($revision);
+			$newDraft->setStartTime($now);
+			$revision->setEndTime($now);
+			
+			$em->persist($revision);
+			$em->persist($newDraft);
+			$em->flush();	
+			return $newDraft;
 		}
-		
-		$now = new \DateTime();
-		
-		
-		$newDraft = new Revision($revision);
-		$newDraft->setStartTime($now);
-		
-		$revision->setEndTime($now);
-		
-		$em->persist($revision);
-		$em->persist($newDraft);
-		$em->flush();
-		
+		return $revision;
+	}
+	
+
+	/**
+	 *
+	 * @Route("/data/new-draft/{type}/{ouuid}", name="revision.new-draft"))
+     * @Method({"POST"})
+	 */
+	public function newDraftAction($type, $ouuid, Request $request)
+	{			
 		return $this->redirectToRoute('revision.edit', [
-				'revisionId' => $newDraft->getId()
+				'revisionId' => $this->initNewDraft($type, $ouuid)->getId()
 		]);
 	}
 	
@@ -572,6 +570,61 @@ class DataController extends AppController
 		] );
 	}
 	
+	public function finalizeDraft(Revision $revision){
+
+		$em = $this->getDoctrine()->getManager();
+
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		
+		//TODO: test if draft and last version publish in
+			
+		/** @var Client $client */
+		$client = $this->get('app.elasticsearch');
+			
+		$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
+			
+		if( null == $revision->getOuuid() ) {
+			$status = $client->create([
+					'index' => $this->getParameter('instance_id').$revision->getContentType()->getEnvironment()->getName(),
+					'type' => $revision->getContentType()->getName(),
+					'body' => $objectArray
+			]);
+		
+		
+		
+			$revision->setOuuid($status['_id']);
+		}
+		else {
+			$status = $client->index([
+					'id' => $revision->getOuuid(),
+					'index' => $this->getParameter('instance_id').$revision->getContentType()->getEnvironment()->getName(),
+					'type' => $revision->getContentType()->getName(),
+					'body' => $objectArray
+			]);
+		
+		
+			$result = $repository->findByOuuidContentTypeAndEnvironnement($revision);
+		
+		
+			/** @var Revision $item */
+			foreach ($result as $item){
+				$item->removeEnvironment($revision->getContentType()->getEnvironment());
+				$em->persist($item);
+			}
+		
+		}
+			
+		$revision->addEnvironment($revision->getContentType()->getEnvironment());
+		$revision->getDataField()->propagateOuuid($revision->getOuuid());
+		$revision->setDraft(false);
+		// 					$revision->setModified(new \DateTime('now'));
+		$em->persist($revision);
+		$em->flush();
+		
+		return $revision;
+	}
+	
 	/**
 	 * @Route("/data/draft/edit/{revisionId}", name="revision.edit"))
 	 */
@@ -615,52 +668,11 @@ class DataController extends AppController
 			
 			if(array_key_exists('publish', $request->request->get('revision'))) {
 				
-				/** @var Client $client */
-				$client = $this->get('app.elasticsearch'); 
 				
-				$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
 				
-				//TODO: test if draft and last version publish in
 				try{
-					
-					
-					if( null == $revision->getOuuid() ) {
-						$status = $client->create([
-							'index' => $this->getParameter('instance_id').$revision->getContentType()->getEnvironment()->getName(),
-							'type' => $revision->getContentType()->getName(),
-							'body' => $objectArray
-						]);
-						
-						
-						
-						$revision->setOuuid($status['_id']);
-					}
-					else {
-						$status = $client->index([
-								'id' => $revision->getOuuid(),
-								'index' => $this->getParameter('instance_id').$revision->getContentType()->getEnvironment()->getName(),
-								'type' => $revision->getContentType()->getName(),
-								'body' => $objectArray
-						]);
-						
-						
-						$result = $repository->findByOuuidContentTypeAndEnvironnement($revision);
-						
-						
-						/** @var Revision $item */
-						foreach ($result as $item){
-							$item->removeEnvironment($revision->getContentType()->getEnvironment());
-							$em->persist($item);
-						}
-						
-					}	
-					
-					$revision->addEnvironment($revision->getContentType()->getEnvironment());
-					$revision->getDataField()->propagateOuuid($revision->getOuuid());
-					$revision->setDraft(false);
-// 					$revision->setModified(new \DateTime('now'));
-					$em->persist($revision);
-					$em->flush();
+					$revision = $this->finalizeDraft($revision);
+
 					return $this->redirectToRoute('data.revisions', [
 							'ouuid' => $revision->getOuuid(),
 							'type' => $revision->getContentType()->getName(),
@@ -671,13 +683,14 @@ class DataController extends AppController
 					$this->addFlash('error', 'The draft has been saved but something when wrong when we tried to publish it. '.$revision->getContentType()->getName().':'.$revision->getOuuid());
 					$this->addFlash('error', $e->getMessage());
 				}
+				
 			}
 			
 			if(null != $revision->getOuuid()){
 				return $this->redirectToRoute('data.revisions', [
 								'ouuid' => $revision->getOuuid(),
 								'type' => $revision->getContentType()->getName(),
-				]);// ('revision.edit', [ 'revisionId' => $revision->getId() ])				
+				]);			
 			}
 			else{
 
@@ -687,13 +700,6 @@ class DataController extends AppController
 			}
 				
 		}
-// 		else{
-// 			foreach ($form->getErrors(true, true) as $error){
-				
-// 				dump($error);
-// 			}
-// 			exit;
-// 		}
 		
 		return $this->render( 'data/edit-revision.html.twig', [
 				'revision' =>  $revision,

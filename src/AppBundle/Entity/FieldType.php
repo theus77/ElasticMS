@@ -303,6 +303,23 @@ class FieldType
     	}
     	return [];
     }
+
+
+    /**
+     * Get only valid children
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getValidChildren()
+    {
+    	$out = [];
+    	foreach ($this->children as $child){
+    		if(!$child->getDeleted()){
+    			$out[] = $child;
+    		}
+    	}
+    	return $out;
+    }
     
     /**
      * Set orderKey
@@ -375,8 +392,8 @@ class FieldType
     public function __get($key)
     {
     	/** @var FieldType $fieldType */
-    	foreach ($this->children as $fieldType){
-    		if(strcmp($key,  $fieldType->getName()) == 0){
+    	foreach ($this->getChildren() as $fieldType){
+    		if(!$fieldType->getDeleted() && strcmp($key,  $fieldType->getName()) == 0){
     			return $fieldType;
     		}
     	}
@@ -394,7 +411,7 @@ class FieldType
     	$found = false;
     	/** @var FieldType $child */
     	foreach ($this->children as &$child){
-    		if(strcmp($key,  $child->getName()) == 0){
+    		if(!$child->getDeleted() && strcmp($key,  $child->getName()) == 0){
     			$found = true;
     			$child = $input;
     			break;

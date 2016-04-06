@@ -35,7 +35,7 @@ class CriteriaViewType extends ViewType {
 	 *
 	 */
 	public function getLabel(){
-		return "Criteria: a view where we can update criterion content types";
+		return "Criteria: a view where we can massively content types having critetira";
 	}
 	
 	/**
@@ -55,11 +55,8 @@ class CriteriaViewType extends ViewType {
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		parent::buildForm($builder, $options);
 		$builder
-		->add ( 'criterionList', TextareaType::class, [
-				'label' => 'List of criterion field'
-		] )
-		->add ( 'dataField', TextType::class, [
-				'label' => 'The field managed by the criteria'
+		->add ( 'criteriaField', TextType::class, [
+				'label' => 'The collection field containing the list of criteria (string)'
 		] );
 	}
 	
@@ -80,15 +77,12 @@ class CriteriaViewType extends ViewType {
 	 */
 	public function getParameters(View $view) {
 		
-
-		$criterionList = explode("\n", str_replace("\r", "", $view->getStructuredOptions()['criterionList']));
-		
 		return [
-			'criterionList' => 	$criterionList,
-			'dataField' => 	$view->getStructuredOptions()['dataField'],
+			'criteriaField' => 	$view->getStructuredOptions()['criteriaField'],
 			'view' => $view,
 			'contentType' => $view->getContentType(),
 			'environment' => $view->getContentType()->getEnvironment(),
+			'criterionList' => $view->getContentType()->getFieldType()->__get($view->getStructuredOptions()['criteriaField'])
 		];
 	}
 	

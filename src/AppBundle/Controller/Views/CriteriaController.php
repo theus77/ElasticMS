@@ -2,17 +2,24 @@
 namespace AppBundle\Controller\Views;
 
 use AppBundle;
+use AppBundle\Controller\ContentManagement\DataController;
+use AppBundle\Entity\ContentType;
+use AppBundle\Entity\View;
+use AppBundle\Repository\ContentTypeRepository;
+use AppBundle\Repository\FieldTypeRepository;
+use AppBundle\Repository\ViewRepository;
+use Doctrine\ORM\EntityManager;
+use Elasticsearch\Client;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Entity\ContentType;
-use AppBundle\Repository\ContentTypeRepository;
-use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Response;
-use Elasticsearch\Client;
-use AppBundle\Controller\AppController;
+use AppBundle\Repository\RevisionRepository;
+use AppBundle\Entity\DataField;
+use AppBundle\Form\DataField\CollectionItemFieldType;
 
-class CriteriaController extends AppController
+class CriteriaController extends DataController
 {
 	/**
 	 *
@@ -28,12 +35,28 @@ class CriteriaController extends AppController
 		/** @var ContentType $contentType */
 		$contentType = $repository->find ( $request->query->get('contentTypeId'));
 		
+
+		/** @var ViewRepository $viewRepository */
+		$viewRepository = $em->getRepository ( 'AppBundle:View' );
+		
+		/** @var View $view */
+		$view = $viewRepository->find ( $request->query->get('viewId'));
+		
 		/** @var Client $client */
 		$client = $this->getElasticsearch();
 		
+		
+		$criteriaField = $view->getStructuredOptions()['criteriaField'];
+		
 		$body = [
 			'query' => [
-				'and' => [
+				'nested' => [
+						'path' => $criteriaField,
+						'query' => [
+							'and' => [
+									
+							]
+						]
 						
 				]
 			] 
@@ -41,12 +64,25 @@ class CriteriaController extends AppController
 		
 		$row = null;
 		$column = null;
+
+		/** @var FieldTypeRepository $fieldTypeRepository */
+		$fieldTypeRepository = $em->getRepository ( 'AppBundle:FieldType' );
+		$criteriaFilters = [];
 		
 		foreach ($request->query->get('criterion', []) as $criteria){
 			if(isset($criteria['filter'])){
-				$body['query']['and'][] = [
+				/** @var \AppBundle\Entity\FieldType $fieldType */
+				$fieldType = $fieldTypeRepository->find($criteria['field']);
+				
+				$criteriaFilters[] = [
+						'id' => $fieldType->getId(),
+						'name' => $fieldType->getName(),
+						'value' => $criteria['filter'],
+				];
+				
+				$body['query']['nested']['query']['and'][] = [
 					'term' => [
-						$criteria['field'] => [
+						$view->getStructuredOptions()['criteriaField'].'.'.$fieldType->getName() => [
 							'value' => $criteria['filter']
 						]
 					]
@@ -62,12 +98,11 @@ class CriteriaController extends AppController
 			}
 			
 		}
-		
 
 		/** @var \AppBundle\Entity\FieldType $columnField */
-		$columnField = $contentType->getFieldType()->__get($column);
+		$columnField = $fieldTypeRepository->find($column);
 		/** @var \AppBundle\Entity\FieldType $rowField */
-		$rowField = $contentType->getFieldType()->__get($row);
+		$rowField = $fieldTypeRepository->find($row);
 		
 		$columns = $columnField->getDisplayOptions()['choices'];
 		$columns = explode("\n", str_replace("\r", "", $columns));
@@ -90,18 +125,143 @@ class CriteriaController extends AppController
 			'body' => $body
 		]);
 		
-		
 		foreach ($result['hits']['hits'] as $item){
-			$table[$item['_source'][$row]][$item['_source'][$column]] = $item['_source']['coming_card'];
+			foreach ($item['_source'][$criteriaField] as $criterion){
+				$relevant = true;
+				foreach ($request->query->get('criterion', []) as $filter){
+					if(isset($filter['filter'])){
+						$criterionName = $fieldTypeRepository->find($filter['field'])->getName();
+						if( strcmp($criterion[$criterionName], $filter['filter']) != 0){
+							$relevant = false;
+							break;
+						}
+					}
+				}
+				if($relevant){
+					$rowIdx = $criterion[$rowField->getName()];
+					$columnIdx = $criterion[$columnField->getName()];
+					if(! isset($table[$rowIdx][$columnIdx])){
+						$table[$rowIdx][$columnIdx]= [];
+					}
+					$value = $item['_type'].':'.$item['_id'];
+					if( $contentType->getLabelField() && $item['_source'][$contentType->getLabelField()]){
+						$label = $item['_source'][$contentType->getLabelField()];
+					}
+					else {
+						$label = $value;
+					}
+					
+					
+					$table[$rowIdx][$columnIdx][] = [
+						'label' => $label,
+						'value' => $value
+					];
+				}
+			}
+			
 		}
-		
-// 		dump($table); exit;
 		return $this->render( 'view/custom/criteria_table.html.twig',[
 			'table' => $table,
 			'criterion' => $request->query->get('criterion', []),
-			'row' => $row,
-			'column' => $column,
+			'rowFieldType' => $rowField,
+			'columnFieldType' => $columnField,
+			'criteriaFilters' => $criteriaFilters
 		]);
+	}
+	
+	
+	/**
+	 *
+	 * @Route("/views/criteria/addCriterion", name="views.criteria.add"))
+     * @Method({"POST"})
+	 */
+	public function addCriteriaAction(Request $request)
+	{
+		$filters = $request->request->get('filters');
+		$target = $request->request->get('target');
+		$criteriaField = $request->request->get('criteriaField');
+		
+		$structuredTarget = explode(":", $target);
+		
+		$type = $structuredTarget[0];
+		$ouuid = $structuredTarget[1];
+		
+		$revision = $this->initNewDraft($type, $ouuid);
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine ()->getManager ();
+		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		
+		$criteriaField = $revision->getDataField()->__get('ems_'.$criteriaField);	
+		
+		$filedType = clone $criteriaField->getFieldType();
+		$filedType->setType(CollectionItemFieldType::class);
+		$newDataField = new DataField();
+		$newDataField->setRevisionId($revision->getId());
+		$newDataField->setOrderKey($criteriaField->getChildren()->count());
+		$newDataField->setParent($criteriaField);
+		$newDataField->setFieldType($filedType);
+		$criteriaField->addChild($newDataField);
+			
+		$newDataField->updateDataStructure($filedType);
+		
+		foreach ($filters as $filter){
+			$newDataField->__get('ems_'.$filter['name'])->setTextValue($filter['value']);
+		}
+		
+		$newDataField->setFieldType(null);
+		
+		$this->finalizeDraft($revision);
+		
+		return new Response(json_encode([]));
+	}
+	
+	
+	/**
+	 *
+	 * @Route("/views/criteria/removeCriterion", name="views.criteria.remove"))
+     * @Method({"POST"})
+	 */
+	public function removeCriteriaAction(Request $request)
+	{
+		$filters = $request->request->get('filters');
+		$target = $request->request->get('target');
+		$criteriaField = $request->request->get('criteriaField');
+		
+		$structuredTarget = explode(":", $target);
+		
+		$type = $structuredTarget[0];
+		$ouuid = $structuredTarget[1];
+		
+		$revision = $this->initNewDraft($type, $ouuid);
+
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine ()->getManager ();
+		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		
+		$criteriaField = $revision->getDataField()->__get('ems_'.$criteriaField);
+		
+		/** @var DataField $child */
+		foreach ($criteriaField->getChildren() as $child){
+			$found = true;
+			foreach($filters as $filter) {
+				if(strcmp( $filter['value'], $child->__get('ems_'.$filter['name'])->getTextValue() ) != 0){
+					$found = false;
+					break;
+				}
+			}
+			if($found){
+				$criteriaField->removeChild($child);
+				break;
+			}
+		}
+
+		$this->finalizeDraft($revision);
+		
+		return new Response(json_encode([]));
 	}
 	
 	/**
@@ -113,26 +273,32 @@ class CriteriaController extends AppController
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine ()->getManager ();
 		/** @var ContentTypeRepository $repository */
-		$repository = $em->getRepository ( 'AppBundle:ContentType' );
+		$repository = $em->getRepository ( 'AppBundle:FieldType' );
 		
-		/** @var ContentType $contentType */
-		$contentType = $repository->find ( $request->query->get('contentTypeId'));
 		
 		/** @var \AppBundle\Entity\FieldType $field */
-		$field = $contentType->getFieldType()->__get($request->query->get('targetField'));
+		$field = $repository->find ( $request->query->get('targetField'));
+		
+
 		$choices = $field->getDisplayOptions()['choices'];
 		$choices = explode("\n", str_replace("\r", "", $choices));
+		$labels = $field->getDisplayOptions()['labels'];
+		$labels = explode("\n", str_replace("\r", "", $labels));
 		
 		$out = [
 			'incomplete_results' => false,
 			'total_count' => count($choices),
 			'items' => []
 		];
-		foreach ($choices as $choice){
-			$out['items'][] = [
-					'id' => $choice,
-					'text' => $choice,
-			];
+		
+		foreach ($choices as $idx => $choice) {
+			$label = isset($labels[$idx])?$labels[$idx]:$choice;
+			if( !$request->query->get('q') || stristr($choice, $request->query->get('q')) || stristr($label, $request->query->get('q'))) {
+				$out['items'][] = [
+						'id' => $choice,
+						'text' => $label,
+				];
+			}
 		}
 		
 		return new Response(json_encode($out));
