@@ -49,7 +49,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		if($options['prefixIcon'] || $options['prefixText'] || $options['suffixIcon'] || $options['suffixText'] ){
 			$builder->add ( 'text_value', IconTextType::class, [ 
 					'required' => false,
-					'label' => (null != $options ['label']?$options ['label']:' slsls'),
+					'label' => (null != $options ['label']?$options ['label']:null),
 					'icon' => $options['prefixIcon'],
 					'prefixText' => $options['prefixText'],
 					'suffixIcon' => $options['suffixIcon'],

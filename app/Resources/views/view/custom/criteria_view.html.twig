@@ -81,11 +81,33 @@ function formatRepo (repo) {
       repo.text + "</div>";
       
     return markup;
-  }
+}
 
-  function formatRepoSelection (repo) {
-    return repo.text;
-  }
+function formatRepoSelection (repo) {
+	return repo.text;
+}
+
+
+function formatRepoSelectionForTable (repo) {
+	var color = $(repo.element).data('color');
+	if(!color) {
+		color = repo.color;
+	}
+	
+	var url = "{{ url('data.revisions', {type: '__type__' , ouuid: '__ouuid__' }) }}";
+	url = url.replace('__type__:__ouuid__', repo.id);
+
+	var complementary;
+	if(color){
+		//var colorIntValue = parseInt(color.replace("#", "0x"));
+		//complementary = '#'+('000000' + (('0xffffff' ^ colorIntValue).toString(16))).slice(-6);
+
+		complementary = (luma(color.replace("#", "")) >= 165) ? '#000000' : '#ffffff';
+	}
+
+	var html = $("<a href=\""+url+"\" style=\"color: "+complementary+";background-color: "+color+"; padding: 2px;\">"+repo.text+"</a>");
+	return html;
+}
 
 $(window).load(function() {
 
@@ -132,7 +154,7 @@ $(window).load(function() {
 					  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
 					  minimumInputLength: 1,
 					  templateResult: formatRepo, // omitted for brevity, see the source of this page
-					  templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+					  templateSelection: formatRepoSelectionForTable // omitted for brevity, see the source of this page
 				});
 
 			  	$('#table_container select').change(function(){
@@ -147,7 +169,18 @@ $(window).load(function() {
 					  	$.post( "{{ url('views.criteria.add') }}", data)
 				  	  		.fail(function( ) {
 					  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
-					  		});
+					  	});
+
+// 					  	color = $(this).data('color');
+// 					  	console.log(color);
+// 					  	console.log($(this));
+// 					  	if(color){
+// 						  	$(this).closest('td').find('li[title="'+$(this).html()+'"]').each(function (){
+// 								console.log($(this));
+// 							  	$(this).attr('style', 'background-color: red; border-color: red;');
+// 							});
+// 						}
+					  	
 				  	});
 				  	
 				  	$(this).children("option:not(:selected)").each(function() {

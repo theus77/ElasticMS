@@ -157,6 +157,10 @@ function addEventListeners(target){
 		  	templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
 		});
     });	
+    
+	target.find(".colorpicker-component").colorpicker();
+
+	target.find(".colorpicker-component").bind('changeColor', onFormChange);
 }
 
 function formatRepo (repo) {

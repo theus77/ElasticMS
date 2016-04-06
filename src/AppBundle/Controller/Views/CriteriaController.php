@@ -151,11 +151,17 @@ class CriteriaController extends DataController
 						$label = $value;
 					}
 					
+					$color;
+					if($contentType->getColorField() && $item['_source'][$contentType->getColorField()]){
+						$color = $item['_source'][$contentType->getColorField()];
+					}
 					
 					$table[$rowIdx][$columnIdx][] = [
 						'label' => $label,
-						'value' => $value
+						'value' => $value,
+						'color' => $color,
 					];
+					
 				}
 			}
 			
@@ -194,25 +200,31 @@ class CriteriaController extends DataController
 		$repository = $em->getRepository('AppBundle:Revision');
 		
 		$criteriaField = $revision->getDataField()->__get('ems_'.$criteriaField);	
-		
-		$filedType = clone $criteriaField->getFieldType();
-		$filedType->setType(CollectionItemFieldType::class);
-		$newDataField = new DataField();
-		$newDataField->setRevisionId($revision->getId());
-		$newDataField->setOrderKey($criteriaField->getChildren()->count());
-		$newDataField->setParent($criteriaField);
-		$newDataField->setFieldType($filedType);
-		$criteriaField->addChild($newDataField);
+		if(! $this->findCriterion($criteriaField, $filters)){
+			$filedType = clone $criteriaField->getFieldType();
+			$filedType->setType(CollectionItemFieldType::class);
+			$newDataField = new DataField();
+			$newDataField->setRevisionId($revision->getId());
+			$newDataField->setOrderKey($criteriaField->getChildren()->count());
+			$newDataField->setParent($criteriaField);
+			$newDataField->setFieldType($filedType);
+			$criteriaField->addChild($newDataField);
+				
+			$newDataField->updateDataStructure($filedType);
 			
-		$newDataField->updateDataStructure($filedType);
-		
-		foreach ($filters as $filter){
-			$newDataField->__get('ems_'.$filter['name'])->setTextValue($filter['value']);
+			foreach ($filters as $filter){
+				$newDataField->__get('ems_'.$filter['name'])->setTextValue($filter['value']);
+			}
+			
+			$newDataField->setFieldType(null);
+			
+			$this->finalizeDraft($revision);
+			
+		}
+		else{
+			$this->discardDraft($revision);
 		}
 		
-		$newDataField->setFieldType(null);
-		
-		$this->finalizeDraft($revision);
 		
 		return new Response(json_encode([]));
 	}
@@ -244,6 +256,16 @@ class CriteriaController extends DataController
 		
 		$criteriaField = $revision->getDataField()->__get('ems_'.$criteriaField);
 		
+		while($child = $this->findCriterion($criteriaField, $filters)){
+			$criteriaField->removeChild($child);		
+		}
+
+		$this->finalizeDraft($revision);
+		
+		return new Response(json_encode([]));
+	}
+	
+	private function findCriterion(DataField $criteriaField, $filters){
 		/** @var DataField $child */
 		foreach ($criteriaField->getChildren() as $child){
 			$found = true;
@@ -254,14 +276,10 @@ class CriteriaController extends DataController
 				}
 			}
 			if($found){
-				$criteriaField->removeChild($child);
-				break;
+				return $child;
 			}
-		}
-
-		$this->finalizeDraft($revision);
-		
-		return new Response(json_encode([]));
+		}	
+		return false;
 	}
 	
 	/**

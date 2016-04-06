@@ -31,6 +31,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
   -->
   <link rel="stylesheet" href="{{ asset('bower/AdminLTE/dist/css/skins/skin-'~theme_color~'.min.css') }}">
 
+  <!-- Color Picker style -->
+  <link rel="stylesheet" href="{{ asset('bower/AdminLTE/plugins/colorpicker/bootstrap-colorpicker.css') }}">
 
   {% block stylesheets %}{% endblock %}
 
@@ -416,6 +418,8 @@ desired effect
 <script src="{{ asset('bower/bootstrap-datepicker/dist/js/bootstrap-datepicker.js') }}"></script>
 <!-- Select Picker App -->
 <script src="{{ asset('bower/bootstrap-select/dist/js/bootstrap-select.js') }}"></script>
+<!-- Color Picker App -->
+<script src="{{ asset('bower/AdminLTE/plugins/colorpicker/bootstrap-colorpicker.js') }}"></script>
 <!-- lazy loading -->
 <script src="{{ asset('bower/jquery_lazyload/jquery.lazyload.js') }}"></script>
 <!-- This app -->

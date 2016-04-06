@@ -29,6 +29,7 @@ class ContentTypeType extends AbstractType {
 
 // 		$builder->add ( 'active');
 		$builder->add ( 'labelField');
+		$builder->add ( 'colorField');
 // 		$builder->add ( 'parentField');
 // 		$builder->add ( 'userField');
 // 		$builder->add ( 'dateField');

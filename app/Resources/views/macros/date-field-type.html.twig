@@ -137,11 +137,13 @@
 			{% if dataField.fieldType.displayOptions.multiple %}
 				<ul>
 					{% for value in dataField.arrayTextValue %}
-						<li>{{ value }}</li>
+						{% set path = value|split(':') %}
+						<li><a href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ value }}</a></li>
 					{% endfor %}
 				</ul>
 			{% else %}
-				{{ dataField.textValue }}
+				{% set path = dataField.textValue|split(':') %}
+				<a href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ dataField.textValue }}</a>
 			{% endif %}
 		
 		</dd>
@@ -264,6 +266,24 @@
 		</dd>
 	</dl>
 {% endmacro %}
+
+{% macro AppBundle_Form_DataField_ColorPickerFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
+		<dd style="background-color: {{ dataField.textValue|raw }};"> 
+			{{ dataField.textValue|raw }}
+		</dd>
+	</dl>
+{% endmacro %}
+
+
+
 
 {% macro AppBundle_Form_DataField_RadioFieldType(dataField) %}
 	<dl>

@@ -118,7 +118,7 @@ class DataController extends AppController
 	}
 	
 	/**
-	 * @Route("/data/revisions/{type}/{ouuid}", name="data.revisions")
+	 * @Route("/data/revisions/{type}:{ouuid}", name="data.revisions")
 	 */
 	public function revisionsDataAction($type, $ouuid, Request $request)
 	{
@@ -135,13 +135,24 @@ class DataController extends AppController
 		if(!$contentTypes || count($contentTypes) != 1) {
 			throw new NotFoundHttpException('Content Type not found');
 		}
+		/** @var ContentType $contentType */
+		$contentType = $contentTypes[0];
+		
+		if(! $contentType->getEnvironment()->getManaged()){
+			return $this->redirectToRoute('data.view', [
+					'environmentName' => $contentType->getEnvironment()->getName(),
+					'type' => $type,
+					'ouuid' => $ouuid
+			]);
+		}
+		
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
 		$revision = $repository->findBy([
 				'endTime' => null,
 				'ouuid' => $ouuid,
-				'contentType' => $contentTypes[0],
+				'contentType' => $contentType,
 		]);
 		
 	
@@ -296,22 +307,12 @@ class DataController extends AppController
 		]);
 	}
 	
-	
-	/**
-	 * 
-	 * @Route("/data/draft/discard/{revisionId}", name="revision.discard"))
-     * @Method({"POST"})
-	 */
-	public function discardRevisionAction($revisionId, Request $request)
-	{
-		
-		/** @var EntityManager $em */ 
+	public function discardDraft(Revision $revision){
+		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
-		/** @var Revision $revision */
-		$revision = $repository->find($revisionId);
 		
 		if(!$revision) {
 			throw $this->createNotFoundException('Revision not found');
@@ -325,15 +326,15 @@ class DataController extends AppController
 		if(null != $revision->getOuuid()){
 			/** @var QueryBuilder $qb */
 			$qb = $repository->createQueryBuilder('t')
-				->where('t.ouuid = :ouuid')
-				->setParameter('ouuid', $revision->getOuuid())
-				->andWhere('t.id <> :id')
-				->setParameter('id', $revision->getId())
-				->orderBy('t.startTime', 'desc')
-				->setMaxResults(1);
+			->where('t.ouuid = :ouuid')
+			->setParameter('ouuid', $revision->getOuuid())
+			->andWhere('t.id <> :id')
+			->setParameter('id', $revision->getId())
+			->orderBy('t.startTime', 'desc')
+			->setMaxResults(1);
 			$query = $qb->getQuery();
-			
-			
+				
+				
 			$result = $query->getResult();
 			if(count($result) == 1){
 				/** @var Revision $previous */
@@ -341,16 +342,44 @@ class DataController extends AppController
 				$previous->setEndTime(null);
 				$em->persist($previous);
 			}
-			
+				
 		}
 		
-// 		$revision->getDataField()->detachRevision();
-// 		$em->persist($revision);
-// 		$em->flush();
+		// 		$revision->getDataField()->detachRevision();
+		// 		$em->persist($revision);
+		// 		$em->flush();
 		
 		$em->remove($revision);
+		
+		$em->flush();		
+	}
+	
+	/**
+	 * 
+	 * @Route("/data/draft/discard/{revisionId}", name="revision.discard"))
+     * @Method({"POST"})
+	 */
+	public function discardRevisionAction($revisionId, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+		/** @var Revision $revision */
+		$revision = $repository->find($revisionId);
+		
+		if(!$revision) {
+			throw $this->createNotFoundException('Revision not found');
+		}
+		if(!$revision->getDraft() || null != $revision->getEndTime()) {
+			throw BadRequestHttpException('Only authorized on a draft');
+		}
 
-		$em->flush();
+
+		$contentTypeId = $revision->getContentType()->getId();
+		
+		$this->discardDraft($revision);
 		
 		return $this->redirectToRoute('data.draft_in_progress', [
 				'contentTypeId' => $contentTypeId

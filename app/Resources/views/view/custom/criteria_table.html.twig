@@ -44,7 +44,8 @@
 {# 													<div class="form-group col-md-12">#}
 								                  <select style="width: 100%" multiple>
 								                  	{% for card in col %}
-									                    <option value="{{ card.value }}" selected>{{ card.label }}</option>
+									                    <option value="{{ card.value }}" selected 
+									                    data-color="{{ card.color }}">{{ card.label }}</option>
 								                  	{% endfor %}
 								                  </select>
 {# 													</div>#}

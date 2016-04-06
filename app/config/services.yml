@@ -34,6 +34,11 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: collection }
             - { name: form.type }
+    ems.fieldtype.colorpicker:
+        class: AppBundle\Form\DataField\ColorPickerFieldType
+        tags:
+            - { name: ems.form.datafieldtype, alias: colorpicker }
+            - { name: form.type }
     ems.fieldtype.nested:
         class: AppBundle\Form\DataField\NestedFieldType
         tags:

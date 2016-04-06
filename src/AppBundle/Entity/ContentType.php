@@ -134,6 +134,13 @@ class ContentType
      * @ORM\Column(name="labelField", type="string", length=100, nullable=true)
      */
     private $labelField;
+    
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="color_field", type="string", length=100, nullable=true)
+     */
+    private $colorField;
 
     /**
      * @var int
@@ -1132,5 +1139,29 @@ class ContentType
     public function getAskForOuuid()
     {
         return $this->askForOuuid;
+    }
+
+    /**
+     * Set colorField
+     *
+     * @param string $colorField
+     *
+     * @return ContentType
+     */
+    public function setColorField($colorField)
+    {
+        $this->colorField = $colorField;
+
+        return $this;
+    }
+
+    /**
+     * Get colorField
+     *
+     * @return string
+     */
+    public function getColorField()
+    {
+        return $this->colorField;
     }
 }
