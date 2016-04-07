@@ -48,7 +48,7 @@ twig:
         ems_name: <b>elastic</b>MS
         ems_shortname: <b>e</b>MS
     form_themes:
-        - 'form/fields.html.twig'
+        - "form/fields.html.twig"
 
 # Doctrine Configuration
 doctrine:

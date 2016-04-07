@@ -31,6 +31,9 @@
 									<tr role="row">
 										<th rowspan="1" colspan="1">&nbsp;</th>
 										{% for columnIdx in table|first|keys %}
+											{% if loop.index is divisible by(10) and loop.revindex >= 5 %}		
+												<td>&nbsp;</td>
+											{% endif %}
 											<th rowspan="1" colspan="1">{{ columnIdx|humanize }}</th>	
 										{% endfor %}
 										<th rowspan="1" colspan="1">&nbsp;</th>
@@ -38,9 +41,25 @@
 								</thead>
 								<tbody>
 									{% for rowIdx in table|keys %}
+										{% if loop.index is divisible by(10) and loop.revindex >= 5 %}
+											<tr role="row">
+												<td>&nbsp;</td>
+												{% for columnIdx in table|first|keys %}
+													{% if loop.index is divisible by(10) and loop.revindex >= 5 %}		
+														<td>&nbsp;</td>
+													{% endif %}
+													<th rowspan="1" colspan="1">{{ columnIdx|humanize }}</th>	
+												{% endfor %}
+												<td>&nbsp;</td>
+											</tr>
+										{% endif %}
+										
 										<tr role="row">
 											<th>{{ rowIdx|humanize }}</th>
 											{% for col in attribute(table, rowIdx) %}
+												{% if loop.index is divisible by(10) and loop.revindex >= 5 %}		
+													<th>{{ rowIdx|humanize }}</th>
+												{% endif %}
 												<td class="row" data-filters="[{ &quot;id&quot;:{{ rowFieldType.id|e }}, &quot;name&quot;: &quot;{{ rowFieldType.name|e }}&quot;, &quot;value&quot;: &quot;{{ rowIdx|e }}&quot; },{ &quot;id&quot;:{{ columnFieldType.id|e }}, &quot;name&quot;: &quot;{{ columnFieldType.name|e }}&quot;, &quot;value&quot;: &quot;{{ attribute(table|first|keys, loop.index0) }}&quot;}]">
 {# 													<div class="form-group col-md-12">#}
 								                  <select style="width: 100%" multiple>
@@ -67,6 +86,9 @@
 									<tr>
 										<th rowspan="1" colspan="1">&nbsp;</th>
 										{% for columnIdx in table|first|keys %}
+											{% if loop.index is divisible by(10) and loop.revindex >= 5 %}		
+												<td>&nbsp;</td>
+											{% endif %}
 											<th rowspan="1" colspan="1">{{ columnIdx|humanize }}</th>	
 										{% endfor %}
 										<th rowspan="1" colspan="1">&nbsp;</th>
