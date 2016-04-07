@@ -23,16 +23,17 @@
 				<div id="example1_wrapper"
 					class="dataTables_wrapper form-inline dt-bootstrap">
 					<div class="row">
-						<div class="col-sm-12">
+						<div class="col-sm-12 table-responsive">
 							<table id="example1"
 								class="table table-bordered table-striped dataTable" role="grid"
-								aria-describedby="example1_info">
+								aria-describedby="example1_info" data-filters="{{ criteriaFilters|json_encode }}" >
 								<thead>
 									<tr role="row">
 										<th rowspan="1" colspan="1">&nbsp;</th>
 										{% for columnIdx in table|first|keys %}
 											<th rowspan="1" colspan="1">{{ columnIdx|humanize }}</th>	
 										{% endfor %}
+										<th rowspan="1" colspan="1">&nbsp;</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -51,6 +52,7 @@
 {# 													</div>#}
 												</td>
 											{% endfor %}
+											<th>{{ rowIdx|humanize }}</th>
 										</tr>
 									{% endfor %}
 {# 									<tr role="row" class="odd">#}
@@ -67,6 +69,7 @@
 										{% for columnIdx in table|first|keys %}
 											<th rowspan="1" colspan="1">{{ columnIdx|humanize }}</th>	
 										{% endfor %}
+										<th rowspan="1" colspan="1">&nbsp;</th>
 									</tr>
 								</tfoot>
 							</table>

@@ -17,6 +17,8 @@
 			<!-- /.box-header -->
 			<!-- form start -->
 			<form action="{{ url('views.criteria.table') }}" method="get" name="criteriaconfig">
+				<input type="hidden" name="contentTypeId" value="{{ contentType.id }}">
+				<input type="hidden" name="viewId" value="{{ view.id }}">
 				<div class="box-body">
 					{% for criteria in criterionList.validChildren %}
 						<div class="form-group col-md-3">
@@ -36,15 +38,26 @@
 		                    	{% endfor %}
 			                </select>
 						</div>
-						{% if loop.index < (criterionList.validChildren|length - 1)  %}
 							<div class="form-group col-md-3">
 								<label for="criterion_filter_{{ loop.index }}">
-									Criterion {{ loop.index }} (filter)
+									{% if loop.index == criterionList.validChildren|length %}
+										Column
+									{% elseif (loop.index+1) == criterionList.validChildren|length  %}
+										Row
+									{% else %}
+										Criterion {{ loop.index }}
+									{% endif %}
+									(filter)
 								</label>
-								<select data-field-target="criterion_{{ loop.index }}" class="form-control select2Filter" id="criterion_filter_{{ loop.index }}" name="criterion[{{ loop.index-1 }}][filter]" style="width: 100%;">
+								<select 
+									{% if loop.index >= (criterionList.validChildren|length - 1)  %}
+										multiple="multiple" 
+									{% else %}
+										required="true"
+									{% endif %}									
+									data-field-target="criterion_{{ loop.index }}" class="form-control select2Filter" id="criterion_filter_{{ loop.index }}" name="criterion[{{ loop.index-1 }}][filters][]" style="width: 100%;">
 				                </select>
 							</div>
-						{% endif %}
 					{% endfor %}
 				</div>
 				<!-- /.box-body -->
@@ -117,7 +130,7 @@ $(window).load(function() {
 
 		$('#table_container').empty();
 		
-		$.get("{{ url('views.criteria.table') }}", formContent+'&contentTypeId={{ contentType.id }}'+'&viewId={{ view.id }}')
+		$.get("{{ url('views.criteria.table') }}", formContent)
 		  .done(function(message) {
 
 			  $('#table_container').append(message);
@@ -158,7 +171,7 @@ $(window).load(function() {
 				});
 
 			  	$('#table_container select').change(function(){
-					var filters = $.merge( $(this).closest('td').data('filters'), $('form#criteria-form').data('filters') )
+					var filters = $.merge( $(this).closest('td').data('filters'), $(this).closest('table').data('filters') )
 				  	$(this).children("option:selected").each(function() {
 					  	var data = { 
 					  			filters: filters, 

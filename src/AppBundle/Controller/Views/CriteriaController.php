@@ -61,54 +61,80 @@ class CriteriaController extends DataController
 				]
 			] 
 		];
-		
-		$row = null;
-		$column = null;
 
 		/** @var FieldTypeRepository $fieldTypeRepository */
 		$fieldTypeRepository = $em->getRepository ( 'AppBundle:FieldType' );
 		$criteriaFilters = [];
 		
-		foreach ($request->query->get('criterion', []) as $criteria){
-			if(isset($criteria['filter'])){
-				/** @var \AppBundle\Entity\FieldType $fieldType */
-				$fieldType = $fieldTypeRepository->find($criteria['field']);
-				
-				$criteriaFilters[] = [
-						'id' => $fieldType->getId(),
-						'name' => $fieldType->getName(),
-						'value' => $criteria['filter'],
-				];
-				
-				$body['query']['nested']['query']['and'][] = [
-					'term' => [
-						$view->getStructuredOptions()['criteriaField'].'.'.$fieldType->getName() => [
-							'value' => $criteria['filter']
-						]
-					]
-				];		
-			}
-			else{
-				if($row){
-					$column = $criteria['field'];
-				}
-				else{
-					$row = $criteria['field'];
-				}
-			}
+		$criterionRequest = $request->query->get('criterion', []);
+		
+		foreach ($criterionRequest as $criteria){
+			/** @var \AppBundle\Entity\FieldType $fieldType */
+			$fieldType = $fieldTypeRepository->find($criteria['field']);
 			
+			$criteriaFilters[] = [
+					'id' => $fieldType->getId(),
+					'name' => $fieldType->getName(),
+					'value' => isset($criteria['filters'])?$criteria['filters'][0]:null,
+			];
+			
+			if(isset($criteria['filters'])){
+				if(count($criteria['filters']) > 1){
+					$subquery = [
+						"or" => []	
+					];
+					foreach ($criteria['filters'] as $filter){
+						$subquery['or'][] = [
+							'term' => [
+								$view->getStructuredOptions()['criteriaField'].'.'.$fieldType->getName() => [
+									'value' => $filter
+								]
+							]
+						];
+					}
+				}
+				else {
+					$subquery = [
+						'term' => [
+							$view->getStructuredOptions()['criteriaField'].'.'.$fieldType->getName() => [
+								'value' => $criteria['filters'][0]
+							]
+						]
+					];
+				}
+				
+				$body['query']['nested']['query']['and'][] = $subquery;	
+				
+			}
+		}
+		
+
+		$column = end($criterionRequest);
+		$row = prev($criterionRequest);
+		
+		/** @var \AppBundle\Entity\FieldType $columnField */
+		$columnField = $fieldTypeRepository->find($column['field']);
+		if( !isset($column['filters']) || count($column['filters']) == 0 ){
+			
+			$columns = $columnField->getDisplayOptions()['choices'];
+			$columns = explode("\n", str_replace("\r", "", $columns));
+		}
+		else{
+			$columns = $column['filters'];
 		}
 
-		/** @var \AppBundle\Entity\FieldType $columnField */
-		$columnField = $fieldTypeRepository->find($column);
 		/** @var \AppBundle\Entity\FieldType $rowField */
-		$rowField = $fieldTypeRepository->find($row);
+		$rowField = $fieldTypeRepository->find($row['field']);			
+		if( !isset($row['filters']) || count($row['filters']) == 0 ){
+			
+			$rows = $rowField->getDisplayOptions()['choices'];
+			$rows = explode("\n", str_replace("\r", "", $rows));
+		}
+		else{
+			$rows = $row['filters'];
+		}
 		
-		$columns = $columnField->getDisplayOptions()['choices'];
-		$columns = explode("\n", str_replace("\r", "", $columns));
 		
-		$rows = $rowField->getDisplayOptions()['choices'];
-		$rows = explode("\n", str_replace("\r", "", $rows));
 		
 		$table = [];
 		foreach($rows as $rowItem){
@@ -124,16 +150,17 @@ class CriteriaController extends DataController
 			'type' => $contentType->getName(),
 			'body' => $body
 		]);
-		
+
 		foreach ($result['hits']['hits'] as $item){
 			foreach ($item['_source'][$criteriaField] as $criterion){
 				$relevant = true;
-				foreach ($request->query->get('criterion', []) as $filter){
-					if(isset($filter['filter'])){
+				foreach ($criterionRequest as $filter){
+					if(isset($filter['filters']) && count($filter['filters']) > 0){
 						$criterionName = $fieldTypeRepository->find($filter['field'])->getName();
-						if( strcmp($criterion[$criterionName], $filter['filter']) != 0){
+						if( ! in_array($criterion[$criterionName], $filter['filters'])){
+							dump($criterion[$criterionName]." not in so not relevant");
 							$relevant = false;
-							break;
+							break;						
 						}
 					}
 				}
@@ -166,6 +193,11 @@ class CriteriaController extends DataController
 			}
 			
 		}
+
+		//remove the row and the column not needed in the twig as they are specific to each cell
+		array_pop($criteriaFilters);
+		array_pop($criteriaFilters);
+		
 		return $this->render( 'view/custom/criteria_table.html.twig',[
 			'table' => $table,
 			'criterion' => $request->query->get('criterion', []),
