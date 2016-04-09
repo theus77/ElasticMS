@@ -100,6 +100,10 @@
 											'url': path('revision.edit', {'revisionId': rev.id}), 
 											'label': 'Edit revision', 
 											'icon': 'pencil' }%}
+										{% include 'elements/post-button.html.twig' with { 
+											'url': path('revision.revert', {'id': rev.id}), 
+											'label': 'Revert revision', 
+											'icon': 'undo' }%}
 										{% if rev.environments|length %}
 											{% include 'elements/post-button.html.twig' with { 
 												'url': path('revision.reindex', {'revisionId': rev.id}), 

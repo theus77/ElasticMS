@@ -178,8 +178,7 @@ class DataController extends AppController
 		] );
 	}
 	
-	
-	public function initNewDraft($type, $ouuid){
+	public function getNewestRevision($type, $ouuid){
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
 		
@@ -209,21 +208,37 @@ class DataController extends AppController
 			throw new NotFoundHttpException('Unknown revision');
 		}
 		$revision = $revisions[0];
-
+		
+		return $revision;
+	}
+	
+	public function initNewDraft($type, $ouuid, $fromRev = null){
+		
+		$revision = $this->getNewestRevision($type, $ouuid);
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
 		$revision->getDataField()->propagateOuuid($revision->getOuuid());
+		
 		if(! $revision->getDraft()){
 			$now = new \DateTime();
-
-			$newDraft = new Revision($revision);
+		
+			if ($fromRev){
+				$newDraft = new Revision($fromRev);
+			} else {
+				$newDraft = new Revision($revision);
+			}
+			
 			$newDraft->setStartTime($now);
 			$revision->setEndTime($now);
-			
+				
 			$em->persist($revision);
 			$em->persist($newDraft);
-			$em->flush();	
+			$em->flush();
 			return $newDraft;
 		}
 		return $revision;
+	
 	}
 	
 
@@ -819,6 +834,29 @@ class DataController extends AppController
 				'contentType' =>  $contentType,
 				'form' => $form->createView(),
 		] );	
+	}
+	
+	/**
+	 * @Route("/data/draft/revert/{id}", name="revision.revert"))
+	 * @Method({"POST"})
+	 */
+	public function revertRevisionAction(Revision $revision, Request $request)
+	{
+		$type = $revision->getContentType()->getName();
+		$ouuid = $revision->getOuuid();
+		
+		$newestRevision = $this->getNewestRevision($type, $ouuid);
+		if ($newestRevision->getDraft()){
+			$this->addFlash('error', 'Revert functionality does not work when a non finalized draft exists. Please discard your draft first.');
+			return $this->redirect($request->headers->get('referer'));
+		}
+		
+		$revertedRevsision = $this->initNewDraft($type, $ouuid, $revision);
+		$this->addFlash('notice', 'Revision '.$revision->getId().' reverted as draft');
+		
+		return $this->redirectToRoute('revision.edit', [
+				'revisionId' => $revertedRevsision->getId()
+		]);
 	}
 	
 }

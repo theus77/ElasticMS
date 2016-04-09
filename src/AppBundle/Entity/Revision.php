@@ -129,6 +129,11 @@ class Revision
     	}
     }
     
+    function __clone()
+    {
+    	$this->id = null;
+    }
+    
     function __construct()
     {
 
