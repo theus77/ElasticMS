@@ -837,7 +837,7 @@ class DataController extends AppController
 	}
 	
 	/**
-	 * @Route("/data/draft/revert/{id}", name="revision.revert"))
+	 * @Route("/data/revisions/revert/{id}", name="revision.revert"))
 	 * @Method({"POST"})
 	 */
 	public function revertRevisionAction(Revision $revision, Request $request)
@@ -847,8 +847,7 @@ class DataController extends AppController
 		
 		$newestRevision = $this->getNewestRevision($type, $ouuid);
 		if ($newestRevision->getDraft()){
-			$this->addFlash('error', 'Revert functionality does not work when a non finalized draft exists. Please discard your draft first.');
-			return $this->redirect($request->headers->get('referer'));
+			
 		}
 		
 		$revertedRevsision = $this->initNewDraft($type, $ouuid, $revision);
