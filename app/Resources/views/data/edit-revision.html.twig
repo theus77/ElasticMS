@@ -21,7 +21,7 @@
 
 <div class="box box-primary">
 	<div class="box-header with-border">
-		<h3 class="box-title text-{{ revision.contentType.color }}"><i class="{% if revision.contentType.icon %}{{ revision.contentType.icon }} {% else %} fa fa-question {% endif %} "></i> {{ revision.contentType.name }}</h3>
+		<h3 class="box-title text-{{ revision.contentType.color }}"><i class="{% if revision.contentType.icon %}{{ revision.contentType.icon }} {% else %} fa fa-question {% endif %} "></i>&nbsp;&nbsp;&nbsp;{{ revision.contentType.name|humanize }}</h3>
 	</div>
 	<!-- /.box-header -->
 	<!-- form start -->
@@ -63,6 +63,12 @@ function onFormChange(){
 	{% if revision.draft %}
 		if(!globalWaitingResponse){
 			globalWaitingResponse = true;
+			
+			//update ckeditor's textareas
+			for (var i in CKEDITOR.instances) {
+		        CKEDITOR.instances[i].updateElement();
+			}
+			
 			$.post("{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}", $("form[name={{ form.vars.id }}]").serialize())
 			  .done(function(message) {
 				  var response = jQuery.parseJSON( message );
