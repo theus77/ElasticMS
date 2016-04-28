@@ -18,7 +18,7 @@ services:
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
         factory: [AppBundle\Factories\ElasticsearchClientBuilderFactory, build]
-        arguments: [['http://localhost:9200']]
+        arguments: [%elasticsearch_cluster%]
     app.twig.extension.stringloader:
         class: Twig_Extension_StringLoader
         tags:
