@@ -2,6 +2,8 @@
 namespace AppBundle\Twig;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
+use AppBundle\Form\DataField\DateFieldType;
+use AppBundle\Form\DataField\TimeFieldType;
 
 class AppExtension extends \Twig_Extension
 {
@@ -21,7 +23,15 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('dump', array($this, 'dump')),
 				new \Twig_SimpleFilter('inArray', array($this, 'inArray')),
 				new \Twig_SimpleFilter('firstInArray', array($this, 'firstInArray')),
+				new \Twig_SimpleFilter('md5', array($this, 'md5')),
+				new \Twig_SimpleFilter('convertJavaDateFormat', array($this, 'convertJavaDateFormat')),
+				new \Twig_SimpleFilter('getTimeFieldTimeFormat', array($this, 'getTimeFieldTimeFormat')),
 		);
+	}
+
+	public function md5($value)
+	{
+    	return md5($value);
 	}
 
 	public function searchesList($username)
@@ -36,6 +46,16 @@ class AppExtension extends \Twig_Extension
 	public function dump($object)
 	{
     	dump($object);
+	}
+
+	public function convertJavaDateFormat($format)
+	{
+    	return DateFieldType::convertJavaDateFormat($format);
+	}
+
+	public function getTimeFieldTimeFormat($options)
+	{
+    	return TimeFieldType::getFormat($options);
 	}
 
 	public function inArray($needle, $haystack)
