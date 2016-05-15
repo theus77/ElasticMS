@@ -1,0 +1,19 @@
+form:
+    login:
+        username: Username
+        password: Password
+        remember_me: 'Remember me'
+        submit: 'Sign In'
+        login: 'Sign in to start your session'
+layout:
+    logged_in_as: 'Logged in as %username%'
+ROLE_USER: 'User'
+ROLE_SUPER_USER: 'Super user'
+ROLE_AUTHOR: 'Author'
+ROLE_SUPER_AUTHOR: 'Super author'
+ROLE_PUBLISHER: 'publisher'
+ROLE_SUPER_PUBLISHER: 'Super publisher'
+ROLE_WEBMASTER: 'Webmaster'
+ROLE_SUPER_WEBMASTER: 'Super webmaster'
+ROLE_ADMIN: 'Admin'
+ROLE_SUPER_ADMIN: 'Super admin'
