@@ -363,7 +363,32 @@
 			{% endif %}
 		</dt>
 		<dd>
-			{{ dataField.dateValue }}
+			<ul>
+				{% for value in dataField.dataValues %}
+					<li>
+						{{ value.dateValue|date(dataField.fieldType.displayOptions.displayFormat|convertJavaDateFormat) }}
+						({{ value.dateValue|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})
+					</li>
+				{% endfor %}
+			</ul>
+		</dd>
+	</dl>
+{% endmacro %}
+
+{% macro AppBundle_Form_DataField_TimeFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name|raw }}
+			{% endif %}
+		</dt>
+		<dd>
+			{% for value in dataField.dataValues %}
+				{{ value.dateValue|date(dataField.fieldType.structuredOptions|getTimeFieldTimeFormat) }}
+				({{ value.dateValue|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})
+			{% endfor %}
 		</dd>
 	</dl>
 {% endmacro %}

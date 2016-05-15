@@ -1,5 +1,7 @@
 app:
     resource: "@AppBundle/Controller/"
     type:     annotation
-logout:
-    path: /logout
+#logout:
+#    path: /logout
+fos_user:
+    resource: "@FOSUserBundle/Resources/config/routing/all.xml"

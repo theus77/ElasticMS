@@ -89,6 +89,46 @@ function onFormChange(){
 	{% endif %}
 }
 
+function attachObjectPicker(domId) {
+
+	$('#'+domId).find('.cke_dialog_ui_input_select').css('width', '100%');
+	$('#'+domId).find('.cke_dialog_ui_input_select').css('z-index', '20000');
+	$('#'+domId).find('select').select2({
+		ajax: {
+			url: '{{ url("elasticsearch.api.search") }}',
+	    	dataType: 'json',
+	    	delay: 250,
+	    	data: function (params) {
+	      		return {
+		        q: params.term, // search term
+		        page: params.page,
+		        environment: environment,
+		        type: type
+		      };
+		    },
+			processResults: function (data, params) {
+				// parse the results into the format expected by Select2
+				// since we are using custom formatting functions we do not need to
+				// alter the remote JSON data, except to indicate that infinite
+				// scrolling can be used
+				params.page = params.page || 1;
+		
+		      	return {
+			        results: data.items,
+			        pagination: {
+			          more: (params.page * 30) < data.total_count
+			        }
+		      	};
+	    	},
+	    	cache: true
+	  	},
+	  	//escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+	  	//templateResult: formatRepo, // omitted for brevity, see the source of this page
+	  	//templateSelection: formatRepoSelection, // omitted for brevity, see the source of this page
+	  	minimumInputLength: 1
+	});
+}
+
 function addEventListeners(target){
 	target.find('.remove-content-button').on('click', function(e) {
 		// prevent the link from creating a "#" on the URL
@@ -122,6 +162,14 @@ function addEventListeners(target){
         panel.children('.panel-body').append(newForm);
         onFormChange();
         
+	});
+
+	target.find(".ckeditor_ems").each(function(index){
+		CKEDITOR.replace( $( this ).attr('id'), {
+			//uiColor: 'pink',
+			removePlugins: 'link',
+			extraPlugins: 'adv_link'
+		});
 	});
 	
 	target.find(".objectpicker").each(function(index){
@@ -167,6 +215,48 @@ function addEventListeners(target){
 	target.find(".colorpicker-component").colorpicker();
 
 	target.find(".colorpicker-component").bind('changeColor', onFormChange);
+
+	target.find(".timepicker").each(function(index){
+
+		var settings = {
+	            showMeridian: 	$( this ).data('show-meridian'),
+	            explicitMode: 	$( this ).data('explicit-mode'),
+        		minuteStep: 	$( this ).data('minute-step')
+		};
+
+		var defaultTime = $( this ).data('default-time');
+		console.log( defaultTime !== false );
+		if(defaultTime !== false) {
+			if(defaultTime){
+				settings.defaultTime = defaultTime;
+			}
+			else {
+				settings.defaultTime = false;
+			}
+		}
+		console.log($( this ).val());
+
+		console.log(settings);
+		$( this ).timepicker(settings);
+
+		
+		if(defaultTime === false && !$( this ).val() ) {
+			$( this ).timepicker('setTime', new Date() );
+		}
+	});
+
+
+	target.find('.datepicker').each(function( index ) {
+	  $(this).datepicker({
+	    format: $(this).attr('data-date-format'),
+	    todayBtn: true,
+	    weekStart: $(this).attr('data-week-start'),
+	    daysOfWeekHighlighted: $(this).attr('data-days-of-week-highlighted'),
+	    daysOfWeekDisabled: $(this).attr('data-days-of-week-disabled'),
+	    todayHighlight: $(this).attr('data-today-highlight'),
+	    multidate: $(this).attr('data-multidate')?true:false
+	  })
+	});
 }
 
 function formatRepo (repo) {

@@ -37,7 +37,7 @@ class WysiwygFieldType extends DataFieldType {
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		$builder->add ( 'text_value', TextareaSymfonyType::class, [ 
 				'attr' => [ 
-						'class' => 'ckeditor' 
+						'class' => 'ckeditor_ems' 
 				],
 				'label' => $options['label'],
 				'required' => false,

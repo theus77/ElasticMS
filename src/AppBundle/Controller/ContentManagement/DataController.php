@@ -753,19 +753,13 @@ class DataController extends AppController
 		
 	
 	/**
-	 * @Route("/data/add/{contentTypeId}", name="data.add"))
+	 * @Route("/data/add/{contentType}", name="data.add"))
 	 */
-	public function addAction($contentTypeId, Request $request)
+	public function addAction(ContentType $contentType, Request $request)
 	{
 		$em = $this->getDoctrine()->getManager();
 		
 		$repository = $em->getRepository('AppBundle:ContentType');
-		/** @var ContentType $contentType */
-		$contentType = $repository->find($contentTypeId);
-		
-		if(!$contentType){
-			throw new NotFoundHttpException('Unknown content type');
-		}
 		
 		$revision = new Revision();
 		

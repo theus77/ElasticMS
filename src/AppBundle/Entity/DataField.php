@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use AppBundle\Form\DataField\CollectionFieldType;
 use AppBundle\Form\DataField\DateFieldType;
+use AppBundle\Form\DataField\DataFieldType;
 
 /**
  * DataField
@@ -81,7 +82,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     private $children;
     
     /**
-     * @ORM\OneToMany(targetEntity="DataValue", mappedBy="dataField", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="DataValue", mappedBy="dataField", cascade={"persist", "remove"}, orphanRemoval=true)
      * @ORM\OrderBy({"indexKey" = "ASC"})
      */
     private $dataValues;
@@ -101,6 +102,25 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    		}  		
 	    		$this->children->next();
     		}
+    	}
+    }
+
+
+    /*
+     * Ensure the the dataValue collection have the right number of elements
+     * typically called by setter function of DataFieldType forms
+     */
+    public function prepareDataValues($count) {
+    	
+    	while(count($this->dataValues) > $count){
+    		$this->dataValues->removeElement($this->dataValues->last());
+    	}
+    	
+    	while(count($this->dataValues) < $count){
+    		$value = new DataValue();
+    		$value->setDataField($this);
+    		$value->setIndexKey(count($this->dataValues));
+    		$this->dataValues->add($value);
     	}
     }
     
@@ -482,54 +502,33 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 		return $value->getFloatValue();
 	}
 	
+	
+
+
 	/**
-	 * Set dateValue
+	 * Set dataValue, the set of field is delegated to the corresponding fieldType class
 	 *
-	 * @param \DateTime $dateValue        	
+	 * @param \DateTime $dateValue
 	 *
 	 * @return DataField
 	 */
-	public function setDateValue($dateValue) {
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if (! $value) {
-			$value = new DataValue ();
-			$this->dataValues->set ( 0, $value );
-		}
-		
-		$dateFormat = $this->getFieldType()->getMappingOptions()['format'];
-
-		//TODO: naive approch....find a way to comvert java date format into php
-		$dateFormat = str_replace('dd', 'd', $dateFormat);
-		$dateFormat = str_replace('mm', 'm', $dateFormat);
-		$dateFormat = str_replace('yyyy', 'Y', $dateFormat);
-		
-		$value->setDateValue( \DateTime::createFromFormat($dateFormat, $dateValue) );
-		$value->setIndexKey(0);
-		$value->setDataField($this);
-		
+	public function setDataValue($inputString) {
+		$this->getFieldType()->setDataValue($inputString, $this);		
 		return $this;
 	}
 	
+
+
 	/**
-	 * Get dateValue
+	 * Get dataValue, the get of field is delegated to the corresponding fieldType class
 	 *
-	 * @return \DateTime
+	 * @param \DateTime $dateValue
+	 *
+	 * @return DataField
 	 */
-	public function getDateValue() {
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if ($value) {
-			$dateFormat = $this->getFieldType()->getMappingOptions()['format'];
-			
-			//TODO: naive approch.... find a way to comvert java date format into php
-			$dateFormat = str_replace('dd', 'd', $dateFormat);
-			$dateFormat = str_replace('mm', 'm', $dateFormat);
-			$dateFormat = str_replace('yyyy', 'Y', $dateFormat);
-			
-			return $value->getDateValue()->format($dateFormat);
-		}
-		
+	public function getDataValue() {
+		if($this->getFieldType())
+			return $this->getFieldType()->getDataValue($this);
 		return null;
 	}
 	

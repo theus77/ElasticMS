@@ -3,6 +3,8 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use AppBundle\Form\DataField\DataFieldType;
 
 /**
  * FieldType
@@ -144,7 +146,36 @@ class FieldType
 	    	}    		
     	}
     }
+
+
+    /**
+     * set the data value(s) from a string received from the symfony form) in the context of this field
+     *
+     * @return \DateTime
+     */
+    public function setDataValue($input, DataField &$dataField) {
+    	$type = $this->getType();
+    	/** @var DataFieldType $dataFieldType */
+    	$dataFieldType = new $type;
+    	 
+    	$dataFieldType->setDataValue($input, $dataField, $this->getStructuredOptions());
+    	 
+    }
+    
+    /**
+     * get the data value(s) as a string received for the symfony form) in the context of this field
+     *
+     * @return \DateTime
+     */
+    public function getDataValue(DataField &$dataField) {
+    	$type = $this->getType();
+    	/** @var DataFieldType $dataFieldType */
+    	$dataFieldType = new $type;
     	
+    	return $dataFieldType->getDataValue($dataField, $this->getStructuredOptions());
+    	
+    }
+    
     /**
      * Get created
      *

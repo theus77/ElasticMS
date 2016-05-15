@@ -117,6 +117,14 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: date }
             - { name: form.type }
+    ems.fieldtype.time:
+        class: AppBundle\Form\DataField\TimeFieldType
+        #arguments: ['%date_format%']
+        #calls:
+        #    - [setDateFormat, ['%date_format%']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: time }
+            - { name: form.type }
 #### End list available ems views ###
 #### Begin list available ems FieldDataType ###
     ems.view.keywords:

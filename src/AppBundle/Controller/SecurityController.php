@@ -5,10 +5,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 
+
+//TODO: deprecated controller delegated to FOSUser, but we still need it to implement the eMS users provider
+//http://symfony.com/doc/current/cookbook/security/multiple_user_providers.html
+//http://symfony.com/doc/current/cookbook/security/entity_provider.html
+//http://symfony.com/doc/current/book/security.html#where-do-users-come-from-user-providers
+//http://symfony.com/doc/current/cookbook/security/access_control.html
+//http://symfony.com/doc/current/book/security.html
+
 class SecurityController extends Controller
 {
 	/**
-	 * @Route("/login", name="login")
+	 * @Route("/login_OLD", name="login")
 	 */
 	public function loginAction(Request $request)
 	{
@@ -31,7 +39,7 @@ class SecurityController extends Controller
 	}
 
 	/**
-	 * @Route("/login_check", name="login_check")
+	 * @Route("/login_check_OLD", name="login_check")
 	 */
 	public function loginCheckAction()
 	{

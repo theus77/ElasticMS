@@ -26,6 +26,24 @@ abstract class DataFieldType extends AbstractType {
 	 * @return string
 	 */
 	abstract public function getLabel();	
+
+
+	/**
+	 * get the data value(s), as string, for the symfony form) in the context of this field
+	 *
+	 */
+	public function getDataValue(DataField &$dataValues, array $options){
+		//TODO: should be abstract ??
+		throw new \Exception('This function should never be called');
+	}	
+	/**
+	 * set the data value(s) from a string recieved from the symfony form) in the context of this field
+	 *
+	 */
+	public function setDataValue($input, DataField &$dataValues, array $options){
+		//TODO: should be abstract ??
+		throw new \Exception('This function should never be called');
+	}
 	
 	/**
 	 * Get a icon to visually identify a FieldType
