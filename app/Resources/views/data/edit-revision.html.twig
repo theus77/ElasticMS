@@ -167,8 +167,9 @@ function addEventListeners(target){
 	target.find(".ckeditor_ems").each(function(index){
 		CKEDITOR.replace( $( this ).attr('id'), {
 			//uiColor: 'pink',
-			removePlugins: 'link',
-			extraPlugins: 'adv_link'
+			//removePlugins: 'link',
+			//extraPlugins: 'adv_link'
+			//TODO: include the eMS plugin
 		});
 	});
 	
