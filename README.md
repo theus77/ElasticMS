@@ -42,7 +42,8 @@ Verify the project's elasticsearch configuration in `src\AppBundle\Resources\con
 And now we can launch Symfony's build in server:
 > php bin/console server:run
 
-Then you have to create a super-admin user: php bin/console fos:user:create admin --super-admin
+Then you have to create a super-admin user: 
+> php bin/console fos:user:create admin --super-admin
 
 
 //Todo add information about the elasticsearch cluster

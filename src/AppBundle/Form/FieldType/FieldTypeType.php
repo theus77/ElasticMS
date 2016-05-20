@@ -51,7 +51,7 @@ class FieldTypeType extends AbstractType
 	    			'required' => false
 	    	]);    	
 	    	$builder->add ( 'ems:internal:add:field:name', TextType::class, [
-	    			'label' => 'Field\'s name',
+	    			'label' => 'Field\'s machine name',
 	    			'mapped' => false,
 	    			'required' => false,
 	    	]);
