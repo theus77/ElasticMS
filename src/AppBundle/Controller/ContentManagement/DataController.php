@@ -32,6 +32,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\Response;
 
 class DataController extends AppController
 {
@@ -549,6 +550,22 @@ class DataController extends AppController
 		catch (\Twig_Error $e){
 			$this->addFlash('error', 'There is something wrong with the template '.$contentType->getName());
 			$body = $twig->createTemplate('');
+		}
+		
+		if ("xml" == $_format){
+			$response = new Response($this->renderView( 'data/custom-view.'.$_format.'.twig', [
+				'template' =>  $template,
+				'object' => $object,
+				'environment' => $environment,
+				'contentType' => $template->getContentType(),
+				'body' => $body
+			] ));
+			
+			$response->setStatusCode(Response::HTTP_OK);
+			$response->headers->set('Content-Type', 'application/xml');
+			$response->headers->set("Content-Disposition","attachment; filename=".$ouuid);
+			
+			return $response;
 		}
 		
 		return $this->render( 'data/custom-view.'.$_format.'.twig', [
