@@ -12,9 +12,9 @@ class RenderOptionType extends ChoiceType {
 	const EXTERNALLINK = 'externalLink';
 	
 	private $choices = [
-		 'embed' => self::EMBED,
-		 'export' => self::EXPORT,
-		 'externalLink' => self::EXTERNALLINK,
+		 'Embed' => self::EMBED,
+		 'Export' => self::EXPORT,
+		 'External link' => self::EXTERNALLINK,
 	];
 	
 	/**
