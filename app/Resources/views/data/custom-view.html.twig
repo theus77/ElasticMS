@@ -27,20 +27,45 @@
 				<h3 class="box-title">View {{ template.name }}</h3>
 			</div>
 			<div class="box-body">
-				{% include template_from_string(template.body) with {
-									environment: environment,
-									contentType: contentType,
-									object: object,
-									source: object._source
-								} %}
+				{%  if template.body and template.renderOption is constant('EMBED', template) %}
+					{% include template_from_string(template.body) with {
+										environment: environment,
+										contentType: contentType,
+										object: object,
+										source: object._source
+									} %}
+				{% elseif template.body and template.renderOption is constant('EXPORT', template) %}
+					{% include template_from_string(template.body|nl2br) with {
+										environment: environment,
+										contentType: contentType,
+										object: object,
+										source: object._source
+									} %}
+				{% endif %}
 			</div>
 			<!-- /.box-body -->
 			<div class="box-footer">
+				<div class="btn-toolbar pull-right" role="toolbar" style="margin: 0;">
+					<div class="btn-group">
+						{% if template.body and template.renderOption is constant('EXPORT', template) %}
+							{% include 'elements/get-button.html.twig' with {
+													'url':  path('data.customview', {
+															'environmentName': environment.name , 
+															'templateId': template.id, 
+															'ouuid': object._id,
+															'_format': 'xml'}),
+													'label': 'Download',
+													'icon': 'download'
+												}%}
+						{% endif %}
+					</div>
+				</div>
 			  	{% include 'elements/object-toolbar.html.twig' with {
 					'object':  object,
 					'contentType': contentType,
 					'recursiveView': true
 				}%}
+				
 			</div>
 		</div>
 	</div>

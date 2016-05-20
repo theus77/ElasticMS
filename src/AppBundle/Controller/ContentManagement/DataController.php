@@ -499,9 +499,9 @@ class DataController extends AppController
 	}
 
 	/**
-	 * @Route("/data/custom-view/{environmentName}/{templateId}/{ouuid}", name="data.customview"))
+	 * @Route("/data/custom-view/{environmentName}/{templateId}/{ouuid}.{_format}", defaults={"_format": "html"}, requirements={"_format": "html|xml"} , name="data.customview"))
 	 */
-	public function customViewAction($environmentName, $templateId, $ouuid, Request $request)
+	public function customViewAction($environmentName, $templateId, $ouuid, Request $request, $_format)
 	{	
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
@@ -542,6 +542,8 @@ class DataController extends AppController
 		$twig = $this->getTwig();
 		
 		try {
+			//TODO why is the body generated and passed to the twig file while the twig file does not use it?
+			//Asked by dame
 			$body = $twig->createTemplate($template->getBody());
 		}
 		catch (\Twig_Error $e){
@@ -549,8 +551,7 @@ class DataController extends AppController
 			$body = $twig->createTemplate('');
 		}
 		
-		
-		return $this->render( 'data/custom-view.html.twig', [
+		return $this->render( 'data/custom-view.'.$_format.'.twig', [
 				'template' =>  $template,
 				'object' => $object,
 				'environment' => $environment,
@@ -851,5 +852,4 @@ class DataController extends AppController
 				'revisionId' => $revertedRevsision->getId()
 		]);
 	}
-	
 }
