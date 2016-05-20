@@ -9,7 +9,9 @@ use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
+use AppBundle\Form\Field\RenderOptionType;
 
 
 class TemplateType extends AbstractType {
@@ -33,8 +35,8 @@ class TemplateType extends AbstractType {
 		->add ( 'editWithWysiwyg', CheckboxType::class, [
 			'required' => false,
 		])
-		->add ( 'externalLink', CheckboxType::class, [
-			'required' => false,
+		->add( 'renderOption', RenderOptionType::class, [
+				'required' => true,
 		])
 		->add ( 'body', TextareaType::class, [
 			'required' => false,

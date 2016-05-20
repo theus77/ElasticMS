@@ -3,6 +3,8 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\Choice;
+use AppBundle\Form\Field\RenderOptionType;
 
 /**
  * DataField
@@ -13,6 +15,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Template
 {
+	
+	const EMBED = RenderOptionType::EMBED;
+	const EXPORT = RenderOptionType::EXPORT;
+	const EXTERNALLINK = RenderOptionType::EXTERNALLINK;
+	
     /**
      * @var int
      *
@@ -64,12 +71,11 @@ class Template
      */
     private $editWithWysiwyg;
     
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="external_link", type="boolean")
+    /** @var string
+     * 
+     * @ORM\Column(name="render_option", type="string")
      */
-    private $externalLink;
+    private $renderOption;
     
     /**
      * @var int
@@ -252,29 +258,28 @@ class Template
     {
         return $this->editWithWysiwyg;
     }
-
+    
     /**
-     * Set externalLink
+     * Set renderOption
      *
-     * @param boolean $externalLink
+     * @param string $renderOption
      *
      * @return Template
      */
-    public function setExternalLink($externalLink)
+    public function setRenderOption($renderOption)
     {
-        $this->externalLink = $externalLink;
-
-        return $this;
+    	$this->renderOption = $renderOption;
+    	return $this;
     }
-
+    
     /**
-     * Get externalLink
+     * Get renderOption
      *
-     * @return boolean
+     * @return string
      */
-    public function getExternalLink()
+    public function getRenderOption()
     {
-        return $this->externalLink;
+    	return $this->renderOption;
     }
 
     /**

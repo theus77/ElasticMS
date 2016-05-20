@@ -10,7 +10,7 @@
 	{# 		{% if recursiveView is not defined or not recursiveView  %}#}
 				{% for template in contentType.templates %}
 					<li>
-						{% if template.body and template.externalLink %}
+						{% if template.body and template.renderOption is constant('EXTERNALLINK', template) %}
 							<a href="{% include template_from_string(template.body) with {
 										environment: environment,
 										contentType: contentType,
