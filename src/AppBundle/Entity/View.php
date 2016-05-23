@@ -60,7 +60,7 @@ class View
     /**
      * @var string
      *
-     * @ORM\Column(name="options", type="text", nullable=true)
+     * @ORM\Column(name="options", type="json_array", nullable=true)
      */
     private $options;
     
@@ -90,16 +90,6 @@ class View
     	if(!isset($this->orderKey)){
     		$this->orderKey = 0;
     	}
-    }
-    
-    
-    public function setStructuredOptions( $options) {
-    	$this->options = json_encode($options);
-    	return $this;
-    }
-    
-    public function getStructuredOptions() {
-    	return json_decode($this->options, true);
     }
     
     /******************************************************************

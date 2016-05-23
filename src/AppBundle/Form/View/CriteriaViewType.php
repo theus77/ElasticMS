@@ -78,11 +78,11 @@ class CriteriaViewType extends ViewType {
 	public function getParameters(View $view) {
 		
 		return [
-			'criteriaField' => 	$view->getStructuredOptions()['criteriaField'],
+			'criteriaField' => 	$view->getOptions()['criteriaField'],
 			'view' => $view,
 			'contentType' => $view->getContentType(),
 			'environment' => $view->getContentType()->getEnvironment(),
-			'criterionList' => $view->getContentType()->getFieldType()->__get($view->getStructuredOptions()['criteriaField'])
+			'criterionList' => $view->getContentType()->getFieldType()->__get($view->getOptions()['criteriaField'])
 		];
 	}
 	

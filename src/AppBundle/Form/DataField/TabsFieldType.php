@@ -97,7 +97,7 @@ class TabsFieldType extends DataFieldType {
 	 */
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
-		$optionsForm = $builder->get ( 'structuredOptions' );
+		$optionsForm = $builder->get ( 'options' );
 		// tabs aren't mapped in elasticsearch
 		$optionsForm->remove ( 'mappingOptions' );
 	}

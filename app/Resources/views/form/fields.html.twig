@@ -374,7 +374,7 @@
 			</button>
 		{% endif %}
 		
-		{% if form.structuredOptions is defined %}	
+		{% if form.options is defined %}	
 			<!-- Modal windows field options -->
 			<div class="modal fade" id="{{ form.vars.id }}_modal_options" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
 			  <div class="modal-dialog" role="document">
@@ -390,11 +390,11 @@
 						<div class="nav-tabs-custom">
 							<ul class="nav nav-tabs">
 								<li class="active"><a href="#tab_display_{{ form.vars.id }}" data-toggle="tab" aria-expanded="true">Display</a></li>
-								{% if form.structuredOptions.mappingOptions is defined %}
+								{% if form.options.mappingOptions is defined %}
 									<li class=""><a href="#tab_mapping_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Mapping</a></li>
 								{%  endif %}
 							</ul>
-							{{- form_widget(form.structuredOptions, {'seed': form.vars.id} ) -}}
+							{{- form_widget(form.options, {'seed': form.vars.id} ) -}}
 						</div>
 			      </div>
 			      <div class="modal-footer">

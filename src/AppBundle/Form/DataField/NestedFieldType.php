@@ -131,7 +131,7 @@ class NestedFieldType extends DataFieldType {
 	 */
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
-		$optionsForm = $builder->get ( 'structuredOptions' );
+		$optionsForm = $builder->get ( 'options' );
 		// nested doesn't not have that much options in elasticsearch
 		$optionsForm->remove ( 'mappingOptions' );
 		// an optional icon can't be specified ritgh to the container label

@@ -176,7 +176,7 @@ $(window).load(function() {
 					  	var data = { 
 					  			filters: filters, 
 							  	target: $(this).val(), 
-							  	criteriaField: {{ view.structuredOptions.criteriaField|json_encode|raw }}
+							  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
 						};
 						
 					  	$.post( "{{ url('views.criteria.add') }}", data)
@@ -200,7 +200,7 @@ $(window).load(function() {
 					  	var data = { 
 					  			filters: filters, 
 							  	target: $(this).val(), 
-							  	criteriaField: {{ view.structuredOptions.criteriaField|json_encode|raw }}
+							  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
 						};
 						
 					  	$.post( "{{ url('views.criteria.remove') }}", data)

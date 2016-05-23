@@ -167,7 +167,7 @@ class TimeFieldType extends DataFieldType {
 			
 			$format = DateFieldType::convertJavaDateFormat($format);
 			
-			TimeFieldType::getFormat($data->getFieldType()->getStructuredOptions());
+			TimeFieldType::getFormat($data->getFieldType()->getOptions());
 			if(count($data->getDataValues()) == 1){
 				$out [$data->getFieldType ()->getName ()] = $data->getDataValues()->get(0)->getDateValue()->format($format);
 			}
@@ -189,7 +189,7 @@ class TimeFieldType extends DataFieldType {
 	 */
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
-		$optionsForm = $builder->get ( 'structuredOptions' );
+		$optionsForm = $builder->get ( 'options' );
 	
  		// String specific display options
 		$optionsForm->get ( 'mappingOptions' )->add ( 'format', TextType::class, [

@@ -386,7 +386,7 @@
 		</dt>
 		<dd>
 			{% for value in dataField.dataValues %}
-				{{ value.dateValue|date(dataField.fieldType.structuredOptions|getTimeFieldTimeFormat) }}
+				{{ value.dateValue|date(dataField.fieldType.options|getTimeFieldTimeFormat) }}
 				({{ value.dateValue|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})
 			{% endfor %}
 		</dd>

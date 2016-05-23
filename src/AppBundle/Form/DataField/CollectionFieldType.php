@@ -122,7 +122,7 @@ class CollectionFieldType extends DataFieldType {
 	 */
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
-		$optionsForm = $builder->get ( 'structuredOptions' );
+		$optionsForm = $builder->get ( 'options' );
 		// container aren't mapped in elasticsearch
 		$optionsForm->remove ( 'mappingOptions' );
 		// an optional icon can't be specified ritgh to the container label

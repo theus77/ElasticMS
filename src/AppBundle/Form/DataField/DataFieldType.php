@@ -132,7 +132,7 @@ abstract class DataFieldType extends AbstractType {
 		/**
 		 * preset with the most used options
 		 */
-		$builder->add ( 'structuredOptions', OptionsType::class );
+		$builder->add ( 'options', OptionsType::class );
 	}
 	
 

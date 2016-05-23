@@ -73,7 +73,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 	 */
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
-		$optionsForm = $builder->get ( 'structuredOptions' );
+		$optionsForm = $builder->get ( 'options' );
 		
 		// String specific mapping options
 		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);

@@ -102,7 +102,7 @@ class SelectFieldType extends DataFieldType {
 	 */
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
-		$optionsForm = $builder->get ( 'structuredOptions' );
+		$optionsForm = $builder->get ( 'options' );
 		
 		// String specific display options
 		$optionsForm->get ( 'displayOptions' )

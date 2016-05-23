@@ -86,12 +86,12 @@ class KeywordsViewType extends ViewType {
 			'index' => $view->getContentType()->getEnvironment()->getAlias(),
 			'type' => $view->getContentType()->getName(),
 			'search_type' => 'count',
-			'body' => $view->getStructuredOptions()['aggsQuery']
+			'body' => $view->getOptions()['aggsQuery']
 		];
 		
 		$retDoc = $this->client->search($searchQuery);
 		
-		foreach ( explode('.', $view->getStructuredOptions()['pathToBuckets']) as $attribute ){
+		foreach ( explode('.', $view->getOptions()['pathToBuckets']) as $attribute ){
 			$retDoc = $retDoc[$attribute];
 		}
 		

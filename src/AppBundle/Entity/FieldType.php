@@ -76,7 +76,7 @@ class FieldType
     /**
      * @var string
      *
-     * @ORM\Column(name="options", type="text", nullable=true)
+     * @ORM\Column(name="options", type="json_array", nullable=true)
      */
     private $options;
 
@@ -158,7 +158,7 @@ class FieldType
     	/** @var DataFieldType $dataFieldType */
     	$dataFieldType = new $type;
     	 
-    	$dataFieldType->setDataValue($input, $dataField, $this->getStructuredOptions());
+    	$dataFieldType->setDataValue($input, $dataField, $this->getOptions());
     	 
     }
     
@@ -172,7 +172,7 @@ class FieldType
     	/** @var DataFieldType $dataFieldType */
     	$dataFieldType = new $type;
     	
-    	return $dataFieldType->getDataValue($dataField, $this->getStructuredOptions());
+    	return $dataFieldType->getDataValue($dataField, $this->getOptions());
     	
     }
     
@@ -305,22 +305,9 @@ class FieldType
     {
         return $this->description;
     }
-    
-    
-    
-    public function setStructuredOptions( $options) {
-    	$this->options = json_encode($options);
-    	
-    	return $this;
-    }
-    
-    public function getStructuredOptions() {
-    	return json_decode($this->options, true);
-    	 
-    }
 
     public function getDisplayOptions(){
-    	$options = $this->getStructuredOptions();
+    	$options = $this->getOptions();
     	if(isset($options['displayOptions'])){
     		return $options['displayOptions'];
     	}
@@ -328,7 +315,7 @@ class FieldType
     }
 
     public function getMappingOptions(){
-    	$options = $this->getStructuredOptions();
+    	$options = $this->getOptions();
     	if(isset($options['mappingOptions'])){
     		return $options['mappingOptions'];
     	}

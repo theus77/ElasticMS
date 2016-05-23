@@ -46,7 +46,7 @@ class CriteriaController extends DataController
 		$client = $this->getElasticsearch();
 		
 		
-		$criteriaField = $view->getStructuredOptions()['criteriaField'];
+		$criteriaField = $view->getOptions()['criteriaField'];
 		
 		$body = [
 			'query' => [
@@ -86,7 +86,7 @@ class CriteriaController extends DataController
 					foreach ($criteria['filters'] as $filter){
 						$subquery['or'][] = [
 							'term' => [
-								$view->getStructuredOptions()['criteriaField'].'.'.$fieldType->getName() => [
+								$view->getOptions()['criteriaField'].'.'.$fieldType->getName() => [
 									'value' => $filter
 								]
 							]
@@ -96,7 +96,7 @@ class CriteriaController extends DataController
 				else {
 					$subquery = [
 						'term' => [
-							$view->getStructuredOptions()['criteriaField'].'.'.$fieldType->getName() => [
+							$view->getOptions()['criteriaField'].'.'.$fieldType->getName() => [
 								'value' => $criteria['filters'][0]
 							]
 						]

@@ -9,7 +9,7 @@
 
 <div class="row">
 	{% for keyword in keywords %}
-			{% include template_from_string(view.structuredOptions.template) %}
+			{% include template_from_string(view.options.template) %}
 	{% endfor %}
 </div>
 
