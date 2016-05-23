@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\Field\RenderOptionType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 
 class TemplateType extends AbstractType {
@@ -37,6 +38,12 @@ class TemplateType extends AbstractType {
 		])
 		->add( 'renderOption', RenderOptionType::class, [
 				'required' => true,
+		])
+		->add( 'mimeType', TextType::class, [
+				'required' => false,
+		])
+		->add( 'recipient', TextType::class, [
+				'required' => false,
 		])
 		->add ( 'body', TextareaType::class, [
 			'required' => false,

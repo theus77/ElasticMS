@@ -10,7 +10,7 @@
 	{# 		{% if recursiveView is not defined or not recursiveView  %}#}
 				{% for template in contentType.templates %}
 					<li>
-						{% if template.body and template.renderOption is constant('EXTERNALLINK', template) %}
+						{% if template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::EXTERNALLINK') %}
 							<a href="{% include template_from_string(template.body) with {
 										environment: environment,
 										contentType: contentType,
@@ -20,16 +20,17 @@
 								<i class="{{ template.icon|raw }}"></i>
 								{{ template.name }}
 								<i class="fa fa-external-link pull-right"></i>
-							</a>
-						{% else %}
+							</a>	
+						{% else %}{#  #}
 							<a href="{{ path('data.customview', {
 										environmentName: environment.name,
 										ouuid: object._id,
-										templateId: template.id}) }}">
+										templateId: template.id}) }}" >
 								<i class="{{ template.icon|raw }}"></i>
 								{{ template.name }}
 							</a>
-						{% endif %}
+						{% endif %}						
+							
 					</li>
 				{% endfor %}
 				<li>

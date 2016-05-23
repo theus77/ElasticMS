@@ -33,6 +33,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Response;
+use AppBundle\Form\Field\RenderOptionType;
 
 class DataController extends AppController
 {
@@ -500,9 +501,9 @@ class DataController extends AppController
 	}
 
 	/**
-	 * @Route("/data/custom-view/{environmentName}/{templateId}/{ouuid}.{_format}", defaults={"_format": "html"}, requirements={"_format": "html|xml"} , name="data.customview"))
+	 * @Route("/data/custom-view/{environmentName}/{templateId}/{ouuid}/{_download}", defaults={"_download": false} , name="data.customview"))
 	 */
-	public function customViewAction($environmentName, $templateId, $ouuid, Request $request, $_format)
+	public function customViewAction($environmentName, $templateId, $ouuid, Request $request, $_download)
 	{	
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
@@ -545,30 +546,29 @@ class DataController extends AppController
 		try {
 			//TODO why is the body generated and passed to the twig file while the twig file does not use it?
 			//Asked by dame
+			//If there is an error in the twig the user will get an 500 error page, this solution is not perfect but at least the template is tested
 			$body = $twig->createTemplate($template->getBody());
 		}
 		catch (\Twig_Error $e){
 			$this->addFlash('error', 'There is something wrong with the template '.$contentType->getName());
-			$body = $twig->createTemplate('');
+			$body = $twig->createTemplate('error in the template!');
 		}
 		
-		if ("xml" == $_format){
-			$response = new Response($this->renderView( 'data/custom-view.'.$_format.'.twig', [
-				'template' =>  $template,
-				'object' => $object,
+		if($_download){
+			if(null!= $template->getMimeType()){
+				header('Content-Type: '.$template->getMimeType());				
+			}
+			echo $body->render([
 				'environment' => $environment,
 				'contentType' => $template->getContentType(),
-				'body' => $body
-			] ));
+				'object' => $object,
+				'source' => $object['_source'],
+			]);
 			
-			$response->setStatusCode(Response::HTTP_OK);
-			$response->headers->set('Content-Type', 'application/xml');
-			$response->headers->set("Content-Disposition","attachment; filename=".$ouuid);
-			
-			return $response;
+			exit;
 		}
 		
-		return $this->render( 'data/custom-view.'.$_format.'.twig', [
+		return $this->render( 'data/custom-view.html.twig', [
 				'template' =>  $template,
 				'object' => $object,
 				'environment' => $environment,

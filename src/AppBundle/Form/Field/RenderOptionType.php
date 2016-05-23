@@ -10,11 +10,13 @@ class RenderOptionType extends ChoiceType {
 	const EMBED = 'embed';
 	const EXPORT = 'export';
 	const EXTERNALLINK = 'externalLink';
+	const NOTIFICATION = 'notification';
 	
 	private $choices = [
 		 'Embed' => self::EMBED,
 		 'Export' => self::EXPORT,
 		 'External link' => self::EXTERNALLINK,
+		 'Notification' => self::NOTIFICATION,
 	];
 	
 	/**

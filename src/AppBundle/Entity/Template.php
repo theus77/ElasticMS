@@ -3,7 +3,6 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use AppBundle\Form\Field\RenderOptionType;
 
 /**
  * DataField
@@ -14,10 +13,6 @@ use AppBundle\Form\Field\RenderOptionType;
  */
 class Template
 {
-	
-	const EMBED = RenderOptionType::EMBED;
-	const EXPORT = RenderOptionType::EXPORT;
-	const EXTERNALLINK = RenderOptionType::EXTERNALLINK;
 	
     /**
      * @var int
@@ -88,6 +83,18 @@ class Template
      * @ORM\JoinColumn(name="content_type_id", referencedColumnName="id")
      */
     private $contentType;
+    
+    /** @var string
+     * 
+     * @ORM\Column(name="mime_type", type="string", nullable=true)
+     */
+    private $mimeType;
+    
+    /** @var string
+     * 
+     * @ORM\Column(name="recipient", type="string", nullable=true)
+     */
+    private $recipient;
     
     /**
      * @ORM\PrePersist
@@ -327,5 +334,53 @@ class Template
     public function getContentType()
     {
         return $this->contentType;
+    }
+
+    /**
+     * Set mimeType
+     *
+     * @param string $mimeType
+     *
+     * @return Template
+     */
+    public function setMimeType($mimeType)
+    {
+        $this->mimeType = $mimeType;
+
+        return $this;
+    }
+
+    /**
+     * Get mimeType
+     *
+     * @return string
+     */
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    /**
+     * Set recipient
+     *
+     * @param string $recipient
+     *
+     * @return Template
+     */
+    public function setRecipient($recipient)
+    {
+        $this->recipient = $recipient;
+
+        return $this;
+    }
+
+    /**
+     * Get recipient
+     *
+     * @return string
+     */
+    public function getRecipient()
+    {
+        return $this->recipient;
     }
 }
