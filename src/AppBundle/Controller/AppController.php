@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\Job;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
@@ -31,8 +32,26 @@ class AppController extends Controller
 	}
 	
 
+	protected function startJob($service, $arguments){
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		$jobEntity = new Job();
+		$jobEntity->setUser($this->getUser()->getUsername());
+		$jobEntity->setDone(false);
+		$jobEntity->setArguments($arguments);
+		$jobEntity->setProgress(0);
+		$jobEntity->setService($service);
+		$jobEntity->setStatus("Job intialized");
+		$em->persist($jobEntity);
+		$em->flush();
+		
+		return $this->redirectToRoute('job.status', [
+			'job' => $jobEntity->getId(),
+		]);
+	}
 
-	protected function getFormatedTimestamp(){
+	public static function getFormatedTimestamp(){
 		return date('_Ymd_His');
 	}
 	

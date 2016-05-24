@@ -12,9 +12,11 @@ services:
             - { name: twig.extension, priority: -2000 }
     app.listener.request:
         class: AppBundle\EventListener\RequestListener
-        arguments: ['@twig', '@doctrine']
+        arguments: ['@twig', '@doctrine', '@logger', '@router', '@service_container']
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: provideTemplateTwigObjects, priority: -20 }
+            - { name: kernel.event_listener, event: kernel.response, method: startJob }
+            #kernel.response or kernel.terminate
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
         factory: [AppBundle\Factories\ElasticsearchClientBuilderFactory, build]
@@ -164,3 +166,14 @@ services:
     ems.service.mapping:
         class: AppBundle\Service\Mapping
         arguments: ['@ems.form.fieldtype.fieldtypetype']
+### command services ###
+    ems.environment.rebuild:
+        class: AppBundle\Command\RebuildCommand
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        tags:
+            -  { name: console.command }
+    ems.environment.reindex:
+        class: AppBundle\Command\ReindexCommand
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        tags:
+            -  { name: console.command }

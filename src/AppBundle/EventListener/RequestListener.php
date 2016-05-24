@@ -2,22 +2,32 @@
 namespace AppBundle\EventListener;
 
 
+use AppBundle\Command\AbstractEmsCommand;
+use AppBundle\Command\JobOutput;
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Monolog\Logger;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Routing\Router;
 
 class RequestListener
 {
 	protected $twig;
 	protected $doctrine;
+	protected $logger;
+	protected $router;
+	protected $container;
 	
-	public function __construct(\Twig_Environment $twig, Registry $doctrine)
+	public function __construct(\Twig_Environment $twig, Registry $doctrine, Logger $logger, Router $router, Container $container)
 	{
 		$this->twig = $twig;
 		$this->doctrine = $doctrine;
+		$this->logger = $logger;
+		$this->router = $router;
+		$this->container = $container;
 	}
 	
     public function provideTemplateTwigObjects(FilterControllerEvent $event)
@@ -42,6 +52,42 @@ class RequestListener
 
     	$this->twig->addGlobal('contentTypes', $contentTypes);
         $this->twig->addGlobal('draftCounterGroupedByContentType', $draftCounterGroupedByContentType);
+    }
+    
+    public function startJob($event)
+    {
+    	if( $event->getRequest()->isMethod('POST') && $event->getResponse() instanceof RedirectResponse ){
+    		/** @var RedirectResponse $redirect */
+    		$redirect = $event->getResponse();
+    		$params = $this->router->match($redirect->getTargetUrl());
+    		
+    		if(isset($params['_route']) && $params['_route'] == "job.status" && isset($params['job'])){
+    			$this->logger->info('Job '.$params['job'].' can be started');
+    			
+    			/** @var \AppBundle\Repository\JobRepository $jobRepository */
+    			$jobRepository = $this->doctrine->getRepository('AppBundle:Job');
+    			/** @var \AppBundle\Entity\Job $job */
+    			$job = $jobRepository->find($params['job']);
+    			if($job && !$job->getDone()){
+    				/** @var AbstractEmsCommand $command */
+    				
+    				$command = $this->container->get($job->getService());
+    				$input = new ArrayInput($job->getArguments());
+    				$output = new JobOutput($this->doctrine, $job);
+    				$output->writeln("Job ready to be launch");
+    				$command->run($input, $output);
+    				$output->writeln("Job done");
+    		
+    				$job->setDone(true);
+    				$job->setProgress(100);
+    				
+    				$this->doctrine->getManager()->persist($job);
+    				$this->doctrine->getManager()->flush($job);
+    				$this->logger->info('Job '.$params['job'].' completed.');
+    			}
+    		}
+    	}
+    	
     }
 	
 }
