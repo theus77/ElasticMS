@@ -147,7 +147,23 @@ class FieldType
     	}
     }
 
-
+    /**
+     * Remove references to parent to prevent circular reference exception
+     */
+    public function removeCircularReference() {
+    	if(null != $this->children){
+    		/** @var FieldType $child */
+    		foreach ( $this->children as $key => $child ) {
+    			$child->removeCircularReference();
+    		}
+   			$this->setContentType(NULL);
+   			$this->setCreated(NULL);
+   			$this->setDeleted(NULL);
+   			$this->setModified(NULL);
+   			$this->setParent(NULL);
+    	}
+    }
+    
     /**
      * set the data value(s) from a string received from the symfony form) in the context of this field
      *
