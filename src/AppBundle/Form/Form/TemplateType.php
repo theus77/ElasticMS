@@ -42,6 +42,9 @@ class TemplateType extends AbstractType {
 		->add( 'mimeType', TextType::class, [
 				'required' => false,
 		])
+		->add( 'extension', TextType::class, [
+				'required' => false,
+		])
 		->add( 'recipient', TextType::class, [
 				'required' => false,
 		])

@@ -34,6 +34,8 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Response;
 use AppBundle\Form\Field\RenderOptionType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DataController extends AppController
 {
@@ -556,8 +558,13 @@ class DataController extends AppController
 		
 		if($_download){
 			if(null!= $template->getMimeType()){
-				header('Content-Type: '.$template->getMimeType());				
+				header('Content-Type: '.$template->getMimeType());		
 			}
+			
+			if(null!= $template->getExtension()){
+				header("Content-Disposition: attachment; filename=".$ouuid.'.'.$template->getExtension());
+			}
+			
 			echo $body->render([
 				'environment' => $environment,
 				'contentType' => $template->getContentType(),
@@ -869,4 +876,10 @@ class DataController extends AppController
 				'revisionId' => $revertedRevsision->getId()
 		]);
 	}
+	
+	/**
+	 * @Route("/data/export", name="data.export"))
+	 * THIS FUNCTIONALITY IS NOT READY YET!!  DAME is working on it
+	 */
+	
 }

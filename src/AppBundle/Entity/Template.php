@@ -91,6 +91,12 @@ class Template
     private $mimeType;
     
     /** @var string
+     *
+     * @ORM\Column(name="extension", type="string", nullable=true)
+     */
+    private $extension;
+    
+    /** @var string
      * 
      * @ORM\Column(name="recipient", type="string", nullable=true)
      */
@@ -358,6 +364,30 @@ class Template
     public function getMimeType()
     {
         return $this->mimeType;
+    }
+    
+    /**
+     * Set extension
+     *
+     * @param string $extension
+     *
+     * @return Template
+     */
+    public function setExtension($extension)
+    {
+    	$this->extension = $extension;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get extension
+     *
+     * @return string
+     */
+    public function getExtension()
+    {
+    	return $this->extension;
     }
 
     /**
