@@ -7,7 +7,6 @@ use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\Environment;
-use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\Revision;
 use AppBundle\Entity\Template;
@@ -33,7 +32,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpFoundation\Response;
-use AppBundle\Form\Field\RenderOptionType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -876,10 +874,4 @@ class DataController extends AppController
 				'revisionId' => $revertedRevsision->getId()
 		]);
 	}
-	
-	/**
-	 * @Route("/data/export", name="data.export"))
-	 * THIS FUNCTIONALITY IS NOT READY YET!!  DAME is working on it
-	 */
-	
 }
