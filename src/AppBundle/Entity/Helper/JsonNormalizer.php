@@ -10,9 +10,9 @@ use AppBundle\Entity\ContentType;
 
 class JsonNormalizer implements NormalizerInterface
 {
-	//TODO: Anotate the object to allow the method normalize to be able get methods of the object to be skipped.
 	//If you want to parse a new object, provide here the getXXXX method of the object to be skipped of normalization
 	//[<ObjectName>] => [<XXXX>,...]
+	//TODO: Anotate the object to allow the method normalize to be able get methods of the object to be skipped.
 	private $toSkip = ["ContentType" => ["id", "indexAnalysisConfiguration"],
 					   "FieldType" => ["id", "contentType", "parent", "children"]
 	];
