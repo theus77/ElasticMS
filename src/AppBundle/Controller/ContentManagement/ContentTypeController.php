@@ -2,9 +2,9 @@
 
 namespace AppBundle\Controller\ContentManagement;
 
+use AppBundle;
 use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
-use AppBundle;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\FieldType;
 use AppBundle\Form\DataField\SubfieldType;
@@ -15,6 +15,7 @@ use AppBundle\Repository\EnvironmentRepository;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -22,8 +23,11 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -544,5 +548,40 @@ class ContentTypeController extends AppController {
 				'contentType' => $contentType,
 				'mapping' => isset ( current ( $mapping ) ['mappings'] [$contentType->getName ()] ['properties'] ) ? current ( $mapping ) ['mappings'] [$contentType->getName ()] ['properties'] : false 
 		] );
+	}
+	/**
+	 * Export a content type in Json format
+	 *
+	 * @param integer $id        	
+	 * @param Request $request
+	 *        	@Route("/content-type/export/{id}.{_format}", defaults={"_format" = "json"}, name="contenttype.export"))
+	 */
+	public function exportAction($id, Request $request) {
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine ()->getManager ();
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository ( 'AppBundle:ContentType' );
+		
+		/** @var ContentType $contentType */
+		$contentType = $repository->find ( $id );
+		if (! $contentType || count ( $contentType ) != 1) {
+			$this-> addFlash ( 'warning', 'Content type not found.' );
+			return $this->redirectToRoute ( 'contenttype.index' );
+		}
+		//Sanitize the CT
+		$contentType->setCreated(NULL);
+		$contentType->setModified(NULL);
+		$contentType->getFieldType()->removeCircularReference();		
+		$contentType->setEnvironment(NULL);
+		$contentType->getTemplates()->clear();
+		$contentType->getViews()->clear();
+		
+		//Serialize the CT
+		$encoders = array(new JsonEncoder());
+		$normalizers = array(new ObjectNormalizer());
+		$serializer = new Serializer($normalizers, $encoders);
+		$jsonContent = $serializer->serialize($contentType, 'json');
+		
+		return new Response($jsonContent);
 	}
 }

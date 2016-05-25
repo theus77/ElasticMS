@@ -46,7 +46,7 @@
 									<td>{{ environment.alias }}</td>
 									<td>{{ environment.index }}</td>
 									<td class="text-center">{{ environment.total|number_format }}</td>
-									<td class="text-center">{{ environment.revisions|length|number_format }}</td>
+									<td class="text-center">{{ environment.indexedCounter|number_format }}</td>
 									<td>
 										<div class="btn-group">
 											{% include 'elements/get-button.html.twig' with {

@@ -104,6 +104,18 @@ class Environment
     	}
     }
     
+    
+    public function getIndexedCounter(){
+    	$count = 0;
+    	/** @var Revision $revision */
+    	foreach($this->revisions as $revision){
+    		if(!$revision->getContentType()->getDeleted()){
+    			++ $count;
+    		}
+    	}
+    	return $count;
+    }
+    
     /**
      * Constructor
      */

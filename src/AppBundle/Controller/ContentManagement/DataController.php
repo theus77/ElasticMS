@@ -626,7 +626,7 @@ class DataController extends AppController
 		else{
 			foreach ($form->getErrors(true, true) as $error){
 				
-				dump($error);
+				//dump($error);
 			}
 		}
 		

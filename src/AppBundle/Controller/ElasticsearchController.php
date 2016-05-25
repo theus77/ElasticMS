@@ -54,7 +54,9 @@ class ElasticsearchController extends AppController
 			] );			
 		}
 		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){
-			return $this->render( 'elasticsearch/no-nodes-available.'.$_format.'.twig');
+			return $this->render( 'elasticsearch/no-nodes-available.'.$_format.'.twig', [
+					'cluster' => $this->getParameter('elasticsearch_cluster'),
+			]);
 		}
 	}
 	

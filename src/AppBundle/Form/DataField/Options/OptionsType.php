@@ -6,6 +6,7 @@ use AppBundle\Entity\FieldType;
 
 use AppBundle\Form\DataField\Options\DisplayOptionsType;
 use AppBundle\Form\DataField\Options\MappingOptionsType;
+use AppBundle\Form\DataField\Options\RestrictionOptionsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -24,8 +25,9 @@ class OptionsType extends AbstractType
 	 */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-    	$builder->add ( 'displayOptions', DisplayOptionsType::class);
-	    $builder->add ( 'mappingOptions', MappingOptionsType::class); 
+    	$builder->add ( 'displayOptions',     DisplayOptionsType::class);
+	    $builder->add ( 'mappingOptions',     MappingOptionsType::class); 
+	    $builder->add ( 'restrictionOptions', RestrictionOptionsType::class); 
     }   
 	
 	/**

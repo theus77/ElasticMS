@@ -70,6 +70,12 @@
 			</div>
 		{% endif %}
 		<!-- /.tab-pane -->
+		{% if form.restrictionOptions is defined %}
+			<div class="tab-pane" id="tab_restriction_{{ seed }}">
+				{{- form_widget(form.restrictionOptions) -}}
+			</div>
+		{% endif %}
+		<!-- /.tab-pane -->
 	</div>
 	<!-- /.tab-content -->
 
@@ -392,6 +398,9 @@
 								<li class="active"><a href="#tab_display_{{ form.vars.id }}" data-toggle="tab" aria-expanded="true">Display</a></li>
 								{% if form.options.mappingOptions is defined %}
 									<li class=""><a href="#tab_mapping_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Mapping</a></li>
+								{%  endif %}
+								{% if form.options.restrictionOptions is defined %}
+									<li class=""><a href="#tab_restriction_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Restriction</a></li>
 								{%  endif %}
 							</ul>
 							{{- form_widget(form.options, {'seed': form.vars.id} ) -}}

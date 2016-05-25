@@ -7,6 +7,7 @@ use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\Form\RebuildIndex;
+use AppBundle\Entity\Job;
 use AppBundle\Entity\Revision;
 use AppBundle\Form\Field\ColorPickerType;
 use AppBundle\Form\Field\IconTextType;
@@ -16,14 +17,14 @@ use AppBundle\Form\Form\RebuildIndexType;
 use AppBundle\Repository\ContentTypeRepository;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 
 class EnvironmentController extends AppController {
 	
@@ -428,20 +429,21 @@ class EnvironmentController extends AppController {
 		$form->handleRequest($request);
 	
 		if ($form->isSubmitted() && $form->isValid()) {
-				
 			$option = $rebuildIndex->getOption();
-				
+
 			switch ($option){
 				case "newIndex":
-					$this->reindexAllInNewIndex($environment);
-					break;
+					return $this->startJob('ems.environment.rebuild', [
+							'name'    => $environment->getName(),
+					]);
 				case "sameIndex":
-					$this->reindexAll($environment, $environment->getAlias());
-					break;
+					return $this->startJob('ems.environment.reindex', [
+							'name'    => $environment->getName(),
+					]);
 				default:
 					$this->addFlash('warning', 'Unknow rebuild option: '.$option.'.');
 			}
-			return $this->redirectToRoute('environment.index');
+
 		}
 	
 		return $this->render( 'environment/rebuild.html.twig',[
@@ -467,10 +469,8 @@ class EnvironmentController extends AppController {
 		
 			$environments = $repository->findAll();
 		
-		
-			/** @var  Client $client */
 			$client = $this->get('app.elasticsearch');
-			$stats = $client->indices()->stats();
+			
 		
 		
 			$temp = [];
@@ -480,7 +480,7 @@ class EnvironmentController extends AppController {
 				if(count($aliases["aliases"]) == 0 && strcmp($index{0}, '.') != 0 ){
 					$orphanIndexes[] = [
 							'name'=> $index,
-							'total' => $stats['indices'][$index]['primaries']['docs']['count']
+							'total' => $client->count(['index'=>$index])["count"]
 		
 					];
 				}
@@ -494,7 +494,7 @@ class EnvironmentController extends AppController {
 			foreach ($environments as $environment) {
 				if(isset($temp[$environment->getAlias()])){
 					$environment->setIndex($temp[$environment->getAlias()]);
-					$environment->setTotal($stats['indices'][$temp[$environment->getAlias()]]['primaries']['docs']['count']);
+					$environment->setTotal($client->count(['index'=>$environment->getAlias()])["count"]);
 					unset($temp[$environment->getAlias()]);
 				}
 			}
@@ -503,7 +503,7 @@ class EnvironmentController extends AppController {
 				$unmanagedIndexes[] = [
 						'index' => $index,
 						'name' => $alias,
-						'total' => $stats['indices'][$index]['primaries']['docs']['count']
+						'total' => $client->count(['index'=>$index])["count"],
 				];
 			}
 		
