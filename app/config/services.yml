@@ -126,7 +126,7 @@ services:
             - { name: ems.form.datafieldtype, alias: time }
             - { name: form.type }
 #### End list available ems views ###
-#### Begin list available ems FieldDataType ###
+#### Begin list available ems views ###
     ems.view.keywords:
         class: AppBundle\Form\View\KeywordsViewType
         arguments: ['@twig', '@app.elasticsearch']
