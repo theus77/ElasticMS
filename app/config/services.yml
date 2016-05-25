@@ -158,6 +158,10 @@ services:
         class: AppBundle\Form\Field\FieldTypePickerType
         tags:
             - { name: form.type }
+    ems.form.field.rolepickertype:
+        class: AppBundle\Form\Field\RolePickerType
+        tags:
+            - { name: form.type }
     ems.form.fieldtype.fieldtypetype:
         class: AppBundle\Form\FieldType\FieldTypeType
         arguments: ['@ems.form.field.datafieldtypepickertype']

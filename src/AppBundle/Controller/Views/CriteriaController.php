@@ -158,7 +158,7 @@ class CriteriaController extends DataController
 					if(isset($filter['filters']) && count($filter['filters']) > 0){
 						$criterionName = $fieldTypeRepository->find($filter['field'])->getName();
 						if( ! in_array($criterion[$criterionName], $filter['filters'])){
-							dump($criterion[$criterionName]." not in so not relevant");
+							//dump($criterion[$criterionName]." not in so not relevant");
 							$relevant = false;
 							break;						
 						}

@@ -3,8 +3,8 @@
 namespace AppBundle\Form\DataField\Options;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * It's a coumpound field for field specific mapping option.
