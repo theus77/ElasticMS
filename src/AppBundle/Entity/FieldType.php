@@ -158,7 +158,6 @@ class FieldType
     		}
    			$this->setContentType(NULL);
    			$this->setCreated(NULL);
-   			$this->setDeleted(NULL);
    			$this->setModified(NULL);
    			$this->setParent(NULL);
     	}
