@@ -28,7 +28,8 @@
         "sensio/framework-extra-bundle": "^3.0.2",
         "elasticsearch/elasticsearch": "~2.0",
         "incenteev/composer-parameter-handler": "^2.0",
-        "friendsofsymfony/user-bundle": "~2.0@dev"
+        "friendsofsymfony/user-bundle": "~2.0@dev",
+        "maennchen/zipstream-php": "0.3.*"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

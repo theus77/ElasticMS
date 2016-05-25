@@ -77,6 +77,9 @@
 									'icon': 'trash'
 								}%}
 							{% endif %}
+							{% if form.exportResults is defined %}
+								{{ form_widget(form.exportResults) }}
+							{% endif %}
 							{% if form.save is defined %}
 								{{ form_widget(form.save) }}
 							{% endif %}
@@ -108,7 +111,6 @@
 			{% endif %}
 			<div class="box-body">
 			{% for result in results.hits.hits %}
-			
 			<div class="panel panel-default">
 			  <div class="panel-heading">
 			  	<span class="text-{{ attribute(indexes, result._index).color }}">
