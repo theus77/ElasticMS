@@ -15,7 +15,7 @@ services:
         arguments: ['@twig', '@doctrine', '@logger', '@router', '@service_container']
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: provideTemplateTwigObjects, priority: -20 }
-            - { name: kernel.event_listener, event: kernel.response, method: startJob }
+            - { name: kernel.event_listener, event: kernel.terminate, method: startJob }
             #kernel.response or kernel.terminate
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
