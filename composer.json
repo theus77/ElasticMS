@@ -29,6 +29,7 @@
         "elasticsearch/elasticsearch": "~2.0",
         "incenteev/composer-parameter-handler": "^2.0",
         "friendsofsymfony/user-bundle": "~2.0@dev",
+        "maennchen/zipstream-php": "0.3.*",
         "sensiolabs/ansi-to-html": "^1.1"
     },
     "require-dev": {

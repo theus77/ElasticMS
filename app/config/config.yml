@@ -8,9 +8,7 @@ imports:
 parameters:
     locale: en
     paging_size: 20
-    elasticsearch_cluster: ['http://localhost:9200']
     lock_time: "+5 minutes"
-    instance_id: "ems_"
 
 framework:
     #esi:             ~
@@ -57,9 +55,9 @@ doctrine:
         driver:   pdo_mysql
         host:     "%database_host%"
         port:     "%database_port%"
-        dbname:   "elasticms"
-        user:     "elasticms"
-        password: "elasticms"
+        dbname:   "%database_name%"
+        user:     "%database_user%"
+        password: "%database_password%"
         charset:  UTF8
         # if using pdo_sqlite as your database driver:
         #   1. add the path in parameters.yml

@@ -15,7 +15,7 @@ services:
         arguments: ['@twig', '@doctrine', '@logger', '@router', '@service_container']
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: provideTemplateTwigObjects, priority: -20 }
-            - { name: kernel.event_listener, event: kernel.response, method: startJob }
+            - { name: kernel.event_listener, event: kernel.terminate, method: startJob }
             #kernel.response or kernel.terminate
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
@@ -128,7 +128,7 @@ services:
             - { name: ems.form.datafieldtype, alias: time }
             - { name: form.type }
 #### End list available ems views ###
-#### Begin list available ems FieldDataType ###
+#### Begin list available ems views ###
     ems.view.keywords:
         class: AppBundle\Form\View\KeywordsViewType
         arguments: ['@twig', '@app.elasticsearch']
@@ -156,6 +156,10 @@ services:
             - { name: form.type }
     ems.form.field.datafieldtypepickertype:
         class: AppBundle\Form\Field\FieldTypePickerType
+        tags:
+            - { name: form.type }
+    ems.form.field.rolepickertype:
+        class: AppBundle\Form\Field\RolePickerType
         tags:
             - { name: form.type }
     ems.form.fieldtype.fieldtypetype:
