@@ -10,7 +10,12 @@
 		<div class="box-header with-border bg-red">
 			<h3 class="box-title">
 				<h4>
-					<i class="icon fa fa-ban fa-2x"></i>  No node available
+					<i class="icon fa fa-ban fa-2x"></i>  No node available for the following cluster 
+					<ul>
+						{% for server in cluster %}
+							<li>{{server}}</li>
+						{% endfor %}
+					</ul>
 				</h4>
 			</h3>
 		</div>
