@@ -90,7 +90,19 @@
 	          			<li class=""><a id="menu-data-draft-{{ contentType.id }}" href="{{ path('data.draft_in_progress', { contentTypeId: contentType.id } ) }}"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span></a></li>
 	            	{% endif %}
 	            	{% if contentType.environment.managed %}
-	            		<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
+	            	
+	            	{% set granted = true %}
+	            	{% for role in contentType.fieldType.fieldsRoles %}
+	            		{% if is_granted(role) %}
+	            			{% if granted and loop.last %}
+			            		<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
+	            			{% endif %}
+	            		{% else %}
+	            			{% set granted = false %}
+	            		{% endif %}
+	            	{% endfor %}
+	            	
+	            	
 	            	{% endif %}
 	          	</ul>
 	          </li>

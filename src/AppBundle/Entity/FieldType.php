@@ -177,6 +177,18 @@ class FieldType
     	 
     }
     
+    public function getFieldsRoles(){
+    	$out = ['ROLE_AUTHOR' => 'ROLE_AUTHOR'];
+    	if(isset($this->getOptions()['restrictionOptions']) && $this->getOptions()['restrictionOptions']['minimum_role']){
+	    	$out[$this->getOptions()['restrictionOptions']['minimum_role']] = $this->getOptions()['restrictionOptions']['minimum_role'];
+    	}
+    	
+    	foreach ($this->children as $child){
+    		$out = array_merge($out, $child->getFieldsRoles());
+    	}
+    	return $out;
+    }
+    
     /**
      * get the data value(s) as a string received for the symfony form) in the context of this field
      *
