@@ -7,6 +7,7 @@ use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\Environment;
+use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\Revision;
 use AppBundle\Entity\Template;
@@ -31,9 +32,6 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DataController extends AppController
 {
