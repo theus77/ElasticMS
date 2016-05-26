@@ -238,29 +238,30 @@ class ContentTypeController extends AppController {
 					$name = $contentTypeAdded->getName();
 					$pluralName = $contentTypeAdded->getPluralName();
 					$environment = $contentTypeAdded->getEnvironment();
-					$fileContent = file_get_contents($_FILES['form']['tmp_name']['import']); 
+					/** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
+					$file = $request->files->get('form')['import'];
+					$fileContent = file_get_contents($file->getRealPath());
+					
 					$encoders = array(new JsonEncoder());
-					$normalizers = array(new ObjectNormalizer());
+					$normalizers = array(new JsonNormalizer());
 					$serializer = new Serializer($normalizers, $encoders);
-					$decoded = json_decode($fileContent);
-					$decoded->fieldType = NULL;
-					$fileContent = json_encode($decoded);
-					$jsonContent = $serializer->deserialize($fileContent, 
+					$contentType = $serializer->deserialize($fileContent, 
 															"AppBundle\Entity\ContentType", 
-															'json', 
-															array('object_to_populate' => $contentTypeAdded));
-					$contentTypeAdded->setName($name);
-					$contentTypeAdded->setPluralName($pluralName);
-					$contentTypeAdded->setEnvironment($environment);
+															'json');
+					$contentType->setName($name);
+					$contentType->setPluralName($pluralName);
+					$contentType->setEnvironment($environment);
+					$contentType->getFieldType()->updateAncestorReferences($contentType, NULL);
+						
+					$em->persist ( $contentType );
+					$em->flush ();
+					$this->addFlash ( 'notice', 'A new content type ' . $contentTypeAdded->getName () . ' has been created' );
+					
+					return $this->redirectToRoute ( 'contenttype.edit', [ 
+							'id' => $contentType->getId () 
+					] );
 				}
-				$em->persist ( $contentTypeAdded );
-				$em->flush ();
 				
-				$this->addFlash ( 'notice', 'A new content type ' . $contentTypeAdded->getName () . ' has been created' );
-				
-				return $this->redirectToRoute ( 'contenttype.edit', [ 
-						'id' => $contentTypeAdded->getId () 
-				] );
 			} else {
 				$this->addFlash ( 'error', 'Invalid form.' );
 			}

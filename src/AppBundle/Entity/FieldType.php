@@ -114,6 +114,20 @@ class FieldType
     }
     
     /**
+     * Update contentType and parent recursively
+     *
+     */
+    //TODO: Unrecursify this method
+    public function updateAncestorReferences($contentType, $parent)
+    {
+       	$this->setContentType($contentType);
+        $this->setParent($parent);
+        foreach($this->children as $child) {
+        	$child->updateAncestorReferences(NULL, $this);
+        }
+    }
+
+        /**
      * Get id
      *
      * @return int
@@ -123,7 +137,7 @@ class FieldType
         return $this->id;
     }
 
-    /**
+/**
      * Set created
      *
      * @param \DateTime $created

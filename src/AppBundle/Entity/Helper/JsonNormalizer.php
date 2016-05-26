@@ -1,20 +1,35 @@
 <?php
 namespace AppBundle\Entity\Helper;
 
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use AppBundle\Entity\FieldType;
 use AppBundle\Entity\ContentType;
+use AppBundle\Entity\FieldType;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-//http://symfony.com/doc/current/components/serializer.html
-//http://php-and-symfony.matthiasnoback.nl/2012/01/the-symfony2-serializer-component-create-a-normalizer-for-json-class-hinting/
+/**
+ * Normalize and denormalize ContentType and FieldType objects in Json.
+ * 
+ * @link http://symfony.com/doc/current/components/serializer.html
+ * @link http://php-and-symfony.matthiasnoback.nl/2012/01/the-symfony2-serializer-component-create-a-normalizer-for-json-class-hinting/
+ * 
+ */
 
-class JsonNormalizer implements NormalizerInterface
+class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 {
 	//If you want to parse a new object, provide here the getXXXX method of the object to be skipped of normalization
 	//[<ObjectName>] => [<XXXX>,...]
 	//TODO: Anotate the object to allow the method normalize to be able get methods of the object to be skipped.
-	private $toSkip = ["ContentType" => ["id", "indexAnalysisConfiguration"],
-					   "FieldType" => ["id", "contentType", "parent", "children"]
+	private $toSkip = ["ContentType" => ["id", 
+										 "indexAnalysisConfiguration"],
+					   "FieldType" => ["id", 
+					   				   "contentType", 
+					   				   "parent", 
+					   				   "children", 
+					   				   "displayOptions", 
+					   				   "mappingOptions", 
+					   				   "restrictionOptions",
+					   				   "fieldRoles"
+					   				  ]
 	];
 	/**
 	 *
@@ -80,7 +95,7 @@ class JsonNormalizer implements NormalizerInterface
 	 *
 	 */
 	//TODO: Refactoring
-	public function denormalize($data, $class, $format = null) {
+	public function denormalize($data, $class, $format = null, array $context = array()){
 		$class = $data['__jsonclass__'][0];
 		$reflectionClass = new \ReflectionClass($class);
 	
@@ -90,11 +105,28 @@ class JsonNormalizer implements NormalizerInterface
 	
 		unset($data['__jsonclass__']);
 	
+		$options = [];
 		foreach ($data as $property => $value) {
-			$setter = 'set' . $property;
-			if (method_exists($object, $setter)) {
-				$object->$setter($value);
+			if($property == "fieldType") {
+				$object->setFieldType($this->denormalize($value, $class, $format, $context));
+			} elseif($property == "validChildren") {
+				foreach ($value as $index => $subElement) {
+					if(!empty($subElement)){
+						$object->addChild($this->denormalize($subElement, $class, $format, $context));
+					}
+				}
+			} else {
+				$setter = 'set' . ucfirst($property);
+				if (method_exists($object, $setter)) {
+					$object->$setter($value);
+				} 
+// 				else {
+// 					dump("Method not found ". $setter . " for object ". $object->getName());
+// 				}
 			}
+		}
+		if(!empty($options)) {
+			$object->setOptions($options);
 		}
 	
 		return $object;
@@ -115,6 +147,6 @@ class JsonNormalizer implements NormalizerInterface
 	 *
 	 */
 	public function supportsDenormalization($data, $type, $format = null) {
-		return isset($data['__jsonclass__']) && 'json' === $format;
+		return isset($data['__jsonclass__']) && "json" === $format;
 	}
 }
