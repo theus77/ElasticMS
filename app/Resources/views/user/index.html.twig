@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Users list{% endblock %}
+{% block pagetitle %}Users list{% endblock %} 
+{% block subtitle %}<small>Are they ready to rock?</small>
+{% endblock %} {% block body %}
+
+<div class="row">
+	<div class="col-md-12">
+		<div class="box ">
+			<div class="box-header with-border">
+				<i class="fa fa-database"></i>
+				<h3 class="box-title">Local environments</h3>
+				<a class="btn btn-xs btn-primary pull-right"
+					href="#"><i class="fa fa-plus"></i>
+					Add user</a>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				<table class="table table-condensed table-striped">
+					<tbody>
+						<tr>
+							<th class="text-center" style="width: 10px">#</th>
+							<th>Username</th>
+							<th>email</th>
+							<th>Enabled</th>
+							<th>Locked</th>
+							<th>Expired</th>
+							<th>Roles</th>
+							<th>Last login</th>
+							<th>Action</th>
+						</tr>
+						{% for user in users %}
+							<tr>
+								<td class="text-center" style="width: 10px">{{ loop.index }}</td>
+								<td>{{ user.username }}</td>
+								<td>{{ user.email }}</td>
+								<td>
+									{% if user.enabled %}
+										<i class="fa fa-check"></i>
+									{% endif %}
+								</td>
+								<td>
+									{% if user.locked %}
+										<i class="fa fa-warning"></i>
+									{% endif %}
+								</td>
+								<td>
+									{% if user.expired %}
+										<i class="fa fa-warning"></i>
+									{% endif %}
+								</td>
+								<td>
+									{% for role in user.roles %}
+										{% if not loop.first %}
+											{% if loop.last %}
+											&amp;
+											{% else %}
+											,
+											{% endif %}
+										{% endif %}
+										{{ role|trans }}
+									{% endfor %}
+								</td>
+								<td>{{ user.lastLogin|date(date_time_format) }}</td>
+								<td>&nbsp;</td>
+							</tr>						
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			<!-- /.box-body -->
+		</div>
+	</div>
+</div>
+{% endblock %} 
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'user-index'
+	}%}
+{% endblock %}

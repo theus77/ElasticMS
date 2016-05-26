@@ -50,4 +50,7 @@ security:
     access_control:
         - { path: ^/$, roles: ROLE_USER }
         - { path: ^/status, roles: ROLE_USER }
+        - { path: ^/user, roles: ROLE_ADMIN }
+        - { path: ^/environment, roles: ROLE_ADMIN }
+        - { path: ^/content-type, roles: ROLE_ADMIN }
         

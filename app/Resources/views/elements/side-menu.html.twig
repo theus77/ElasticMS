@@ -114,8 +114,8 @@
           </a>
         </li>
         <li class="treeview">
-          <a href="{{ url('elasticsearch.status') }}" id="menu-elasticsearch-status">
-          	<i class="fa fa-cubes"></i> <span>Elasticsearch</span> 
+          <a href="{{ url('user.index') }}" id="menu-user-index">
+          	<i class="fa fa-users"></i> <span>Users</span> 
           </a>
         </li>
 	  </ul>
@@ -125,6 +125,11 @@
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
         <li class="header">OTHER</li>
+        <li class="treeview">
+          <a href="{{ url('elasticsearch.status') }}" id="menu-elasticsearch-status">
+          	<i class="fa fa-cubes"></i> <span>Status</span> 
+          </a>
+        </li>
         <li>
         	<a id="menu-documentation" href="{{ url('documentation') }}">
         		<i class="fa fa-book"></i> <span>Documentation</span>
