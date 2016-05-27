@@ -131,7 +131,10 @@ class Revision
     
     function __construct()
     {
-
+    	$this->deleted = false;
+    	//TODO? 
+    	//$this->setStartTime(new \DateTime());
+		//$this->setDraft(false);
     	$this->environments = new \Doctrine\Common\Collections\ArrayCollection();
     	
     	$a = func_get_args();
@@ -147,6 +150,7 @@ class Revision
     			$this->dataField = new DataField($ancestor->dataField);
     		}
     	}
+    	//TODO: Refactoring: Dependency injection of the first Datafield in the Revision.
     }
     
 
