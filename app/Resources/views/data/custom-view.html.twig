@@ -35,7 +35,7 @@
 										source: object._source
 									} %}
 				{% else %}
-					{% include template_from_string(template.body|nl2br) with {
+					{% include template_from_string(template.body) with {
 										environment: environment,
 										contentType: contentType,
 										object: object,

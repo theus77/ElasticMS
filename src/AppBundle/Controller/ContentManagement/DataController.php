@@ -550,7 +550,7 @@ class DataController extends AppController
 			$body = $twig->createTemplate($template->getBody());
 		}
 		catch (\Twig_Error $e){
-			$this->addFlash('error', 'There is something wrong with the template '.$contentType->getName());
+			$this->addFlash('error', 'There is something wrong with the template '.$template->getName());
 			$body = $twig->createTemplate('error in the template!');
 		}
 		
