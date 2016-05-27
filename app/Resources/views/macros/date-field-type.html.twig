@@ -142,8 +142,12 @@
 					{% endfor %}
 				</ul>
 			{% else %}
-				{% set path = dataField.textValue|split(':') %}
-				<a href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ dataField.textValue }}</a>
+			   {% if dataField.textValue %}
+				  {% set path = dataField.textValue|split(':') %}
+				  <a href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ dataField.textValue }}</a>
+				 {% else %}
+				  Not set
+				 {% endif %}
 			{% endif %}
 		
 		</dd>
