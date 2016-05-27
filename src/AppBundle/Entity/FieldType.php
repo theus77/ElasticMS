@@ -114,6 +114,20 @@ class FieldType
     }
     
     /**
+     * Update contentType and parent recursively
+     *
+     */
+    //TODO: Unrecursify this method
+    public function updateAncestorReferences($contentType, $parent)
+    {
+       	$this->setContentType($contentType);
+        $this->setParent($parent);
+        foreach($this->children as $child) {
+        	$child->updateAncestorReferences(NULL, $this);
+        }
+    }
+
+        /**
      * Get id
      *
      * @return int
@@ -123,7 +137,7 @@ class FieldType
         return $this->id;
     }
 
-    /**
+/**
      * Set created
      *
      * @param \DateTime $created
@@ -158,7 +172,6 @@ class FieldType
     		}
    			$this->setContentType(NULL);
    			$this->setCreated(NULL);
-   			$this->setDeleted(NULL);
    			$this->setModified(NULL);
    			$this->setParent(NULL);
     	}
@@ -176,6 +189,18 @@ class FieldType
     	 
     	$dataFieldType->setDataValue($input, $dataField, $this->getOptions());
     	 
+    }
+    
+    public function getFieldsRoles(){
+    	$out = ['ROLE_AUTHOR' => 'ROLE_AUTHOR'];
+    	if(isset($this->getOptions()['restrictionOptions']) && $this->getOptions()['restrictionOptions']['minimum_role']){
+	    	$out[$this->getOptions()['restrictionOptions']['minimum_role']] = $this->getOptions()['restrictionOptions']['minimum_role'];
+    	}
+    	
+    	foreach ($this->children as $child){
+    		$out = array_merge($out, $child->getFieldsRoles());
+    	}
+    	return $out;
     }
     
     /**

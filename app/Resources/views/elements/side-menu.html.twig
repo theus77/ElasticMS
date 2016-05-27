@@ -90,7 +90,19 @@
 	          			<li class=""><a id="menu-data-draft-{{ contentType.id }}" href="{{ path('data.draft_in_progress', { contentTypeId: contentType.id } ) }}"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span></a></li>
 	            	{% endif %}
 	            	{% if contentType.environment.managed %}
-	            		<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
+	            	
+	            	{% set granted = true %}
+	            	{% for role in contentType.fieldType.fieldsRoles %}
+	            		{% if is_granted(role) %}
+	            			{% if granted and loop.last %}
+			            		<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
+	            			{% endif %}
+	            		{% else %}
+	            			{% set granted = false %}
+	            		{% endif %}
+	            	{% endfor %}
+	            	
+	            	
 	            	{% endif %}
 	          	</ul>
 	          </li>
@@ -114,8 +126,8 @@
           </a>
         </li>
         <li class="treeview">
-          <a href="{{ url('elasticsearch.status') }}" id="menu-elasticsearch-status">
-          	<i class="fa fa-cubes"></i> <span>Elasticsearch</span> 
+          <a href="{{ url('user.index') }}" id="menu-user-index">
+          	<i class="fa fa-users"></i> <span>Users</span> 
           </a>
         </li>
 	  </ul>
@@ -125,6 +137,11 @@
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
         <li class="header">OTHER</li>
+        <li class="treeview">
+          <a href="{{ url('elasticsearch.status') }}" id="menu-elasticsearch-status">
+          	<i class="fa fa-cubes"></i> <span>Status</span> 
+          </a>
+        </li>
         <li>
         	<a id="menu-documentation" href="{{ url('documentation') }}">
         		<i class="fa fa-book"></i> <span>Documentation</span>

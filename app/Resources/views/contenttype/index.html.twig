@@ -48,7 +48,7 @@
 											'icon': 'pencil'
 										}%}
                     {% include 'elements/get-button.html.twig' with {
-                      'url': path('contenttype.export', {'id': contentType.id}),
+                      'url': path('contenttype.export', {'contentType': contentType.id}),
                       'label': 'Export',
                       'icon': 'sign-out'
                     }%}

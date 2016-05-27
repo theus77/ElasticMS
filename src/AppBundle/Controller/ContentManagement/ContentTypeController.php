@@ -7,6 +7,7 @@ use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\FieldType;
+use AppBundle\Entity\Helper\JsonNormalizer;
 use AppBundle\Form\DataField\SubfieldType;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Form\ContentTypeType;
@@ -19,6 +20,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
@@ -192,20 +194,23 @@ class ContentTypeController extends AppController {
 				'managed' => true 
 		] );
 		
-		$contentType = new ContentType ();
-		
-		$form = $this->createFormBuilder ( $contentType )->add ( 'name', IconTextType::class, [ 
+		$contentTypeAdded = new ContentType ();
+		$form = $this->createFormBuilder ( $contentTypeAdded )->add ( 'name', IconTextType::class, [ 
 				'icon' => 'fa fa-gear' 
 		] )->add ( 'pluralName', TextType::class, [ 
 				'label' => 'Plural form' 
-		] )->add ( 'environment', ChoiceType::class, array (
+		] )->add ( 'import', FileType::class, [ 
+				'label' => 'Import From JSON',
+				'mapped' => false,
+				'required' => false
+		] )->add ( 'environment', ChoiceType::class, [
 				'label' => 'Default environment',
 				'choices' => $environments,
 				/** @var Environment $environment */
 				'choice_label' => function ($environment, $key, $index) {
 					return $environment->getName ();
-				} 
-		) )->add ( 'save', SubmitType::class, [ 
+				}
+		] )->add ( 'save', SubmitType::class, [ 
 				'label' => 'Create',
 				'attr' => [ 
 						'class' => 'btn btn-primary pull-right' 
@@ -216,28 +221,49 @@ class ContentTypeController extends AppController {
 		
 		if ($form->isSubmitted () && $form->isValid ()) {
 			/** @var ContentType $contentType */
-			$contentType = $form->getData ();
-			
+			$contentTypeAdded = $form->getData ();
 			$contentTypeRepository = $em->getRepository ( 'AppBundle:ContentType' );
 			
 			$contentTypes = $contentTypeRepository->findBy ( [ 
-					'name' => $contentType->getName () 
+					'name' => $contentTypeAdded->getName () 
 			] );
 			
 			if (count ( $contentTypes ) != 0) {
-				$form->get ( 'name' )->addError ( new FormError ( 'Another content type named ' . $contentType->getName () . ' already exists' ) );
+				$form->get ( 'name' )->addError ( new FormError ( 'Another content type named ' . $contentTypeAdded->getName () . ' already exists' ) );
 			}
 			
 			if ($form->isValid ()) {
+				$normData = $form->get("import")->getNormData();
+				if($normData){
+					$name = $contentTypeAdded->getName();
+					$pluralName = $contentTypeAdded->getPluralName();
+					$environment = $contentTypeAdded->getEnvironment();
+					/** @var \Symfony\Component\HttpFoundation\File\UploadedFile $file */
+					$file = $request->files->get('form')['import'];
+					$fileContent = file_get_contents($file->getRealPath());
+					
+					$encoders = array(new JsonEncoder());
+					$normalizers = array(new JsonNormalizer());
+					$serializer = new Serializer($normalizers, $encoders);
+					$contentType = $serializer->deserialize($fileContent, 
+															"AppBundle\Entity\ContentType", 
+															'json');
+					$contentType->setName($name);
+					$contentType->setPluralName($pluralName);
+					$contentType->setEnvironment($environment);
+					$contentType->getFieldType()->updateAncestorReferences($contentType, NULL);
+						
+					$em->persist ( $contentType );
+					$em->flush ();
+					$this->addFlash ( 'notice', 'A new content type ' . $contentTypeAdded->getName () . ' has been created' );
+					
+					return $this->redirectToRoute ( 'contenttype.edit', [ 
+							'id' => $contentType->getId () 
+					] );
+				}
 				
-				$em->persist ( $contentType );
-				$em->flush ();
-				
-				$this->addFlash ( 'notice', 'A new content type ' . $contentType->getName () . ' has been created' );
-				
-				return $this->redirectToRoute ( 'contenttype.edit', [ 
-						'id' => $contentType->getId () 
-				] );
+			} else {
+				$this->addFlash ( 'error', 'Invalid form.' );
 			}
 		}
 		
@@ -554,20 +580,9 @@ class ContentTypeController extends AppController {
 	 *
 	 * @param integer $id        	
 	 * @param Request $request
-	 *        	@Route("/content-type/export/{id}.{_format}", defaults={"_format" = "json"}, name="contenttype.export"))
+	 *        	@Route("/content-type/export/{contentType}.{_format}", defaults={"_format" = "json"}, name="contenttype.export"))
 	 */
-	public function exportAction($id, Request $request) {
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine ()->getManager ();
-		/** @var ContentTypeRepository $repository */
-		$repository = $em->getRepository ( 'AppBundle:ContentType' );
-		
-		/** @var ContentType $contentType */
-		$contentType = $repository->find ( $id );
-		if (! $contentType || count ( $contentType ) != 1) {
-			$this-> addFlash ( 'warning', 'Content type not found.' );
-			return $this->redirectToRoute ( 'contenttype.index' );
-		}
+	public function exportAction(ContentType $contentType, Request $request) {
 		//Sanitize the CT
 		$contentType->setCreated(NULL);
 		$contentType->setModified(NULL);
@@ -578,7 +593,7 @@ class ContentTypeController extends AppController {
 		
 		//Serialize the CT
 		$encoders = array(new JsonEncoder());
-		$normalizers = array(new ObjectNormalizer());
+		$normalizers = array(new JsonNormalizer());
 		$serializer = new Serializer($normalizers, $encoders);
 		$jsonContent = $serializer->serialize($contentType, 'json');
 		
