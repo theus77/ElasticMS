@@ -114,6 +114,7 @@ class TimeFieldType extends DataFieldType {
 		
 		$builder->add ( 'data_value', TextType::class, [
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'required' => false,
 				'attr' =>  $attr
 		] );

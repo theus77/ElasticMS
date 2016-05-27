@@ -28,93 +28,128 @@ services:
 #### Begin list available ems ViewType ###
     ems.fieldtype.container:
         class: AppBundle\Form\DataField\ContainerFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: container }
             - { name: form.type }
     ems.fieldtype.collection:
         class: AppBundle\Form\DataField\CollectionFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: collection }
             - { name: form.type }
     ems.fieldtype.colorpicker:
         class: AppBundle\Form\DataField\ColorPickerFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: colorpicker }
             - { name: form.type }
     ems.fieldtype.nested:
         class: AppBundle\Form\DataField\NestedFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: nested }
             - { name: form.type }
     ems.fieldtype.tabs:
         class: AppBundle\Form\DataField\TabsFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: tabs }
             - { name: form.type }
     ems.fieldtype.ouuid:
         class: AppBundle\Form\DataField\OuuidFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: ouuid }
             - { name: form.type }
     ems.fieldtype.dataLink:
         class: AppBundle\Form\DataField\DataLinkFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: datalink }
             - { name: form.type }
-    ems.fieldtype.text:
-        class: AppBundle\Form\DataField\TextFieldType
+    ems.fieldtype.textstring:
+        class: AppBundle\Form\DataField\TextStringFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
-            - { name: ems.form.datafieldtype, alias: text }
+            - { name: ems.form.datafieldtype, alias: textstring }
             - { name: form.type }
     ems.fieldtype.wysiwyg:
         class: AppBundle\Form\DataField\WysiwygFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: wysiwyg }
             - { name: form.type }
     ems.fieldtype.textarea:
         class: AppBundle\Form\DataField\TextareaFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: textarea }
             - { name: form.type }
     ems.fieldtype.select:
         class: AppBundle\Form\DataField\SelectFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: select }
             - { name: form.type }
     ems.fieldtype.password:
         class: AppBundle\Form\DataField\PasswordFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: password }
             - { name: form.type }
     ems.fieldtype.email:
         class: AppBundle\Form\DataField\EmailFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: email }
             - { name: form.type }
     ems.fieldtype.radio:
         class: AppBundle\Form\DataField\RadioFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: radio }
             - { name: form.type }
     ems.fieldtype.choice:
         class: AppBundle\Form\DataField\ChoiceFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: choice }
             - { name: form.type }
     ems.fieldtype.checkbox:
         class: AppBundle\Form\DataField\CheckboxFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: checkbox }
             - { name: form.type }
     ems.fieldtype.number:
         class: AppBundle\Form\DataField\NumberFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: number }
             - { name: form.type }
     ems.fieldtype.date:
         class: AppBundle\Form\DataField\DateFieldType
         #arguments: ['%date_format%']
-        #calls:
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         #    - [setDateFormat, ['%date_format%']]
         tags:
             - { name: ems.form.datafieldtype, alias: date }
@@ -122,10 +157,17 @@ services:
     ems.fieldtype.time:
         class: AppBundle\Form\DataField\TimeFieldType
         #arguments: ['%date_format%']
-        #calls:
-        #    - [setDateFormat, ['%date_format%']]
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: ems.form.datafieldtype, alias: time }
+            - { name: form.type }
+    ems.fieldtype.time:
+        class: AppBundle\Form\DataField\CollectionItemFieldType
+        #arguments: ['%date_format%']
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
             - { name: form.type }
 #### End list available ems views ###
 #### Begin list available ems views ###

@@ -73,6 +73,7 @@ use AppBundle\Entity\DataField;
 		$builder->add ( $options['multiple']?'array_text_value':'text_value', ObjectPickerType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'required' => false,
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'multiple' => $options['multiple'],
 				'type' => $options['type'],
 				'environment' => $options['environment'],

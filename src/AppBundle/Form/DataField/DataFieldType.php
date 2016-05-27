@@ -3,14 +3,13 @@
 namespace AppBundle\Form\DataField;
 
 use AppBundle\Entity\DataField;
+use AppBundle\Entity\FieldType;
+use AppBundle\Form\DataField\Options\OptionsType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\DataField\Options\OptionsType;
-use AppBundle\Entity\FieldType;
-use AppBundle\Form\Field\FieldTypePickerType;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -19,6 +18,11 @@ use AppBundle\Form\Field\FieldTypePickerType;
  *        
  */
 abstract class DataFieldType extends AbstractType {
+	
+	protected $authorizationChecker;
+	public function setAuthorizationChecker($authorizationChecker){
+		$this->authorizationChecker = $authorizationChecker;
+	}
 
 	/**
 	 * Used to display in the content type edit page (instaed of the class path)

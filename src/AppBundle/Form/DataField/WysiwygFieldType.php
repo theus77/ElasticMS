@@ -35,12 +35,15 @@ class WysiwygFieldType extends DataFieldType {
 	 * @param array $options        	
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
+		/** @var FieldType $fieldType */
+		$fieldType = $builder->getOptions () ['metadata'];
 		$builder->add ( 'text_value', TextareaSymfonyType::class, [ 
 				'attr' => [ 
 						'class' => 'ckeditor_ems' 
 				],
 				'label' => $options['label'],
 				'required' => false,
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 		] );
 	}
 

@@ -168,7 +168,7 @@ class DataController extends AppController
 		$availableEnv = $em->getRepository('AppBundle:Environment')->findAvailableEnvironements(
 				$revision->getContentType()->getEnvironment());
 		
-		$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
+		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 	
 		return $this->render( 'data/revisions-data.html.twig', [
 				'revision' =>  $revision,
@@ -452,7 +452,7 @@ class DataController extends AppController
 	
 		try{
 			
-			$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
+			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 			/** @var \AppBundle\Entity\Environment $environment */
 			foreach ($revision->getEnvironments() as $environment ){
 				$status = $client->index([
@@ -665,7 +665,7 @@ class DataController extends AppController
 		/** @var Client $client */
 		$client = $this->get('app.elasticsearch');
 			
-		$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
+		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 			
 		if( null == $revision->getOuuid() ) {
 			$status = $client->create([

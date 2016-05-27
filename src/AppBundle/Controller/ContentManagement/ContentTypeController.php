@@ -252,15 +252,19 @@ class ContentTypeController extends AppController {
 					$contentType->setPluralName($pluralName);
 					$contentType->setEnvironment($environment);
 					$contentType->getFieldType()->updateAncestorReferences($contentType, NULL);
-						
+
 					$em->persist ( $contentType );
-					$em->flush ();
-					$this->addFlash ( 'notice', 'A new content type ' . $contentTypeAdded->getName () . ' has been created' );
-					
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
-							'id' => $contentType->getId () 
-					] );
 				}
+				else {
+					$contentType = $contentTypeAdded;
+					$em->persist ( $contentType );
+				}
+				$em->flush ();
+				$this->addFlash ( 'notice', 'A new content type ' . $contentTypeAdded->getName () . ' has been created' );
+				
+				return $this->redirectToRoute ( 'contenttype.edit', [
+						'id' => $contentType->getId ()
+				] );
 				
 			} else {
 				$this->addFlash ( 'error', 'Invalid form.' );
@@ -575,6 +579,24 @@ class ContentTypeController extends AppController {
 				'mapping' => isset ( current ( $mapping ) ['mappings'] [$contentType->getName ()] ['properties'] ) ? current ( $mapping ) ['mappings'] [$contentType->getName ()] ['properties'] : false 
 		] );
 	}
+	
+	
+
+	/**
+	 * Migrate a content type from its default index
+	 *
+	 * @param integer $id        	
+	 * @param Request $request
+     * @Method({"POST"})
+	 * @Route("/content-type/migrate/{contentType}", name="contenttype.migrate"))
+	 */	
+	 public function migrateAction(ContentType $contentType, Request $request) {
+	 	return $this->startJob('ems.contenttype.migrate', [
+	 			'contentTypeName'    => $contentType->getName()
+	 	]);
+	 }
+	
+	
 	/**
 	 * Export a content type in Json format
 	 *

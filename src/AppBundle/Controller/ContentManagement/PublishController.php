@@ -57,7 +57,7 @@ class PublishController extends AppController
 		/** @var Client $client */
 		$client = $this->get('app.elasticsearch');
 		
-		$objectArray = $this->get('ems.service.mapping')->generateObject ($revision->getDataField());
+		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 		$status = $client->index([
 				'id' => $revision->getOuuid(),
 				'index' => $environment->getAlias(),

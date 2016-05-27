@@ -17,7 +17,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @author Mathieu De Keyzer <ems@theus.be>
  *        
  */
- class TextFieldType extends DataFieldType {
+ class TextStringFieldType extends DataFieldType {
 	/**
 	 *
 	 * {@inheritdoc}
@@ -49,7 +49,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		if($options['prefixIcon'] || $options['prefixText'] || $options['suffixIcon'] || $options['suffixText'] ){
 			$builder->add ( 'text_value', IconTextType::class, [ 
 					'required' => false,
-					'label' => (null != $options ['label']?$options ['label']:null),
+					'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
+					'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 					'icon' => $options['prefixIcon'],
 					'prefixText' => $options['prefixText'],
 					'suffixIcon' => $options['suffixIcon'],
@@ -59,6 +60,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		else{
 			$builder->add ( 'text_value', TextType::class, [
 					'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
+					'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 					'required' => false,
 			] );			
 		}

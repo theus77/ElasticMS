@@ -119,6 +119,7 @@ class DateFieldType extends DataFieldType {
 		$builder->add ( 'data_value', TextType::class, [
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
 				'required' => false,
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'attr' => [
 					'class' => 'datepicker',
 					'data-date-format' => $fieldType->getDisplayOptions()['displayFormat'],
