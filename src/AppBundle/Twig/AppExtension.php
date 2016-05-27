@@ -26,6 +26,7 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('md5', array($this, 'md5')),
 				new \Twig_SimpleFilter('convertJavaDateFormat', array($this, 'convertJavaDateFormat')),
 				new \Twig_SimpleFilter('getTimeFieldTimeFormat', array($this, 'getTimeFieldTimeFormat')),
+				new \Twig_SimpleFilter('soapRequest', array($this, 'soapRequest')),
 		);
 	}
 
@@ -68,6 +69,40 @@ class AppExtension extends \Twig_Extension
 		return array_search($needle, $haystack) === 0;
 	}
 	
+	/*
+	 * $arguments should contain 'function' key. Optionally 'options' and/or 'parameters'
+	 */
+	public function soapRequest($wsdl, $arguments = null)
+	{
+		/** @var \SoapClient $soapClient */
+		$soapClient = null;
+		if ($arguments && array_key_exists('options', $arguments)){
+			$soapClient = new \SoapClient($wsdl, $arguments['options']);
+		} else {
+			$soapClient = new \SoapClient($wsdl);
+		}
+		
+		$function = null;
+		if ($arguments && array_key_exists('function', $arguments)){
+			$function = $arguments['function'];
+		} else {
+			//throw error "argument 'function' is obligator"
+		}
+		
+		$response = null;
+		if ($arguments && array_key_exists('parameters', $arguments)){
+			$response = $soapClient->$function($arguments['parameters']);
+		}else{
+			$response = $soapClient->$function();
+		}
+		
+		if ($arguments && array_key_exists('result', $arguments)){
+			return $response->$arguments['result'];
+		} else {
+			return $response;
+		}
+		
+	}
 
 	public function getName()
 	{
