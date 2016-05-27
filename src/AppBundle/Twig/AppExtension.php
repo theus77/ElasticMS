@@ -86,7 +86,7 @@ class AppExtension extends \Twig_Extension
 		if ($arguments && array_key_exists('function', $arguments)){
 			$function = $arguments['function'];
 		} else {
-			//throw error "argument 'function' is obligator"
+			//TODO: throw error "argument 'function' is obligator"
 		}
 		
 		$response = null;

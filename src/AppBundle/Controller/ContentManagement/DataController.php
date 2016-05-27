@@ -548,7 +548,7 @@ class DataController extends AppController
 			$body = $twig->createTemplate($template->getBody());
 		}
 		catch (\Twig_Error $e){
-			$this->addFlash('error', 'There is something wrong with the template '.$template->getName());
+			$this->addFlash('error', 'There is something wrong with the template body field '.$template->getName());
 			$body = $twig->createTemplate('error in the template!');
 		}
 		
@@ -557,8 +557,26 @@ class DataController extends AppController
 				header('Content-Type: '.$template->getMimeType());		
 			}
 			
+			$filename = $ouuid;
+			if (null != $template->getFilename()){
+				try {
+					$filename = $twig->createTemplate($template->getFilename());
+				} catch (\Twig_Error $e) {
+					$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
+					$filename = $twig->createTemplate('error in the template!');
+				}
+				
+				$filename = $filename->render([
+						'environment' => $environment,
+						'contentType' => $template->getContentType(),
+						'object' => $object,
+						'source' => $object['_source'],
+				]);
+				$filename = preg_replace('~[\r\n]+~', '', $filename);
+			}
+			
 			if(null!= $template->getExtension()){
-				header("Content-Disposition: attachment; filename=".$ouuid.'.'.$template->getExtension());
+				header("Content-Disposition: attachment; filename=".$filename.'.'.$template->getExtension());
 			}
 			
 			echo $body->render([
