@@ -38,12 +38,12 @@ class Mapping
 		}
 		return $out;
 	} 
-	
 
 
-	public function generateObject(DataField $dataField){
-		return $this->fieldTypeType->generateObject($dataField);
-	}
+
+	public function dataFieldToArray(DataField $dataField){
+		return $this->fieldTypeType->dataFieldToArray($dataField);
+	}	
 	
 	
 }

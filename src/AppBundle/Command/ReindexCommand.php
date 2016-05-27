@@ -81,7 +81,7 @@ class ReindexCommand extends ContainerAwareCommand
 			/** @var \AppBundle\Entity\Revision $revision */
 			foreach ($environment->getRevisions() as $revision) {
 				if(!$revision->getDeleted() && !$revision->getContentType()->getDeleted()){
-					$objectArray = $this->mapping->generateObject ($revision->getDataField());
+					$objectArray = $this->mapping->dataFieldToArray ($revision->getDataField());
 					$status = $this->client->index([
 							'index' => $index,
 							'id' => $revision->getOuuid(),

@@ -124,7 +124,7 @@ class FieldTypeType extends AbstractType
         ));
     }
 	
-    public function generateObject(DataField $dataField){
+    public function dataFieldToArray(DataField $dataField){
     	$out = [];
     	
     	
@@ -144,19 +144,19 @@ class FieldTypeType extends AbstractType
 	    	if ($child->getFieldType() == null){
 	    		$subOut = [];
 	    		foreach ( $child->getChildren () as $grandchild ) {
-	    			$subOut = array_merge($subOut, $this->generateObject($grandchild));
+	    			$subOut = array_merge($subOut, $this->dataFieldToArray($grandchild));
 	    		}
 	    		$out[$dataFieldType->getJsonName($dataField->getFieldType())][] = $subOut;
 	    	}
 	    	else if (! $child->getFieldType()->getDeleted ()) {
 	    		if( $dataFieldType->isNested() ){
-					$out[$dataFieldType->getJsonName($dataField->getFieldType())] = array_merge($out[$dataFieldType->getJsonName($dataField->getFieldType())], $this->generateObject($child));
+					$out[$dataFieldType->getJsonName($dataField->getFieldType())] = array_merge($out[$dataFieldType->getJsonName($dataField->getFieldType())], $this->dataFieldToArray($child));
 	    		}
 // 	    		else if(isset($jsonName)){
-// 	    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateObject($child));
+// 	    			$out[$jsonName] = array_merge($out[$jsonName], $this->dataFieldToArray($child));
 // 	    		}
 	    		else{
-	    			$out = array_merge($out, $this->generateObject($child));
+	    			$out = array_merge($out, $this->dataFieldToArray($child));
 	    		}
 	    	}
     	}
