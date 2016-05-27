@@ -23,6 +23,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
 use AppBundle\Entity\ExportMapping;
+use AppBundle\Twig\AppExtension;
 class ElasticsearchController extends AppController
 {
 	/**
@@ -452,7 +453,7 @@ class ElasticsearchController extends AppController
 			//Form treatement after the "Mass export" button has been pressed (= download all the results with the given preset)
 			if($request->query->get('form') && array_key_exists('massExport', $request->query->get('form'))){
 				//TODO: ? CANNOT DO THE ISVALID CHECK HERE :(
-				
+
 				//Load the selected templates for each content type
 				/** @var EntityManager $em */
 				$em = $this->getDoctrine()->getManager();
@@ -480,7 +481,7 @@ class ElasticsearchController extends AppController
 								$body = $twig->createTemplate($template->getBody());
 							}
 							catch (\Twig_Error $e){
-								$this->addFlash('error', 'There is something wrong with the template '.$contentType->getName());
+								$this->addFlash('error', 'There is something wrong with the template '.$template->getName());
 								$body = $twig->createTemplate('error in the template!');
 							}
 							
