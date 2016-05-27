@@ -58,6 +58,7 @@ class SelectFieldType extends DataFieldType {
 		$builder->add ( $options['multiple']?'array_text_value':'text_value', ChoiceType::class, [ 
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
 				'required' => false,
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'choices' => $choices,
     			'empty_data'  => null,
 				'multiple' => $options['multiple'],

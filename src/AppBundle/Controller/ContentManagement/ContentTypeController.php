@@ -252,15 +252,19 @@ class ContentTypeController extends AppController {
 					$contentType->setPluralName($pluralName);
 					$contentType->setEnvironment($environment);
 					$contentType->getFieldType()->updateAncestorReferences($contentType, NULL);
-						
-					$em->persist ( $contentType );
-					$em->flush ();
-					$this->addFlash ( 'notice', 'A new content type ' . $contentTypeAdded->getName () . ' has been created' );
 
- 					return $this->redirectToRoute ( 'contenttype.edit', [ 
- 							'id' => $contentType->getId () 
- 					] );
+					$em->persist ( $contentType );
 				}
+				else {
+					$contentType = $contentTypeAdded;
+					$em->persist ( $contentType );
+				}
+				$em->flush ();
+				$this->addFlash ( 'notice', 'A new content type ' . $contentTypeAdded->getName () . ' has been created' );
+				
+				return $this->redirectToRoute ( 'contenttype.edit', [
+						'id' => $contentType->getId ()
+				] );
 				
 			} else {
 				$this->addFlash ( 'error', 'Invalid form.' );

@@ -60,12 +60,14 @@ class CollectionFieldType extends DataFieldType {
 				'prototype' => true,
 				'entry_options' => [
 						'metadata' => $fieldType,
+						'disabled' => !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				],
 		))->add ( 'add_nested', SubmitEmsType::class, [ 
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm add-content-button' 
 				],
 				'label' => 'Add',
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'icon' => 'fa fa-plus' 
 		] );
 	}

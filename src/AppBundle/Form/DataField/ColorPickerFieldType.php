@@ -50,6 +50,7 @@ use AppBundle\Form\Field\ColorPickerFullType;
 		
 		$builder->add ( 'text_value', ColorPickerFullType::class, [ 
 				'required' => false,
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'label' => (null != $options ['label']?$options ['label']:null)
 		] );					
 	}
