@@ -4,13 +4,14 @@ namespace AppBundle\Twig;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use AppBundle\Form\DataField\DateFieldType;
 use AppBundle\Form\DataField\TimeFieldType;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class AppExtension extends \Twig_Extension
 {
 	protected $doctrine;
 	protected $authorizationChecker;
 	
-	public function __construct(Registry $doctrine, $authorizationChecker)
+	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
@@ -36,18 +37,25 @@ class AppExtension extends \Twig_Extension
 		);
 	}
 	
-	function all_granted($roles){
+	private function superizer($role){
+		if(strpos($role, '_SUPER_')){
+			return $role;
+		}
+		return str_replace('ROLE_', 'ROLE_SUPER_', $role);
+	}
+	
+	function all_granted($roles, $super=false){
 		foreach ($roles as $role){
-			if(!$this->authorizationChecker->isGranted($role)){
+			if(!$this->authorizationChecker->isGranted($super?$this->superizer($role):$role)){
 				return false;
 			}
 		}
 		return true;
 	}
 	
-	function one_granted($roles){
+	function one_granted($roles, $super=false){
 		foreach ($roles as $role){
-			if($this->authorizationChecker->isGranted($role)){
+			if($this->authorizationChecker->isGranted($super?$this->superizer($role):$role)){
 				return true;
 			}
 		}

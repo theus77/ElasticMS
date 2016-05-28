@@ -118,9 +118,9 @@ class DataController extends AppController
 	}
 	
 	/**
-	 * @Route("/data/revisions/{type}:{ouuid}", name="data.revisions")
+	 * @Route("/data/revisions/{type}:{ouuid}/{revisionId}", defaults={"revisionId": false} , name="data.revisions")
 	 */
-	public function revisionsDataAction($type, $ouuid, Request $request)
+	public function revisionsDataAction($type, $ouuid, $revisionId, Request $request)
 	{
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
@@ -149,18 +149,24 @@ class DataController extends AppController
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
-		$revision = $repository->findBy([
-				'endTime' => null,
-				'ouuid' => $ouuid,
-				'contentType' => $contentType,
-		]);
+		
+		
+		if(!$revisionId) {
+			$revision = $repository->findOneBy([
+					'endTime' => null,
+					'ouuid' => $ouuid,
+					'contentType' => $contentType,
+			]);			
+		}
+		else {
+			$revision = $repository->findOneById($revisionId);			
+		}
 		
 	
-		if(!$revision || count($revision) != 1) {
+		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType) {
 			throw new NotFoundHttpException('Revision not found');
 		}
-		/** @var Revision $revision */
-		$revision = $revision[0];
+		
 		$revision->getDataField()->orderChildren();
 		
 		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid, $contentTypes[0]);
@@ -470,7 +476,8 @@ class DataController extends AppController
 		}
 		return $this->redirectToRoute('data.revisions', [
 				'ouuid' => $revision->getOuuid(),
-				'type' => $revision->getContentType()->getName()
+				'type' => $revision->getContentType()->getName(),
+				'revisionId' => $revision->getId(),
 		]);
 		
 	}
@@ -768,15 +775,15 @@ class DataController extends AppController
 				}
 				
 			}
-			
+
 			if(null != $revision->getOuuid()){
 				return $this->redirectToRoute('data.revisions', [
-								'ouuid' => $revision->getOuuid(),
-								'type' => $revision->getContentType()->getName(),
-				]);			
+						'ouuid' => $revision->getOuuid(),
+						'type' => $revision->getContentType()->getName(),
+						'revisionId' => $revision->getId(),
+				]);
 			}
 			else{
-
 				return $this->redirectToRoute('data.draft_in_progress', [
 						'contentTypeId' => $revision->getContentType()->getId(),
 				]);
