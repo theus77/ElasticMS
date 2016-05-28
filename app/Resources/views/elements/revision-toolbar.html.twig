@@ -46,10 +46,12 @@
 					'label': 'New draft', 
 					'icon': 'pencil' }%}
 			{% else %} 
-				{% include 'elements/get-button.html.twig' with { 
-					'url': path('revision.edit', {'revisionId': revisionId}), 
-					'label': 'Edit revision', 
-					'icon': 'pencil' }%}
+				{% if instance.contentType.fieldType.fieldsRoles|one_granted(true) %}
+					{% include 'elements/get-button.html.twig' with { 
+						'url': path('revision.edit', {'revisionId': revisionId}), 
+						'label': 'Edit revision', 
+						'icon': 'pencil' }%}
+				{% endif %}
 				{% include 'elements/post-button.html.twig' with { 
 					'url': path('revision.revert', {'id': revisionId}), 
 					'label': 'Revert revision', 
