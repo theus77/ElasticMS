@@ -55,3 +55,7 @@ And voila, ElasticMS is up and running!
 
 If you want to load some test data in the DB run this: 
 > php bin/console doctrine:fix:l
+
+### SOAP connection
+For the soapRequest twig function to work, the following line should be activated in your php.ini
+> extension=php_soap.dll

@@ -42,6 +42,12 @@ class TemplateType extends AbstractType {
 		->add( 'mimeType', TextType::class, [
 				'required' => false,
 		])
+		->add( 'filename', TextareaType::class, [
+				'required' => false,
+				'attr' => [
+						'class' => $template->getEditWithWysiwyg()?'ckeditor':''
+				],
+		])
 		->add( 'extension', TextType::class, [
 				'required' => false,
 		])

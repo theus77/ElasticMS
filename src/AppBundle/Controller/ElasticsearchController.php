@@ -506,8 +506,29 @@ class ElasticsearchController extends AppController
 					$template = $templateMapping[$formFieldName];
 					$body = $templateBodyMapping[$formFieldName];
 					
+					$filename = $result['_id'];
+					if (null != $template->getFilename()){
+						try {
+							$filename = $twig->createTemplate($template->getFilename());
+						} catch (\Twig_Error $e) {
+							$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
+							$filename = $twig->createTemplate('error in the template!');
+						}
+						
+						$filename = $filename->render([
+								'contentType' => $template->getContentType(),
+								'object' => $result,
+								'source' => $result['_source'],
+						]);
+						$filename = preg_replace('~[\r\n]+~', '', $filename);
+					}
+			
+					if(null!= $template->getExtension()){
+						$filename = $filename.'.'.$template->getExtension();
+					}
+					
 					$zip->addFile(
-							$result['_id'].'.'.$template->getExtension(),
+							$filename,
 							$body->render([
 									'contentType' => $template->getContentType(),
 									'object' => $result,
