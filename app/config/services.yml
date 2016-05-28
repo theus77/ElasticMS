@@ -6,7 +6,7 @@ parameters:
 services:
     app.twig_extension:
         class: AppBundle\Twig\AppExtension
-        arguments: ['@doctrine']
+        arguments: ['@doctrine', '@security.authorization_checker']
         public: false
         tags:
             - { name: twig.extension, priority: -2000 }

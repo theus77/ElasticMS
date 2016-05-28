@@ -8,10 +8,12 @@ use AppBundle\Form\DataField\TimeFieldType;
 class AppExtension extends \Twig_Extension
 {
 	protected $doctrine;
+	protected $authorizationChecker;
 	
-	public function __construct(Registry $doctrine)
+	public function __construct(Registry $doctrine, $authorizationChecker)
 	{
 		$this->doctrine = $doctrine;
+		$this->authorizationChecker = $authorizationChecker;
 	}
 	
 	public function getFilters()
@@ -29,10 +31,28 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('soapRequest', array($this, 'soapRequest')),
 				new \Twig_SimpleFilter('luma', array($this, 'relativeluminance')),
 				new \Twig_SimpleFilter('contrastratio', array($this, 'contrastratio')),
+				new \Twig_SimpleFilter('all_granted', array($this, 'all_granted')),
+				new \Twig_SimpleFilter('one_granted', array($this, 'one_granted')),
 		);
 	}
 	
+	function all_granted($roles){
+		foreach ($roles as $role){
+			if(!$this->authorizationChecker->isGranted($role)){
+				return false;
+			}
+		}
+		return true;
+	}
 	
+	function one_granted($roles){
+		foreach ($roles as $role){
+			if($this->authorizationChecker->isGranted($role)){
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	/**
 	 * Calculate relative luminance in sRGB colour space for use in WCAG 2.0 compliance

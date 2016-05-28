@@ -15,16 +15,20 @@
 				'label': 'Revisions',
 				'icon': 'archive'
 			}%}
-			{% include 'elements/post-button.html.twig' with { 
-				'url': path('revision.new-draft', {'ouuid': object._id, 'type': contentType.name}), 
-				'label': 'Edit', 
-				'icon': 'pencil' }%} 
-			{% include 'elements/post-button.html.twig' with {
-				'url':  path('object.delete', {'type': object._type, 'ouuid': object._id} ),
-				'label': 'Delete',
-				'icon': 'trash',
-				'message': 'Do you confirm?'
-			}%}
+			{% if contentType.fieldType.fieldsRoles|one_granted %}
+				{% include 'elements/post-button.html.twig' with { 
+					'url': path('revision.new-draft', {'ouuid': object._id, 'type': contentType.name}), 
+					'label': 'Edit', 
+					'icon': 'pencil' }%} 
+			{% endif %}
+			{% if contentType.fieldType.fieldsRoles|all_granted %}
+				{% include 'elements/post-button.html.twig' with {
+					'url':  path('object.delete', {'type': object._type, 'ouuid': object._id} ),
+					'label': 'Delete',
+					'icon': 'trash',
+					'message': 'Do you confirm?'
+				}%}
+			{% endif %}
 		{% endif %}
 	</div>
 </div>
