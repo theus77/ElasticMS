@@ -12,6 +12,10 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\Routing\Router;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class RequestListener
 {
@@ -20,14 +24,27 @@ class RequestListener
 	protected $logger;
 	protected $router;
 	protected $container;
+	protected $authorizationChecker;
 	
-	public function __construct(\Twig_Environment $twig, Registry $doctrine, Logger $logger, Router $router, Container $container)
+	public function __construct(\Twig_Environment $twig, Registry $doctrine, Logger $logger, Router $router, Container $container, AuthorizationCheckerInterface $authorizationChecker)
 	{
 		$this->twig = $twig;
 		$this->doctrine = $doctrine;
 		$this->logger = $logger;
 		$this->router = $router;
 		$this->container = $container;
+		$this->authorizationChecker = $authorizationChecker;
+	}
+	
+	public function onKernelException(GetResponseForExceptionEvent $event)
+	{
+		//hide all errors to unauthenticated users        
+		$exception = $event->getException();
+		
+		if (!($exception instanceof NotFoundHttpException) && !$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
+			$response = new RedirectResponse($this->router->generate('user.login'));
+			$event->setResponse($response);
+		}
 	}
 	
     public function provideTemplateTwigObjects(FilterControllerEvent $event)
