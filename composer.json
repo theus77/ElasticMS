@@ -30,7 +30,8 @@
         "incenteev/composer-parameter-handler": "^2.0",
         "friendsofsymfony/user-bundle": "~2.0@dev",
         "maennchen/zipstream-php": "0.3.*",
-        "sensiolabs/ansi-to-html": "^1.1"
+        "sensiolabs/ansi-to-html": "^1.1",
+        "doctrine/doctrine-migrations-bundle": "^1.0"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",
