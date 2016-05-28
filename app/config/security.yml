@@ -40,16 +40,16 @@ security:
             anonymous: ~
             # activate different ways to authenticate
             form_login:
+                use_forward: true
                 provider: fos_userbundle
                 csrf_token_generator: security.csrf.token_manager
                 #login_path: /login
                 #check_path: /login_check
             logout:
                 path: /logout
-                target: /
+                target: /login
     access_control:
-        - { path: ^/$, roles: ROLE_USER }
-        - { path: ^/status, roles: ROLE_USER }
+        - { path: ^/, roles: ROLE_USER }
         - { path: ^/user, roles: ROLE_ADMIN }
         - { path: ^/environment, roles: ROLE_ADMIN }
         - { path: ^/content-type, roles: ROLE_ADMIN }
