@@ -33,6 +33,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Exception\PrivilegeException;
 
 class DataController extends AppController
 {
@@ -881,10 +882,14 @@ class DataController extends AppController
 			
 		
 		
-		if (($form->isSubmitted() && $form->isValid()) || ! $contentType->getAskForOuuid()) {			
-
+		if (($form->isSubmitted() && $form->isValid()) || ! $contentType->getAskForOuuid()) {
 			/** @var Revision $revision */
 			$revision = $form->getData();
+			
+			if(! $this->get('app.twig_extension')->all_granted($contentType->getFieldType()->getFieldsRoles())){
+				throw new PrivilegeException($revision);
+			}
+
 			
 
 			if(null != $revision->getOuuid()){
