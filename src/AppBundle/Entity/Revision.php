@@ -130,7 +130,6 @@ class Revision
     	}
     	
     	if(null == $this->lockBy || null == $this->lockUntil || new \DateTime() > $this->lockUntil){
-    		dump($this);
     		throw new NotLockedException($this);
     	}
     }

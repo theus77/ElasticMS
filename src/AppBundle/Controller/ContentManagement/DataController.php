@@ -675,7 +675,7 @@ class DataController extends AppController
 	
 	public function finalizeDraft(Revision $revision){
 		$this->lockRevision($revision);
-		
+
 		$em = $this->getDoctrine()->getManager();
 
 		/** @var RevisionRepository $repository */
@@ -713,10 +713,10 @@ class DataController extends AppController
 		
 			/** @var Revision $item */
 			foreach ($result as $item){
+				$this->lockRevision($item);
 				$item->removeEnvironment($revision->getContentType()->getEnvironment());
 				$em->persist($item);
 			}
-		
 		}
 			
 		$revision->addEnvironment($revision->getContentType()->getEnvironment());
