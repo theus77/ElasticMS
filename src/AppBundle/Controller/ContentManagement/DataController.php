@@ -239,6 +239,8 @@ class DataController extends AppController
 			
 			$newDraft->setStartTime($now);
 			$revision->setEndTime($now);
+
+			$this->lockRevision($newDraft);
 				
 			$em->persist($revision);
 			$em->persist($newDraft);

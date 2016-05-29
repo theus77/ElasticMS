@@ -12,7 +12,7 @@ services:
             - { name: twig.extension, priority: -2000 }
     app.listener.request:
         class: AppBundle\EventListener\RequestListener
-        arguments: ['@twig', '@doctrine', '@logger', '@router', '@service_container', '@security.authorization_checker']
+        arguments: ['@twig', '@doctrine', '@logger', '@router', '@service_container', '@security.authorization_checker', '@session']
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: provideTemplateTwigObjects, priority: -20 }
             - { name: kernel.event_listener, event: kernel.terminate, method: startJob }

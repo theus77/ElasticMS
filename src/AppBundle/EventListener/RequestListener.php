@@ -16,6 +16,9 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Exception\LockedException;
+use Symfony\Component\HttpFoundation\Session\Session;
+use AppBundle\Exception\PrivilegeException;
 
 class RequestListener
 {
@@ -25,8 +28,9 @@ class RequestListener
 	protected $router;
 	protected $container;
 	protected $authorizationChecker;
+	protected $session;
 	
-	public function __construct(\Twig_Environment $twig, Registry $doctrine, Logger $logger, Router $router, Container $container, AuthorizationCheckerInterface $authorizationChecker)
+	public function __construct(\Twig_Environment $twig, Registry $doctrine, Logger $logger, Router $router, Container $container, AuthorizationCheckerInterface $authorizationChecker, Session $session)
 	{
 		$this->twig = $twig;
 		$this->doctrine = $doctrine;
@@ -34,6 +38,7 @@ class RequestListener
 		$this->router = $router;
 		$this->container = $container;
 		$this->authorizationChecker = $authorizationChecker;
+		$this->session = $session;
 	}
 	
 	public function onKernelException(GetResponseForExceptionEvent $event)
@@ -43,6 +48,22 @@ class RequestListener
 		
 		if (!($exception instanceof NotFoundHttpException) && !$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
 			$response = new RedirectResponse($this->router->generate('user.login'));
+			$event->setResponse($response);
+		}
+		else if($exception instanceof LockedException || $exception instanceof PrivilegeException) {
+			$this->session->getFlashBag()->add('error', $exception->getMessage());
+			/** @var LockedException $exception */
+			if(null == $exception->getRevision()->getOuuid()){
+				$response = new RedirectResponse($this->router->generate('data.draft_in_progress', [
+						'contentTypeId' => $exception->getRevision()->getContentType()->getId(),
+				]));
+			}
+			else {
+				$response = new RedirectResponse($this->router->generate('data.revisions', [
+						'type' => $exception->getRevision()->getContentType()->getName(),
+						'ouuid'=> $exception->getRevision()->getOuuid()
+				]));				
+			}
 			$event->setResponse($response);
 		}
 	}

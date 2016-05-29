@@ -22,7 +22,7 @@
 							<th class="text-center" style="width: 10px">#</th>
 							<th>OUUID</th>
 							<th>Label</th>
-							<th>Last author</th>
+							<th>Locked</th>
 							<th>Last update</th>
 							<th>Action</th>
 						</tr>
@@ -37,7 +37,11 @@
 									{% endif %}
 								{% endif %}
 								</td>
-								<td>{{ revision.lockby }}</td>
+								<td>
+									{% if revision.lockUntil and revision.lockUntil > date('now') %}
+										{{ revision.lockBy }}
+									{% endif %}
+								</td>
 								<td>{{ revision.modified|date(date_time_format) }}</td>
 								<td>
 								
