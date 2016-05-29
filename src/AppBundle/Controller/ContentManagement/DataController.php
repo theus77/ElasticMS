@@ -407,9 +407,17 @@ class DataController extends AppController
 
 
 		$contentTypeId = $revision->getContentType()->getId();
+		$type = $revision->getContentType()->getName();
+		$ouuid = $revision->getOuuid();
 		
 		$this->discardDraft($revision);
 		
+		if(null != $ouuid){
+			return $this->redirectToRoute('data.revisions', [
+					'type' => $type,
+					'ouuid'=> $ouuid,
+			]);
+		}
 		return $this->redirectToRoute('data.draft_in_progress', [
 				'contentTypeId' => $contentTypeId
 		]);			
@@ -821,7 +829,7 @@ class DataController extends AppController
 			throw new PrivilegeException($revision);			
 		}
 		
-		$em = $this->getDoctrine()->getEntityManager();
+		$em = $this->getDoctrine()->getManager();
 		$username = $this->getUser()->getUsername();
 		$now = new \DateTime();
 		if($revision->getLockBy() != $username && $now <  $revision->getLockUntil()) {
