@@ -58,6 +58,7 @@
 						<tr>
 							<th style="width: 10px">#</th>
 							<th>Date</th>
+							<th>Locked</th>
 							<th>Environments</th>
 							<th>Actions</th>
 						</tr>
@@ -65,6 +66,11 @@
 						<tr {% if rev.id == revision.id %}class="bg-{{ revision.contentType.color }}"{% endif %}>
 							<td>{{ loop.index }}.</td>
 							<td>{{ rev.startTime|date }}</td>
+							<td>
+								{% if rev.lockUntil and rev.lockUntil > date('now') %}
+									{{ rev.lockBy }}
+								{% endif %}
+							</td>
 							<td>
 								{% for env in rev.environments %}
 									<span class="badge bg-{{ env.color|raw }}">{{ env.name|humanize }}</span>
