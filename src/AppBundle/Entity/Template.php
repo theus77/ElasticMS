@@ -84,6 +84,13 @@ class Template
      */
     private $contentType;
     
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="download_result_url", type="boolean")
+     */
+    private $downloadResultUrl;
+    
     /** @var string
      * 
      * @ORM\Column(name="mime_type", type="string", nullable=true)
@@ -348,6 +355,30 @@ class Template
         return $this->contentType;
     }
 
+    /**
+     * Set downloadResultUrl
+     *
+     * @param bool $downloadResultUrl
+     *
+     * @return Template
+     */
+    public function setDownloadResultUrl($downloadResultUrl)
+    {
+    	$this->downloadResultUrl = $downloadResultUrl;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get downloadResultUrl
+     *
+     * @return bool
+     */
+    public function getDownloadResultUrl()
+    {
+    	return $this->downloadResultUrl;
+    }
+    
     /**
      * Set mimeType
      *
