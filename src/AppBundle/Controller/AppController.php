@@ -36,18 +36,36 @@ class AppController extends Controller
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
 		
-		$jobEntity = new Job();
-		$jobEntity->setUser($this->getUser()->getUsername());
-		$jobEntity->setDone(false);
-		$jobEntity->setArguments($arguments);
-		$jobEntity->setProgress(0);
-		$jobEntity->setService($service);
-		$jobEntity->setStatus("Job intialized");
-		$em->persist($jobEntity);
+		$job = new Job();
+		$job->setUser($this->getUser()->getUsername());
+		$job->setDone(false);
+		$job->setArguments($arguments);
+		$job->setProgress(0);
+		$job->setService($service);
+		$job->setStatus("Job intialized");
+		$em->persist($job);
 		$em->flush();
 		
 		return $this->redirectToRoute('job.status', [
-			'job' => $jobEntity->getId(),
+			'job' => $job->getId(),
+		]);
+	}
+	
+
+	protected function startConsole(Job $job){
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		$job->setUser($this->getUser()->getUsername());
+		$job->setDone(false);
+		$job->setProgress(0);
+		$job->setStatus("Job intialized");
+		
+		$em->persist($job);
+		$em->flush();
+		
+		return $this->redirectToRoute('job.status', [
+			'job' => $job->getId(),
 		]);
 	}
 

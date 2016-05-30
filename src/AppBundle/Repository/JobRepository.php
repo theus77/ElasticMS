@@ -9,5 +9,11 @@ namespace AppBundle\Repository;
  * repository methods below.
  */
 class JobRepository extends \Doctrine\ORM\EntityRepository
-{
+{	
+	public function countJobs() {
+		return $this->createQueryBuilder('a')
+		 ->select('COUNT(a)')
+		 ->getQuery()
+		 ->getSingleScalarResult();
+	}
 }

@@ -81,9 +81,16 @@ class Job
     /**
      * @var string
      *
-     * @ORM\Column(name="service", type="string", length=255)
+     * @ORM\Column(name="service", type="string", length=255, nullable=true)
      */
     private $service;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="command", type="string", length=255, nullable=true)
+     */
+    private $command;
     
     /**
      * @ORM\PrePersist
@@ -326,5 +333,29 @@ class Job
     public function getService()
     {
         return $this->service;
+    }
+
+    /**
+     * Set command
+     *
+     * @param string $command
+     *
+     * @return Job
+     */
+    public function setCommand($command)
+    {
+        $this->command = $command;
+
+        return $this;
+    }
+
+    /**
+     * Get command
+     *
+     * @return string
+     */
+    public function getCommand()
+    {
+        return $this->command;
     }
 }

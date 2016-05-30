@@ -19,6 +19,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Exception\LockedException;
 use Symfony\Component\HttpFoundation\Session\Session;
 use AppBundle\Exception\PrivilegeException;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Bundle\FrameworkBundle\Console\Application;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
+use Symfony\Component\Console\Input\ArgvInput;
 
 class RequestListener
 {
@@ -92,6 +96,11 @@ class RequestListener
         $this->twig->addGlobal('draftCounterGroupedByContentType', $draftCounterGroupedByContentType);
     }
     
+    public static function getArgv ($string) {
+    	preg_match_all ('/(?<=^|\s)([\'"]?)(.+?)(?<!\\\\)\1(?=$|\s)/', $string, $ms);
+    	return $ms[2];
+    }
+    
     public function startJob($event)
     {
     	if( $event->getRequest()->isMethod('POST') && $event->getResponse() instanceof RedirectResponse ){
@@ -107,14 +116,44 @@ class RequestListener
     			/** @var \AppBundle\Entity\Job $job */
     			$job = $jobRepository->find($params['job']);
     			if($job && !$job->getDone()){
-    				/** @var AbstractEmsCommand $command */
     				
-    				$command = $this->container->get($job->getService());
-    				$input = new ArrayInput($job->getArguments());
     				$output = new JobOutput($this->doctrine, $job);
     				$output->writeln("Job ready to be launch");
-    				$command->run($input, $output);
-    				$output->writeln("Job done");
+    				
+    				try{
+	    				if(null !== $job->getService()){
+	    					try{
+			    				/** @var AbstractEmsCommand $command */
+			    				$command = $this->container->get($job->getService());
+	    						$input = new ArrayInput($job->getArguments());
+			    				$command->run($input, $output);    					
+		    					$output->writeln("Job done");
+	    					}
+	    					catch (ServiceNotFoundException $e){
+	    						$output->writeln("<error>Service not found</error>");
+	    					}
+	    				}
+	    				else {
+	    					$command = $job->getCommand();
+	    					if(null === $command){
+	    						$command = "list";
+	    					}
+	    					
+	    					/** @var \AppKernel $kernel */
+	    					$kernel = $this->container->get('kernel');
+	    					$application = new Application($kernel);
+	    					$application->setAutoExit(false);
+	    					
+	    					
+	    					$input = new ArgvInput($this->getArgv("console ".$command));
+// 	    					dump($input); exit;
+	    					$application->run($input, $output);
+		    				$output->writeln("Job done");
+	    				}
+    				}
+    				catch (InvalidArgumentException $e){
+    					$output->writeln("<error>".$e->getMessage()."</error>");
+    				}
     		
     				$job->setDone(true);
     				$job->setProgress(100);
