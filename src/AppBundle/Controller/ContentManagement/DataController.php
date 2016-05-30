@@ -579,12 +579,29 @@ class DataController extends AppController
 				header("Content-Disposition: attachment; filename=".$filename.'.'.$template->getExtension());
 			}
 			
-			echo $body->render([
-				'environment' => $environment,
-				'contentType' => $template->getContentType(),
-				'object' => $object,
-				'source' => $object['_source'],
-			]);
+			$output = $body->render([
+						'environment' => $environment,
+						'contentType' => $template->getContentType(),
+						'object' => $object,
+						'source' => $object['_source'],
+				]);
+			if (null != $template->getDownloadResultUrl()){
+				$ch = curl_init($output);
+				curl_setopt($ch, CURLOPT_NOBODY, true);
+				curl_setopt($ch, CURLOPT_HEADER, true);
+				curl_exec($ch);
+				$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+				curl_close($ch);
+				
+				if ($code == 200) {
+					echo file_get_contents($output);
+				} else {
+					echo "Error ".$code." while downloading file: ".$output;
+				}
+				
+			} else {
+				echo $output;
+			}
 			
 			exit;
 		}
