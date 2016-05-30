@@ -19,6 +19,11 @@ use AppBundle\Form\Field\FieldTypePickerType;
  *        
  */
 abstract class DataFieldType extends AbstractType {
+	
+	protected $authorizationChecker;
+	public function setAuthorizationChecker($authorizationChecker){
+		$this->authorizationChecker = $authorizationChecker;
+	}
 
 	/**
 	 * Used to display in the content type edit page (instaed of the class path)
@@ -65,6 +70,11 @@ abstract class DataFieldType extends AbstractType {
 				'class' => null, // used to specify a bootstrap class arround the compoment
 				'metadata' => null, // used to keep a link to the FieldType
 		]);
+	}
+	
+	public function importData(DataField $dataField, $sourceArray) {
+		$dataField->prepareDataValues(1);
+		$dataField->getDataValues()[0]->setTextValue($sourceArray);
 	}
 	
 	/**

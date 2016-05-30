@@ -26,6 +26,16 @@ class TabsFieldType extends DataFieldType {
 	public function getLabel(){
 		return 'Visual tab container (invisible in Elasticsearch)';
 	}	
+
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray){
+		throw new Exception("This method should never be called");
+	}
 	
 	/**
 	 *

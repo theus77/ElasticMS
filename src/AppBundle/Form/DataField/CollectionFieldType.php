@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use AppBundle\Entity\DataValue;
 
 /**
  * Defined a Container content type.
@@ -37,6 +38,23 @@ class CollectionFieldType extends DataFieldType {
 	 */
 	public static function getIcon(){
 		return 'fa fa-plus fa-rotate';
+	}	
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray){		
+		if(!is_array($sourceArray)){
+			$sourceArray = [$sourceArray];
+		}
+		foreach ($sourceArray as $item){
+			$child = new DataField();
+			$child->updateDataStructure($dataField->getFieldType());
+			$dataField->updateDataValue($item);
+			$dataField->addChild($child);	
+		}
 	}
 	
 	
@@ -60,12 +78,14 @@ class CollectionFieldType extends DataFieldType {
 				'prototype' => true,
 				'entry_options' => [
 						'metadata' => $fieldType,
+						'disabled' => !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				],
 		))->add ( 'add_nested', SubmitEmsType::class, [ 
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm add-content-button' 
 				],
 				'label' => 'Add',
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'icon' => 'fa fa-plus' 
 		] );
 	}

@@ -11,7 +11,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Form\Field\ColorPickerType;
 use AppBundle\Form\Field\ColorPickerFullType;
-					
+use AppBundle\Entity\DataField;
+						
 /**
  * Defined a Container content type.
  * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
@@ -43,6 +44,16 @@ use AppBundle\Form\Field\ColorPickerFullType;
 	 * {@inheritdoc}
 	 *
 	 */
+	public function importData(DataField $dataField, $sourceArray){		
+		$dataField->prepareDataValues(1);
+		$dataField->getDataValues()[0]->setTextValue($sourceArray);
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 
 		/** @var FieldType $fieldType */
@@ -50,6 +61,7 @@ use AppBundle\Form\Field\ColorPickerFullType;
 		
 		$builder->add ( 'text_value', ColorPickerFullType::class, [ 
 				'required' => false,
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'label' => (null != $options ['label']?$options ['label']:null)
 		] );					
 	}
