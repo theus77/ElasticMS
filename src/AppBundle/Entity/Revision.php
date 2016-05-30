@@ -3,6 +3,7 @@
 namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use AppBundle\Exception\NotLockedException;
 
 /**
  * Revision
@@ -126,6 +127,10 @@ class Revision
     	}
     	if(!isset($this->orderKey)){
     		$this->orderKey = 0;
+    	}
+    	
+    	if(null == $this->lockBy || null == $this->lockUntil || new \DateTime() > $this->lockUntil){
+    		throw new NotLockedException($this);
     	}
     }
     

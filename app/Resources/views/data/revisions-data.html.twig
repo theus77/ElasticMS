@@ -19,9 +19,12 @@
 					{% if revision.draft %}
 						<i class="fa fa-fire"></i>
 						Draft in progress
-					{% else %}
+					{% elseif not revision.endTime %}
 						<i class="fa fa-thumbs-up"></i>
-						Current revision 
+						Current revision
+					{% else %} 
+						<i class="fa fa-clock-o"></i>
+						Previous revision ({{ revision.startTime|date(date_time_format) }})
 					{% endif %}
 				</h3>
 			</div>
@@ -30,18 +33,14 @@
 			<div class="box-body">{{ macros.renderDataField(revision.dataField) }}</div>
 			<!-- /.box-body -->
 			<div class="box-footer">
-				<div class="btn-group">
-					{% if revision.draft %} 
-						{% include 'elements/get-button.html.twig' with { 
-							'url': path('revision.edit', {'revisionId': revision.id}), 
-							'label': 'Edit draft', 
-							'icon': 'pencil' }%}
-					{% else %} 
-						{% include 'elements/post-button.html.twig' with { 
-							'url': path('revision.new-draft', {'ouuid': revision.ouuid, 'type':revision.contentType.name }), 
-							'label': 'Edit', 
-							'icon': 'pencil' }%} 
-					{% endif %}</div>
+				{% include 'elements/revision-toolbar.html.twig' with {
+								'revisionId' : revision.id,
+								'environments': revision.environments,
+								'draft': revision.draft,
+								'current': not revision.endTime,
+								'instance': revision
+				}%}
+					
 			</div>
 		</div>
 	</div>
@@ -59,98 +58,35 @@
 						<tr>
 							<th style="width: 10px">#</th>
 							<th>Date</th>
+							<th>Locked</th>
 							<th>Environments</th>
 							<th>Actions</th>
 						</tr>
 						{% for rev in revisionsSummary %}
-						<tr>
+						<tr {% if rev.id == revision.id %}class="bg-{{ revision.contentType.color }}"{% endif %}>
 							<td>{{ loop.index }}.</td>
 							<td>{{ rev.startTime|date }}</td>
+							<td>
+								{% if rev.lockUntil and rev.lockUntil > date('now') %}
+									{{ rev.lockBy }}
+								{% endif %}
+							</td>
 							<td>
 								{% for env in rev.environments %}
 									<span class="badge bg-{{ env.color|raw }}">{{ env.name|humanize }}</span>
 								{% endfor %}
+								{% if rev.draft %} 	
+									<span class="badge bg-red">Draft in progress</span>
+								{% endif %}
 							</td>
 							<td>
-								<div class="btn-group">
-									{% if rev.draft %} 	
-										{% include 'elements/get-button.html.twig' with { 
-											'url': path('revision.edit', {'revisionId': revision.id}), 
-											'label': 'Edit draft', 
-											'icon': 'pencil' }%}
-									{% else %}
-										{# TODO: better way to determine if there is a environement to publish this revision in ? #}
-										{% set hasEnv = false %}
-										{% for env in availableEnv %}
-											{% if env not in rev.environments %}
-									   			{% set hasEnv = true %}
-										   	{% endif %}
-									   	{% endfor %}
-									   	
-										
-										{% for env in rev.environments %}
-												{% include 'elements/object-views-button.html.twig' with { 
-													'object':  object,
-													'contentType': revision.contentType,
-													'environment': env
-												}%}
-								   		{% endfor %}
-									   		
-										{% include 'elements/get-button.html.twig' with { 
-											'url': path('revision.edit', {'revisionId': rev.id}), 
-											'label': 'Edit revision', 
-											'icon': 'pencil' }%}
-										{% include 'elements/post-button.html.twig' with { 
-											'url': path('revision.revert', {'id': rev.id}), 
-											'label': 'Revert revision', 
-											'icon': 'undo' }%}
-										{% if rev.environments|length %}
-											{% include 'elements/post-button.html.twig' with { 
-												'url': path('revision.reindex', {'revisionId': rev.id}), 
-												'label': 'Re-index', 
-												'icon': 'recycle'}%}
-										{% endif %}
-										
-										  {% if hasEnv  %}
-										  <div class="btn-group">
-											  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											    	<span class="glyphicon glyphicon-open"></span>&nbsp;
-													Publish to
-													<span class="caret"></span>
-											  </button>
-											   <ul class="dropdown-menu">
-											   		{% for env in availableEnv %}
-														{% if env not in rev.environments %}
-												   			<li>
-												   				<a href="{{ path('revision.publish_to', {'revisionId': rev.id, 'envId': env.id}) }}">{{ env.name|humanize }}</a>
-												   			</li>
-												   		{% endif %}
-											   		{% endfor %}
-											   </ul>
-											</div>
-										  {% endif %}
-										
-										  {% if (rev.environments|length > 0 and rev.endTime) or (rev.environments|length > 1 and not rev.endTime) %}
-										  <div class="btn-group">
-											  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											    	<span class="fa fa-close"></span>&nbsp;
-													Unpublish from
-													<span class="caret"></span>
-											  </button>
-											   <ul class="dropdown-menu">
-											   		{% for env in availableEnv %}
-														{% if env in rev.environments %}
-												   			<li>
-												   				<a href="{{ path('revision.unpublish', {'revisionId': rev.id, 'envId': env.id}) }}">{{ env.name|humanize }}</a>
-												   			</li>
-												   		{% endif %}
-											   		{% endfor %}
-											   </ul>
-											</div>
-										  {% endif %}
-										  
-									{% endif %}
-								</div>
+							{% include 'elements/revision-toolbar.html.twig' with { 
+								'revisionId' : rev.id,
+								'environments': rev.environments,
+								'draft': rev.draft,
+								'current': not rev.endTime,
+								'instance': revision
+							}%}
 							</td>
 						</tr>
 						{% endfor %}

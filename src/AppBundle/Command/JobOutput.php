@@ -23,6 +23,6 @@ class JobOutput extends Output {
 		$this->job->setStatus($message);
 		
 		$this->job->setOutput($this->job->getOutput().$message.($newline ? PHP_EOL : ''));
-		$this->doctrine->getEntityManager()->persist($this->job);
+		$this->doctrine->getManager()->persist($this->job);
 	}
 }

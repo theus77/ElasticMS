@@ -12,6 +12,7 @@ use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\Revision;
 use AppBundle\Entity\Template;
 use AppBundle\Entity\View;
+use AppBundle\Exception\LockedException;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Form\RevisionType;
 use AppBundle\Form\Form\ViewType;
@@ -32,6 +33,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Exception\PrivilegeException;
 
 class DataController extends AppController
 {
@@ -118,9 +120,9 @@ class DataController extends AppController
 	}
 	
 	/**
-	 * @Route("/data/revisions/{type}:{ouuid}", name="data.revisions")
+	 * @Route("/data/revisions/{type}:{ouuid}/{revisionId}", defaults={"revisionId": false} , name="data.revisions")
 	 */
-	public function revisionsDataAction($type, $ouuid, Request $request)
+	public function revisionsDataAction($type, $ouuid, $revisionId, Request $request)
 	{
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
@@ -149,18 +151,24 @@ class DataController extends AppController
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
-		$revision = $repository->findBy([
-				'endTime' => null,
-				'ouuid' => $ouuid,
-				'contentType' => $contentType,
-		]);
+		
+		
+		if(!$revisionId) {
+			$revision = $repository->findOneBy([
+					'endTime' => null,
+					'ouuid' => $ouuid,
+					'contentType' => $contentType,
+			]);			
+		}
+		else {
+			$revision = $repository->findOneById($revisionId);			
+		}
 		
 	
-		if(!$revision || count($revision) != 1) {
+		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType) {
 			throw new NotFoundHttpException('Revision not found');
 		}
-		/** @var Revision $revision */
-		$revision = $revision[0];
+		
 		$revision->getDataField()->orderChildren();
 		
 		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid, $contentTypes[0]);
@@ -215,6 +223,7 @@ class DataController extends AppController
 	public function initNewDraft($type, $ouuid, $fromRev = null){
 		
 		$revision = $this->getNewestRevision($type, $ouuid);
+		$this->lockRevision($revision);
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
 		
@@ -231,6 +240,8 @@ class DataController extends AppController
 			
 			$newDraft->setStartTime($now);
 			$revision->setEndTime($now);
+
+			$this->lockRevision($newDraft);
 				
 			$em->persist($revision);
 			$em->persist($newDraft);
@@ -292,6 +303,8 @@ class DataController extends AppController
 		
 		/** @var Revision $revision */
 		foreach ($revisions as $revision){
+			$this->lockRevision($revision, true);
+			
 			/** @var Environment $environment */
 			foreach ($revision->getEnvironments() as $environment){
 				try{					
@@ -323,6 +336,8 @@ class DataController extends AppController
 	}
 	
 	public function discardDraft(Revision $revision){
+		$this->lockRevision($revision);
+		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
 		
@@ -393,9 +408,17 @@ class DataController extends AppController
 
 
 		$contentTypeId = $revision->getContentType()->getId();
+		$type = $revision->getContentType()->getName();
+		$ouuid = $revision->getOuuid();
 		
 		$this->discardDraft($revision);
 		
+		if(null != $ouuid){
+			return $this->redirectToRoute('data.revisions', [
+					'type' => $type,
+					'ouuid'=> $ouuid,
+			]);
+		}
 		return $this->redirectToRoute('data.draft_in_progress', [
 				'contentTypeId' => $contentTypeId
 		]);			
@@ -446,6 +469,8 @@ class DataController extends AppController
 			throw $this->createNotFoundException('Revision not found');
 		}
 		
+		$this->lockRevision($revision);
+		
 		/** @var Client $client */
 		$client = $this->get('app.elasticsearch');
 		
@@ -470,7 +495,8 @@ class DataController extends AppController
 		}
 		return $this->redirectToRoute('data.revisions', [
 				'ouuid' => $revision->getOuuid(),
-				'type' => $revision->getContentType()->getName()
+				'type' => $revision->getContentType()->getName(),
+				'revisionId' => $revision->getId(),
 		]);
 		
 	}
@@ -630,6 +656,9 @@ class DataController extends AppController
 		/** @var Revision $revision */
 		$revision = $repository->find($revisionId);
 		
+
+		$this->lockRevision($revision);
+		
 		if(!$revision) {
 			throw new NotFoundHttpException('Unknown revision');
 		}		
@@ -671,6 +700,7 @@ class DataController extends AppController
 	}
 	
 	public function finalizeDraft(Revision $revision){
+		$this->lockRevision($revision);
 
 		$em = $this->getDoctrine()->getManager();
 
@@ -709,10 +739,10 @@ class DataController extends AppController
 		
 			/** @var Revision $item */
 			foreach ($result as $item){
+				$this->lockRevision($item);
 				$item->removeEnvironment($revision->getContentType()->getEnvironment());
 				$em->persist($item);
 			}
-		
 		}
 			
 		$revision->addEnvironment($revision->getContentType()->getEnvironment());
@@ -741,7 +771,10 @@ class DataController extends AppController
 			throw new NotFoundHttpException('Unknown revision');
 		}
 
+		$this->lockRevision($revision);
 		
+		
+		//Update the data structure
 		if(null != $revision->getContentType()->getFieldType()){
 			if(null == $revision->getDataField()){
 				$data = new DataField();
@@ -785,15 +818,15 @@ class DataController extends AppController
 				}
 				
 			}
-			
+
 			if(null != $revision->getOuuid()){
 				return $this->redirectToRoute('data.revisions', [
-								'ouuid' => $revision->getOuuid(),
-								'type' => $revision->getContentType()->getName(),
-				]);			
+						'ouuid' => $revision->getOuuid(),
+						'type' => $revision->getContentType()->getName(),
+						'revisionId' => $revision->getId(),
+				]);
 			}
 			else{
-
 				return $this->redirectToRoute('data.draft_in_progress', [
 						'contentTypeId' => $revision->getContentType()->getId(),
 				]);
@@ -808,6 +841,32 @@ class DataController extends AppController
 	}
 		
 	
+	private function lockRevision(Revision $revision, $publishEnv=false, $super=false){
+		
+		if($publishEnv && !$this->get('security.authorization_checker')->isGranted('ROLE_PUBLISHER')){
+			throw new PrivilegeException($revision);			
+		}
+		
+		$em = $this->getDoctrine()->getManager();
+		$username = $this->getUser()->getUsername();
+		$now = new \DateTime();
+		if($revision->getLockBy() != $username && $now <  $revision->getLockUntil()) {
+			throw new LockedException($revision);
+		}
+		
+		if(! $this->get('app.twig_extension')->one_granted($revision->getContentType()->getFieldType()->getFieldsRoles(), $super)) {
+			throw new PrivilegeException($revision);
+		}
+		//TODO: test circles
+		
+		$revision->setLockBy($username);
+		$revision->setLockUntil(new \DateTime($this->getParameter('lock_time')));
+		
+		
+		$em->persist($revision);
+		$em->flush();
+	}
+	
 	/**
 	 * @Route("/data/add/{contentType}", name="data.add"))
 	 */
@@ -818,6 +877,7 @@ class DataController extends AppController
 		$repository = $em->getRepository('AppBundle:ContentType');
 		
 		$revision = new Revision();
+
 		
 		$form = $this->createFormBuilder($revision)
 			->add('ouuid', IconTextType::class, [
@@ -839,10 +899,14 @@ class DataController extends AppController
 			
 		
 		
-		if (($form->isSubmitted() && $form->isValid()) || ! $contentType->getAskForOuuid()) {			
-
+		if (($form->isSubmitted() && $form->isValid()) || ! $contentType->getAskForOuuid()) {
 			/** @var Revision $revision */
 			$revision = $form->getData();
+			
+			if(! $this->get('app.twig_extension')->all_granted($contentType->getFieldType()->getFieldsRoles())){
+				throw new PrivilegeException($revision);
+			}
+
 			
 
 			if(null != $revision->getOuuid()){
@@ -897,7 +961,7 @@ class DataController extends AppController
 		
 		$newestRevision = $this->getNewestRevision($type, $ouuid);
 		if ($newestRevision->getDraft()){
-			
+			//TODO: ????
 		}
 		
 		$revertedRevsision = $this->initNewDraft($type, $ouuid, $revision);

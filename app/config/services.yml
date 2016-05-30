@@ -7,15 +7,16 @@ services:
     app.twig_extension:
         class: AppBundle\Twig\AppExtension
         arguments: ['@doctrine', '@security.authorization_checker']
-        public: false
+        #public: false
         tags:
             - { name: twig.extension, priority: -2000 }
     app.listener.request:
         class: AppBundle\EventListener\RequestListener
-        arguments: ['@twig', '@doctrine', '@logger', '@router', '@service_container']
+        arguments: ['@twig', '@doctrine', '@logger', '@router', '@service_container', '@security.authorization_checker', '@session']
         tags:
             - { name: kernel.event_listener, event: kernel.controller, method: provideTemplateTwigObjects, priority: -20 }
             - { name: kernel.event_listener, event: kernel.terminate, method: startJob }
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
             #kernel.response or kernel.terminate
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
