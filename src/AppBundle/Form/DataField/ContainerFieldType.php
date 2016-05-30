@@ -32,6 +32,15 @@ class ContainerFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
+	public function importData(DataField $dataField, $sourceArray){
+		throw new Exception("This method should never be called");
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
 	public static function getIcon(){
 		return 'glyphicon glyphicon-modal-window';
 	}

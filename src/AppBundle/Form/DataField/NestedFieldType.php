@@ -36,7 +36,19 @@ class NestedFieldType extends DataFieldType {
 	public static function getIcon(){
 		return 'glyphicon glyphicon-modal-window';
 	}
-	
+
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray){
+		$dataField->prepareDataValues(0);
+		foreach ($dataField->getChildren() as $child){
+			$dataField->updateDataValue($child);
+		}
+	}
 	
 	/**
 	 *

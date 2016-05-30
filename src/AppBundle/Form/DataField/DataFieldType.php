@@ -71,6 +71,11 @@ abstract class DataFieldType extends AbstractType {
 		]);
 	}
 	
+	public function importData(DataField $dataField, $sourceArray) {
+		$dataField->prepareDataValues(1);
+		$dataField->getDataValues()[0]->setTextValue($sourceArray);
+	}
+	
 	/**
 	 *
 	 * {@inheritdoc}
