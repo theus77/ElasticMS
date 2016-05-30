@@ -196,7 +196,9 @@ class ContentTypeController extends AppController {
 		
 		$contentTypeAdded = new ContentType ();
 		$form = $this->createFormBuilder ( $contentTypeAdded )->add ( 'name', IconTextType::class, [ 
-				'icon' => 'fa fa-gear' 
+				'icon' => 'fa fa-gear',
+				'label' => "Machine name",
+				'required' => true
 		] )->add ( 'pluralName', TextType::class, [ 
 				'label' => 'Plural form' 
 		] )->add ( 'import', FileType::class, [ 
