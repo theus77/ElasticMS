@@ -55,3 +55,25 @@ And voila, ElasticMS is up and running!
 
 If you want to load some test data in the DB run this: 
 > php bin/console doctrine:fix:l
+
+## SOAP connection
+For the soapRequest twig function to work, the following line should be activated in your php.ini
+> extension=php_soap.dll
+
+## Database updates (schema and content)
+Whenever a new version is released, the database might change. This can be done automatically with migrations.
+You can easily get a status of the migrations in relation to your database scheme with the following command:
+> php bin/console doctrine:migrations:status
+
+To execute all migrations:
+> php bin/console doctrine:migrations:migrate
+
+In the case your database is already set up you should not try to run the initial migration, add it to the "already run" list with the following command:
+> php bin/console doctrine:migrations:version --add 20160528181644
+
+So that it does not get executed. 
+The second migration in this project is safe to run multiple times as it changes data in our database, and not the table schema. 
+It is adviced to always use migrations for changes so that:
+- we can easily build a DB from scratch and get future changes (use doctrine:migrations:migrate in stead of doctrine:schema:create)
+- everyone can update to a newer version without dataloss (auto generate migrations with doctrine:migrations:diff for schema updates && write migrations for content changes)
+//TODO: decide on a naming convention for migrations
