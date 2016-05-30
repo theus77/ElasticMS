@@ -363,6 +363,22 @@ class FieldType
     	return [];
     }
 
+    public function getRestrictionOptions(){
+    	$options = $this->getOptions();
+    	if(isset($options['restrictionOptions'])){
+    		return $options['restrictionOptions'];
+    	}
+    	return [];
+    }
+
+    public function getMinimumRole(){
+    	$options = $this->getOptions();
+    	if(isset($options['restrictionOptions']) && isset($options['restrictionOptions']['minimum_role'])){
+    		return $options['restrictionOptions']['minimum_role'];
+    	}
+    	return 'ROLE_AUTHOR';
+    }
+
 
     /**
      * Get only valid children

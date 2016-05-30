@@ -42,6 +42,7 @@ class CheckboxFieldType extends DataFieldType {
 	
 		$builder->add ( 'boolean_value', CheckboxType::class, [
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'required' => false,
 		] );
 	}

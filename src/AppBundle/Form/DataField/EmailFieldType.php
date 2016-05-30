@@ -40,8 +40,11 @@ use Symfony\Component\Form\FormBuilderInterface;
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
+		/** @var FieldType $fieldType */
+		$fieldType = $options ['metadata'];
 		$builder->add ( 'text_value', EmailType::class, [
 				'label' => (null != $options ['label']?$options ['label']:'Email field type'),
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'required' => false,
 		] );
 	}

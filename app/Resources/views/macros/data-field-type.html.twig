@@ -187,7 +187,7 @@
 	</dl>
 {% endmacro %}
 
-{% macro AppBundle_Form_DataField_TextFieldType(dataField) %}
+{% macro AppBundle_Form_DataField_TextStringFieldType(dataField) %}
 	<dl>
 		{% if dataField.fieldType.displayOptions.label is defined %}
 			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
@@ -280,7 +280,7 @@
 				{{ dataField.fieldType.name }}
 			{% endif %}
 		</dt>
-		<dd style="background-color: {{ dataField.textValue|raw }};"> 
+		<dd style="background-color: {{ dataField.textValue|raw }}; color:{%  if dataField.textValue|contrastratio('#000000') > dataField.textValue|contrastratio('#ffffff') %}#000000{% else %}#ffffff{% endif %};"> 
 			{{ dataField.textValue|raw }}
 		</dd>
 	</dl>

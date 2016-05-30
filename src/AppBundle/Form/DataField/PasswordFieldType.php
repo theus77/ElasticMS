@@ -42,13 +42,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
+		/** @var FieldType $fieldType */
+		$fieldType = $options ['metadata'];
 		$builder->add ( 'password_value', PasswordType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'required' => false,
 		] );		
 		
 		$builder->add ( 'reset_password_value', CheckboxType::class, [
 				'label' => 'Reset the password',
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'required' => false,
 		] );
 	}

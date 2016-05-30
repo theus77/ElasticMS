@@ -47,11 +47,12 @@
 											'label': 'Edit',
 											'icon': 'pencil'
 										}%}
-                    {% include 'elements/get-button.html.twig' with {
-                      'url': path('contenttype.export', {'contentType': contentType.id}),
-                      'label': 'Export',
-                      'icon': 'sign-out'
-                    }%}
+					                    {% include 'elements/get-button.html.twig' with {
+					                      'url': path('contenttype.export', {'contentType': contentType.id}),
+					                      'label': 'Export',
+					                      'icon': 'sign-out',
+					                      'target': '_blank'
+					                    }%}
 										{% include 'elements/get-button.html.twig' with {
 											'url': path('template.index', {'type': contentType.name}),
 											'label': 'Templates',

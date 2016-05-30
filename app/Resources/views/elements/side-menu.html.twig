@@ -91,16 +91,9 @@
 	            	{% endif %}
 	            	{% if contentType.environment.managed %}
 	            	
-	            	{% set granted = true %}
-	            	{% for role in contentType.fieldType.fieldsRoles %}
-	            		{% if is_granted(role) %}
-	            			{% if granted and loop.last %}
-			            		<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
-	            			{% endif %}
-	            		{% else %}
-	            			{% set granted = false %}
-	            		{% endif %}
-	            	{% endfor %}
+	            	{% if contentType.fieldType.fieldsRoles|all_granted %}
+						<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
+					{% endif %}
 	            	
 	            	
 	            	{% endif %}

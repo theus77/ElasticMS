@@ -170,6 +170,13 @@ services:
             - [setAuthorizationChecker, ['@security.authorization_checker']]
         tags:
             - { name: form.type }
+    ems.fieldtype.time:
+        class: AppBundle\Form\DataField\CollectionItemFieldType
+        #arguments: ['%date_format%']
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
+            - { name: form.type }
 #### End list available ems views ###
 #### Begin list available ems views ###
     ems.view.keywords:

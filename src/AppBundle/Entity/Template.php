@@ -92,6 +92,12 @@ class Template
     
     /** @var string
      *
+     * @ORM\Column(name="filename", type="text", nullable=true)
+     */
+    private $filename;
+    
+    /** @var string
+     *
      * @ORM\Column(name="extension", type="string", nullable=true)
      */
     private $extension;
@@ -364,6 +370,30 @@ class Template
     public function getMimeType()
     {
         return $this->mimeType;
+    }
+    
+    /**
+     * Set filename
+     *
+     * @param string $filename
+     *
+     * @return Template
+     */
+    public function setFilename($filename)
+    {
+    	$this->filename = $filename;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get filename
+     *
+     * @return string
+     */
+    public function getFilename()
+    {
+    	return $this->filename;
     }
     
     /**

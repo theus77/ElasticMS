@@ -19,7 +19,7 @@
 {% block subtitle %}{% endblock %} 
 
 {% block body %}
-{% import "macros/date-field-type.html.twig" as macros %}
+{% import "macros/data-field-type.html.twig" as macros %}
 <div class="row">
 	<div class="col-xs-12">
 		<div class="box">
@@ -41,6 +41,16 @@
 										object: object,
 										source: object._source
 									} %}
+				{% endif %}
+				
+				{% if template.filename and template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::EXPORT') %}
+					<br/><br/>
+					{% include template_from_string(template.filename) with {
+											environment: environment,
+											contentType: contentType,
+											object: object,
+											source: object._source
+										} %}
 				{% endif %}
 			</div>
 			<!-- /.box-body -->
