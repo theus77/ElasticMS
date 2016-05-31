@@ -33,7 +33,15 @@ class User extends BaseUser
      * @ORM\Column(name="modified", type="datetime")
      */
     private $modified;
+    
+    /**
+     * @var \ObjectPickerType
+     * 
+     * @ORM\Column(name="circles", type="json_array", nullable=true)
+     */
+    private $circles;
 
+    
     public function __construct()
     {
         parent::__construct();
@@ -73,6 +81,16 @@ class User extends BaseUser
     }
 
     /**
+     * Get circles
+     *
+     * @return \ObjectPickerType
+     */
+    public function getCircles()
+    {
+    	return $this->circles;
+    }
+    
+    /**
      * Set created
      *
      * @param \DateTime $created
@@ -98,5 +116,19 @@ class User extends BaseUser
         $this->modified = $modified;
 
         return $this;
+    }
+    
+    /**
+     * Set circles
+     *
+     * @param \ObjectPickerType $circles
+     *
+     * @return User
+     */
+    public function setCircles($circles)
+    {
+    	$this->circles = $circles;
+    
+    	return $this;
     }
 }

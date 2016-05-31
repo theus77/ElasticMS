@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add user{% endblock %}
+{% block pagetitle %}Add user{% endblock %} 
+
+{% block subtitle %}<small>.....</small>{% endblock %} 
+
+{% block body %}
+	{% block content %}
+	    {% block fos_user_content %}{% endblock %}
+	{% endblock %}	
+{% endblock %}
+
+{% block javascripts %}
+	<script type="text/javascript">
+	$( document ).ready(function() {
+		$(".objectpicker").each(function(index){
+			environment = $( this ).data('environment'); 
+			type = $( this ).data('type'); 
+	
+		   	$( this ).select2({
+				ajax: {
+					url: '{{ url("elasticsearch.api.search") }}',
+			    	dataType: 'json',
+			    	delay: 250,
+			    	data: function (params) {
+			      		return {
+				        q: params.term, // search term
+				        page: params.page,
+				        environment: environment,
+				        type: type
+				      };
+				    },
+					processResults: function (data, params) {
+						// parse the results into the format expected by Select2
+						// since we are using custom formatting functions we do not need to
+						// alter the remote JSON data, except to indicate that infinite
+						// scrolling can be used
+						params.page = params.page || 1;
+				
+				      	return {
+					        results: data.items,
+					        pagination: {
+					          more: (params.page * 30) < data.total_count
+					        }
+				      	};
+			    	},
+			    	cache: true
+			  	},
+			  	escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+			  	minimumInputLength: 1,
+			  	templateResult: formatRepo, // omitted for brevity, see the source of this page
+			  	templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+			});
+	    });	
+	});   
+    </script>
+	{% include 'app/menu.html.twig' with {
+		'item':  'user-index'
+	}%}
+{% endblock %}
+

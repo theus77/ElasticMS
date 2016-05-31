@@ -12,7 +12,7 @@
 				<i class="fa fa-database"></i>
 				<h3 class="box-title">Local environments</h3>
 				<a class="btn btn-xs btn-primary pull-right"
-					href="#"><i class="fa fa-plus"></i>
+					href="{{ path('user.add') }}"><i class="fa fa-plus"></i>
 					Add user</a>
 			</div>
 			<!-- /.box-header -->
@@ -63,7 +63,11 @@
 									{% endfor %}
 								</td>
 								<td>{{ user.lastLogin|date(date_time_format) }}</td>
-								<td>&nbsp;</td>
+								<td>
+									<a class="btn btn-xs btn-default"
+					href="{{ path('user.edit', {'id': user.id}) }}"><i class="fa fa-pencil"></i>
+					Edit user</a>
+								</td>
 							</tr>						
 						{% endfor %}
 					</tbody>
