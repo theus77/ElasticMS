@@ -95,13 +95,13 @@ class ContentTypeController extends AppController {
 		
 		if (! $contentType || count ( $contentType ) != 1) {
 			$this->addFlash ( 'warning', 'Content type not found!' );
-			return $this->redirectToRoute ( 'contenttype.list' );
+			return $this->redirectToRoute ( 'contenttype.index' );
 		}
 		
 		if ($contentType->getDirty ()) {
 			$this->addFlash ( 'warning', 'Content type "' . $contentType->getName () . '" is dirty (its mapping migth be out-of date).
 					Try to update its mapping.' );
-			return $this->redirectToRoute ( 'contenttype.list' );
+			return $this->redirectToRoute ( 'contenttype.index' );
 		}
 		
 		$contentType->setActive ( true );
@@ -131,7 +131,7 @@ class ContentTypeController extends AppController {
 		
 		if (! $contentType || count ( $contentType ) != 1) {
 			$this->addFlash ( 'warning', 'Content type not found!' );
-			return $this->redirectToRoute ( 'contenttype.list' );
+			return $this->redirectToRoute ( 'contenttype.index' );
 		}
 		
 		/** @var EnvironmentRepository $envRep */
@@ -254,6 +254,7 @@ class ContentTypeController extends AppController {
 					$contentType->setName($name);
 					$contentType->setPluralName($pluralName);
 					$contentType->setEnvironment($environment);
+					$contentType->setActive(false);
 					$contentType->getFieldType()->updateAncestorReferences($contentType, NULL);
 
 					$em->persist ( $contentType );
