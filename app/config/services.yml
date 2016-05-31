@@ -163,6 +163,13 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: time }
             - { name: form.type }
+    ems.fieldtype.collectionItem:
+        class: AppBundle\Form\DataField\CollectionItemFieldType
+        #arguments: ['%date_format%']
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
+            - { name: form.type }
     ems.fieldtype.time:
         class: AppBundle\Form\DataField\CollectionItemFieldType
         #arguments: ['%date_format%']
@@ -214,6 +221,11 @@ services:
         class: AppBundle\Service\Mapping
         arguments: ['@ems.form.fieldtype.fieldtypetype']
 ### command services ###
+    ems.contenttype.migrate:
+        class: AppBundle\Command\MigrateCommand
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        tags:
+            -  { name: console.command }
     ems.environment.rebuild:
         class: AppBundle\Command\RebuildCommand
         arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']

@@ -181,11 +181,7 @@ class AppExtension extends \Twig_Extension
 			$response = $soapClient->$function();
 		}
 		
-		if ($arguments && array_key_exists('result', $arguments)){
-			return $response->$arguments['result'];
-		} else {
-			return $response;
-		}
+		return $response;
 		
 	}
 

@@ -11,6 +11,7 @@ use Doctrine\ORM\PersistentCollection;
 use AppBundle\Form\DataField\CollectionFieldType;
 use AppBundle\Form\DataField\DateFieldType;
 use AppBundle\Form\DataField\DataFieldType;
+use AppBundle\Form\FieldType\FieldTypeType;
 
 /**
  * DataField
@@ -327,7 +328,31 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     		}
     	}
     }
-    
+    /**
+     * Assign data in dataValues based on the elastic index content
+     * 
+     * @param array $elasticIndexDatas
+     * @return $elasticIndexDatas
+     */
+    public  function updateDataValue(Array &$elasticIndexDatas){
+    	$dataFieldTypeClassName = $this->fieldType->getType();
+    	/** @var DataFieldType $dataFieldType */
+    	$dataFieldType = new $dataFieldTypeClassName();
+    	$fieldName = $dataFieldType->getJsonName($this->fieldType);
+    	if(NULL === $fieldName) {//Virtual container
+    		/** @var DataField $child */
+	    	foreach ($this->children as $child){
+	    		$child->updateDataValue($elasticIndexDatas);
+	    	}
+    	} else {
+    		if(isset($elasticIndexDatas[$fieldName])){
+    			$dataFieldType->importData($this, $elasticIndexDatas[$fieldName]);
+    			if(is_array($elasticIndexDatas[$fieldName]) && count($elasticIndexDatas[$fieldName]) == 0){
+	    			unset($elasticIndexDatas[$fieldName]);    				
+    			}
+    		}
+    	}
+    }
     
     public function linkFieldType(PersistentCollection $fieldTypes){
     	
