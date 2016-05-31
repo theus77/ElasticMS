@@ -2,12 +2,20 @@
 
 {% block fos_user_content %}
 {% trans_default_domain 'FOSUserBundle' %}
-
+<div class="box box-primary">
+			<div class="box-header with-border">
+				<h3 class="box-title">New user</h3>
+			</div>
 {{ form_start(form, { 'action': path('user.edit', {'id': user.id}), 'attr': { 'class': 'fos_user_profile_edit' } }) }}
-    {{ form_widget(form) }}
-    <div>
+    <div class="box-body">
+     {{ form_widget(form) }}
+    </div>
+    <div class="box-footer">
         <input type="submit" value="{{ 'profile.edit.submit'|trans }}" />
     </div>
 {{ form_end(form) }}
+{{ form_end(form) }}
+</div>
+<!-- /.box -->
 
 {% endblock fos_user_content %}
