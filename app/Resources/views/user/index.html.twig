@@ -67,6 +67,9 @@
 									<a class="btn btn-xs btn-default"
 					href="{{ path('user.edit', {'id': user.id}) }}"><i class="fa fa-pencil"></i>
 					Edit user</a>
+									<a class="btn btn-xs btn-default"
+					href="{{ path('user.delete', {'id': user.id}) }}"><i class="fa fa-trash"></i>
+					Delete user</a>
 								</td>
 							</tr>						
 						{% endfor %}

@@ -104,7 +104,7 @@ class UserController extends Controller
 				$this->getDoctrine()->getManager()->flush();
 				$this->addFlash(
 						'notice',
-						'User has modified!'
+						'User was modified!'
 						);
 				return $this->redirectToRoute('user.index');
 			}
@@ -114,6 +114,29 @@ class UserController extends Controller
 				'form' => $form->createView(),
 				'user' => $user
 		));
+	}
+	
+	/**
+	 *
+	 * @Route("/user/{id}/delete", name="user.delete")
+	 */
+	public function removeUserAction($id, Request $request)
+	{
+	
+		$userManager = $this->get('fos_user.user_manager');
+		$user = $userManager->findUserBy(array('id'=> $id));
+		// test if user exist before modified it
+		if(!$user){
+			throw $this->createNotFoundException('user not found');
+		}
+		
+		$userManager->deleteUser($user);
+		$this->getDoctrine()->getManager()->flush();
+		$this->addFlash(
+				'notice',
+				'User was deleted!'
+				);
+		return $this->redirectToRoute('user.index');
 	}
 	
 	/**
