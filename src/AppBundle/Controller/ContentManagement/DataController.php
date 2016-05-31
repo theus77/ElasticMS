@@ -369,6 +369,7 @@ class DataController extends AppController
 			if(count($result) == 1){
 				/** @var Revision $previous */
 				$previous = $result[0];
+				$this->lockRevision($previous);
 				$previous->setEndTime(null);
 				$em->persist($previous);
 			}

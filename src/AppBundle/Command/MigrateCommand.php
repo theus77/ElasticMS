@@ -40,7 +40,12 @@ class MigrateCommand extends ContainerAwareCommand
             ->setName('ems:contenttype:migrate')
             ->setDescription('Migrate a content type from an elasticsearch index')
             ->addArgument(
-                'contentTypeName',
+                'contentTypeNameFrom',
+                InputArgument::REQUIRED,
+                'Content type name to migrate from'
+            )
+            ->addArgument(
+                'contentTypeNameTo',
                 InputArgument::REQUIRED,
                 'Content type name to migrate into'
             )
@@ -60,9 +65,11 @@ class MigrateCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+    	$dateInterval = new \DateInterval("PT1M");//Interval of 1 minutes
 		/** @var EntityManager $em */
 		$em = $this->doctrine->getManager();
-    	$contentTypeName = $input->getArgument('contentTypeName');
+    	$contentTypeNameFrom = $input->getArgument('contentTypeNameFrom');
+    	$contentTypeNameTo = $input->getArgument('contentTypeNameTo');
     	$elasticsearchIndex = $input->getArgument('elasticsearchIndex');
 		$output->writeln("Start migration");
 		if($input->getOption('purge')) {
@@ -73,65 +80,65 @@ class MigrateCommand extends ContainerAwareCommand
 		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
 		/** @var \AppBundle\Entity\ContentType $contentType */
-		$contentType = $contentTypeRepository->findOneBy(array("name" => $contentTypeName));
+		$contentTypeTo = $contentTypeRepository->findOneBy(array("name" => $contentTypeNameTo));
 		//TODO Verify $contentType
 		//TODO Verify $elasticsearchIndex
-		//		dump($contentType);
+//		dump($contentType);
 		/** @var \AppBundle\Entity\FieldType $fieldType */
-		$fieldType = $contentType->getFieldType();
+		$fieldType = $contentTypeTo->getFieldType();
 //		dump($fieldType);
 		$arrayElasticsearchIndex = $this->client->search([
 				'index' => $elasticsearchIndex,
-				'type' => $contentTypeName,
+				'type' => $contentTypeNameFrom,
 				'size' => 1
 		]);
 		
 		$total = $arrayElasticsearchIndex["hits"]["total"];
-		dump($arrayElasticsearchIndex["hits"]["total"]);
 		for($from = 0; $from < $total; $from = $from + 50) {
 			$arrayElasticsearchIndex = $this->client->search([
 					'index' => $elasticsearchIndex,
-					'type' => $contentTypeName,
+					'type' => $contentTypeNameFrom,
 					'size' => 50,
 					'from' => $from
 			]);
-			dump("" );
-			dump("Migrating " . $from . " / " . $total );
-			dump("");
+			$output->writeln("Migrating " . ($from+1) . " / " . $total );
 			foreach ($arrayElasticsearchIndex["hits"]["hits"] as $index => $value) {
 				$revision = $revisionRep->findOneBy([
 						'ouuid' => $value["_id"],
-						'endTime' => null
+						'endTime' => null,
+						'contentType' => $contentTypeTo,
 				]);
 				
 				$now = new \DateTime();
 				if(isset($revision)){
 					$newRevision = new Revision($revision);
-					$newRevision->setStartTime($now);
 					$revision->setEndTime($now);
-					
+					$revision->setLockBy("SYSTEM_MIGRATE");
+					$revision->setLockUntil($now->add($dateInterval));//Lock for 1 minutes
 					$em->persist($revision);
 				} else {
 					$newRevision = new Revision();
 					$newRevision->setOuuid($value["_id"]);
-					$newRevision->setContentType($contentType);
-					$newRevision->setLockBy("SYSTEM_MIGRATE");
-					$newRevision->setStartTime($now);
-					$newRevision->setDraft(false);
 				}
-				$firstDataField = new DataField();
-				$firstDataField->setFieldType($contentType->getFieldType());
-				$firstDataField->setRevisionId($newRevision->getId());
-				$firstDataField->setOrderKey($contentType->getFieldType()->getOrderKey());
-				$firstDataField->updateDataStructure($contentType->getFieldType());
-				$firstDataField->updateDataValue($value["_source"]);
-// 				$revision->getDataField()->updateDataValue($value);
-				$newRevision->setDataField($firstDataField);
+				$newRevision->setContentType($contentTypeTo);
+				$newRevision->setDraft(true);
+				$newRevision->setStartTime($now);
+				$newRevision->setLockBy("SYSTEM_MIGRATE");
+				$newRevision->setLockUntil($now->add($dateInterval));//Lock for 1 minutes
+				
+				$data = new DataField();
+				$data->setFieldType($newRevision->getContentType()->getFieldType());
+				$data->setRevisionId($newRevision->getId());
+				$data->setOrderKey($newRevision->getContentType()->getFieldType()->getOrderKey());
+				$newRevision->setDataField($data);
+				
+				$newRevision->getDataField()->updateDataStructure($newRevision->getContentType()->getFieldType());
+
+				$data->updateDataValue($value["_source"]);
 				$em->persist($newRevision);
-//				dump($newRevision);
+				$em->flush($newRevision);
 // 				break;
 			}
-			$em->flush();
 // 			break;
 		}
 // 		dump($this->client->search([
