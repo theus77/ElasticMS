@@ -8816,6 +8816,11 @@ span.entity, i.entity {
   font-size: 1.5em;
 }
 
+/* line 14, ../../sass/_bootstrap_fix.scss */
+span.select2-container {
+  height: 34px;
+}
+
 /*!
  * Timepicker Component for Twitter Bootstrap
  *
