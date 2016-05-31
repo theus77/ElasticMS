@@ -44,16 +44,6 @@ use AppBundle\Entity\DataField;
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray){		
-		$dataField->prepareDataValues(1);
-		$dataField->getDataValues()[0]->setTextValue($sourceArray);
-	}
-	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 
 		/** @var FieldType $fieldType */

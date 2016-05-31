@@ -32,6 +32,19 @@ class TimeFieldType extends DataFieldType {
 		return 'fa fa-clock-o';
 	}
 	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray) {
+		$format = $dataField->getFieldType()->getMappingOptions()['format'];	
+		$format = DateFieldType::convertJavaDateFormat($format);
+		
+		$dataField->prepareDataValues(1);
+		$dataField->getDataValues()[0]->setDateValue(\DateTime::createFromFormat($format, $sourceArray));
+	}
+	
 	public static function getFormat($options){
 		
 		if($options['displayOptions']['showMeridian']){

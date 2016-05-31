@@ -46,7 +46,7 @@ class NestedFieldType extends DataFieldType {
 	public function importData(DataField $dataField, $sourceArray){
 		$dataField->prepareDataValues(0);
 		foreach ($dataField->getChildren() as $child){
-			$dataField->updateDataValue($child);
+			$child->updateDataValue($sourceArray);
 		}
 	}
 	

@@ -30,6 +30,15 @@ class NumberFieldType extends DataFieldType {
 		return 'glyphicon glyphicon-sort-by-order';
 	}
 	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray) {
+		$dataField->prepareDataValues(1);
+		$dataField->getDataValues()[0]->setFloatValue($sourceArray);
+	}
 	
 	/**
 	 *

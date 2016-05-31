@@ -49,11 +49,28 @@ class CollectionFieldType extends DataFieldType {
 		if(!is_array($sourceArray)){
 			$sourceArray = [$sourceArray];
 		}
-		foreach ($sourceArray as $item){
-			$child = new DataField();
-			$child->updateDataStructure($dataField->getFieldType());
-			$dataField->updateDataValue($item);
-			$dataField->addChild($child);	
+		
+		foreach ($sourceArray as $idx => $item){
+			$colItem = new DataField();
+			$colItem->setOrderKey($idx);
+			$colItem->setFieldType(NULL); // it's a collection item
+			foreach ($dataField->getFieldType()->getChildren() as $childFieldType){
+				/**@var FieldType $childFieldType */
+				if(!$childFieldType->getDeleted()){
+					$grandChild = new DataField();
+					$grandChild->setOrderKey(0);	
+					$grandChild->setParent($colItem);
+					$grandChild->setFieldType($childFieldType);
+					$grandChild->updateDataStructure($childFieldType);
+					
+					$grandChild->updateDataValue($item);
+					
+					$colItem->addChild($grandChild);
+				}
+			}
+
+			$dataField->addChild($colItem);	
+			$colItem->setParent($dataField);
 		}
 	}
 	
