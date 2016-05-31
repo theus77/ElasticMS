@@ -30,6 +30,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -620,7 +621,13 @@ class ContentTypeController extends AppController {
 		$normalizers = array(new JsonNormalizer());
 		$serializer = new Serializer($normalizers, $encoders);
 		$jsonContent = $serializer->serialize($contentType, 'json');
+		$response = new Response($jsonContent);
+		$diposition = $response->headers->makeDisposition(
+		    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+		    $contentType->getName().'.json'
+		);
 		
-		return new Response($jsonContent);
+		$response->headers->set('Content-Disposition', $diposition);
+		return $response;
 	}
 }

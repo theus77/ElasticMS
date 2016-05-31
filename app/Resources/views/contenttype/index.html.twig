@@ -50,8 +50,7 @@
 					                    {% include 'elements/get-button.html.twig' with {
 					                      'url': path('contenttype.export', {'contentType': contentType.id}),
 					                      'label': 'Export',
-					                      'icon': 'sign-out',
-					                      'target': '_blank'
+					                      'icon': 'sign-out'
 					                    }%}
 										{% include 'elements/get-button.html.twig' with {
 											'url': path('template.index', {'type': contentType.name}),
