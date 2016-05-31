@@ -51,14 +51,8 @@ class MigrateCommand extends ContainerAwareCommand
             )
             ->addArgument(
                 'elasticsearchIndex',
-                InputArgument::OPTIONAL,
+                InputArgument::REQUIRED,
                 'Elasticsearch index where to find ContentType objects as new source'
-            )
-            ->addOption(
-                'purge',
-                null,
-                InputOption::VALUE_NONE,
-                'If set, all previous revisions will be deleted from the database'
             )
         ;
     }
@@ -75,18 +69,27 @@ class MigrateCommand extends ContainerAwareCommand
 		if($input->getOption('purge')) {
 			$output->writeln("All previous revision will be purged");
 		}
+		
 		/** @var RevisionRepository $revisionRep */
 		$revisionRep = $em->getRepository('AppBundle:Revision');
 		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
-		/** @var \AppBundle\Entity\ContentType $contentType */
+		/** @var \AppBundle\Entity\ContentType $contentTypeTo */
 		$contentTypeTo = $contentTypeRepository->findOneBy(array("name" => $contentTypeNameTo));
-		//TODO Verify $contentType
-		//TODO Verify $elasticsearchIndex
-//		dump($contentType);
+		
+		if(!$contentTypeTo) {
+			$output->writeln("<error>Content type not found</error>");
+			exit;
+		}
+		
+		if( strcmp($contentTypeTo->getEnvironment()->getAlias(), $elasticsearchIndex) === 0 && strcmp($contentTypeNameFrom, $contentTypeNameTo) === 0) {
+			$output->writeln("<error>You can not import a content type on himself</error>");
+			exit;
+		}
+		
+		
 		/** @var \AppBundle\Entity\FieldType $fieldType */
 		$fieldType = $contentTypeTo->getFieldType();
-//		dump($fieldType);
 		$arrayElasticsearchIndex = $this->client->search([
 				'index' => $elasticsearchIndex,
 				'type' => $contentTypeNameFrom,
@@ -137,14 +140,8 @@ class MigrateCommand extends ContainerAwareCommand
 				$data->updateDataValue($value["_source"]);
 				$em->persist($newRevision);
 				$em->flush($newRevision);
-// 				break;
 			}
-// 			break;
 		}
-// 		dump($this->client->search([
-// 				'index' => $elasticsearchIndex,
-// 				'type' => $contentTypeName
-// 		]));
 		$output->writeln("Migration done");
     }
 }
