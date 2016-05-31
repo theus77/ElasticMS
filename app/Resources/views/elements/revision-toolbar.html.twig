@@ -13,6 +13,12 @@
 				'url': path('revision.edit', {'revisionId': revisionId}), 
 				'label': 'Edit draft', 
 				'icon': 'pencil' }%}
+			{% include 'elements/post-button.html.twig' with {
+				'url': path('revision.discard', {'revisionId': revisionId}),
+				'message': 'Discard this draft ?',
+				'label': 'Discard',
+				'icon': 'trash'
+			}%}
 		{% endif %}
 	{% else %}
 		{# TODO: better way to determine if there is a environement to publish this revision in ? #}

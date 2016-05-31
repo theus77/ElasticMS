@@ -8,9 +8,7 @@ use AppBundle\Form\Field\FieldTypePickerType;
 use AppBundle\Form\FieldType\FieldTypeType;
 use AppBundle\Entity\DataField;
 
-/**
- * elasticSearch Factory.
- */
+
 class Mapping
 {
 

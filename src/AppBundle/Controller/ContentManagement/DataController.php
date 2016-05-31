@@ -187,69 +187,11 @@ class DataController extends AppController
 	}
 	
 	public function getNewestRevision($type, $ouuid){
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine()->getManager();
-		
-		/** @var ContentTypeRepository $contentTypeRepo */
-		$contentTypeRepo = $em->getRepository('AppBundle:ContentType');
-		$contentTypes = $contentTypeRepo->findBy([
-				'name' => $type,
-				'deleted' => false,
-		]);
-		
-		if(count($contentTypes) != 1) {
-			throw new NotFoundHttpException('Unknown content type');
-		}
-		$contentType = $contentTypes[0];
-		
-		/** @var RevisionRepository $repository */
-		$repository = $em->getRepository('AppBundle:Revision');
-		
-		/** @var Revision $revision */
-		$revisions = $repository->findBy([
-				'ouuid' => $ouuid,
-				'endTime' => null,
-				'contentType' => $contentType,
-		]);
-		
-		if(count($revisions) != 1 || null != $revisions[0]->getEndTime()) {
-			throw new NotFoundHttpException('Unknown revision');
-		}
-		$revision = $revisions[0];
-		
-		return $revision;
+		return $this->get("ems.service.data")->getNewestRevision($type, $ouuid);
 	}
 	
 	public function initNewDraft($type, $ouuid, $fromRev = null){
-		
-		$revision = $this->getNewestRevision($type, $ouuid);
-		$this->lockRevision($revision);
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine()->getManager();
-		
-		$revision->getDataField()->propagateOuuid($revision->getOuuid());
-		
-		if(! $revision->getDraft()){
-			$now = new \DateTime();
-		
-			if ($fromRev){
-				$newDraft = new Revision($fromRev);
-			} else {
-				$newDraft = new Revision($revision);
-			}
-			
-			$newDraft->setStartTime($now);
-			$revision->setEndTime($now);
-
-			$this->lockRevision($newDraft);
-				
-			$em->persist($revision);
-			$em->persist($newDraft);
-			$em->flush();
-			return $newDraft;
-		}
-		return $revision;
-	
+		return $this->get("ems.service.data")->initNewDraft($type, $ouuid, $fromRev);
 	}
 	
 
@@ -259,7 +201,7 @@ class DataController extends AppController
      * @Method({"POST"})
 	 */
 	public function newDraftAction($type, $ouuid, Request $request)
-	{			
+	{
 		return $this->redirectToRoute('revision.edit', [
 				'revisionId' => $this->initNewDraft($type, $ouuid)->getId()
 		]);
@@ -336,53 +278,7 @@ class DataController extends AppController
 	}
 	
 	public function discardDraft(Revision $revision){
-		$this->lockRevision($revision);
-		
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine()->getManager();
-		
-		/** @var RevisionRepository $repository */
-		$repository = $em->getRepository('AppBundle:Revision');
-		
-		if(!$revision) {
-			throw $this->createNotFoundException('Revision not found');
-		}
-		if(!$revision->getDraft() || null != $revision->getEndTime()) {
-			throw BadRequestHttpException('Only authirized on a draft');
-		}
-		
-		$contentTypeId = $revision->getContentType()->getId();
-		
-		if(null != $revision->getOuuid()){
-			/** @var QueryBuilder $qb */
-			$qb = $repository->createQueryBuilder('t')
-			->where('t.ouuid = :ouuid')
-			->setParameter('ouuid', $revision->getOuuid())
-			->andWhere('t.id <> :id')
-			->setParameter('id', $revision->getId())
-			->orderBy('t.startTime', 'desc')
-			->setMaxResults(1);
-			$query = $qb->getQuery();
-				
-				
-			$result = $query->getResult();
-			if(count($result) == 1){
-				/** @var Revision $previous */
-				$previous = $result[0];
-				$this->lockRevision($previous);
-				$previous->setEndTime(null);
-				$em->persist($previous);
-			}
-				
-		}
-		
-		// 		$revision->getDataField()->detachRevision();
-		// 		$em->persist($revision);
-		// 		$em->flush();
-		
-		$em->remove($revision);
-		
-		$em->flush();		
+		return $this->get("ems.service.data")->discardDraft($revision);
 	}
 	
 	/**
@@ -425,32 +321,6 @@ class DataController extends AppController
 		]);			
 	}
 	
-
-	//TODO: block to remove
-//	private function updateDataStructure(DataField $data, FieldType $meta){
-//		
-//		//no need to generate the structure for subfields (
-//		$type = $data->getFieldType()->getType();
-//		$datFieldType = new $type;
-//		if($datFieldType->isContainer()){
-//			/** @var FieldType $field */
-//			foreach ($meta->getChildren() as $field){
-//				//no need to generate the structure for delete field
-//				if(!$field->getDeleted()){
-//					$child = $data->__get('ems_'.$field->getName());
-//					if(null == $child){
-//						$child = new DataField();
-//						$child->setFieldType($field);
-//						$child->setOrderKey($field->getOrderKey());
-//						$child->setParent($data);
-//						$child->setRevisionId($data->getRevisionId());
-//						$data->addChild($child);
-//					}
-//					$this->updateDataStructure($child, $field, null);					
-//				}
-//			}			
-//		}
-//	}
 	
 	/**
 	 * @Route("/data/revision/re-index/{revisionId}", name="revision.reindex"))
@@ -701,59 +571,7 @@ class DataController extends AppController
 	}
 	
 	public function finalizeDraft(Revision $revision){
-		$this->lockRevision($revision);
-
-		$em = $this->getDoctrine()->getManager();
-
-		/** @var RevisionRepository $repository */
-		$repository = $em->getRepository('AppBundle:Revision');
-		
-		//TODO: test if draft and last version publish in
-			
-		/** @var Client $client */
-		$client = $this->get('app.elasticsearch');
-			
-		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
-			
-		if( null == $revision->getOuuid() ) {
-			$status = $client->create([
-					'index' => $this->getParameter('instance_id').$revision->getContentType()->getEnvironment()->getName(),
-					'type' => $revision->getContentType()->getName(),
-					'body' => $objectArray
-			]);
-		
-		
-		
-			$revision->setOuuid($status['_id']);
-		}
-		else {
-			$status = $client->index([
-					'id' => $revision->getOuuid(),
-					'index' => $this->getParameter('instance_id').$revision->getContentType()->getEnvironment()->getName(),
-					'type' => $revision->getContentType()->getName(),
-					'body' => $objectArray
-			]);
-		
-		
-			$result = $repository->findByOuuidContentTypeAndEnvironnement($revision);
-		
-		
-			/** @var Revision $item */
-			foreach ($result as $item){
-				$this->lockRevision($item);
-				$item->removeEnvironment($revision->getContentType()->getEnvironment());
-				$em->persist($item);
-			}
-		}
-			
-		$revision->addEnvironment($revision->getContentType()->getEnvironment());
-		$revision->getDataField()->propagateOuuid($revision->getOuuid());
-		$revision->setDraft(false);
-		// 					$revision->setModified(new \DateTime('now'));
-		$em->persist($revision);
-		$em->flush();
-		
-		return $revision;
+		return $this->get("ems.service.data")->finalizeDraft($revision);
 	}
 	
 	/**
@@ -841,31 +659,15 @@ class DataController extends AppController
 		] );		
 	}
 		
-	
+	/**
+	 * deprecated should removed
+	 * 
+	 * @param Revision $revision
+	 * @param string $publishEnv
+	 * @param string $super
+	 */
 	private function lockRevision(Revision $revision, $publishEnv=false, $super=false){
-		
-		if($publishEnv && !$this->get('security.authorization_checker')->isGranted('ROLE_PUBLISHER')){
-			throw new PrivilegeException($revision);			
-		}
-		
-		$em = $this->getDoctrine()->getManager();
-		$username = $this->getUser()->getUsername();
-		$now = new \DateTime();
-		if($revision->getLockBy() != $username && $now <  $revision->getLockUntil()) {
-			throw new LockedException($revision);
-		}
-		
-		if(! $this->get('app.twig_extension')->one_granted($revision->getContentType()->getFieldType()->getFieldsRoles(), $super)) {
-			throw new PrivilegeException($revision);
-		}
-		//TODO: test circles
-		
-		$revision->setLockBy($username);
-		$revision->setLockUntil(new \DateTime($this->getParameter('lock_time')));
-		
-		
-		$em->persist($revision);
-		$em->flush();
+		$this->get("ems.service.data")->lockRevision($revision, $publishEnv, $super);
 	}
 	
 	/**
