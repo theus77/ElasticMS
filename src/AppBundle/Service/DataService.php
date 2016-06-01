@@ -17,6 +17,7 @@ use Doctrine\ORM\EntityManager;
 use AppBundle\Repository\ContentTypeRepository;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use AppBundle\Entity\DataField;
 
 
 class DataService
@@ -88,7 +89,7 @@ class DataService
 		else{
 			$revision->setLockUntil(new \DateTime($this->lockTime));			
 		}
-		
+		$revision->setStartTime($now);
 		
 		$em->persist($revision);
 		$em->flush();
@@ -201,6 +202,7 @@ class DataService
 		
 		try{
 			$revision = $this->getNewestRevision($type, $ouuid);
+			$revision->getDataField()->propagateOuuid($revision->getOuuid());			
 		}
 		catch(NotFoundHttpException $e){
 			$revision = new Revision();
@@ -210,8 +212,6 @@ class DataService
 		}
 		
 		$this->lockRevision($revision, false, false, $username);
-	
-		$revision->getDataField()->propagateOuuid($revision->getOuuid());
 	
 		if(! $revision->getDraft()){
 			$now = new \DateTime();
