@@ -59,6 +59,12 @@ class MigrateCommand extends ContainerAwareCommand
                 InputArgument::REQUIRED,
                 'Elasticsearch index where to find ContentType objects as new source'
             )
+            ->addOption(
+                'force',
+                null,
+                InputOption::VALUE_NONE,
+                'Allow to import from the default environment'
+            )
         ;
     }
 
@@ -81,8 +87,7 @@ class MigrateCommand extends ContainerAwareCommand
 			$output->writeln("<error>Content type not found</error>");
 			exit;
 		}
-		
-		if( strcmp($contentTypeTo->getEnvironment()->getAlias(), $elasticsearchIndex) === 0 && strcmp($contentTypeNameFrom, $contentTypeNameTo) === 0) {
+		if(!$input->getOption('force') && strcmp($contentTypeTo->getEnvironment()->getAlias(), $elasticsearchIndex) === 0 && strcmp($contentTypeNameFrom, $contentTypeNameTo) === 0) {
 			$output->writeln("<error>You can not import a content type on himself</error>");
 			exit;
 		}
@@ -116,12 +121,13 @@ class MigrateCommand extends ContainerAwareCommand
 					$data->updateDataValue($value["_source"]);
 					//Finalize draft
 					$newRevision = $this->dataService->finalizeDraft($newRevision, "SYSTEM_MIGRATE");
+					$output->writeln(".");
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");
 				}
 			}
 		}
-		$output->writeln("Migration done");
+		$output->writeln("\nMigration done");
     }
 }
