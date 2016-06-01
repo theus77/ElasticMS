@@ -80,7 +80,7 @@ class DataService
 		}
 		//TODO: test circles
 		
-		$revision->setLockBy($username);
+		$revision->setLockBy($lockerUsername);
 		$revision->setLockUntil(new \DateTime($this->lockTime));
 		
 		
