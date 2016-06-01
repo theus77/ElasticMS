@@ -81,7 +81,13 @@ class DataService
 		//TODO: test circles
 		
 		$revision->setLockBy($lockerUsername);
-		$revision->setLockUntil(new \DateTime($this->lockTime));
+		if($username){
+			//lock by a console script
+			$revision->setLockUntil(new \DateTime("+10 seconds"));
+		}
+		else{
+			$revision->setLockUntil(new \DateTime($this->lockTime));			
+		}
 		
 		
 		$em->persist($revision);
