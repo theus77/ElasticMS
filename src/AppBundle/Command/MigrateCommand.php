@@ -70,7 +70,6 @@ class MigrateCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-    	$dateInterval = new \DateInterval("PT1M");//Interval of 1 minutes
 		/** @var EntityManager $em */
 		$em = $this->doctrine->getManager();
     	$contentTypeNameFrom = $input->getArgument('contentTypeNameFrom');
@@ -106,7 +105,7 @@ class MigrateCommand extends ContainerAwareCommand
 					'size' => 50,
 					'from' => $from
 			]);
-			$output->writeln("Migrating " . ($from+1) . " / " . $total );
+			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
 			foreach ($arrayElasticsearchIndex["hits"]["hits"] as $index => $value) {
 				try{
 					$newRevision = $this->dataService->initNewDraft($contentTypeNameTo, $value["_id"], NULL, "SYSTEM_MIGRATE");
@@ -121,7 +120,7 @@ class MigrateCommand extends ContainerAwareCommand
 					$data->updateDataValue($value["_source"]);
 					//Finalize draft
 					$newRevision = $this->dataService->finalizeDraft($newRevision, "SYSTEM_MIGRATE");
-					$output->writeln(".");
+					echo(".");
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");
