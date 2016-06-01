@@ -59,19 +59,23 @@ class DataService
 	}
 	
 	
-	public function lockRevision(Revision $revision, $publishEnv=false, $super=false){
+	public function lockRevision(Revision $revision, $publishEnv=false, $super=false, $username=null){
 		if($publishEnv && !$this->authorizationChecker->isGranted('ROLE_PUBLISHER')){
 			throw new PrivilegeException($revision);
 		}
 		
 		$em = $this->doctrine->getManager();
-		$username = $this->tokenStorage->getToken()->getUsername();
+		if($username === NULL){
+			$lockerUsername = $this->tokenStorage->getToken()->getUsername();
+		} else {
+			$lockerUsername = $username;
+		}
 		$now = new \DateTime();
-		if($revision->getLockBy() != $username && $now <  $revision->getLockUntil()) {
+		if($revision->getLockBy() != $lockerUsername && $now <  $revision->getLockUntil()) {
 			throw new LockedException($revision);
 		}
 		
-		if(! $this->twigExtension->one_granted($revision->getContentType()->getFieldType()->getFieldsRoles(), $super)) {
+		if(!$username && !$this->twigExtension->one_granted($revision->getContentType()->getFieldType()->getFieldsRoles(), $super)) {
 			throw new PrivilegeException($revision);
 		}
 		//TODO: test circles
@@ -85,8 +89,8 @@ class DataService
 	}
 	
 	
-	public function finalizeDraft(Revision $revision){
-		$this->lockRevision($revision);
+	public function finalizeDraft(Revision $revision, $username=null){
+		$this->lockRevision($revision, false, false, $username);
 	
 		$em = $this->doctrine->getManager();
 	
@@ -122,7 +126,7 @@ class DataService
 	
 			/** @var Revision $item */
 			foreach ($result as $item){
-				$this->lockRevision($item);
+				$this->lockRevision($item, false, false, $username);
 				$item->removeEnvironment($revision->getContentType()->getEnvironment());
 				$em->persist($item);
 			}
@@ -173,12 +177,33 @@ class DataService
 	}
 	
 
-	public function initNewDraft($type, $ouuid, $fromRev = null){
+	public function initNewDraft($type, $ouuid, $fromRev = null, $username = NULL){
 	
-		$revision = $this->getNewestRevision($type, $ouuid);
-		$this->lockRevision($revision);
 		/** @var EntityManager $em */
 		$em = $this->doctrine->getManager();
+		
+		/** @var ContentTypeRepository $contentTypeRepo */
+		$contentTypeRepo = $em->getRepository('AppBundle:ContentType');
+		$contentType = $contentTypeRepo->findOneBy([
+				'name' => $type,
+				'deleted' => false,
+		]);
+
+		if(!$contentType){
+			throw new NotFoundHttpException('ContentType '.$type.' Not found');
+		}
+		
+		try{
+			$revision = $this->getNewestRevision($type, $ouuid);
+		}
+		catch(NotFoundHttpException $e){
+			$revision = new Revision();
+			$revision->setDraft(true);
+			$revision->setOuuid($ouuid);
+			$revision->setContentType($contentType);
+		}
+		
+		$this->lockRevision($revision, false, false, $username);
 	
 		$revision->getDataField()->propagateOuuid($revision->getOuuid());
 	
@@ -194,7 +219,7 @@ class DataService
 			$newDraft->setStartTime($now);
 			$revision->setEndTime($now);
 	
-			$this->lockRevision($newDraft);
+			$this->lockRevision($newDraft, false, false, $username);
 	
 			$em->persist($revision);
 			$em->persist($newDraft);

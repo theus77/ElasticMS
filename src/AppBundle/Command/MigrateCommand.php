@@ -15,6 +15,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Monolog\Logger;
+use AppBundle\Service\DataService;
+use AppBundle\Exception\NotLockedException;
 
 class MigrateCommand extends ContainerAwareCommand
 {
@@ -23,14 +25,17 @@ class MigrateCommand extends ContainerAwareCommand
 	protected $doctrine;
 	protected $logger;
 	protected $container;
+	/**@var DataService $dataService*/
+	protected $dataService;
 	
-	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, $container)
+	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, $container, DataService $dataService)
 	{
 		$this->doctrine = $doctrine;
 		$this->logger = $logger;
 		$this->client = $client;
 		$this->mapping = $mapping;
 		$this->container = $container;
+		$this->dataService = $dataService;
 		parent::__construct();
 	}
 	
@@ -66,16 +71,11 @@ class MigrateCommand extends ContainerAwareCommand
     	$contentTypeNameTo = $input->getArgument('contentTypeNameTo');
     	$elasticsearchIndex = $input->getArgument('elasticsearchIndex');
 		$output->writeln("Start migration");
-		if($input->getOption('purge')) {
-			$output->writeln("All previous revision will be purged");
-		}
 		
-		/** @var RevisionRepository $revisionRep */
-		$revisionRep = $em->getRepository('AppBundle:Revision');
 		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
 		/** @var \AppBundle\Entity\ContentType $contentTypeTo */
-		$contentTypeTo = $contentTypeRepository->findOneBy(array("name" => $contentTypeNameTo));
+		$contentTypeTo = $contentTypeRepository->findOneBy(array("name" => $contentTypeNameTo, 'deleted' => false));
 		
 		if(!$contentTypeTo) {
 			$output->writeln("<error>Content type not found</error>");
@@ -87,9 +87,6 @@ class MigrateCommand extends ContainerAwareCommand
 			exit;
 		}
 		
-		
-		/** @var \AppBundle\Entity\FieldType $fieldType */
-		$fieldType = $contentTypeTo->getFieldType();
 		$arrayElasticsearchIndex = $this->client->search([
 				'index' => $elasticsearchIndex,
 				'type' => $contentTypeNameFrom,
@@ -106,40 +103,23 @@ class MigrateCommand extends ContainerAwareCommand
 			]);
 			$output->writeln("Migrating " . ($from+1) . " / " . $total );
 			foreach ($arrayElasticsearchIndex["hits"]["hits"] as $index => $value) {
-				$revision = $revisionRep->findOneBy([
-						'ouuid' => $value["_id"],
-						'endTime' => null,
-						'contentType' => $contentTypeTo,
-				]);
-				
-				$now = new \DateTime();
-				if(isset($revision)){
-					$newRevision = new Revision($revision);
-					$revision->setEndTime($now);
-					$revision->setLockBy("SYSTEM_MIGRATE");
-					$revision->setLockUntil($now->add($dateInterval));//Lock for 1 minutes
-					$em->persist($revision);
-				} else {
-					$newRevision = new Revision();
-					$newRevision->setOuuid($value["_id"]);
+				try{
+					$newRevision = $this->dataService->initNewDraft($contentTypeNameTo, $value["_id"], NULL, "SYSTEM_MIGRATE");
+					$data = new DataField();
+					$data->setFieldType($newRevision->getContentType()->getFieldType());
+					$data->setRevisionId($newRevision->getId());
+					$data->setOrderKey(0);//0==$newRevision->getContentType()->getFieldType()->getOrderKey()
+					$newRevision->setDataField($data);
+					
+					$newRevision->getDataField()->updateDataStructure($newRevision->getContentType()->getFieldType());
+	
+					$data->updateDataValue($value["_source"]);
+					//Finalize draft
+					$newRevision = $this->dataService->finalizeDraft($newRevision, "SYSTEM_MIGRATE");
 				}
-				$newRevision->setContentType($contentTypeTo);
-				$newRevision->setDraft(true);
-				$newRevision->setStartTime($now);
-				$newRevision->setLockBy("SYSTEM_MIGRATE");
-				$newRevision->setLockUntil($now->add($dateInterval));//Lock for 1 minutes
-				
-				$data = new DataField();
-				$data->setFieldType($newRevision->getContentType()->getFieldType());
-				$data->setRevisionId($newRevision->getId());
-				$data->setOrderKey($newRevision->getContentType()->getFieldType()->getOrderKey());
-				$newRevision->setDataField($data);
-				
-				$newRevision->getDataField()->updateDataStructure($newRevision->getContentType()->getFieldType());
-
-				$data->updateDataValue($value["_source"]);
-				$em->persist($newRevision);
-				$em->flush($newRevision);
+				catch(NotLockedException $e){
+					$output->writeln("<error>'.$e.'</error>");
+				}
 			}
 		}
 		$output->writeln("Migration done");
