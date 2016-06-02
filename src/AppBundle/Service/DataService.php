@@ -202,7 +202,9 @@ class DataService
 		
 		try{
 			$revision = $this->getNewestRevision($type, $ouuid);
-			$revision->getDataField()->propagateOuuid($revision->getOuuid());			
+			if(null !== $revision->getDataField()) {
+				$revision->getDataField()->propagateOuuid($revision->getOuuid());
+			}
 		}
 		catch(NotFoundHttpException $e){
 			$revision = new Revision();
