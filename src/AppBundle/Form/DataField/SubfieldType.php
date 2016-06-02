@@ -4,12 +4,12 @@ namespace AppBundle\Form\DataField;
 
 
 
-
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\Field\AnalyzerPickerType;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
 
+//TODO:Refact Class name "SubfieldType" to "SubfieldFieldType"
 class SubfieldType extends DataFieldType {
 	/**
 	 *
@@ -27,6 +27,15 @@ class SubfieldType extends DataFieldType {
 	 */
 	public static function getIcon(){
 		return 'fa fa-sitemap';
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray) {
+		//do nothing as it's a virtual field
 	}
 	
 	/**

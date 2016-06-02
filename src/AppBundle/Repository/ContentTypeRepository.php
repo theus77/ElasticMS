@@ -24,4 +24,12 @@ class ContentTypeRepository extends \Doctrine\ORM\EntityRepository
 		
 		return $out;
 	}
+	
+	
+	public function countContentType() {
+		return $this->createQueryBuilder('a')
+		 ->select('COUNT(a)')
+		 ->getQuery()
+		 ->getSingleScalarResult();
+	}
 }

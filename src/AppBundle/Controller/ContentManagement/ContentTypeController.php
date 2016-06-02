@@ -10,6 +10,7 @@ use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Helper\JsonNormalizer;
 use AppBundle\Form\DataField\SubfieldType;
 use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\SubmitEmsType;
 use AppBundle\Form\Form\ContentTypeType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
@@ -20,17 +21,18 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -95,13 +97,13 @@ class ContentTypeController extends AppController {
 		
 		if (! $contentType || count ( $contentType ) != 1) {
 			$this->addFlash ( 'warning', 'Content type not found!' );
-			return $this->redirectToRoute ( 'contenttype.list' );
+			return $this->redirectToRoute ( 'contenttype.index' );
 		}
 		
 		if ($contentType->getDirty ()) {
 			$this->addFlash ( 'warning', 'Content type "' . $contentType->getName () . '" is dirty (its mapping migth be out-of date).
 					Try to update its mapping.' );
-			return $this->redirectToRoute ( 'contenttype.list' );
+			return $this->redirectToRoute ( 'contenttype.index' );
 		}
 		
 		$contentType->setActive ( true );
@@ -131,7 +133,7 @@ class ContentTypeController extends AppController {
 		
 		if (! $contentType || count ( $contentType ) != 1) {
 			$this->addFlash ( 'warning', 'Content type not found!' );
-			return $this->redirectToRoute ( 'contenttype.list' );
+			return $this->redirectToRoute ( 'contenttype.index' );
 		}
 		
 		/** @var EnvironmentRepository $envRep */
@@ -228,7 +230,8 @@ class ContentTypeController extends AppController {
 			$contentTypeRepository = $em->getRepository ( 'AppBundle:ContentType' );
 			
 			$contentTypes = $contentTypeRepository->findBy ( [ 
-					'name' => $contentTypeAdded->getName () 
+					'name' => $contentTypeAdded->getName () ,
+					'deleted' => false
 			] );
 			
 			if (count ( $contentTypes ) != 0) {
@@ -254,12 +257,15 @@ class ContentTypeController extends AppController {
 					$contentType->setName($name);
 					$contentType->setPluralName($pluralName);
 					$contentType->setEnvironment($environment);
+					$contentType->setActive(false);
 					$contentType->getFieldType()->updateAncestorReferences($contentType, NULL);
+					$contentType->setOrderKey($contentTypeRepository->countContentType());
 
 					$em->persist ( $contentType );
 				}
 				else {
 					$contentType = $contentTypeAdded;
+					$contentType->setOrderKey($contentTypeRepository->countContentType());
 					$em->persist ( $contentType );
 				}
 				$em->flush ();
@@ -286,7 +292,66 @@ class ContentTypeController extends AppController {
 	 *        	@Route("/content-type", name="contenttype.index"))
 	 */
 	public function indexAction(Request $request) {
-		return $this->render ( 'contenttype/index.html.twig' );
+
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine ()->getManager ();
+		
+		/** @var ContentTypeRepository $contentTypeRepository */
+		$contentTypeRepository = $em->getRepository ( 'AppBundle:ContentType' );
+		
+		$contentTypes = $contentTypeRepository->findBy(['deleted' => false], ['orderKey'=>'ASC']);
+		
+		$builder = $this->createFormBuilder ( [] )
+			->add ( 'reorder', SubmitEmsType::class, [
+    				'attr' => [
+    						'class' => 'btn-primary '
+    				],
+    				'icon' => 'fa fa-reorder'    			
+    		] );
+		
+		$names = [];	
+		foreach ($contentTypes as $contentType) {
+			$names[] = $contentType->getName();
+		}
+		
+		$builder->add('contentTypeNames', CollectionType::class, array(
+				// each entry in the array will be an "email" field
+				'entry_type'   => HiddenType::class,
+				// these options are passed to each "email" type
+				'entry_options'  => array(
+				),
+				'data' => $names
+		));
+    		
+    	$form = $builder->getForm ();
+    	
+    	if ($request->isMethod('POST')) {
+			$form = $request->get('form');
+			if(isset($form['contentTypeNames']) && is_array($form['contentTypeNames'])){
+				$counter = 0;
+				foreach ($form['contentTypeNames'] as $name){
+					
+					$contentType = $contentTypeRepository->findOneBy([
+							'deleted' => false,
+							'name' => $name
+					]);
+					if($contentType){
+						$contentType->setOrderKey($counter);
+						$em->persist($contentType);
+					}
+					++$counter;
+				}
+				
+				$em->flush();
+	    		$this->addFlash('notice', 'Content types have been reordered');
+			}
+    	
+    		return $this->redirectToRoute('contenttype.index');
+    	}
+		
+		return $this->render ( 'contenttype/index.html.twig', [
+				'form' => $form->createView (),
+		] );
 	}
 	
 	/**
@@ -301,6 +366,7 @@ class ContentTypeController extends AppController {
 		
 		/** @var EnvironmentRepository $environmetRepository */
 		$environmetRepository = $em->getRepository ( 'AppBundle:Environment' );
+		$contentTypeRepository = $em->getRepository ( 'AppBundle:ContentType' );
 		
 		if ($request->isMethod ( 'POST' )) {
 			if (null != $request->get ( 'envId' ) && null != $request->get ( 'name' )) {
@@ -312,6 +378,7 @@ class ContentTypeController extends AppController {
 					$contentType->setEnvironment ( $defaultEnvironment );
 					$contentType->setActive ( true );
 					$contentType->setDirty ( false );
+					$contentType->setOrderKey($contentTypeRepository->countContentType());
 					
 					$em->persist ( $contentType );
 					$em->flush ();

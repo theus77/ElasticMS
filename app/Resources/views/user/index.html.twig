@@ -9,8 +9,8 @@
 	<div class="col-md-12">
 		<div class="box ">
 			<div class="box-header with-border">
-				<i class="fa fa-database"></i>
-				<h3 class="box-title">Local environments</h3>
+				<i class="fa fa-users"></i>
+				<h3 class="box-title">Users</h3>
 				<a class="btn btn-xs btn-primary pull-right"
 					href="{{ path('user.add') }}"><i class="fa fa-plus"></i>
 					Add user</a>
@@ -64,9 +64,19 @@
 								</td>
 								<td>{{ user.lastLogin|date(date_time_format) }}</td>
 								<td>
-									<a class="btn btn-xs btn-default"
-					href="{{ path('user.edit', {'id': user.id}) }}"><i class="fa fa-pencil"></i>
-					Edit user</a>
+									<div class="btn-group">
+										{% include 'elements/get-button.html.twig' with {
+											'url':  path('user.edit', {'id': user.id}),
+											'label': 'Edit',
+											'icon': 'pencil'
+										}%}
+										{% include 'elements/post-button.html.twig' with {
+											'url': path('user.delete', {'id': user.id}),
+											'message': 'Delete the user ' ~ user.username|humanize ~ ' ?',
+											'label': 'Delete',
+											'icon': 'trash'
+										}%}
+				                    </div>
 								</td>
 							</tr>						
 						{% endfor %}

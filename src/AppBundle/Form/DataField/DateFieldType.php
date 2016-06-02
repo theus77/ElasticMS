@@ -90,6 +90,28 @@ class DateFieldType extends DataFieldType {
 		return 'datefieldtype';
 	}
 	
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray) {
+		$format = $dataField->getFieldType()->getMappingOptions()['format'];	
+		$format = DateFieldType::convertJavaDateFormat($format);
+		
+	
+		if(is_string($sourceArray)){
+			$sourceArray = [$sourceArray];
+		}
+		$dataField->prepareDataValues(count($sourceArray));
+		foreach ($sourceArray as $idx => $child){
+			$dataField->getDataValues()[$idx]->setDateValue(\DateTime::createFromFormat($format, $child));
+		}
+		
+	}
+	
+	
 	/**
 	 *
 	 * {@inheritdoc}

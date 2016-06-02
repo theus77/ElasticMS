@@ -29,6 +29,15 @@ class CheckboxFieldType extends DataFieldType {
 		return 'glyphicon glyphicon-check';
 	}
 	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray) {
+		$dataField->prepareDataValues(1);
+		$dataField->getDataValues()[0]->setIntegerValue($sourceArray?1:0);
+	}
 	
 	/**
 	 *
