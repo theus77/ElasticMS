@@ -247,6 +247,10 @@ class ContentTypeController extends AppController {
 				$form->get ( 'name' )->addError ( new FormError ( 'Another content type named ' . $contentTypeAdded->getName () . ' already exists' ) );
 			}
 			
+			if(!$this->isValidName($contentTypeAdded->getName () )){
+				$form->get ( 'name' )->addError ( new FormError ( 'The content type name is malformed (format: [a-z][a-z0-9_-]*)' ) );
+			}
+			
 			if ($form->isValid ()) {
 				$normData = $form->get("import")->getNormData();
 				if($normData){
