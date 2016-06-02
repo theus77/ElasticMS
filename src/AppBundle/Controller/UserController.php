@@ -140,6 +140,69 @@ class UserController extends Controller
 	}
 	
 	/**
+	 *
+	 * @Route("/user/{id}/enabling", name="user.enabling")
+	 */
+	public function enablingUserAction($id, Request $request)
+	{
+	
+		$userManager = $this->get('fos_user.user_manager');
+		$user = $userManager->findUserBy(array('id'=> $id));
+		// test if user exist before modified it
+		if(!$user){
+			throw $this->createNotFoundException('user not found');
+		}
+		
+		$message = "User was ";
+		if ($user->isEnabled()) {
+			$user->setEnabled(FALSE);
+			$message = $message . "disabled !";
+		} else {
+			$user->setEnabled(TRUE);
+			$message = $message . "enabled !";
+		}
+		
+		$userManager->updateUser($user);
+		$this->getDoctrine()->getManager()->flush();
+		$this->addFlash(
+				'notice',
+				$message
+				);
+		return $this->redirectToRoute('user.index');
+	}
+	
+	/**
+	 *
+	 * @Route("/user/{id}/locking", name="user.locking")
+	 */
+	public function lockingUserAction($id, Request $request)
+	{
+	
+		$userManager = $this->get('fos_user.user_manager');
+		$user = $userManager->findUserBy(array('id'=> $id));
+		// test if user exist before modified it
+		if(!$user){
+			throw $this->createNotFoundException('user not found');
+		}
+		$message = "User was ";
+		if ($user-> isLocked()) {
+			$user->setLocked(FALSE);
+			$message = $message . "unlocked !";
+		} else {
+			$user->setLocked(TRUE);
+			$message = $message . "locked !";
+		}
+		
+		$userManager->updateUser($user);
+		$this->getDoctrine()->getManager()->flush();
+		$this->addFlash(
+				'notice',
+				$message
+				);
+		return $this->redirectToRoute('user.index');
+	}
+	
+	/**
 	 * Test if email or username exist return on add or edit Form
 	 */
 	private function userExist ($user, $action, $form) {
