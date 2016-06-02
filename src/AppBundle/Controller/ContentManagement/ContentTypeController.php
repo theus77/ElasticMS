@@ -33,6 +33,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Form\Form;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -41,6 +42,14 @@ use Symfony\Component\Serializer\Serializer;
  *        
  */
 class ContentTypeController extends AppController {
+	
+	
+	public static function isValidName($name) {
+		return preg_match('/^[a-z][a-z0-9\-_]*$/i', $name) && strlen($name) <= 100;
+	}
+	
+	
+	
 	/**
 	 * Logically delete a content type.
 	 * GET calls aren't supported.
@@ -438,13 +447,25 @@ class ContentTypeController extends AppController {
 	 */
 	private function addNewField(array $formArray, FieldType $fieldType) {
 		if (array_key_exists ( 'add', $formArray )) {
-			
-			$child = new FieldType ();
-			$child->setName ( $formArray ['ems:internal:add:field:name'] );
-			$child->setType ( $formArray ['ems:internal:add:field:class'] );
-			$child->setParent ( $fieldType );
-			$fieldType->addChild ( $child );
-			$this->addFlash('notice', 'The field '.$child->getName().' has been prepared to be added');
+			if(isset($formArray ['ems:internal:add:field:name']) 
+					&& strcmp($formArray ['ems:internal:add:field:name'], '') != 0
+					&& isset($formArray ['ems:internal:add:field:class']) 
+					&& strcmp($formArray ['ems:internal:add:field:class'], '') != 0) {
+				if($this->isValidName($formArray ['ems:internal:add:field:name'])){
+					$child = new FieldType ();
+					$child->setName ( $formArray ['ems:internal:add:field:name'] );
+					$child->setType ( $formArray ['ems:internal:add:field:class'] );
+					$child->setParent ( $fieldType );
+					$fieldType->addChild ( $child );
+					$this->addFlash('notice', 'The field '.$child->getName().' has been prepared to be added');					
+				}
+				else {
+					$this->addFlash('error', 'The field\'s name is not valid (format: [a-z][a-z0-9_-]*)');
+				}
+			}
+			else {
+				$this->addFlash('error', 'The field\'s name and type are mandatory');
+			}
 			return true;
 		} else {
 			/** @var FieldType $child */
@@ -465,13 +486,23 @@ class ContentTypeController extends AppController {
 	 */
 	private function addNewSubfield(array $formArray, FieldType $fieldType) {
 		if (array_key_exists ( 'subfield', $formArray )) {
-			
-			$child = new FieldType ();
-			$child->setName ( $formArray ['ems:internal:add:subfield:name'] );
-			$child->setType ( SubfieldType::class );
-			$child->setParent ( $fieldType );
-			$fieldType->addChild ( $child );
-			$this->addFlash('notice', 'The subfield '.$fieldType->getName().' has been prepared to be added');
+			if(isset($formArray ['ems:internal:add:subfield:name']) 
+					&& strcmp($formArray ['ems:internal:add:subfield:name'], '') !== 0) {
+				if($this->isValidName($formArray ['ems:internal:add:subfield:name'])) {
+					$child = new FieldType ();
+					$child->setName ( $formArray ['ems:internal:add:subfield:name'] );
+					$child->setType ( SubfieldType::class );
+					$child->setParent ( $fieldType );
+					$fieldType->addChild ( $child );
+					$this->addFlash('notice', 'The subfield '.$fieldType->getName().' has been prepared to be added');
+				}
+				else {
+					$this->addFlash('error', 'The subfield\'s name is not valid (format: [a-z][a-z0-9_-]*)');
+				}
+			}
+			else{
+				$this->addFlash('notice', 'The subfield name is mandatory');
+			}
 			return true;
 		} else {
 			/** @var FieldType $child */
@@ -593,23 +624,21 @@ class ContentTypeController extends AppController {
 					
 					$em->persist ( $contentType );
 					$em->flush ();
-					$this->addFlash ( 'notice', 'A new field has been added.' );
 					return $this->redirectToRoute ( 'contenttype.edit', [ 
 							'id' => $id 
 					] );
 				}
 				
-				if ($this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				else if ($this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					$em->persist ( $contentType );
 					$em->flush ();
-					$this->addFlash ( 'notice', 'A new subfield has been added.' );
 					return $this->redirectToRoute ( 'contenttype.edit', [ 
 							'id' => $id 
 					] );
 				}
 				
-				if ($this->removeField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				else if ($this->removeField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					$em->persist ( $contentType );
 					$em->flush ();
@@ -619,7 +648,7 @@ class ContentTypeController extends AppController {
 					] );
 				}
 				
-				if ($this->reorderFields ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				else if ($this->reorderFields ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					// $contentType->getFieldType()->updateOrderKeys();
 					$em->persist ( $contentType );
 					$em->flush ();
