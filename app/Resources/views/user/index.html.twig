@@ -64,12 +64,19 @@
 								</td>
 								<td>{{ user.lastLogin|date(date_time_format) }}</td>
 								<td>
-									<a class="btn btn-xs btn-default"
-					href="{{ path('user.edit', {'id': user.id}) }}"><i class="fa fa-pencil"></i>
-					Edit user</a>
-									<a class="btn btn-xs btn-default"
-					href="{{ path('user.delete', {'id': user.id}) }}"><i class="fa fa-trash"></i>
-					Delete user</a>
+									<div class="btn-group">
+										{% include 'elements/get-button.html.twig' with {
+											'url':  path('user.edit', {'id': user.id}),
+											'label': 'Edit',
+											'icon': 'pencil'
+										}%}
+										{% include 'elements/post-button.html.twig' with {
+											'url': path('user.delete', {'id': user.id}),
+											'message': 'Delete the user ' ~ user.username|humanize ~ ' ?',
+											'label': 'Delete',
+											'icon': 'trash'
+										}%}
+				                    </div>
 								</td>
 							</tr>						
 						{% endfor %}
