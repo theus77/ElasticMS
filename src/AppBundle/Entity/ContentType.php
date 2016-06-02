@@ -215,6 +215,13 @@ class ContentType
     /**
      * @var int
      *
+     * @ORM\Column(name="email_field", type="string", length=100, nullable=true)
+     */
+    private $emailField;
+    
+    /**
+     * @var int
+     *
      * @ORM\Column(name="orderKey", type="integer")
      */
     private $orderKey;
@@ -1163,5 +1170,29 @@ class ContentType
     public function getCirclesField()
     {
         return $this->circlesField;
+    }
+
+    /**
+     * Set emailField
+     *
+     * @param string $emailField
+     *
+     * @return ContentType
+     */
+    public function setEmailField($emailField)
+    {
+        $this->emailField = $emailField;
+
+        return $this;
+    }
+
+    /**
+     * Get emailField
+     *
+     * @return string
+     */
+    public function getEmailField()
+    {
+        return $this->emailField;
     }
 }
