@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Entity\User;
 use AppBundle\Form\Form\RegistrationType;
 use FOS\UserBundle\Util\LegacyFormHelper;
+use AppBundle\Form\Field\ObjectPickerType;
 
 class UserController extends Controller
 {
@@ -23,7 +24,6 @@ class UserController extends Controller
 		$repository = $em->getRepository('AppBundle:User');
 		
 		$users = $repository->findAll();
-	
 		return $this->render( 'user/index.html.twig', [
 				'users' => $users
 		] );
@@ -45,7 +45,7 @@ class UserController extends Controller
 				'first_options' => array('label' => 'form.password'),
 				'second_options' => array('label' => 'form.password_confirmation'),
 				'invalid_message' => 'fos_user.password.mismatch',))
-		->add('circles')->getForm();
+		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))->getForm();
 		
 		$form->handleRequest($request);
 		
@@ -89,7 +89,7 @@ class UserController extends Controller
 		$form = $this->createFormBuilder($user)
 		->add('email', LegacyFormHelper::getType('Symfony\Component\Form\Extension\Core\Type\EmailType'), array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
 		->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
-		->add('circles')->getForm();
+		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))->getForm();
 		
 		$form->handleRequest($request);
 	
@@ -135,6 +135,69 @@ class UserController extends Controller
 		$this->addFlash(
 				'notice',
 				'User was deleted!'
+				);
+		return $this->redirectToRoute('user.index');
+	}
+	
+	/**
+	 *
+	 * @Route("/user/{id}/enabling", name="user.enabling")
+	 */
+	public function enablingUserAction($id, Request $request)
+	{
+	
+		$userManager = $this->get('fos_user.user_manager');
+		$user = $userManager->findUserBy(array('id'=> $id));
+		// test if user exist before modified it
+		if(!$user){
+			throw $this->createNotFoundException('user not found');
+		}
+		
+		$message = "User was ";
+		if ($user->isEnabled()) {
+			$user->setEnabled(FALSE);
+			$message = $message . "disabled !";
+		} else {
+			$user->setEnabled(TRUE);
+			$message = $message . "enabled !";
+		}
+		
+		$userManager->updateUser($user);
+		$this->getDoctrine()->getManager()->flush();
+		$this->addFlash(
+				'notice',
+				$message
+				);
+		return $this->redirectToRoute('user.index');
+	}
+	
+	/**
+	 *
+	 * @Route("/user/{id}/locking", name="user.locking")
+	 */
+	public function lockingUserAction($id, Request $request)
+	{
+	
+		$userManager = $this->get('fos_user.user_manager');
+		$user = $userManager->findUserBy(array('id'=> $id));
+		// test if user exist before modified it
+		if(!$user){
+			throw $this->createNotFoundException('user not found');
+		}
+		$message = "User was ";
+		if ($user-> isLocked()) {
+			$user->setLocked(FALSE);
+			$message = $message . "unlocked !";
+		} else {
+			$user->setLocked(TRUE);
+			$message = $message . "locked !";
+		}
+		
+		$userManager->updateUser($user);
+		$this->getDoctrine()->getManager()->flush();
+		$this->addFlash(
+				'notice',
+				$message
 				);
 		return $this->redirectToRoute('user.index');
 	}

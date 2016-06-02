@@ -90,9 +90,9 @@ class ContentType
     /**
      * @var array
      *
-     * @ORM\Column(name="circles", type="simple_array", nullable=true)
+     * @ORM\Column(name="circles_field", type="simple_array", nullable=true)
      */
-    private $circles;
+    private $circlesField;
     
     /**
      * @var bool
@@ -211,6 +211,13 @@ class ContentType
      * @ORM\Column(name="videoField", type="string", length=100, nullable=true)
      */
     private $videoField;
+    
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="email_field", type="string", length=100, nullable=true)
+     */
+    private $emailField;
     
     /**
      * @var int
@@ -495,30 +502,6 @@ class ContentType
     public function getLockUntil()
     {
         return $this->lockUntil;
-    }
-
-    /**
-     * Set circles
-     *
-     * @param array $circles
-     *
-     * @return ContentType
-     */
-    public function setCircles($circles)
-    {
-        $this->circles = $circles;
-
-        return $this;
-    }
-
-    /**
-     * Get circles
-     *
-     * @return array
-     */
-    public function getCircles()
-    {
-        return $this->circles;
     }
 
     /**
@@ -1163,5 +1146,53 @@ class ContentType
     public function getColorField()
     {
         return $this->colorField;
+    }
+
+    /**
+     * Set circlesField
+     *
+     * @param array $circlesField
+     *
+     * @return ContentType
+     */
+    public function setCirclesField($circlesField)
+    {
+        $this->circlesField = $circlesField;
+    
+        return $this;
+    }
+
+    /**
+     * Get circlesField
+     *
+     * @return array
+     */
+    public function getCirclesField()
+    {
+        return $this->circlesField;
+    }
+
+    /**
+     * Set emailField
+     *
+     * @param string $emailField
+     *
+     * @return ContentType
+     */
+    public function setEmailField($emailField)
+    {
+        $this->emailField = $emailField;
+
+        return $this;
+    }
+
+    /**
+     * Get emailField
+     *
+     * @return string
+     */
+    public function getEmailField()
+    {
+        return $this->emailField;
     }
 }

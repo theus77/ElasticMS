@@ -23,6 +23,7 @@
 							<th class="text-center" style="width: 10px">#</th>
 							<th>Username</th>
 							<th>email</th>
+							<th>Circles</th>
 							<th>Enabled</th>
 							<th>Locked</th>
 							<th>Expired</th>
@@ -35,6 +36,18 @@
 								<td class="text-center" style="width: 10px">{{ loop.index }}</td>
 								<td>{{ user.username }}</td>
 								<td>{{ user.email }}</td>
+								<td>
+									{% for circle in user.circles %}
+										{% if not loop.first %}
+											{% if loop.last %}
+											&amp;
+											{% else %}
+											,
+											{% endif %}
+										{% endif %}
+										{{ circle|trans }}
+									{% endfor %}
+								</td>
 								<td>
 									{% if user.enabled %}
 										<i class="fa fa-check"></i>
@@ -76,6 +89,36 @@
 											'label': 'Delete',
 											'icon': 'trash'
 										}%}
+										{% if user.enabled %}
+											{% include 'elements/post-button.html.twig' with {
+												'url': path('user.enabling', {'id': user.id}),
+													'message': 'Disable the user ' ~ user.username|humanize ~ ' ?',
+													'label': 'Disable',
+													'icon': 'user-times'
+											}%}
+										{% else %}
+											{% include 'elements/post-button.html.twig' with {
+													'url': path('user.enabling', {'id': user.id}),
+													'message': 'Enable the user ' ~ user.username|humanize ~ ' ?',
+													'label': 'Enable',
+													'icon': 'user-plus'
+											}%}
+										{% endif %}
+										{% if user.locked %}
+											{% include 'elements/post-button.html.twig' with {
+												'url': path('user.locking', {'id': user.id}),
+													'message': 'Unlock the user ' ~ user.username|humanize ~ ' ?',
+													'label': 'Unlock',
+													'icon': 'unlock-alt'
+											}%}
+										{% else %}
+											{% include 'elements/post-button.html.twig' with {
+													'url': path('user.locking', {'id': user.id}),
+													'message': 'Lock the user ' ~ user.username|humanize ~ ' ?',
+													'label': 'Lock',
+													'icon': 'lock'
+											}%}
+										{% endif %}
 				                    </div>
 								</td>
 							</tr>						

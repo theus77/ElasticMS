@@ -7,7 +7,6 @@ use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\Form\RebuildIndex;
-use AppBundle\Entity\Job;
 use AppBundle\Entity\Revision;
 use AppBundle\Form\Field\ColorPickerType;
 use AppBundle\Form\Field\IconTextType;

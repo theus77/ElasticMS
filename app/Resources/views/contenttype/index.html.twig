@@ -84,11 +84,6 @@
 											'label': 'Edit',
 											'icon': 'pencil'
 										}%}
-					                    {% include 'elements/get-button.html.twig' with {
-					                      'url': path('contenttype.export', {'contentType': contentType.id}),
-					                      'label': 'Export',
-					                      'icon': 'sign-out'
-					                    }%}
 										{% include 'elements/get-button.html.twig' with {
 											'url': path('template.index', {'type': contentType.name}),
 											'label': 'Templates',
@@ -100,6 +95,11 @@
 					                      'icon': 'tv'
 					                    }%}
 										{% if contentType.environment.managed %}
+						                    {% include 'elements/get-button.html.twig' with {
+						                      'url': path('contenttype.export', {'contentType': contentType.id}),
+						                      'label': 'Export',
+						                      'icon': 'sign-out'
+						                    }%}
 											{% include 'elements/post-button.html.twig' with {
 												'url':  path('contenttype.refreshmapping', {'id': contentType.id}),
 												'message': 'Try to update the ' ~ contentType.name|humanize ~ ' mapping ?',
