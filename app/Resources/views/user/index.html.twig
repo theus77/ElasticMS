@@ -23,6 +23,7 @@
 							<th class="text-center" style="width: 10px">#</th>
 							<th>Username</th>
 							<th>email</th>
+							<th>Circles</th>
 							<th>Enabled</th>
 							<th>Locked</th>
 							<th>Expired</th>
@@ -35,6 +36,18 @@
 								<td class="text-center" style="width: 10px">{{ loop.index }}</td>
 								<td>{{ user.username }}</td>
 								<td>{{ user.email }}</td>
+								<td>
+									{% for circle in user.circles %}
+										{% if not loop.first %}
+											{% if loop.last %}
+											&amp;
+											{% else %}
+											,
+											{% endif %}
+										{% endif %}
+										{{ circle|trans }}
+									{% endfor %}
+								</td>
 								<td>
 									{% if user.enabled %}
 										<i class="fa fa-check"></i>
