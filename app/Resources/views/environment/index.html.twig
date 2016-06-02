@@ -180,6 +180,11 @@
 									'label': 'Delete',
 									'icon': 'trash'
 								}%}
+								{% include 'elements/get-button.html.twig' with {
+									'url': path('elasticsearch.alias.add', {'name': index.name}),
+									'label': 'Add alias',
+									'icon': 'plus'
+								}%}
 									
 								</td>
 							</tr>

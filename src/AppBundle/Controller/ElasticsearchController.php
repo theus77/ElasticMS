@@ -2,30 +2,82 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Controller\AppController;
+use AppBundle\Entity\ExportMapping;
 use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\Form\SearchFilter;
+use AppBundle\Entity\Template;
+use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\RenderOptionType;
 use AppBundle\Form\Field\SubmitEmsType;
 use AppBundle\Form\Form\SearchFormType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\ORM\EntityManager;
+use Elasticsearch\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Entity\Template;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use AppBundle\Form\Field\RenderOptionType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
-use AppBundle\Entity\ExportMapping;
-use AppBundle\Twig\AppExtension;
 class ElasticsearchController extends AppController
 {
+	/**
+	 * Create an alias for an index
+	 *
+	 * @param string indexName
+	 * @param Request $request
+	 * @Route("/elasticsearch/alias/add/{name}", name="elasticsearch.alias.add"))
+	 */
+	public function addAliasAction($name, Request $request) {
+	
+		/** @var  Client $client */
+		$client = $this->get ( 'app.elasticsearch' );
+		$result = $client->indices()->getAlias(['index' => $name]);
+		
+		$form = $this->createFormBuilder ( [] )->add ( 'name', IconTextType::class, [
+				'icon' => 'fa fa-key',
+				'required' => true
+		] )->add ( 'save', SubmitEmsType::class, [
+				'label' => 'Add',
+				'icon' => 'fa fa-plus',
+				'attr' => [
+						'class' => 'btn btn-primary pull-right'
+				]
+		] )->getForm ();
+		
+		$form->handleRequest ( $request );
+		
+		if ( $form->isSubmitted () && $form->isValid ()) {
+			$params ['body'] = [
+				 'actions' => [
+					 [
+						 'add' => [
+							 'index' => $name,
+							 'alias' => $form->get('name')->getData(),
+						 ]
+					 ]
+				 ]
+			 ];
+			
+			 $client->indices ()->updateAliases ( $params );
+			 $this->addFlash('notice', 'A new alias "'.$form->get('name')->getData().'" has been added to the index "'.$name.'"');
+
+			 return $this->redirectToRoute("environment.index");
+		}
+		
+
+		return $this->render( 'elasticsearch/add-alias.html.twig',[
+			'form' => $form->createView(),
+			'name' => $name,
+		]);
+	}
+	
 	/**
 	 * @Route("/status.{_format}", defaults={"_format": "html"}, name="elasticsearch.status"))
 	 */
