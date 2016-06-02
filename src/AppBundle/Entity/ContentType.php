@@ -90,9 +90,9 @@ class ContentType
     /**
      * @var array
      *
-     * @ORM\Column(name="circles", type="simple_array", nullable=true)
+     * @ORM\Column(name="circles_field", type="simple_array", nullable=true)
      */
-    private $circles;
+    private $circlesField;
     
     /**
      * @var bool
@@ -495,30 +495,6 @@ class ContentType
     public function getLockUntil()
     {
         return $this->lockUntil;
-    }
-
-    /**
-     * Set circles
-     *
-     * @param array $circles
-     *
-     * @return ContentType
-     */
-    public function setCircles($circles)
-    {
-        $this->circles = $circles;
-
-        return $this;
-    }
-
-    /**
-     * Get circles
-     *
-     * @return array
-     */
-    public function getCircles()
-    {
-        return $this->circles;
     }
 
     /**
@@ -1163,5 +1139,29 @@ class ContentType
     public function getColorField()
     {
         return $this->colorField;
+    }
+
+    /**
+     * Set circlesField
+     *
+     * @param array $circlesField
+     *
+     * @return ContentType
+     */
+    public function setCirclesField($circlesField)
+    {
+        $this->circlesField = $circlesField;
+    
+        return $this;
+    }
+
+    /**
+     * Get circlesField
+     *
+     * @return array
+     */
+    public function getCirclesField()
+    {
+        return $this->circlesField;
     }
 }

@@ -6,13 +6,13 @@ use AppBundle\Entity\ContentType;
 use AppBundle\Form\Field\ColorPickerType;
 use AppBundle\Form\Field\IconPickerType;
 use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Form\FieldType\FieldTypeType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\FieldType\FieldTypeType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ContentTypeType extends AbstractType {
@@ -34,7 +34,7 @@ class ContentTypeType extends AbstractType {
 // 		$builder->add ( 'userField');
 // 		$builder->add ( 'dateField');
 // 		$builder->add ( 'startDateField');
-// 		$builder->add ( 'endDateField');
+		$builder->add ( 'circlesField');
 		$builder->add ( 'editTwigWithWysiwyg', CheckboxType::class, [
 			'label' => 'Edit the Twig template with a WYSIWYG editor',
 			'required' => false,
