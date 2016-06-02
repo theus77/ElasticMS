@@ -467,6 +467,7 @@ class ElasticsearchController extends AppController
 				$templateBodyMapping = [];
 				
 				$twig = $this->getTwig();
+				$errorList = [];
 				foreach ($templateChoises as $contentName => $templateChoise){
 					if ( 'search-data' != $contentName && 'massExport' != $contentName && '_token' != $contentName){
 						$template = $templateRepository->find($templateChoise);
@@ -483,6 +484,8 @@ class ElasticsearchController extends AppController
 							catch (\Twig_Error $e){
 								$this->addFlash('error', 'There is something wrong with the template '.$template->getName());
 								$body = $twig->createTemplate('error in the template!');
+								$errorList[] = "Error in template->getBody() for: ".$template->getName();
+								continue;
 							}
 							
 							$templateBodyMapping[$contentName] = $body;
@@ -492,14 +495,13 @@ class ElasticsearchController extends AppController
 				
 				//Create the xml of each result and accumulate in a zip stream
 				$extime = ini_get('max_execution_time');
-				ini_set('max_execution_time', 600);
+				ini_set('max_execution_time', 0);
 				
 				$fileTime = date("D, d M Y H:i:s T");
 				$zip = new ZipStream("eMSExport.zip");
 				
 				$exportMapping = new ExportMapping();
 				$exportMapping->addTemplates($results);
-				
 				foreach ($results['hits']['hits'] as $result){
 					$name = $result['_type'];
 					$formFieldName = $exportMapping->getCombinedName($name);
@@ -512,9 +514,10 @@ class ElasticsearchController extends AppController
 							$filename = $twig->createTemplate($template->getFilename());
 						} catch (\Twig_Error $e) {
 							$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
-							$filename = $twig->createTemplate('error in the template!');
+							$filename = $result['_id'];
+							$errorList[] = "Error in template->getFilename() for: ".$filename;
+							continue;
 						}
-						
 						$filename = $filename->render([
 								'contentType' => $template->getContentType(),
 								'object' => $result,
@@ -522,23 +525,32 @@ class ElasticsearchController extends AppController
 						]);
 						$filename = preg_replace('~[\r\n]+~', '', $filename);
 					}
-			
 					if(null!= $template->getExtension()){
 						$filename = $filename.'.'.$template->getExtension();
 					}
 					
-					$zip->addFile(
-							$filename,
-							$body->render([
+					try {
+						$content = $body->render([
 									'contentType' => $template->getContentType(),
 									'object' => $result,
 									'source' => $result['_source'],
-							])
-					);
+							]);
+					}catch (\Twig_Error $e)
+					{
+						$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
+						$content = "There was an error rendering the content";
+						$errorList[] = "Error in templateBody->render() for: ".$filename;
+						continue;
+					}
+					$zip->addFile($filename, $content);
+				}
+				
+				if (!empty($errorList))
+				{
+					$zip->addFile("All-Errors.txt", implode("\n", $errorList));
 				}
 				
 				$zip->finish();
-				ini_set('max_execution_time', $extime);
 				exit;
 			}
 			
