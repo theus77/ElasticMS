@@ -120,7 +120,8 @@ class MigrateCommand extends ContainerAwareCommand
 					$data->updateDataValue($value["_source"]);
 					//Finalize draft
 					$newRevision = $this->dataService->finalizeDraft($newRevision, "SYSTEM_MIGRATE");
-					echo(".");
+					//TODO: Improvement : http://symfony.com/doc/current/components/console/helpers/progressbar.html
+					$output->write(".");
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");
