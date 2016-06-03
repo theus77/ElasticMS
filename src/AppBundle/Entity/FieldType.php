@@ -465,7 +465,13 @@ class FieldType
      * @return FieldType
      */
     public function __get($key)
-    {
+    {  	
+    	if(strpos($key, 'ems_') !== 0){
+     		throw new \Exception('unprotected ems get with key '.$key);
+     	}
+     	else{
+     		$key = substr($key, 4);
+     	}
     	/** @var FieldType $fieldType */
     	foreach ($this->getChildren() as $fieldType){
     		if(!$fieldType->getDeleted() && strcmp($key,  $fieldType->getName()) == 0){
@@ -482,7 +488,13 @@ class FieldType
      * @return DataField
      */
     public function __set($key, $input )
-    {
+    {     	
+    	if(strpos($key, 'ems_') !== 0){
+     		throw new \Exception('unprotected ems get with key '.$key);
+     	}
+     	else{
+     		$key = substr($key, 4);
+     	}
     	$found = false;
     	/** @var FieldType $child */
     	foreach ($this->children as &$child){
