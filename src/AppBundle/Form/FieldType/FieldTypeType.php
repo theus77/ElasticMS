@@ -102,7 +102,7 @@ class FieldTypeType extends AbstractType
 			/** @var FieldType $field */
 			foreach ($fieldType->getChildren() as $idx => $field) {
 				if(!$field->getDeleted()){
-					$builder->add ( $field->getName(), FieldTypeType::class, [
+					$builder->add ( 'ems_'.$field->getName(), FieldTypeType::class, [
 							'data' => $field,
 							'container' => true,
 					]  );						

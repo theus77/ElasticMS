@@ -29,9 +29,9 @@
 	
 	$(document).ready(function() {
 		
-		environment = $( this ).data('environment'); 
-		type = $( this ).data('type'); 
-		
+		environment = '{{ circles_environment }}'; 
+		type = '{{ circles_object }}';
+
 		$(".objectpicker").select2({
 			ajax: {
 				url: '{{ url("elasticsearch.api.search") }}',

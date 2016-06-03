@@ -433,7 +433,7 @@
 			      			<li class="list-group-item">
 			      				<i class="glyphicon glyphicon-move"></i> 
 			      				{{ child.name|humanize }}
-			      				{{ form_row( attribute(attribute(form, child.name), 'name')) }}
+			      				{{ form_row( attribute(attribute(form, 'ems_'~child.name), 'name')) }}
 			      			</li>
 			      		{% endfor %}
 					</ul>	

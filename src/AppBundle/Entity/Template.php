@@ -92,6 +92,15 @@ class Template
     private $downloadResultUrl;
     
     /** @var string
+    
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="preview", type="boolean")
+     */
+    private $preview;
+    
+    /** @var string
      * 
      * @ORM\Column(name="mime_type", type="string", nullable=true)
      */
@@ -473,5 +482,29 @@ class Template
     public function getRecipient()
     {
         return $this->recipient;
+    }
+
+    /**
+     * Set preview
+     *
+     * @param boolean $preview
+     *
+     * @return Template
+     */
+    public function setPreview($preview)
+    {
+        $this->preview = $preview;
+
+        return $this;
+    }
+
+    /**
+     * Get preview
+     *
+     * @return boolean
+     */
+    public function getPreview()
+    {
+        return $this->preview;
     }
 }

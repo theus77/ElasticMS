@@ -48,6 +48,30 @@
 			</div>
 		</div>
 		{{ form_end(form) }}
+		
+
+	<div class="modal fade" id="data-out-of-sync" tabindex="-1" role="dialog" aria-labelledby="myModalOutOfSync">
+	  <div class="modal-dialog" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title" id="myModalOutOfSync">
+						<strong>Out of sync</strong>	
+			</h4>
+	      </div>
+	      <div class="modal-body">
+			There is something wrong with this object. Please reload the page.
+		  </div>
+	      <div class="modal-footer">
+	      	<div class="btn-group">
+		        <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+	      	</div>
+	      </div>
+	    </div>
+	  </div>
+	</div>	
+		
+		
 </div>
 
 {% endblock %}
@@ -80,7 +104,8 @@ function onFormChange(){
 				  });
 			  })
 			  .fail(function() {
-				alert( "The autosave returns an error! Please try to refresh the page." );
+				//alert( "The autosave returns an error! Please try to refresh the page." );
+				$('#data-out-of-sync').modal('show') ;
 			  })
 			  .always(function() {
 				globalWaitingResponse = false;

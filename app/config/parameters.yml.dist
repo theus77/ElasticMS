@@ -20,3 +20,7 @@ parameters:
     elasticsearch_cluster: ['http://localhost:9200']
     instance_id: "ems_"
     
+    
+    # Circles fonctionnaluities for Users
+    circles_object:
+    circles_environment:

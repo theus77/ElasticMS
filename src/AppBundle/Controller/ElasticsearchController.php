@@ -2,30 +2,82 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Controller\AppController;
+use AppBundle\Entity\ExportMapping;
 use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\Form\SearchFilter;
+use AppBundle\Entity\Template;
+use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\RenderOptionType;
 use AppBundle\Form\Field\SubmitEmsType;
 use AppBundle\Form\Form\SearchFormType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\ORM\EntityManager;
+use Elasticsearch\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Entity\Template;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use AppBundle\Form\Field\RenderOptionType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
-use AppBundle\Entity\ExportMapping;
-use AppBundle\Twig\AppExtension;
 class ElasticsearchController extends AppController
 {
+	/**
+	 * Create an alias for an index
+	 *
+	 * @param string indexName
+	 * @param Request $request
+	 * @Route("/elasticsearch/alias/add/{name}", name="elasticsearch.alias.add"))
+	 */
+	public function addAliasAction($name, Request $request) {
+	
+		/** @var  Client $client */
+		$client = $this->get ( 'app.elasticsearch' );
+		$result = $client->indices()->getAlias(['index' => $name]);
+		
+		$form = $this->createFormBuilder ( [] )->add ( 'name', IconTextType::class, [
+				'icon' => 'fa fa-key',
+				'required' => true
+		] )->add ( 'save', SubmitEmsType::class, [
+				'label' => 'Add',
+				'icon' => 'fa fa-plus',
+				'attr' => [
+						'class' => 'btn btn-primary pull-right'
+				]
+		] )->getForm ();
+		
+		$form->handleRequest ( $request );
+		
+		if ( $form->isSubmitted () && $form->isValid ()) {
+			$params ['body'] = [
+				 'actions' => [
+					 [
+						 'add' => [
+							 'index' => $name,
+							 'alias' => $form->get('name')->getData(),
+						 ]
+					 ]
+				 ]
+			 ];
+			
+			 $client->indices ()->updateAliases ( $params );
+			 $this->addFlash('notice', 'A new alias "'.$form->get('name')->getData().'" has been added to the index "'.$name.'"');
+
+			 return $this->redirectToRoute("environment.index");
+		}
+		
+
+		return $this->render( 'elasticsearch/add-alias.html.twig',[
+			'form' => $form->createView(),
+			'name' => $name,
+		]);
+	}
+	
 	/**
 	 * @Route("/status.{_format}", defaults={"_format": "html"}, name="elasticsearch.status"))
 	 */
@@ -467,6 +519,7 @@ class ElasticsearchController extends AppController
 				$templateBodyMapping = [];
 				
 				$twig = $this->getTwig();
+				$errorList = [];
 				foreach ($templateChoises as $contentName => $templateChoise){
 					if ( 'search-data' != $contentName && 'massExport' != $contentName && '_token' != $contentName){
 						$template = $templateRepository->find($templateChoise);
@@ -483,6 +536,8 @@ class ElasticsearchController extends AppController
 							catch (\Twig_Error $e){
 								$this->addFlash('error', 'There is something wrong with the template '.$template->getName());
 								$body = $twig->createTemplate('error in the template!');
+								$errorList[] = "Error in template->getBody() for: ".$template->getName();
+								continue;
 							}
 							
 							$templateBodyMapping[$contentName] = $body;
@@ -492,14 +547,13 @@ class ElasticsearchController extends AppController
 				
 				//Create the xml of each result and accumulate in a zip stream
 				$extime = ini_get('max_execution_time');
-				ini_set('max_execution_time', 600);
+				ini_set('max_execution_time', 0);
 				
 				$fileTime = date("D, d M Y H:i:s T");
 				$zip = new ZipStream("eMSExport.zip");
 				
 				$exportMapping = new ExportMapping();
 				$exportMapping->addTemplates($results);
-				
 				foreach ($results['hits']['hits'] as $result){
 					$name = $result['_type'];
 					$formFieldName = $exportMapping->getCombinedName($name);
@@ -512,9 +566,10 @@ class ElasticsearchController extends AppController
 							$filename = $twig->createTemplate($template->getFilename());
 						} catch (\Twig_Error $e) {
 							$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
-							$filename = $twig->createTemplate('error in the template!');
+							$filename = $result['_id'];
+							$errorList[] = "Error in template->getFilename() for: ".$filename;
+							continue;
 						}
-						
 						$filename = $filename->render([
 								'contentType' => $template->getContentType(),
 								'object' => $result,
@@ -522,23 +577,32 @@ class ElasticsearchController extends AppController
 						]);
 						$filename = preg_replace('~[\r\n]+~', '', $filename);
 					}
-			
 					if(null!= $template->getExtension()){
 						$filename = $filename.'.'.$template->getExtension();
 					}
 					
-					$zip->addFile(
-							$filename,
-							$body->render([
+					try {
+						$content = $body->render([
 									'contentType' => $template->getContentType(),
 									'object' => $result,
 									'source' => $result['_source'],
-							])
-					);
+							]);
+					}catch (\Twig_Error $e)
+					{
+						$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
+						$content = "There was an error rendering the content";
+						$errorList[] = "Error in templateBody->render() for: ".$filename;
+						continue;
+					}
+					$zip->addFile($filename, $content);
+				}
+				
+				if (!empty($errorList))
+				{
+					$zip->addFile("All-Errors.txt", implode("\n", $errorList));
 				}
 				
 				$zip->finish();
-				ini_set('max_execution_time', $extime);
 				exit;
 			}
 			

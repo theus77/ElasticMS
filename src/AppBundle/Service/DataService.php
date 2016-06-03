@@ -97,8 +97,13 @@ class DataService
 	
 	
 	public function finalizeDraft(Revision $revision, $username=null){
+		if($revision->getDeleted()){
+			throw new \Exception("Can not finalized a deleted revision");
+		}
+		
+		
 		$this->lockRevision($revision, false, false, $username);
-	
+		
 		$em = $this->doctrine->getManager();
 	
 		/** @var RevisionRepository $repository */
@@ -202,6 +207,7 @@ class DataService
 		
 		try{
 			$revision = $this->getNewestRevision($type, $ouuid);
+			$revision->setDeleted(false);
 			if(null !== $revision->getDataField()) {
 				$revision->getDataField()->propagateOuuid($revision->getOuuid());
 			}
