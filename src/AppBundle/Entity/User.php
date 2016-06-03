@@ -91,6 +91,16 @@ class User extends BaseUser
     }
     
     /**
+     * Get expiresAt
+     *
+     * @return \DateTime
+     */
+    public function getExpiresAt()
+    {
+    	return $this->expiresAt;
+    }
+    
+    /**
      * Set created
      *
      * @param \DateTime $created

@@ -66,6 +66,16 @@
 		  	templateResult: formatRepo, // omitted for brevity, see the source of this page
 		  	templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
 		});
+		
+		$('.datepicker').datepicker({
+			format: $(this).attr('data-date-format'),
+			todayBtn: true,
+			weekStart: $(this).attr('data-week-start'),
+			daysOfWeekHighlighted: $(this).attr('data-days-of-week-highlighted'),
+			daysOfWeekDisabled: $(this).attr('data-days-of-week-disabled'),
+			todayHighlight: $(this).attr('data-today-highlight'),
+			multidate: $(this).attr('data-multidate')?true:false 
+		});
 	});   
     </script>
 	{% include 'app/menu.html.twig' with {

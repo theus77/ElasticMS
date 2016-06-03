@@ -1,14 +1,15 @@
 <?php
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\User;
+use AppBundle\Form\Field\ObjectPickerType;
 use Doctrine\ORM\EntityRepository;
+use FOS\UserBundle\Util\LegacyFormHelper;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Entity\User;
-use AppBundle\Form\Form\RegistrationType;
-use FOS\UserBundle\Util\LegacyFormHelper;
-use AppBundle\Form\Field\ObjectPickerType;
 
 class UserController extends Controller
 {
@@ -45,7 +46,27 @@ class UserController extends Controller
 				'first_options' => array('label' => 'form.password'),
 				'second_options' => array('label' => 'form.password_confirmation'),
 				'invalid_message' => 'fos_user.password.mismatch',))
-		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))->getForm();
+		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))
+		->add('expiresAt', DateType::class, array(
+				'required' => FALSE,
+   				'widget' => 'single_text',
+				'format' => 'd/M/y',
+ 				'html5' => FALSE,
+				'attr' => array('class' => 'datepicker',
+ 					'data-date-format' => 'dd/mm/yyyy',
+					'data-today-highlight' => FALSE,
+					'data-week-start' => 1,
+					'data-days-of-week-highlighted' => '',
+					'data-days-of-week-disabled' => '',
+					'data-multidate' => FALSE
+				),
+		))
+		->add('roles', ChoiceType::class, array('choices' => $this->getExistingRoles(),
+        'label' => 'Roles',
+        'expanded' => true,
+        'multiple' => true,
+        'mapped' => true,))
+		->getForm();
 		
 		$form->handleRequest($request);
 		
@@ -89,7 +110,30 @@ class UserController extends Controller
 		$form = $this->createFormBuilder($user)
 		->add('email', LegacyFormHelper::getType('Symfony\Component\Form\Extension\Core\Type\EmailType'), array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
 		->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
-		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))->getForm();
+		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))
+		->add('enabled')
+		->add('locked')
+		->add('expiresAt', DateType::class, array(
+				'required' => FALSE,
+   				'widget' => 'single_text',
+				'format' => 'd/M/y',
+ 				'html5' => FALSE,
+				'attr' => array('class' => 'datepicker',
+ 					'data-date-format' => 'dd/mm/yyyy',
+					'data-today-highlight' => FALSE,
+					'data-week-start' => 1,
+					'data-days-of-week-highlighted' => '',
+					'data-days-of-week-disabled' => '',
+					'data-multidate' => FALSE,
+					
+				),
+		))
+		->add('roles', ChoiceType::class, array('choices' => $this->getExistingRoles(),
+        'label' => 'Roles',
+        'expanded' => true,
+        'multiple' => true,
+        'mapped' => true,))
+		->getForm();
 		
 		$form->handleRequest($request);
 	
@@ -223,5 +267,16 @@ class UserController extends Controller
 			}
 		}
 		return TRUE;
+	}
+	
+	private  function getExistingRoles()
+	{
+	    $roleHierarchy = $this->container->getParameter('security.role_hierarchy.roles');
+	    $roles = array_keys($roleHierarchy);
+	
+	    foreach ($roles as $role) {
+	        $theRoles[$role] = $role;
+	    }
+	    return $theRoles;
 	}
 }
