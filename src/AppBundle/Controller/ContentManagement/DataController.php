@@ -449,7 +449,7 @@ class DataController extends AppController
 			$body = $twig->createTemplate('error in the template!');
 		}
 		
-		if($_download){
+		if($_download || (strcmp($template->getRenderOption(), "export") === 0 && ! $template->getPreview()) ){
 			if(null!= $template->getMimeType()){
 				header('Content-Type: '.$template->getMimeType());		
 			}

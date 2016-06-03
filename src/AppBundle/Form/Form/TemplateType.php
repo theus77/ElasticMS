@@ -36,6 +36,10 @@ class TemplateType extends AbstractType {
 		->add ( 'editWithWysiwyg', CheckboxType::class, [
 			'required' => false,
 		])
+		->add ( 'preview', CheckboxType::class, [
+			'required' => false,
+			'label' => 'Preview (exports)',
+		])
 		->add( 'renderOption', RenderOptionType::class, [
 				'required' => true,
 		])
