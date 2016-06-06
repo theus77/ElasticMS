@@ -68,13 +68,13 @@
 		});
 		
 		$('.datepicker').datepicker({
-			format: $(this).attr('data-date-format'),
+			format: '{{ datepicker_format }}',
 			todayBtn: true,
-			weekStart: $(this).attr('data-week-start'),
-			daysOfWeekHighlighted: $(this).attr('data-days-of-week-highlighted'),
-			daysOfWeekDisabled: $(this).attr('data-days-of-week-disabled'),
-			todayHighlight: $(this).attr('data-today-highlight'),
-			multidate: $(this).attr('data-multidate')?true:false 
+			todayHighlight: true,
+			weekStart: {{ datepicker_weekstart }},
+			daysOfWeekHighlighted: {{ datepicker_daysofweek_highlighted | json_encode }},
+			daysOfWeekDisabled: [],
+			multidate: false
 		});
 	});   
     </script>

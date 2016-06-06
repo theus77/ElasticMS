@@ -53,12 +53,6 @@ class UserController extends Controller
 				'format' => 'd/M/y',
  				'html5' => FALSE,
 				'attr' => array('class' => 'datepicker',
- 					'data-date-format' => 'dd/mm/yyyy',
-					'data-today-highlight' => FALSE,
-					'data-week-start' => 1,
-					'data-days-of-week-highlighted' => '',
-					'data-days-of-week-disabled' => '',
-					'data-multidate' => FALSE
 				),
 		))
 		->add('roles', ChoiceType::class, array('choices' => $this->getExistingRoles(),
@@ -122,8 +116,8 @@ class UserController extends Controller
  					'data-date-format' => 'dd/mm/yyyy',
 					'data-today-highlight' => FALSE,
 					'data-week-start' => 1,
-					'data-days-of-week-highlighted' => '',
-					'data-days-of-week-disabled' => '',
+					'data-days-of-week-highlighted' => true,
+					'data-days-of-week-disabled' => false,
 					'data-multidate' => FALSE,
 					
 				),
