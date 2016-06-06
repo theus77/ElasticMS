@@ -474,7 +474,7 @@ class ContentTypeController extends AppController {
 		} else {
 			/** @var FieldType $child */
 			foreach ( $fieldType->getChildren () as $child ) {
-				if (! $child->getDeleted () && $this->addNewField ( $formArray [$child->getName ()], $child )) {
+				if (! $child->getDeleted () && $this->addNewField ( $formArray ['ems_'.$child->getName ()], $child )) {
 					return true;
 				}
 			}
@@ -511,7 +511,7 @@ class ContentTypeController extends AppController {
 		} else {
 			/** @var FieldType $child */
 			foreach ( $fieldType->getChildren () as $child ) {
-				if (! $child->getDeleted () && $this->addNewSubfield ( $formArray [$child->getName ()], $child )) {
+				if (! $child->getDeleted () && $this->addNewSubfield ( $formArray ['ems_'.$child->getName ()], $child )) {
 					return true;
 				}
 			}
@@ -534,7 +534,7 @@ class ContentTypeController extends AppController {
 		else{
 			/** @var FieldType $child */
 			foreach ($fieldType->getChildren() as $child){
-				if(!$child->getDeleted() && $this->removeField($formArray[$child->getName()], $child)) {
+				if(!$child->getDeleted() && $this->removeField($formArray['ems_'.$child->getName()], $child)) {
 					return true;
 				}
 			}
@@ -552,9 +552,10 @@ class ContentTypeController extends AppController {
 		if(array_key_exists('reorder', $formArray)){
 			$keys = array_keys($formArray);
 			/** @var FieldType $child */
+			dump($keys);
 			foreach ($fieldType->getChildren() as $child){
 				if(! $child->getDeleted() ){
-					$child->setOrderKey(array_search($child->getName(), $keys));
+					$child->setOrderKey(array_search('ems_'.$child->getName(), $keys));
 				}
 			}
 
@@ -564,7 +565,7 @@ class ContentTypeController extends AppController {
 		else{
 			/** @var FieldType $child */
 			foreach ($fieldType->getChildren() as $child){
-				if(!$child->getDeleted() && $this->reorderFields($formArray[$child->getName()], $child)) {
+				if(!$child->getDeleted() && $this->reorderFields($formArray['ems_'.$child->getName()], $child)) {
 					return true;
 				}
 			}
