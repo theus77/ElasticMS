@@ -21,6 +21,12 @@ parameters:
     instance_id: "ems_"
     
     
-    # Circles fonctionnaluities for Users
+    # Circles functionnalities for Users
     circles_object:
     circles_environment:
+    
+    # datepicker functionnalities 
+    datepicker_format : 'dd/mm/yyyy'
+    datepicker_weekstart : 1
+    datepicker_daysofweek_highlighted: [0,6]
+    

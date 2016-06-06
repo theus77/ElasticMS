@@ -1,5 +1,11 @@
 {% extends "FOSUserBundle::layout.html.twig" %}
 
+
+{% block title %}Add a user{% endblock %}
+{% block pagetitle %}New user{% endblock %} 
+
+{% block subtitle %}<small>A new user in town?</small>{% endblock %} 
+
 {% block fos_user_content %}
 {% trans_default_domain 'FOSUserBundle' %}
 <div class="box box-primary">
@@ -8,10 +14,19 @@
 			</div>
 {{ form_start(form, {'method': 'post', 'action': path('user.add'), 'attr': {'class': 'fos_user_registration_register'}}) }}
     <div class="box-body">
-    	{{ form_widget(form) }}
+    	<div class="col-md-6">
+	    	{{ form_row(form.username) }}
+	    	{{ form_row(form.email) }}
+	    	{{ form_row(form.plainPassword) }}
+	    	{{ form_row(form.circles) }}
+	    	{{ form_row(form.expiresAt) }}
+    	</div>
+    	<div class="col-md-6">
+	    	{{ form_row(form.roles) }}
+    	</div>
     </div>
     <div class="box-footer">
-        <input type="submit" value="{{ 'registration.submit'|trans }}" />
+	    	{{ form_row(form.create) }}
     </div>
 {{ form_end(form) }}
 </div>

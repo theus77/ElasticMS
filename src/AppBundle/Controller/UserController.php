@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\HttpFoundation\Request;
+use AppBundle\Form\Field\SubmitEmsType;
 
 class UserController extends Controller
 {
@@ -38,8 +39,8 @@ class UserController extends Controller
 	{
 		$user = new User();
 		$form = $this->createFormBuilder($user)
-		->add('email', LegacyFormHelper::getType('Symfony\Component\Form\Extension\Core\Type\EmailType'), array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
 		->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
+		->add('email', LegacyFormHelper::getType('Symfony\Component\Form\Extension\Core\Type\EmailType'), array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
 		->add('plainPassword', LegacyFormHelper::getType('Symfony\Component\Form\Extension\Core\Type\RepeatedType'), array(
 				'type' => LegacyFormHelper::getType('Symfony\Component\Form\Extension\Core\Type\PasswordType'),
 				'options' => array('translation_domain' => 'FOSUserBundle'),
@@ -52,20 +53,21 @@ class UserController extends Controller
    				'widget' => 'single_text',
 				'format' => 'd/M/y',
  				'html5' => FALSE,
-				'attr' => array('class' => 'datepicker',
- 					'data-date-format' => 'dd/mm/yyyy',
-					'data-today-highlight' => FALSE,
-					'data-week-start' => 1,
-					'data-days-of-week-highlighted' => '',
-					'data-days-of-week-disabled' => '',
-					'data-multidate' => FALSE
+				'attr' => array(
+						'class' => 'datepicker',
 				),
 		))
 		->add('roles', ChoiceType::class, array('choices' => $this->getExistingRoles(),
-        'label' => 'Roles',
-        'expanded' => true,
-        'multiple' => true,
-        'mapped' => true,))
+	        'label' => 'Roles',
+	        'expanded' => true,
+	        'multiple' => true,
+	        'mapped' => true,))
+	    ->add ( 'create', SubmitEmsType::class, [ 
+				'attr' => [ 
+						'class' => 'btn-primary btn-sm ' 
+				],
+				'icon' => 'fa fa-plus',
+		] )
 		->getForm();
 		
 		$form->handleRequest($request);
@@ -109,7 +111,11 @@ class UserController extends Controller
 	
 		$form = $this->createFormBuilder($user)
 		->add('email', LegacyFormHelper::getType('Symfony\Component\Form\Extension\Core\Type\EmailType'), array('label' => 'form.email', 'translation_domain' => 'FOSUserBundle'))
-		->add('username', null, array('label' => 'form.username', 'translation_domain' => 'FOSUserBundle'))
+		->add('username', null, array(
+				'label' => 'form.username', 
+				'translation_domain' => 'FOSUserBundle',
+				'disabled' => true
+		))
 		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))
 		->add('enabled')
 		->add('locked')
@@ -122,17 +128,23 @@ class UserController extends Controller
  					'data-date-format' => 'dd/mm/yyyy',
 					'data-today-highlight' => FALSE,
 					'data-week-start' => 1,
-					'data-days-of-week-highlighted' => '',
-					'data-days-of-week-disabled' => '',
+					'data-days-of-week-highlighted' => true,
+					'data-days-of-week-disabled' => false,
 					'data-multidate' => FALSE,
 					
 				),
 		))
 		->add('roles', ChoiceType::class, array('choices' => $this->getExistingRoles(),
-        'label' => 'Roles',
-        'expanded' => true,
-        'multiple' => true,
-        'mapped' => true,))
+	        'label' => 'Roles',
+	        'expanded' => true,
+	        'multiple' => true,
+	        'mapped' => true,))
+	    ->add ( 'update', SubmitEmsType::class, [ 
+				'attr' => [ 
+						'class' => 'btn-primary btn-sm ' 
+				],
+				'icon' => 'fa fa-save',
+		] )
 		->getForm();
 		
 		$form->handleRequest($request);
