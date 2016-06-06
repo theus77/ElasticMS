@@ -199,8 +199,8 @@ function addEventListeners(target){
 	});
 	
 	target.find(".objectpicker").each(function(index){
-		environment = $( this ).data('environment'); 
-		type = $( this ).data('type'); 
+		var environment = $( this ).data('environment'); 
+		var type = $( this ).data('type'); 
 
 	   	$( this ).select2({
 			ajax: {
