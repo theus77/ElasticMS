@@ -552,7 +552,6 @@ class ContentTypeController extends AppController {
 		if(array_key_exists('reorder', $formArray)){
 			$keys = array_keys($formArray);
 			/** @var FieldType $child */
-			dump($keys);
 			foreach ($fieldType->getChildren() as $child){
 				if(! $child->getDeleted() ){
 					$child->setOrderKey(array_search('ems_'.$child->getName(), $keys));
