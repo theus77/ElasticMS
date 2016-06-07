@@ -366,8 +366,8 @@ th {
 }
 @font-face {
   font-family: 'Glyphicons Halflings';
-  src: url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.eot?1448406395);
-  src: url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.eot?&1448406395#iefix) format("embedded-opentype"), url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.woff2?1448406395) format("woff2"), url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.woff?1448406395) format("woff"), url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.ttf?1448406395) format("truetype"), url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.svg?1448406395#glyphicons_halflingsregular) format("svg");
+  src: url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.eot?1461616077);
+  src: url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.eot?&1461616077#iefix) format("embedded-opentype"), url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.woff2?1461616077) format("woff2"), url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.woff?1461616077) format("woff"), url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.ttf?1461616077) format("truetype"), url(../bower/bootstrap-sass/assets/fonts/bootstrap/glyphicons-halflings-regular.svg?1461616077#glyphicons_halflingsregular) format("svg");
 }
 /* line 24, ../../../../../../Library/Ruby/Gems/2.0.0/gems/bootstrap-sass-3.3.6/assets/stylesheets/bootstrap/_glyphicons.scss */
 .glyphicon {
@@ -8816,9 +8816,11 @@ span.entity, i.entity {
   font-size: 1.5em;
 }
 
-/* line 14, ../../sass/_bootstrap_fix.scss */
+/* align select2 container to bootstrap height */
+/* line 15, ../../sass/_bootstrap_fix.scss */
 span.select2-container {
   height: 34px;
+  width: 100% !important;
 }
 
 /*!
