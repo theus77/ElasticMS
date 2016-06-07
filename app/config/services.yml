@@ -240,3 +240,8 @@ services:
         arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
         tags:
             -  { name: console.command }
+    ems.environment.delete:
+        class: AppBundle\Command\DeleteCommand
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        tags:
+            -  { name: console.command }

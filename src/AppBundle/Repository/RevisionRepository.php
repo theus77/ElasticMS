@@ -29,7 +29,15 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		return $qb->getQuery()->getResult();
 	}
 
-
+	public function countByContentType(ContentType $contentType) {
+		return $this->createQueryBuilder('a')
+		->select('COUNT(a)')
+		->where('a.contentType = :contentType')
+		->setParameter('contentType', $contentType)
+		->getQuery()
+		->getSingleScalarResult();
+	}
+	
 	public function getAllRevisionsSummary($ouuid, ContentType $contentType) {
 	
 		$qb = $this->createQueryBuilder('r');
