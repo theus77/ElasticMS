@@ -107,7 +107,7 @@ use AppBundle\Repository\ContentTypeRepository;
 			
 			$contentTypes = $repository->findAllAsAssociativeArray();
 			
-			$choices = [];
+			$choices = ['Other' => []];
 			foreach ($result['hits']['hits'] as $item){
 				if(isset($contentTypes[ $item['_type']])){
 					$contentType = $contentTypes[ $item['_type']];
@@ -121,7 +121,15 @@ use AppBundle\Repository\ContentTypeRepository;
 						$label = $key;
 					}
 					
-					$choices[ $label ] = $key;					
+					if(null !== $contentType->getCategoryField() && isset($item['_source'][$contentType->getCategoryField()])){
+						if(!isset($choices[$item['_source'][$contentType->getCategoryField()]])){
+							$choices[$item['_source'][$contentType->getCategoryField()]] = [];
+						}
+						$choices[$item['_source'][$contentType->getCategoryField()]][$label] = $key;
+					}
+					else {
+						$choices['Other'][$label] = $key;											
+					}
 				}
 			}
 			
