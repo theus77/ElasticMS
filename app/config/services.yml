@@ -73,6 +73,8 @@ services:
         class: AppBundle\Form\DataField\DataLinkFieldType
         calls:
             - [setAuthorizationChecker, ['@security.authorization_checker']]
+            - [setClient, ['@app.elasticsearch']]
+            - [setEntityManager, ['@doctrine']]
         tags:
             - { name: ems.form.datafieldtype, alias: datalink }
             - { name: form.type }
