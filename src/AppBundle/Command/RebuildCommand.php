@@ -7,16 +7,17 @@ use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
 use AppBundle\Entity\Environment;
 use AppBundle\Repository\JobRepository;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
+use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Elasticsearch\Client;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Monolog\Logger;
 
 class RebuildCommand extends ContainerAwareCommand
 {
@@ -158,7 +159,8 @@ class RebuildCommand extends ContainerAwareCommand
     		];
     		$this->client->indices ()->updateAliases ( $params );
     	}
-    	catch(Missing404Exception $e){
+    	catch(\Exception $e){ //TODO why does Elasticsearch\Common\Exceptions\Missing404Exception is not catched?
+    		
     		if(!$newEnv){
     			$output->writeln ( 'WARNING : Alias '.$alias.' not found' );
     		}
