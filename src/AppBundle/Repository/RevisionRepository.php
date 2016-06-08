@@ -45,7 +45,7 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		$qb->leftJoin('r.environments', 'e');
 		$qb->where($qb->expr()->eq('r.ouuid', ':ouuid'));
 		$qb->andWhere($qb->expr()->eq('r.contentType', ':contentType'));
-		$qb->orderBy('r.startTime', 'ASC');
+		$qb->orderBy('r.created', 'ASC');
 		$qb->setParameter('ouuid', $ouuid);
 		$qb->setParameter('contentType', $contentType);
 	

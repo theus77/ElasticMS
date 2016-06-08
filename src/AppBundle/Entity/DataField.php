@@ -125,16 +125,27 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     	}
     }
     
+    private function initChild(DataField $child, $offset){
+    	$child->setParent($this);
+    	$child->updateDataStructure($this->getFieldType());
+    	$child->setRevisionIdRecursively($this->getRevisionId());
+    	$child->setOrderKey($offset);
+    	$child->setChildrenFieldType($this->fieldType);
+    }
+    
     public function offsetSet($offset, $value) {
+    	$this->initChild($value, $offset);
     	/** @var DataField $value */
-    	$value->setParent($this);
-    	$value->setRevisionIdRecursively($this->getRevisionId());
-    	$value->setOrderKey($offset);
-    	$value->setChildrenFieldType($this->fieldType);
     	return $this->children->offsetSet($offset, $value);
     }
     
     public function offsetExists($offset) {
+		if((is_int($offset) || ctype_digit($offset)) && !$this->children->offsetExists($offset) && $this->fieldType !== null && $this->fieldType->getChildren()->count() > 0){
+			$value = new DataField();
+	    	$this->initChild($value, $offset);
+	    	$this->children->offsetSet($offset, $value);
+	    	return true;
+		}
     	return $this->children->offsetExists($offset);
     }
     
@@ -143,7 +154,10 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     }
     
     public function offsetGet($offset) {
-    	return $this->children->offsetGet($offset);
+    	$value = $this->children->offsetGet($offset);
+    	$this->initChild($value, $offset);
+    	
+    	return $value;
     }   
     
     
@@ -265,12 +279,25 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     		$key = substr($key, 4);
     	}
     	
-    	if($input instanceof DataField){
+    	
+    	
+    	if($input === null || $input instanceof DataField){
 	    	$found = false;
-	    	/** @var DataField $input */
-	    	$input->setParent($this);
-	    	$input->setRevisionId($this->getRevisionId());
+	    	if($input !== null){
+		    	/** @var DataField $input */
+		    	$input->setParent($this);
+		    	$input->setRevisionId($this->getRevisionId());	    		
+	    	}
 	    	
+	    	if(null === $this->getFieldType()){
+	    		if(NULL === $this->getParent()){
+					dump($this);
+	    			throw new \Exception('null parent !!!!!! '.$key);
+	    		}
+	    		else{
+		    		$this->updateDataStructure($this->getParent()->getFieldType());	    			
+	    		}
+	    	}
 	    	
 	    	/** @var DataField $dataField */
 	    	foreach ($this->children as &$dataField){
@@ -280,8 +307,8 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    			break;
 	    		}
 	    	}
-	    	if(! $found){    		
-		    	$this->children->add($input);
+	    	if(! $found){    
+	    		throw new \Exception('__set an unknow kind of field '.$key);
 	    	}    		
     	}
     	else {
@@ -305,9 +332,15 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     public function updateDataStructure(FieldType $meta){
     
     	//no need to generate the structure for subfields (
-    	$type = $this->getFieldType()->getType();
-    	$datFieldType = new $type;
-    	if($datFieldType->isContainer()){
+    	$isContainer = true;
+    	
+    	if(null !== $this->getFieldType()){
+	    	$type = $this->getFieldType()->getType();
+	    	$datFieldType = new $type;    	
+	    	$isContainer = $datFieldType->isContainer();
+    	}
+    	
+    	if($isContainer){
     		/** @var FieldType $field */
     		foreach ($meta->getChildren() as $field){
     			//no need to generate the structure for delete field
@@ -417,7 +450,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 			$value = new DataValue ();
 			$this->dataValues->set ( 0, $value );
 		}
-		$value->setTextValue ( $textValue );
+		$value->setTextValue ( (string) $textValue );
 		$value->setIndexKey(0);
 		$value->setDataField($this);
 		
@@ -580,7 +613,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 				$data->setDataField($this);
 				$this->addDataValue($data);				
 			}
-			$data->setTextValue($textValue);
+			$data->setTextValue((string)$textValue);
 			++$count;
 			
 		}

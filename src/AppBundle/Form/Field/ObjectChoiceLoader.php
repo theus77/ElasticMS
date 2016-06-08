@@ -24,6 +24,13 @@ class ObjectChoiceLoader implements ChoiceLoaderInterface {
 	/**
      * {@inheritdoc}
      */
+    public function loadAllChoices($index, $type){
+		$this->objectChoiceList->loadAllChoices($index, $type);
+	}
+
+	/**
+     * {@inheritdoc}
+     */
     public function loadChoicesForValues(array $values, $value = null){
 		$this->objectChoiceList->loadChoices($values);
 		return $values;

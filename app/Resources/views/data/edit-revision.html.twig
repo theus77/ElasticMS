@@ -201,9 +201,18 @@ function addEventListeners(target){
 	target.find(".objectpicker").each(function(index){
 		var environment = $( this ).data('environment'); 
 		var type = $( this ).data('type'); 
+		var dynamicLoading = $( this ).data('dynamic-loading'); 
 
-	   	$( this ).select2({
-			ajax: {
+		var params = {
+		  	escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+		  	templateResult: formatRepo, // omitted for brevity, see the source of this page
+		  	templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
+		};
+
+
+		if(dynamicLoading){
+		  	params.minimumInputLength = 1,
+			params.ajax = {
 				url: '{{ url("elasticsearch.api.search") }}',
 		    	dataType: 'json',
 		    	delay: 250,
@@ -230,12 +239,10 @@ function addEventListeners(target){
 			      	};
 		    	},
 		    	cache: true
-		  	},
-		  	escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-		  	minimumInputLength: 1,
-		  	templateResult: formatRepo, // omitted for brevity, see the source of this page
-		  	templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
-		});
+		  	};
+		}
+		
+		$( this ).select2(params);
     });	
     
 	target.find(".colorpicker-component").colorpicker();
@@ -252,7 +259,7 @@ function addEventListeners(target){
 		};
 
 		var defaultTime = $( this ).data('default-time');
-		console.log( defaultTime !== false );
+		//console.log( defaultTime !== false );
 		if(defaultTime !== false) {
 			if(defaultTime){
 				settings.defaultTime = defaultTime;
@@ -261,9 +268,9 @@ function addEventListeners(target){
 				settings.defaultTime = false;
 			}
 		}
-		console.log($( this ).val());
+		//console.log($( this ).val());
 
-		console.log(settings);
+		//console.log(settings);
 		$( this ).timepicker(settings);
 
 		

@@ -228,7 +228,11 @@
 <div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
 	<div class="panel panel-default collection-panel" 
 		data-prototype="{{ form_row(attribute(form, form.vars.name).vars.prototype)|e }}"
-		data-index="{{ attribute(form, form.vars.name)|length }}">
+		{% if (attribute(form, form.vars.name)|last).vars is defined  %}
+			data-index="{{ (attribute(form, form.vars.name)|last).vars.name + 1 }}"
+		{% else %}
+			data-index="0"
+		{% endif %}>
 		<div class="panel-heading">
 	  		{{- form_label(form) -}}
 	  		<div class="btn-group pull-right">

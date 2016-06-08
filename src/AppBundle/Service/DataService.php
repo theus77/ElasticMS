@@ -38,6 +38,8 @@ class DataService
 	/**@var Mapping $mapping*/
 	protected $mapping;
 	protected $instanceId;
+	protected $em;
+	protected $revRepository;
 	
 	public function __construct(
 			Registry $doctrine, 
@@ -57,6 +59,8 @@ class DataService
 		$this->client = $client;
 		$this->mapping = $mapping;
 		$this->instanceId = $instanceId;
+		$this->em = $this->doctrine->getManager();
+		$this->revRepository = $this->em->getRepository('AppBundle:Revision');
 	}
 	
 	
@@ -81,6 +85,9 @@ class DataService
 		}
 		//TODO: test circles
 		
+		
+		$this->revRepository->lockRevision($revision->getId(), $lockerUsername, new \DateTime($this->lockTime));
+		
 		$revision->setLockBy($lockerUsername);
 		if($username){
 			//lock by a console script
@@ -91,7 +98,6 @@ class DataService
 		}
 		$revision->setStartTime($now);
 		
-		$em->persist($revision);
 		$em->flush();
 	}
 	

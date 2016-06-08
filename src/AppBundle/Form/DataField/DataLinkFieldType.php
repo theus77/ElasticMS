@@ -25,8 +25,7 @@ use AppBundle\Repository\ContentTypeRepository;
 
  	/**@var Client $client*/
  	private $client;
- 	/**@var EntityManager $em*/
- 	private $em;
+	private $contentTypes;
  	
 	/**
 	 *
@@ -68,7 +67,8 @@ use AppBundle\Repository\ContentTypeRepository;
 	}
 	
 	public function setEntityManager($doctrine){
-		$this->em = $doctrine->getManager();
+			
+		$this->contentTypes = $doctrine->getManager()->getRepository('AppBundle:ContentType')->findAllAsAssociativeArray();
 	}
 	
 	/**
@@ -81,68 +81,15 @@ use AppBundle\Repository\ContentTypeRepository;
 		/** @var FieldType $fieldType */
 		$fieldType = $options ['metadata'];
 		
-		
-		if($options['dynamicLoading']){
 			$builder->add ( $options['multiple']?'array_text_value':'text_value', ObjectPickerType::class, [
 					'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 					'required' => false,
 					'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 					'multiple' => $options['multiple'],
 					'type' => $options['type'],
+					'dynamicLoading' => $options['dynamicLoading'],
 					'environment' => $options['environment'],
-			] );				
-		}
-		else {
-			$params = ['size' => 500];
-			if ($options['type']) {
-				$params['type'] = $options['type'];
-			}
-			if ($options['environment']) {
-				$params['index'] = $options['environment'];
-			}
-			$result = $this->client->search($params);
-
-			/** @var ContentTypeRepository $repository */
-			$repository = $this->em->getRepository('AppBundle:ContentType');
-			
-			$contentTypes = $repository->findAllAsAssociativeArray();
-			
-			$choices = ['Other' => []];
-			foreach ($result['hits']['hits'] as $item){
-				if(isset($contentTypes[ $item['_type']])){
-					$contentType = $contentTypes[ $item['_type']];
-					$key = $item['_type'].':'.$item['_id'] ;
-					
-					//$label = '<i class="'.$contentType->getIcon().'"></i> ';
-					if(null !== $contentType->getLabelField() && isset($item['_source'][$contentType->getLabelField()])){
-						$label = $item['_source'][$contentType->getLabelField()]." (".$key.")";
-					}
-					else{
-						$label = $key;
-					}
-					
-					if(null !== $contentType->getCategoryField() && isset($item['_source'][$contentType->getCategoryField()])){
-						if(!isset($choices[$item['_source'][$contentType->getCategoryField()]])){
-							$choices[$item['_source'][$contentType->getCategoryField()]] = [];
-						}
-						$choices[$item['_source'][$contentType->getCategoryField()]][$label] = $key;
-					}
-					else {
-						$choices['Other'][$label] = $key;											
-					}
-				}
-			}
-			
-			$builder->add ( $options['multiple']?'array_text_value':'text_value', Select2Type::class, [
-					'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
-					'required' => false,
-					'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
-					'choices' => $choices,
-					'empty_data'  => null,
-					'multiple' => $options['multiple'],
-					'expanded' => false,
-			] );			
-		}
+			] );	
 		
 		
 	}

@@ -222,6 +222,20 @@ class ContentType
     /**
      * @var int
      *
+     * @ORM\Column(name="create_role", type="string", length=100, nullable=true)
+     */
+    private $createRole;
+    
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="edit_role", type="string", length=100, nullable=true)
+     */
+    private $editRole;
+    
+    /**
+     * @var int
+     *
      * @ORM\Column(name="orderKey", type="integer")
      */
     private $orderKey;
@@ -1194,5 +1208,53 @@ class ContentType
     public function getEmailField()
     {
         return $this->emailField;
+    }
+
+    /**
+     * Set createRole
+     *
+     * @param string $createRole
+     *
+     * @return ContentType
+     */
+    public function setCreateRole($createRole)
+    {
+        $this->createRole = $createRole;
+
+        return $this;
+    }
+
+    /**
+     * Get createRole
+     *
+     * @return string
+     */
+    public function getCreateRole()
+    {
+        return $this->createRole;
+    }
+
+    /**
+     * Set editRole
+     *
+     * @param string $editRole
+     *
+     * @return ContentType
+     */
+    public function setEditRole($editRole)
+    {
+        $this->editRole = $editRole;
+
+        return $this;
+    }
+
+    /**
+     * Get editRole
+     *
+     * @return string
+     */
+    public function getEditRole()
+    {
+        return $this->editRole;
     }
 }
