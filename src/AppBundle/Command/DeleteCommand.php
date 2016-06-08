@@ -86,6 +86,16 @@ class DeleteCommand extends ContainerAwareCommand
 				$output->writeln($counter. ' documents have been deleted so far');
 			}
 			
+		} else {
+			$contentType = $ctRepo->findOneBy([
+					'name' => $name, 
+					'deleted'=> 1
+			]);
+			if($contentType){
+				$output->writeln("Content type ".$name." already empty");
+			} else {
+				$output->writeln("Content type ".$name." not found");
+			}
 		}
 		
 		
