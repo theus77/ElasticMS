@@ -549,6 +549,8 @@ class DataController extends AppController
 		
 		$form = $this->createForm(RevisionType::class, $revision);
 		$form->handleRequest($request);
+		//$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
+		//dump($objectArray);
 		
 		if( $form->isValid() ){
 			/** @var Revision $revision */
@@ -580,6 +582,7 @@ class DataController extends AppController
 	public function editRevisionAction($revisionId, Request $request)
 	{
 		$em = $this->getDoctrine()->getManager();
+		$logger = $this->get('logger');
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
@@ -591,7 +594,7 @@ class DataController extends AppController
 		}
 
 		$this->lockRevision($revision);
-		
+		$logger->debug('Revision '.$revisionId.' locked');
 		
 		//Update the data structure
 		if(null != $revision->getContentType()->getFieldType()){
@@ -605,18 +608,34 @@ class DataController extends AppController
 			
 			$revision->getDataField()->updateDataStructure($revision->getContentType()->getFieldType());
 
+
+			$logger->debug('Revision structure updated');
 		}
 
+		$logger->debug('Before revision create');
+		
 		$form = $this->createForm(RevisionType::class, $revision);
+
+		$logger->debug('Revision\'s form created');
 		
 		$form->handleRequest($request);
+
+		$logger->debug('Revision request form handled');
 		
 		if ($form->isSubmitted() && (array_key_exists('discard', $request->request->get('revision')) || $form->isValid() )) {
 			
 			/** @var Revision $revision */
 			$revision = $form->getData();
+			$this->get('logger')->debug('Revision extracted from the form');
+			
+			//$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
+			//dump($objectArray); 
+
+			$logger->debug('Revision before persist');
 			$em->persist($revision);
 			$em->flush();
+
+			$logger->debug('Revision after persist flush');
 			
 			if(array_key_exists('publish', $request->request->get('revision'))) {
 				
@@ -652,7 +671,8 @@ class DataController extends AppController
 			}
 				
 		}
-		
+
+		$logger->debug('Start twig rendering');
 		return $this->render( 'data/edit-revision.html.twig', [
 				'revision' =>  $revision,
 				'form' => $form->createView(),

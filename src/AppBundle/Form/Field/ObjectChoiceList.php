@@ -126,8 +126,19 @@ class ObjectChoiceList implements ChoiceListInterface {
 						if($listItem){
 							$this->choices[$choice] = $listItem	;								
 						}
+						else{
+							dump('dumpHasException: mot found');
+						}
 						
 					}
+					else{
+
+						dump("dumpHasException: unkoned type?");
+					}
+				}
+				else{
+
+					dump("dumpHasException: misformated object key : ".$choice);
 				}
 			}
 			else if (get_class($choice) === ObjectChoiceListItem::class){
