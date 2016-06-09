@@ -138,7 +138,11 @@
 				<ul>
 					{% for value in dataField.arrayTextValue %}
 						{% set path = value|split(':') %}
-						<li><a href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ value }}</a></li>
+						{% if path.1 is not defined %}
+              				<li class="bg-red color-palette">Not wel formated data link field: {{ value }}</li>
+						{% else %}
+  							<li><a href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ value }}</a></li>
+  						{% endif %}
 					{% endfor %}
 				</ul>
 			{% else %}

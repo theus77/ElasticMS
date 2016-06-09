@@ -5,14 +5,11 @@ namespace AppBundle\Form\DataField;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
 use AppBundle\Form\Field\ObjectPickerType;
-use AppBundle\Form\Field\Select2Type;
 use Elasticsearch\Client;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Doctrine\ORM\EntityManager;
-use AppBundle\Repository\ContentTypeRepository;
 												
 /**
  * Defined a Container content type.
@@ -25,8 +22,7 @@ use AppBundle\Repository\ContentTypeRepository;
 
  	/**@var Client $client*/
  	private $client;
-	private $contentTypes;
- 	
+	
 	/**
 	 *
 	 * {@inheritdoc}
@@ -64,11 +60,6 @@ use AppBundle\Repository\ContentTypeRepository;
 	
 	public function setClient(Client $client){
 		$this->client = $client;
-	}
-	
-	public function setEntityManager($doctrine){
-			
-		$this->contentTypes = $doctrine->getManager()->getRepository('AppBundle:ContentType')->findAllAsAssociativeArray();
 	}
 	
 	/**

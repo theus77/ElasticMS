@@ -74,7 +74,6 @@ services:
         calls:
             - [setAuthorizationChecker, ['@security.authorization_checker']]
             - [setClient, ['@app.elasticsearch']]
-            - [setEntityManager, ['@doctrine']]
         tags:
             - { name: ems.form.datafieldtype, alias: datalink }
             - { name: form.type }
@@ -229,7 +228,7 @@ services:
 ### command services ###
     ems.contenttype.migrate:
         class: AppBundle\Command\MigrateCommand
-        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container', '@ems.service.data']
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
         tags:
             -  { name: console.command }
     ems.environment.rebuild:

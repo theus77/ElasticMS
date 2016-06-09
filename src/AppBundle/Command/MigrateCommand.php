@@ -15,27 +15,26 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Monolog\Logger;
-use AppBundle\Service\DataService;
 use AppBundle\Exception\NotLockedException;
+use AppBundle\Repository\RevisionRepository;
+use AppBundle\Service\Mapping;
 
 class MigrateCommand extends ContainerAwareCommand
 {
-	protected  $client;
+	protected $client;
+	/**@var Mapping */
 	protected $mapping;
 	protected $doctrine;
 	protected $logger;
 	protected $container;
-	/**@var DataService $dataService*/
-	protected $dataService;
 	
-	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, $container, DataService $dataService)
+	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, $container)
 	{
 		$this->doctrine = $doctrine;
 		$this->logger = $logger;
 		$this->client = $client;
 		$this->mapping = $mapping;
 		$this->container = $container;
-		$this->dataService = $dataService;
 		parent::__construct();
 	}
 	
@@ -98,34 +97,92 @@ class MigrateCommand extends ContainerAwareCommand
 		]);
 		
 		$total = $arrayElasticsearchIndex["hits"]["total"];
-		for($from = 0; $from < $total; $from = $from + 50) {
+		/**@var EntityManager $em */
+		$em = $this->doctrine->getManager();
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository ( 'AppBundle:Revision' );
+		
+		for($from = 0; $from < $total; $from = $from + 10) {
+//		dump("----------------------------------AVANT search 10 ----------------------");
 			$arrayElasticsearchIndex = $this->client->search([
 					'index' => $elasticsearchIndex,
 					'type' => $contentTypeNameFrom,
-					'size' => 50,
+					'size' => 10,
 					'from' => $from
 			]);
 			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
 			foreach ($arrayElasticsearchIndex["hits"]["hits"] as $index => $value) {
+//				dump($value);
 				try{
-					$newRevision = $this->dataService->initNewDraft($contentTypeNameTo, $value["_id"], NULL, "SYSTEM_MIGRATE");
+					$newRevision = new Revision();
+					$newRevision->setContentType($contentTypeTo);
+					$newRevision->setDeleted(false);
+					$newRevision->setDraft(false);
+					$newRevision->setOuuid($value['_id']);
+					$newRevision->setLockBy("SYSTEM_MIGRATE");
+					$newRevision->setLockUntil(new \DateTime("+5 minutes"));
 					$data = new DataField();
 					$data->setFieldType($newRevision->getContentType()->getFieldType());
 					$data->setRevisionId($newRevision->getId());
 					$data->setOrderKey(0);//0==$newRevision->getContentType()->getFieldType()->getOrderKey()
-					$newRevision->setDataField($data);
-					
+					$newRevision->setDataField($data);					
 					$newRevision->getDataField()->updateDataStructure($newRevision->getContentType()->getFieldType());
-	
 					$data->updateDataValue($value["_source"]);
+					
+					$now = new \DateTime();
+					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
+					$newRevision->setStartTime($now);
+					
+					$em->persist($newRevision);
+//					dump($newRevision);
+					$object = $this->mapping->dataFieldToArray($newRevision->getDataField());
+// 					foreach ($newRevision->getDataField()->__get('ems_criteria') as $criteria){
+// 						$item = $criteria->__get('ems_nationalities');
+// 						$item->setParent(null);
+// // 						$item->setFieldType(null);
+// 						dump($item);
+// // 						foreach ($criteria->__get('ems_nationalities')){
+// // // 							if(!is_string($nationality) || strlen($nationality) <= 0){
+// // 								echo '>';//.$nationality."\n";
+								
+// // // 								echo $value['_id'];
+// // // 							}
+// // 						}
+// 						break;
+// 					}
+//  					dump($object);
+//  					dump($value['_id']);
+ 					
+//  					dump();
+					
+// 					var_dump($object);
+					
+
+					$this->client->index([
+							'index' => $contentTypeTo->getEnvironment()->getAlias(),
+							'type' => $contentTypeNameTo,
+							'id' => $value['_id'],
+							'body' => $object,
+					]);
+					
+					
+					
 					//Finalize draft
-					$newRevision = $this->dataService->finalizeDraft($newRevision, "SYSTEM_MIGRATE");
+		
+// 		dump("---------------------------------AVANT initNewDraft--------------------------");
+// 					$newRevision = $this->dataService->initNewDraft($contentTypeNameTo, $value["_id"], $newRevision, "SYSTEM_MIGRATE");
+// 		dump("------------------------------------APRES initNewDraft----------------------");
+		
+// 		dump("------------------------------------------AVANT finalizeDraft---------------------------");
+// 					$newRevision = $this->dataService->finalizeDraft($newRevision, "SYSTEM_MIGRATE", false);
+// 		dump("--------------------------------------APRES finalizeDraft-------------------------");
 					//TODO: Improvement : http://symfony.com/doc/current/components/console/helpers/progressbar.html
 					$output->write(".");
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");
 				}
+				$em->flush();
 			}
 		}
 		$output->writeln("\nMigration done");

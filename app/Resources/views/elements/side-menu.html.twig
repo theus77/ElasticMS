@@ -91,9 +91,9 @@
 	            	{% endif %}
 	            	{% if contentType.environment.managed %}
 	            	
-	            	{% if not contentType.createRole or is_granted(contentType.createRole) %}
+	            	{#{% if not contentType.createRole or is_granted(contentType.createRole) %}#}
 						<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
-					{% endif %}
+					{#{% endif %}#}
 	            	
 	            	
 	            	{% endif %}

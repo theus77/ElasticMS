@@ -107,7 +107,10 @@ class ObjectChoiceList implements ChoiceListInterface {
 		$this->choices = [];
 		foreach ($choices as $choice){
 			
-			if(is_string($choice)){
+			if(null == $choice){
+				//TODO: nothing to load for null. BUt is it normal to pass by?
+			}
+			else if(is_string($choice)){
 				if(strpos($choice, ':') !== false){
 					$ref = explode(':', $choice);
 					if(isset($this->contentTypes[$ref[0]])){
@@ -127,8 +130,11 @@ class ObjectChoiceList implements ChoiceListInterface {
 					}
 				}
 			}
-			else {
+			else if (get_class($choice) === ObjectChoiceListItem::class){
 				$this->choices[$choice->getKey()] = $choice;
+			}
+			else{
+				throw new \Exception('Unknow type of object choice list item: '.get_class($choice));
 			}
 		}
 	}
