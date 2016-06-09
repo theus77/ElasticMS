@@ -114,6 +114,13 @@ class Revision
      * @ORM\JoinTable(name="environment_revision")
      */
     private $environments;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="raw_data", type="json_array", nullable=true)
+     */
+    private $rawData;
     
     /**
      * @ORM\PrePersist
@@ -502,4 +509,28 @@ class Revision
         return $this->environments;
     }
 
+
+    /**
+     * Set rawData
+     *
+     * @param array $rawData
+     *
+     * @return Revision
+     */
+    public function setRawData($rawData)
+    {
+        $this->rawData = $rawData;
+
+        return $this;
+    }
+
+    /**
+     * Get rawData
+     *
+     * @return array
+     */
+    public function getRawData()
+    {
+        return $this->rawData;
+    }
 }
