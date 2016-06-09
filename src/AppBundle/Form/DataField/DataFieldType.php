@@ -71,19 +71,14 @@ abstract class DataFieldType extends AbstractType {
 		]);
 	}
 	/**
-     * Assign data in dataValues of the dataField based on the elastic index content ($sourceArray)
+     * Assign data of the dataField based on the elastic index content ($sourceArray)
      * 
 	 * @param DataField $dataField
 	 * @param unknown $sourceArray
 	 */
 	public function importData(DataField $dataField, $sourceArray) {
-		if(is_string($sourceArray)){
-			$sourceArray = [$sourceArray];
-		}
-		$dataField->prepareDataValues(count($sourceArray));
-		foreach ($sourceArray as $idx => $child){
-			$dataField->getDataValues()[$idx]->setTextValue($child);
-		}
+		
+		$dataField->setData($sourceArray);
 	}
 	
 	/**

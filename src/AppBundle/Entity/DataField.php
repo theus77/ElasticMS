@@ -2,16 +2,15 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Form\DataField\CollectionFieldType;
+use AppBundle\Form\DataField\DataFieldType;
 use AppBundle\Form\DataField\OuuidFieldType;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\PersistentCollection;
-use AppBundle\Form\DataField\CollectionFieldType;
-use AppBundle\Form\DataField\DateFieldType;
-use AppBundle\Form\DataField\DataFieldType;
-use AppBundle\Form\FieldType\FieldTypeType;
+use AppBundle\Exception\DataFormatException;
 
 /**
  * DataField
@@ -81,12 +80,13 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      * @ORM\OrderBy({"orderKey" = "ASC"})
      */
     private $children;
-    
+
     /**
-     * @ORM\OneToMany(targetEntity="DataValue", mappedBy="dataField", cascade={"persist", "remove"}, orphanRemoval=true)
-     * @ORM\OrderBy({"indexKey" = "ASC"})
+     * @var string
+     *
+     * @ORM\Column(name="raw_data", type="json_array", nullable=true)
      */
-    private $dataValues;
+    private $rawData;
 
     
     public function setChildrenFieldType(FieldType $fieldType){
@@ -103,25 +103,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    		}  		
 	    		$this->children->next();
     		}
-    	}
-    }
-
-
-    /*
-     * Ensure the the dataValue collection have the right number of elements
-     * typically called by setter function of DataFieldType forms
-     */
-    public function prepareDataValues($count) {
-    	
-    	while(count($this->dataValues) > $count){
-    		$this->dataValues->removeElement($this->dataValues->last());
-    	}
-    	
-    	while(count($this->dataValues) < $count){
-    		$value = new DataValue();
-    		$value->setDataField($this);
-    		$value->setIndexKey(count($this->dataValues));
-    		$this->dataValues->add($value);
     	}
     }
     
@@ -244,7 +225,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     public function __construct()
     {
     	$this->children = new \Doctrine\Common\Collections\ArrayCollection();
-    	$this->dataValues = new \Doctrine\Common\Collections\ArrayCollection();
     	
     	//TODO: should use the clone method
     	$a = func_get_args();
@@ -254,19 +234,13 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     		$ancestor = $a[0];
     		$this->fieldType = $ancestor->getFieldType();
     		$this->orderKey = $ancestor->orderKey;
+    		$this->rawData = $ancestor->rawData;
     		if($i >= 2 && $a[1] instanceof DataField){
     			$this->parent = $a[1];
     		}
     
     		foreach ($ancestor->getChildren() as $child){
     			$this->addChild(new DataField($child, $this));
-    		}
-    		
-    		foreach ($ancestor->dataValues as $value){
-    			/** @var \AppBundle\Entity\DataValue $newValue */
-    			$newValue = clone $value;
-    			$newValue->setDataField($this);
-    			$this->dataValues->add($newValue);
     		}
     	}/**/
     }
@@ -361,6 +335,8 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     		}
     	}
     }
+    
+    
     /**
      * Assign data in dataValues based on the elastic index content
      * 
@@ -443,17 +419,11 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return DataField
 	 */
-	public function setTextValue($textValue) {
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if (! $value) {
-			$value = new DataValue ();
-			$this->dataValues->set ( 0, $value );
-		}
-		$value->setTextValue ( (string) $textValue );
-		$value->setIndexKey(0);
-		$value->setDataField($this);
-		
+	public function setTextValue($rawData) {
+    	if($rawData !== null && !is_string($rawData)){
+    		throw new DataFormatException('String expected: '.print_r($rawData, true));
+    	}
+		$this->rawData = $rawData;
 		return $this;
 	}
 	
@@ -463,12 +433,14 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 * @return string
 	 */
 	public function getTextValue() {
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if (! $value) {
-			return null;
+		if(is_array($this->rawData) && count($this->rawData) === 0){
+			return null; //empty array means null/empty
 		}
-		return $value->getTextValue ();
+		
+    	if($this->rawData !== null && !is_string($this->rawData)){
+    		throw new DataFormatException('String expected: '.print_r($this->rawData, true)) ;
+    	}
+		return $this->rawData;
 	}
 	
 	/**
@@ -504,11 +476,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 */
 	public function setResetPasswordValue($resetPasswordValue) {
 		if (isset ( $resetPasswordValue ) && $resetPasswordValue) {
-			/** @var DataValue $value */
-			$value = $this->dataValues->get ( 0 );
-			if ($value) {
-				$value->setTextValue(null);
-			}
+			$this->setTextValue(null);
 		}
 		
 		return $this;
@@ -532,17 +500,11 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return DataField
 	 */
-	public function setFloatValue($floatValue) {
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if (! $value) {
-			$value = new DataValue ();
-			$this->dataValues->set ( 0, $value );
-		}
-		$value->setFloatValue( $floatValue );
-		$value->setIndexKey(0);
-		$value->setDataField($this);
-		
+	public function setFloatValue($rawData) {
+    	if($rawData !== null && !is_finite($rawData)){
+    		throw new DataFormatException('Float or double expected: '.print_r($rawData, true));
+    	}
+		$this->rawData = $rawData;
 		return $this;
 	}
 	
@@ -552,12 +514,14 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 * @return float
 	 */
 	public function getFloatValue() {
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if (! $value) {
-			return null;
+		if(is_array($this->rawData) && count($this->rawData) === 0){
+			return null; //empty array means null/empty
 		}
-		return $value->getFloatValue();
+		
+    	if($this->rawData !== null && !is_finite($this->rawData)){
+    		throw new DataFormatException('Float or double expected: '.print_r($this->rawData, true));
+    	}
+		return $this->rawData;
 	}
 	
 	
@@ -597,26 +561,21 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return DataField
 	 */
-	public function setArrayTextValue($arrayValue) {
-		
-		if( count($arrayValue) < $this->dataValues->count()){
-			for($i=count($arrayValue); $i < $this->dataValues->count(); ++$i){
-				$this->dataValues->get($i)->setTextValue(null);
-			}
+	public function setArrayTextValue($rawData) {
+		if($rawData === null){
+			$this->rawData = null;
 		}
-		$count = 0;
-		foreach ($arrayValue as $textValue) {
-			$data = $this->dataValues->get($count);
-			if(!isset($data)) {
-				$data = new DataValue();
-				$data->setIndexKey($count);
-				$data->setDataField($this);
-				$this->addDataValue($data);				
-			}
-			$data->setTextValue((string)$textValue);
-			++$count;
-			
-		}
+    	else if( !is_array($rawData)){
+    		throw new DataFormatException('Array expected: '.print_r($rawData, true));
+    	}
+    	else {
+	    	foreach ($rawData as $item){
+	    		if(!is_string($item)){
+	    			throw new DataFormatException('String expected: '.print_r($item, true));
+	    		}
+	    	}
+			$this->rawData = $rawData;    		
+    	}
 		return $this;
 	}
 	
@@ -626,15 +585,17 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 * @return string
 	 */
 	public function getArrayTextValue() {
-		$out = [];
-		/** @var DataValue $dataValue */
-		foreach ($this->dataValues as $dataValue) {
-			if($dataValue->getTextValue() !== null){
-				$out[] = $dataValue->getTextValue();				
-			}
- 		}		
-
-		return $out;
+    	if($this->rawData !== null){
+    		if(!is_array($this->rawData)){
+    			throw new DataFormatException('Array expected: '.print_r($this->rawData, true));
+    		}
+	    	foreach ($this->rawData as $item){
+	    		if(!is_string($item)){
+	    			throw new DataFormatException('String expected: '.print_r($item, true));
+	    		}
+	    	}
+    	}
+		return $this->rawData;
 	}
 	
 	/**
@@ -643,14 +604,14 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 * @return integer
 	 */
 	public function getIntegerValue() {
-		
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if ($value) {
-			return $value->getIntegerValue();
+		if(is_array($this->rawData) && count($this->rawData) === 0){
+			return null; //empty array means null/empty
 		}
 		
-		return null;
+    	if($this->rawData !== null && !is_int($this->rawData)){
+    		throw new DataFormatException('Integer expected: '.print_r($this->rawData, true));
+    	}
+		return $this->rawData;
 	}
 	
 	/**
@@ -660,17 +621,11 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 *
 	 * @return DataField
 	 */
-	public function setIntegerValue($integerValue) {
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if (! $value) {
-			$value = new DataValue ();
-			$this->dataValues->set ( 0, $value );
-		}
-		$value->setIntegerValue($integerValue);
-		$value->setIndexKey(0);
-		$value->setDataField($this);
-		
+	public function setIntegerValue($rawData) {
+    	if($rawData !== null && !is_int($rawData)){
+    		throw new DataFormatException('Integer expected: '.print_r($rawData, true));
+    	}
+		$this->rawData = $integerValue;
 		return $this;
 	}    
 	
@@ -680,15 +635,30 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 * @return boolean
 	 */
 	public function getBooleanValue() {
-		/** @var DataValue $value */
-		$value = $this->dataValues->get ( 0 );
-		if ($value) {
-			return $value->getIntegerValue() != 0;
+		if(is_array($this->rawData) && count($this->rawData) === 0){
+			return null; //empty array means null/empty
 		}
 		
-		return null;
-	}
+    	if($this->rawData !== null && !is_bool($this->rawData)){
+    		throw new DataFormatException('Boolean expected: '.print_r($this->rawData, true));
+    	}
+		return $this->rawData;
+	}    
 
+	public function getDateValues() {
+		$out = [];
+		if($this->rawData !== null){
+			if(!is_array($this->rawData)){
+				throw new DataFormatException('Array expected: '.print_r($this->rawData, true));
+			}
+			foreach ($this->rawData as $item){
+				/**@var \DateTime $converted*/
+				$out[] = \DateTime::createFromFormat(\DateTime::ISO8601, $item);
+			}
+		}
+		return $out;
+	}
+	
     /**
      * Set booleanValue
      *
@@ -696,18 +666,12 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      *
      * @return DataField
      */
-    public function setBooleanValue($booleanValue)
+    public function setBooleanValue($rawData)
     {
-
-    	/** @var DataValue $value */
-    	$value = $this->dataValues->get ( 0 );
-    	if (! $value) {
-    		$value = new DataValue ();
-    		$this->dataValues->set ( 0, $value );
+    	if($rawData !== null && !is_bool($rawData)){
+    		throw new DataFormatException('Boolean expected: '.$rawData);
     	}
-        $value->setIntegerValue($booleanValue?1:0);
-		$value->setIndexKey(0);
-		$value->setDataField($this);
+    	$this->rawData = $rawData;
 
         return $this;
     }
@@ -929,36 +893,26 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     }
 
     /**
-     * Add dataValue
+     * Set rawData
      *
-     * @param \AppBundle\Entity\DataValue $dataValue
+     * @param array $rawData
      *
      * @return DataField
      */
-    public function addDataValue(\AppBundle\Entity\DataValue $dataValue)
+    public function setRawData($rawData)
     {
-        $this->dataValues[] = $dataValue;
+        $this->rawData = $rawData;
 
         return $this;
     }
 
     /**
-     * Remove dataValue
+     * Get rawData
      *
-     * @param \AppBundle\Entity\DataValue $dataValue
+     * @return array
      */
-    public function removeDataValue(\AppBundle\Entity\DataValue $dataValue)
+    public function getRawData()
     {
-        $this->dataValues->removeElement($dataValue);
-    }
-
-    /**
-     * Get dataValues
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getDataValues()
-    {
-        return $this->dataValues;
+        return $this->rawData;
     }
 }

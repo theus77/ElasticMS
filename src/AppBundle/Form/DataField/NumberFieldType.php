@@ -36,8 +36,7 @@ class NumberFieldType extends DataFieldType {
 	 *
 	 */
 	public function importData(DataField $dataField, $sourceArray) {
-		$dataField->prepareDataValues(1);
-		$dataField->getDataValues()[0]->setFloatValue($sourceArray);
+		$dataField->setFloatValue($sourceArray);
 	}
 	
 	/**

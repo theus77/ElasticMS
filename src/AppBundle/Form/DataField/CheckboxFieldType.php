@@ -35,8 +35,7 @@ class CheckboxFieldType extends DataFieldType {
 	 *
 	 */
 	public function importData(DataField $dataField, $sourceArray) {
-		$dataField->prepareDataValues(1);
-		$dataField->getDataValues()[0]->setIntegerValue($sourceArray?1:0);
+		$dataField->setBooleanValue($sourceArray?true:false);
 	}
 	
 	/**

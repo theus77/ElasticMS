@@ -41,7 +41,6 @@ class TimeFieldType extends DataFieldType {
 		$format = $dataField->getFieldType()->getMappingOptions()['format'];	
 		$format = DateFieldType::convertJavaDateFormat($format);
 		
-		$dataField->prepareDataValues(1);
 		$dataField->getDataValues()[0]->setDateValue(\DateTime::createFromFormat($format, $sourceArray));
 	}
 	
@@ -73,11 +72,10 @@ class TimeFieldType extends DataFieldType {
 
 		$converted = \DateTime::createFromFormat($format, $input);
 		if($converted){
-			$dataField->prepareDataValues(1);
-			$dataField->getDataValues()->get(0)->setDateValue($converted);
+			$dataField->setRawData($converted->format(\DateTime::ISO8601));
 		}		
 		else {
-			$dataField->prepareDataValues(0);
+			$dataField->setRawData(null);
 		}
 	}
 
@@ -86,19 +84,19 @@ class TimeFieldType extends DataFieldType {
 	 *
 	 */
 	public function getDataValue(DataField &$dataField, array $options){
-		$format = $this->getFormat($options);
-	
-		$dates = [];
-		/** @var DataValue $dataValue */
-		foreach ($dataField->getDataValues() as $dataValue){
-			if($dataValue->getDateValue()) {
-				$dates[] = $dataValue->getDateValue()->format($format);				
+
+		if(null !== $dataField->getRawData()){
+
+			if(is_array($dataField->getRawData()) && count($dataField->getRawData()) === 0){
+				return null; //empty array means null/empty
 			}
+			
+			$format = $this->getFormat($options);
+			/**@var \DateTime $converted*/
+			$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $dataField->getRawData());
+			return $dateTime->format($format);
 		}
-		if(count($dates)){
-			$out = implode(',', $dates);			
-			return $out;
-		}
+		
 		return null;
 	}
 	
@@ -181,18 +179,12 @@ class TimeFieldType extends DataFieldType {
 			
 			$format = DateFieldType::convertJavaDateFormat($format);
 			
-			TimeFieldType::getFormat($data->getFieldType()->getOptions());
-			if(count($data->getDataValues()) == 1){
-				$out [$data->getFieldType ()->getName ()] = $data->getDataValues()->get(0)->getDateValue()->format($format);
+			if(null !== $data->getRawData() && (!is_array($data->getRawData()) || count($data->getRawData()) !== 0)){
+
+				/**@var \DateTime $converted*/
+				$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData());
+				$out [$data->getFieldType ()->getName ()] = $dateTime->format($format);
 			}
-			else if (count($data->getDataValues()) > 1){
-				$out [$data->getFieldType ()->getName ()] = [];
-				/** @var DataValue $date */
-				foreach ($data->getDataValues() as $date){
-					$out [$data->getFieldType ()->getName ()][] = $date->getDateValue()->format($format);					
-				}
-				
-			}	
 		}
 	}
 	

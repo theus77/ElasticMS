@@ -40,13 +40,14 @@ class DateFieldType extends DataFieldType {
 	public function getDataValue(DataField &$dataField, array $options){
 		
 		$format = DateFieldType::convertJavaDateFormat($options['displayOptions']['displayFormat']);
-		
-		$out = [];
+
 		$dates = [];
-		/** @var DataValue $dataValue */
-		foreach ($dataField->getDataValues() as $dataValue){
-			$dates[] = $dataValue->getDateValue()->format($format);
-			$out[] = $dataValue->getDateValue();
+		if(null !== $dataField->getRawData()){
+			foreach ($dataField->getRawData() as $dataValue){
+				/**@var \DateTime $converted*/
+				$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $dataValue);
+				$dates[] = $dateTime->format($format);
+			}			
 		}
 		return implode(',', $dates);
 	}
@@ -68,16 +69,14 @@ class DateFieldType extends DataFieldType {
 		$convertedDates = [];
 		
 		foreach ($dates as $idx => $date){
+			/**@var \DateTime $converted*/
 			$converted = \DateTime::createFromFormat($format, $date);
 			if($converted){
-				$convertedDates[] = $converted;
+				$convertedDates[] = $converted->format(\DateTime::ISO8601);
 			}
 		}
 		
-		$dataField->prepareDataValues(count($convertedDates));
-		foreach ($convertedDates as $idx => $date){
-			$dataField->getDataValues()->get($idx)->setDateValue($date);							
-		}
+		$dataField->setRawData($convertedDates);
 	}
 
 
@@ -104,11 +103,11 @@ class DateFieldType extends DataFieldType {
 		if(is_string($sourceArray)){
 			$sourceArray = [$sourceArray];
 		}
-		$dataField->prepareDataValues(count($sourceArray));
+		$data = [];
 		foreach ($sourceArray as $idx => $child){
-			$dataField->getDataValues()[$idx]->setDateValue(\DateTime::createFromFormat($format, $child));
+			$data[] = \DateTime::createFromFormat($format, $child);
 		}
-		
+		$dataField->setData($data);
 	}
 	
 	
@@ -173,20 +172,32 @@ class DateFieldType extends DataFieldType {
 	public static function buildObjectArray(DataField $data, array &$out) {
 		if (! $data->getFieldType()->getDeleted ()) {
 			$format = $data->getFieldType()->getMappingOptions()['format'];
+			$multidate = $data->getFieldType()->getDisplayOptions()['multidate'];
 			
 			$format = DateFieldType::convertJavaDateFormat($format);
 			
-			if(count($data->getDataValues()) == 1){
-				$out [$data->getFieldType ()->getName ()] = $data->getDataValues()->get(0)->getDateValue()->format($format);
+
+			if($multidate){
+				$dates = [];
+				if(null !== $data->getRawData()){
+					foreach ($data->getRawData() as $dataValue){
+						/**@var \DateTime $converted*/
+						$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $dataValue);
+						$dates[] = $dateTime->format($format);
+					}
+				}				
 			}
-			else if (count($data->getDataValues()) > 1){
-				$out [$data->getFieldType ()->getName ()] = [];
-				/** @var DataValue $date */
-				foreach ($data->getDataValues() as $date){
-					$out [$data->getFieldType ()->getName ()][] = $date->getDateValue()->format($format);					
+			else {
+				$dates = null;
+				if(null !== $data->getRawData() && count($data->getRawData()) >= 1){
+					/**@var \DateTime $converted*/
+					$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()[0]);
+					$dates = $dateTime->format($format);
 				}
+			}
+			
+			$out [$data->getFieldType ()->getName ()] = $dates;
 				
-			}	
 		}
 	}
 	

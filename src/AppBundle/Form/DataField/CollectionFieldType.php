@@ -7,12 +7,11 @@ use AppBundle\Entity\FieldType;
 use AppBundle\Form\Field\IconPickerType;
 use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use AppBundle\Entity\DataValue;
 
 /**
  * Defined a Container content type.

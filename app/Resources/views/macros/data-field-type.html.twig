@@ -372,10 +372,10 @@
 		</dt>
 		<dd>
 			<ul>
-				{% for value in dataField.dataValues %}
+				{% for value in dataField.dateValues %}
 					<li>
-						{{ value.dateValue|date(dataField.fieldType.displayOptions.displayFormat|convertJavaDateFormat) }}
-						({{ value.dateValue|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})
+						{{ value|date(dataField.fieldType.displayOptions.displayFormat|convertJavaDateFormat) }}
+						({{ value|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})
 					</li>
 				{% endfor %}
 			</ul>
@@ -393,10 +393,10 @@
 			{% endif %}
 		</dt>
 		<dd>
-			{% for value in dataField.dataValues %}
-				{{ value.dateValue|date(dataField.fieldType.options|getTimeFieldTimeFormat) }}
-				({{ value.dateValue|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})
-			{% endfor %}
+			{% if dataField.dataValue %}
+				{{ dataField.dataValue|date(dataField.fieldType.options|getTimeFieldTimeFormat) }}
+				({{ dataField.dataValue|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})
+			{% endif %}
 		</dd>
 	</dl>
 {% endmacro %}
