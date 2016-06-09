@@ -549,20 +549,15 @@ class DataController extends AppController
 		
 		$form = $this->createForm(RevisionType::class, $revision);
 		$form->handleRequest($request);
-		//$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
-		//dump($objectArray);
 		
 		if( $form->isValid() ){
 			/** @var Revision $revision */
 			$revision = $form->getData();
+			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
+			$revision->setRawData($objectArray);
+			
 			$em->persist($revision);
 			$em->flush();			
-		}
-		else{
-			foreach ($form->getErrors(true, true) as $error){
-				
-				//dump($error);
-			}
 		}
 		
 		return $this->render( 'data/ajax-revision.json.twig', [
@@ -628,9 +623,9 @@ class DataController extends AppController
 			$revision = $form->getData();
 			$this->get('logger')->debug('Revision extracted from the form');
 			
-			//$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
-			//dump($objectArray); 
-
+			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
+			$revision->setRawData($objectArray);
+			
 			$logger->debug('Revision before persist');
 			$em->persist($revision);
 			$em->flush();
