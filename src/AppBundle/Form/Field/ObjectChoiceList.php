@@ -15,6 +15,8 @@ class ObjectChoiceList implements ChoiceListInterface {
 	private $choices;
 	private $contentTypes;
 	private $loadAll;
+	private $index;
+	private $type;
 	
 	
 	public function __construct(Client $client, Registry $doctrine){
@@ -32,6 +34,7 @@ class ObjectChoiceList implements ChoiceListInterface {
      * {@inheritdoc}
      */
     public function getChoices(){
+    	$this->preLoad([]);
 		return $this->choices;
 	}
 	
@@ -75,25 +78,42 @@ class ObjectChoiceList implements ChoiceListInterface {
 		$this->loadChoices($choices);
 		return array_keys($this->choices);
 	}
+
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function setLoaderOptions($index, $type, $loadAll){
+		$this->index = $index;
+		$this->type = $type;
+		$this->loadAll = $loadAll;
+	}
 	
-	public function loadAllChoices($index, $type){
-		$params = [
-				'size' => 500
-		];
-		if(isset($index)){
-			$params['index'] = $index;
-		}
-		if(isset($type)){
-			$params['type'] = $type;
-		}
-		$items = $this->client->search($params);
-		
-		//TODO pagination sur toutes les pages
-		foreach ($items['hits']['hits'] as $hit){
-			$listItem = $this->decorate($hit);
-			if($listItem){
-				$this->choices[$listItem->getKey()] = $listItem	;								
+	
+	public function preLoad(array $choices){
+		if($this->loadAll){
+			$this->choices = [];
+			$params = [
+					'size' => 500
+			];
+			if(isset($this->index)){
+				$params['index'] = $this->index;
 			}
+			if(isset($this->type)){
+				$params['type'] = $this->type;
+			}
+			$items = $this->client->search($params);
+			
+			//TODO pagination sur toutes les pages
+			foreach ($items['hits']['hits'] as $hit){
+				$listItem = $this->decorate($hit);
+				if($listItem){
+					$this->choices[$listItem->getKey()] = $listItem	;								
+				}
+			}
+		}
+		else {
+			$this->loadChoices($choices);
 		}
 		
 	}

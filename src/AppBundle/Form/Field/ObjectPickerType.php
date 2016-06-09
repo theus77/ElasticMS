@@ -23,14 +23,7 @@ class ObjectPickerType extends Select2Type {
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-		if(!$options['dynamicLoading']){
-			$this->choiceLoader->loadAllChoices($options['environment'], $options['type']);
-			$options['choices'] = $this->choiceLoader->loadChoiceList()->getChoices();
-			$options['choice_loader'] = null;
-		}
-		else{
-			$options['choice_loader'] = $this->choiceLoader;
-		}
+    	$this->choiceLoader->setLoaderOptions($options['environment'], $options['type'], !$options['dynamicLoading']);
 		parent::buildForm ( $builder, $options );
 	}
 	
