@@ -72,11 +72,14 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 	
 
 	public function lockRevision($revisionId, $username,\DateTime $lockUntil) {
-// 		$qb = $this->createQueryBuilder('r')->update('r') 
-// 			->set('r.lock_by', $username) 
-// 			->set('r.lock_until', $lockUntil->format(\DateTime::ISO8601)) 
-// 			->where('r.id = ?1')->setParameter(1, $revisionId);
-// 		return $qb->getQuery()->execute();
+		$qb = $this->createQueryBuilder('r')->update() 
+			->set('r.lock_by', '?1') 
+			->set('r.lock_until', '?2') 
+			->where('r.id = ?3')
+			->setParameter(1, $username)
+			->setParameter(2, $lockUntil, \Doctrine\DBAL\Types\Type::DATETIME)
+			->setParameter(3, $revisionId);
+		return $qb->getQuery()->execute();
 	}
 
 	public function finaliseRevision(ContentType $contentType, $ouuid,\DateTime $now) {
