@@ -40,6 +40,8 @@ class DataService
 	protected $instanceId;
 	protected $em;
 	protected $revRepository;
+	/**@var Session $session*/
+	protected $session;
 	
 	public function __construct(
 			Registry $doctrine, 
@@ -49,7 +51,8 @@ class DataService
 			$lockTime, 
 			Client $client, 
 			Mapping $mapping, 
-			$instanceId)
+			$instanceId,
+			Session $session)
 	{
 		$this->twigExtension = $twigExtension;
 		$this->doctrine = $doctrine;
@@ -61,6 +64,7 @@ class DataService
 		$this->instanceId = $instanceId;
 		$this->em = $this->doctrine->getManager();
 		$this->revRepository = $this->em->getRepository('AppBundle:Revision');
+		$this->session = $session;
 	}
 	
 	
@@ -295,5 +299,36 @@ class DataService
 		$em->remove($revision);
 	
 		$em->flush();
+	}
+	
+	public function loadDataStructure(Revision $revision){
+
+		$data = new DataField();
+		$data->setFieldType($revision->getContentType()->getFieldType());
+		$data->setRevisionId($revision->getId());
+		$data->setOrderKey($revision->getContentType()->getFieldType()->getOrderKey());
+		$revision->setDataField($data);
+		$revision->getDataField()->updateDataStructure($revision->getContentType()->getFieldType());
+		$object = $revision->getRawData();
+		$data->updateDataValue($object);
+		if(count($object) > 0){
+			$html = DataService::arrayToHtml($object);
+			$this->session->getFlashBag()->add('warning', "Some data of this revision were not consumed by the content type:".$html);			
+		}
+	}
+	
+	public static function arrayToHtml(array $array){
+		$out = '<ul>';
+		foreach ($array as $id =>$item){
+			$out .= '<li>'.$id.':';
+			if(is_array($item)){
+				$out .= DataService::arrayToHtml($item);
+			}
+			else {
+				$out .= $item;
+			}
+			$out .= '</li>';
+		}
+		return $out.'</ul>';
 	}
 }

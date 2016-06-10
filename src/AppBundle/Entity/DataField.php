@@ -87,6 +87,9 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      * @ORM\Column(name="raw_data", type="json_array", nullable=true)
      */
     private $rawData;
+    
+    
+    private $messages;
 
     
     public function setChildrenFieldType(FieldType $fieldType){
@@ -225,6 +228,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     public function __construct()
     {
     	$this->children = new \Doctrine\Common\Collections\ArrayCollection();
+    	$this->messages = [];
     	
     	//TODO: should use the clone method
     	$a = func_get_args();
@@ -353,12 +357,11 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    	foreach ($this->children as $child){
 	    		$child->updateDataValue($elasticIndexDatas);
 	    	}
-    	} else {
+    	} 
+    	else {
     		if(isset($elasticIndexDatas[$fieldName])){
     			$dataFieldType->importData($this, $elasticIndexDatas[$fieldName]);
-    			if(is_array($elasticIndexDatas[$fieldName]) && count($elasticIndexDatas[$fieldName]) == 0){
-	    			unset($elasticIndexDatas[$fieldName]);    				
-    			}
+    			unset($elasticIndexDatas[$fieldName]);    				
     		}
     	}
     }
@@ -438,7 +441,11 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 		}
 		
     	if($this->rawData !== null && !is_string($this->rawData)){
-    		throw new DataFormatException('String expected: '.print_r($this->rawData, true)) ;
+			if(is_array($this->rawData) && count($this->rawData) == 1 && is_string($this->rawData[0])) {
+	    		$this->addMessage('String expected, single string in array instead');
+				return $this->rawData[0];
+			}
+			$this->addMessage('String expected from the DB: '.print_r($this->rawData, true));
     	}
 		return $this->rawData;
 	}
@@ -541,6 +548,16 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	
 
 
+	public function getMessages() {
+		return $this->messages;
+	}
+
+	public function addMessage($message) {
+		if(!in_array($message, $this->messages)){
+			$this->messages[] = $message;
+		}
+	}
+
 	/**
 	 * Get dataValue, the get of field is delegated to the corresponding fieldType class
 	 *
@@ -585,17 +602,20 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 * @return string
 	 */
 	public function getArrayTextValue() {
-    	if($this->rawData !== null){
-    		if(!is_array($this->rawData)){
-    			throw new DataFormatException('Array expected: '.print_r($this->rawData, true));
+    	$out = $this->rawData;
+    	if($out !== null){
+    		if(!is_array($out)){
+    			$this->addMessage('Array expected from the DB: '.print_r($this->rawData, true));
+    			return null;
     		}
-	    	foreach ($this->rawData as $item){
+	    	foreach ($out as $idx => $item){
 	    		if(!is_string($item)){
-	    			throw new DataFormatException('String expected: '.print_r($item, true));
+	    			$this->addMessage('String expected for the item '.$idx.' from the DB: '.print_r($this->rawData, true));
+	    			$out[$idx] = "";
 	    		}
 	    	}
     	}
-		return $this->rawData;
+		return $out;
 	}
 	
 	/**

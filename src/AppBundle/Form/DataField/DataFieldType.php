@@ -78,7 +78,7 @@ abstract class DataFieldType extends AbstractType {
 	 */
 	public function importData(DataField $dataField, $sourceArray) {
 		
-		$dataField->setData($sourceArray);
+		$dataField->setRawData($sourceArray);
 	}
 	
 	/**

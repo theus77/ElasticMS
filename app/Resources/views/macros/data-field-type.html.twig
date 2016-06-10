@@ -1,6 +1,24 @@
 
 {%  macro renderDataField(dataField) %}
 	{{ attribute(_self, dataField.fieldType.type|replace({'\\': '_'}), [dataField]) }}
+	{{ _self.messages(dataField) }}
+{% endmacro %}
+
+
+{%  macro messages(dataField) %}
+	{% if dataField.messages|length > 0 %}
+		<div class="callout callout-warning">
+			{% if dataField.messages|length == 1 %}
+	    		<p>{{ dataField.messages.0 }}</p>
+	    	{% else %}
+	    		<ul>
+	    		{% for message in dataField.messages %}
+	    			<li>{{ message }}</li>
+	    		{% endfor %}
+	    		</ul>
+	    	{% endif %}
+		</div>
+	{% endif %}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_CollectionFieldType(dataField) %}
@@ -43,6 +61,7 @@
 			{% endfor %}
 		</div>
 	</div>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_ContainerFieldType(dataField) %}
@@ -71,6 +90,7 @@
     		</div>
 		</div>
 	{% endif %}
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_NestedFieldType(dataField) %}
@@ -99,6 +119,7 @@
     		</div>
 		</div>
 	{% endif %}
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_TabsFieldType(dataField) %}
@@ -123,6 +144,7 @@
             </div>
             <!-- /.tab-content -->
          </div>  
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 
@@ -156,6 +178,7 @@
 		
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_SelectFieldType(dataField) %}
@@ -178,6 +201,7 @@
 		
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_OuuidFieldType(dataField) %}
@@ -189,6 +213,7 @@
 		{% endif %}
 		<dd>{{ dataField.textValue }}</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_TextStringFieldType(dataField) %}
@@ -201,6 +226,7 @@
 		
 		<dd>{{ dataField.textValue }}</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_TextareaFieldType(dataField) %}
@@ -220,6 +246,7 @@
 			</div>
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_WysiwygFieldType(dataField) %}
@@ -239,6 +266,7 @@
 			</div>
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_PasswordFieldType(dataField) %}
@@ -258,6 +286,7 @@
 			{% endif %}
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_EmailFieldType(dataField) %}
@@ -273,6 +302,7 @@
 			{{ dataField.textValue|raw }}
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_ColorPickerFieldType(dataField) %}
@@ -288,6 +318,7 @@
 			{{ dataField.textValue|raw }}
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 
@@ -306,6 +337,7 @@
 			{{ dataField.textValue|raw }}
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_ChoiceFieldType(dataField) %}
@@ -325,6 +357,7 @@
 			</ul>
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_CheckboxFieldType(dataField) %}
@@ -344,6 +377,7 @@
 			{% endif %}
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_NumberFieldType(dataField) %}
@@ -359,6 +393,7 @@
 			{{ dataField.floatValue }}
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_DateFieldType(dataField) %}
@@ -381,6 +416,7 @@
 			</ul>
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_TimeFieldType(dataField) %}
@@ -399,4 +435,5 @@
 			{% endif %}
 		</dd>
 	</dl>
+	{{ _self.messages(dataField) }}
 {% endmacro %}

@@ -152,7 +152,7 @@ class DataController extends AppController
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
 		
-		
+		/**@var Revision $revision */
 		if(!$revisionId) {
 			$revision = $repository->findOneBy([
 					'endTime' => null,
@@ -168,6 +168,8 @@ class DataController extends AppController
 		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType) {
 			throw new NotFoundHttpException('Revision not found');
 		}
+		
+		$this->get('ems.service.data')->loadDataStructure($revision);
 		
 		$revision->getDataField()->orderChildren();
 		

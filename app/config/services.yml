@@ -224,7 +224,7 @@ services:
         arguments: ['@ems.form.fieldtype.fieldtypetype']
     ems.service.data:
         class: AppBundle\Service\DataService
-        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%']
+        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session']
 ### command services ###
     ems.contenttype.migrate:
         class: AppBundle\Command\MigrateCommand
