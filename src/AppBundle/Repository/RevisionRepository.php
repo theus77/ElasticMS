@@ -97,6 +97,7 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 	public function insertRevision(ContentType $contentType, $ouuid,\DateTime $startTime, $rawData) {
 		$revision = new Revision();
 		$revision->setContentType($contentType);
+		$revision->addEnvironment($contentType->getEnvironment());
 		$revision->setOuuid($ouuid);
 		$revision->setStartTime($startTime);
 		$revision->setEndTime(null);
