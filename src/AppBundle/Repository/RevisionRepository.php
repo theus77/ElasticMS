@@ -94,4 +94,32 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		return $qb->getQuery()->execute();
 	
 	}
+	public function insertRevision(ContentType $contentType, $ouuid,\DateTime $startTime, $rawData) {
+		$revision = new Revision();
+		$revision->setContentType($contentType);
+		$revision->setOuuid($ouuid);
+		$revision->setStartTime($startTime);
+		$revision->setEndTime(null);
+		$revision->setRawData($rawData);
+		$revision->setDeleted(0);
+		$revision->setDraft(1);
+		$revision->setLockBy('SYSTEM_MIGRATE');
+		$revision->setLockUntil($startTime->add(new \DateInterval("PT5M")));//5 minutes
+		$revision->setRawData($rawData);
+		$this->getEntityManager()->persist($revision);
+		$this->getEntityManager()->flush($revision);
+		return $revision;
+	}
+	public function publishRevision(Revision $revision) {
+		$qb = $this->createQueryBuilder('r')->update()
+		->set('r.draft', 0)
+		->set('r.lockBy', "null")
+		->set('r.lockUntil', "null")
+		->set('r.endTime', "null")
+		->where('r.id = ?1')
+		->setParameter(1, $revision->getId());
+		
+		return $qb->getQuery()->execute();
+		
+	}
 }
