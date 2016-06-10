@@ -126,7 +126,7 @@
 		<div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
             	{% for child in dataField.children if not child.fieldType.deleted %}
-	              <li class="{% if loop.index == 1%}active{% endif %}"><a href="#item_{{ child.id}}__tab" data-toggle="tab" aria-expanded="false">
+	              <li class="{% if loop.index == 1%}active{% endif %}"><a href="#item_{{ loop.index }}__tab" data-toggle="tab" aria-expanded="false">
 	              {% if child.fieldType.displayOptions.label is defined %}
 						{{ child.fieldType.displayOptions.label }}
 					{% else %}
@@ -137,7 +137,7 @@
             </ul>
             <div class="tab-content">
             	{% for child in dataField.children if not child.fieldType.deleted %}
-	              <div class="tab-pane{% if loop.index == 1%} active{% endif %}" id="item_{{ child.id}}__tab">
+	              <div class="tab-pane{% if loop.index == 1%} active{% endif %}" id="item_{{ loop.index }}__tab">
 	              	{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
 	              </div>
               {% endfor %}

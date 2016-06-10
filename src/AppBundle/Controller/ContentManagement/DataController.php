@@ -535,19 +535,8 @@ class DataController extends AppController
 		if(!$revision) {
 			throw new NotFoundHttpException('Unknown revision');
 		}		
-		
-		if(null != $revision->getContentType()->getFieldType()){
-			if(null == $revision->getDataField()){
-				$data = new DataField();
-				$data->setFieldType($revision->getContentType()->getFieldType());
-				$data->setRevisionId($revision->getId());
-				$data->setOrderKey($revision->getContentType()->getFieldType()->getOrderKey());
-				$revision->setDataField($data);
-			}
-				
-			$revision->getDataField()->updateDataStructure($revision->getContentType()->getFieldType());
-		
-		}
+
+		$this->get('ems.service.data')->loadDataStructure($revision);
 		
 		$form = $this->createForm(RevisionType::class, $revision);
 		$form->handleRequest($request);
@@ -593,23 +582,10 @@ class DataController extends AppController
 		$this->lockRevision($revision);
 		$logger->debug('Revision '.$revisionId.' locked');
 		
-		//Update the data structure
-		if(null != $revision->getContentType()->getFieldType()){
-			if(null == $revision->getDataField()){
-				$data = new DataField();
-				$data->setFieldType($revision->getContentType()->getFieldType());
-				$data->setRevisionId($revision->getId());
-				$data->setOrderKey($revision->getContentType()->getFieldType()->getOrderKey());
-				$revision->setDataField($data);			
-			}
-			
-			$revision->getDataField()->updateDataStructure($revision->getContentType()->getFieldType());
+		
+		$this->get('ems.service.data')->loadDataStructure($revision);
 
-
-			$logger->debug('Revision structure updated');
-		}
-
-		$logger->debug('Before revision create');
+		$logger->debug('DataField structure generated');
 		
 		$form = $this->createForm(RevisionType::class, $revision);
 

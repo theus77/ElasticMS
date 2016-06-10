@@ -158,6 +158,8 @@ class MigrateCommand extends ContainerAwareCommand
 // 					unset($newRevision);
 // 					unset($object);
 // 					unset($arrayElasticsearchIndex);
+
+					//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");

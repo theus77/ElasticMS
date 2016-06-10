@@ -2,6 +2,7 @@
 
 namespace AppBundle\Entity;
 
+use AppBundle\Exception\DataFormatException;
 use AppBundle\Form\DataField\CollectionFieldType;
 use AppBundle\Form\DataField\DataFieldType;
 use AppBundle\Form\DataField\OuuidFieldType;
@@ -10,81 +11,37 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
-use AppBundle\Exception\DataFormatException;
 
 /**
  * DataField
  *
- * @ORM\Table(name="data_field")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\DataFieldRepository")
- * @ORM\HasLifecycleCallbacks()
  * @Assert\Callback({"Vendor\Package\Validator", "validate"})
  */
 class DataField implements \ArrayAccess, \IteratorAggregate
 {
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="integer")
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="AUTO")
-     */
-    private $id;
 
     /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="created", type="datetime")
-     */
-    private $created;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="modified", type="datetime")
-     */
-    private $modified;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="revision_id", type="integer", nullable=true)
-     */
-    private $revision_id;
-
-
-    /**
-     * @ORM\ManyToOne(targetEntity="FieldType")
-     * @ORM\JoinColumn(name="field_type_id", referencedColumnName="id")
+     * link to the linked FieldType
      */
     private $fieldType;
     
     
     /**
-     * @var int
-     *
-     * @ORM\Column(name="orderKey", type="integer")
+     * a retirer???
      */
     private $orderKey;
 
     /**
      * @var FieldType
-     *
-     * @ORM\ManyToOne(targetEntity="DataField", inversedBy="children", cascade={"persist"})
-     * @ORM\JoinColumn(name="parent_id", referencedColumnName="id")
      */
     private $parent;
     
     /**
-     * @ORM\OneToMany(targetEntity="DataField", mappedBy="parent", cascade={"persist", "remove"}, orphanRemoval=true)
-     * @ORM\OrderBy({"orderKey" = "ASC"})
      */
     private $children;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="raw_data", type="json_array", nullable=true)
+     * object
      */
     private $rawData;
     
@@ -329,7 +286,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     					$child->setFieldType($field);
     					$child->setOrderKey($field->getOrderKey());
     					$child->setParent($this);
-    					$child->setRevisionId($this->getRevisionId());
     					$this->addChild($child);
     				}
     				if( strcmp($field->getType(), CollectionFieldType::class) != 0 ) {

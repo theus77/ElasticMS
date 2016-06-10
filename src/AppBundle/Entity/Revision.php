@@ -52,11 +52,6 @@ class Revision
      */
     private $contentType;
     
-
-    /**
-     * @ORM\OneToOne(targetEntity="DataField", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(name="data_field_id", referencedColumnName="id")
-     */
     private $dataField;
     
     /**
@@ -159,6 +154,7 @@ class Revision
     			$this->draft = true;
     			$this->ouuid = $ancestor->ouuid;
     			$this->contentType = $ancestor->contentType;
+    			$this->rawData =  $ancestor->rawData;
     			$this->dataField = new DataField($ancestor->dataField);
     		}
     	}
