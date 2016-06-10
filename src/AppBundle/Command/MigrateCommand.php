@@ -85,6 +85,10 @@ class MigrateCommand extends ContainerAwareCommand
 			$output->writeln("<error>Content type not found</error>");
 			exit;
 		}
+    	if($contentTypeTo->getDirty()) {
+			$output->writeln("<error>Content type \"".$contentTypeNameTo."\" is dirty. Please clean it first</error>");
+			exit;
+		}
 		if(!$input->getOption('force') && strcmp($contentTypeTo->getEnvironment()->getAlias(), $elasticsearchIndex) === 0 && strcmp($contentTypeNameFrom, $contentTypeNameTo) === 0) {
 			$output->writeln("<error>You can not import a content type on himself</error>");
 			exit;
@@ -97,13 +101,8 @@ class MigrateCommand extends ContainerAwareCommand
 		]);
 		
 		$total = $arrayElasticsearchIndex["hits"]["total"];
-		/**@var EntityManager $em */
-		$em = $this->doctrine->getManager();
-		/** @var RevisionRepository $repository */
-		$repository = $em->getRepository ( 'AppBundle:Revision' );
 		
 		for($from = 0; $from < $total; $from = $from + 10) {
-//		dump("----------------------------------AVANT search 10 ----------------------");
 			$arrayElasticsearchIndex = $this->client->search([
 					'index' => $elasticsearchIndex,
 					'type' => $contentTypeNameFrom,
@@ -111,80 +110,61 @@ class MigrateCommand extends ContainerAwareCommand
 					'from' => $from
 			]);
 			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
+
+			/** @var RevisionRepository $repository */
+			$repository = $em->getRepository ( 'AppBundle:Revision' );
+
 			foreach ($arrayElasticsearchIndex["hits"]["hits"] as $index => $value) {
 //				dump($value);
 				try{
-					$newRevision = new Revision();
-					$newRevision->setContentType($contentTypeTo);
-					$newRevision->setDeleted(false);
-					$newRevision->setDraft(false);
-					$newRevision->setOuuid($value['_id']);
-					$newRevision->setLockBy("SYSTEM_MIGRATE");
-					$newRevision->setLockUntil(new \DateTime("+5 minutes"));
-					$data = new DataField();
-					$data->setFieldType($newRevision->getContentType()->getFieldType());
-					$data->setRevisionId($newRevision->getId());
-					$data->setOrderKey(0);//0==$newRevision->getContentType()->getFieldType()->getOrderKey()
-					$newRevision->setDataField($data);					
-					$newRevision->getDataField()->updateDataStructure($newRevision->getContentType()->getFieldType());
-					$data->updateDataValue($value["_source"]);
-					
 					$now = new \DateTime();
-					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
-					$newRevision->setStartTime($now);
 					
-					$em->persist($newRevision);
-//					dump($newRevision);
-					$object = $this->mapping->dataFieldToArray($newRevision->getDataField());
-// 					foreach ($newRevision->getDataField()->__get('ems_criteria') as $criteria){
-// 						$item = $criteria->__get('ems_nationalities');
-// 						$item->setParent(null);
-// // 						$item->setFieldType(null);
-// 						dump($item);
-// // 						foreach ($criteria->__get('ems_nationalities')){
-// // // 							if(!is_string($nationality) || strlen($nationality) <= 0){
-// // 								echo '>';//.$nationality."\n";
-								
-// // // 								echo $value['_id'];
-// // // 							}
-// // 						}
-// 						break;
-// 					}
-//  					dump($object);
-//  					dump($value['_id']);
- 					
-//  					dump();
+					$newRevision = $repository->insertRevision($contentTypeTo, $value['_id'], $now, $value['_source']);
+// 					$newRevision = new Revision();
+// 					$newRevision->setContentType($contentTypeTo);
+// 					$newRevision->setDeleted(false);
+// 					$newRevision->setDraft(true);
+// 					$newRevision->setOuuid($value['_id']);
+// 					$newRevision->setLockBy("SYSTEM_MIGRATE");
+// 					$newRevision->setLockUntil(new \DateTime("+5 minutes"));
 					
-// 					var_dump($object);
+
+// 					$data = new DataField();
+// 					$data->setFieldType($newRevision->getContentType()->getFieldType());
+// 					$data->setRevisionId($newRevision->getId());
+// 					$data->setOrderKey(0);//0==$newRevision->getContentType()->getFieldType()->getOrderKey()
+// 					$newRevision->setDataField($data);					
+// 					$newRevision->getDataField()->updateDataStructure($newRevision->getContentType()->getFieldType());
+// 					$data->updateDataValue($value["_source"]);
 					
+ 					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
+// 					$newRevision->setStartTime($now);
+					
+// 					$em->persist($newRevision);
+//					$object = $this->mapping->dataFieldToArray($newRevision->getDataField());
 
 					$this->client->index([
 							'index' => $contentTypeTo->getEnvironment()->getAlias(),
 							'type' => $contentTypeNameTo,
 							'id' => $value['_id'],
-							'body' => $object,
+							'body' => $value['_source'],
 					]);
-					
-					
-					
-					//Finalize draft
-		
-// 		dump("---------------------------------AVANT initNewDraft--------------------------");
-// 					$newRevision = $this->dataService->initNewDraft($contentTypeNameTo, $value["_id"], $newRevision, "SYSTEM_MIGRATE");
-// 		dump("------------------------------------APRES initNewDraft----------------------");
-		
-// 		dump("------------------------------------------AVANT finalizeDraft---------------------------");
-// 					$newRevision = $this->dataService->finalizeDraft($newRevision, "SYSTEM_MIGRATE", false);
-// 		dump("--------------------------------------APRES finalizeDraft-------------------------");
+					//TODO: Test if client->index OK
+					$repository->publishRevision($newRevision);
 					//TODO: Improvement : http://symfony.com/doc/current/components/console/helpers/progressbar.html
 					$output->write(".");
+// 					$em->flush($newRevision);
+// 					$em->clear($newRevision);
+// 					unset($newRevision);
+// 					unset($object);
+// 					unset($arrayElasticsearchIndex);
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");
 				}
-				$em->flush();
 			}
+			$repository->clear();
 		}
-		$output->writeln("\nMigration done");
+		$output->writeln("Migration done");
     }
 }
