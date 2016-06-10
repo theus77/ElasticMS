@@ -82,8 +82,11 @@ class DeleteCommand extends ContainerAwareCommand
 					++$counter;
 					$em->remove($revision);
 					$output->write('.');
-					$em->flush();
+					$em->flush($revision);
+					$em->clear($revision);
 				}
+				
+				unset($revisions);
 				$output->writeln("\n".$counter. ' documents have been deleted so far');
 			}
 			
