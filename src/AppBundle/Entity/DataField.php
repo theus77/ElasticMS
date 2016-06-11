@@ -315,7 +315,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    	}
     	} 
     	else {
-    		if(isset($elasticIndexDatas[$fieldName])){
+    		if(array_key_exists($fieldName, $elasticIndexDatas)){
     			$dataFieldType->importData($this, $elasticIndexDatas[$fieldName]);
     			unset($elasticIndexDatas[$fieldName]);    				
     		}

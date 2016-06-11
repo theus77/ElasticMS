@@ -47,7 +47,13 @@ class UserController extends Controller
 				'first_options' => array('label' => 'form.password'),
 				'second_options' => array('label' => 'form.password_confirmation'),
 				'invalid_message' => 'fos_user.password.mismatch',))
-		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))
+		->add('circles', ObjectPickerType::class, [
+				'multiple' => TRUE,
+				'environment' => $this->container->getParameter('circles_environment'),
+				'type' => $this->container->getParameter('circles_object'),
+				'dynamicLoading' => false
+				
+		])
 		->add('expiresAt', DateType::class, array(
 				'required' => FALSE,
    				'widget' => 'single_text',
@@ -116,7 +122,13 @@ class UserController extends Controller
 				'translation_domain' => 'FOSUserBundle',
 				'disabled' => true
 		))
-		->add('circles', ObjectPickerType::class, array('multiple' => TRUE))
+		->add('circles', ObjectPickerType::class, [
+				'multiple' => TRUE,
+				'environment' => $this->container->getParameter('circles_environment'),
+				'type' => $this->container->getParameter('circles_object'),
+				'dynamicLoading' => false
+				
+		])
 		->add('enabled')
 		->add('locked')
 		->add('expiresAt', DateType::class, array(

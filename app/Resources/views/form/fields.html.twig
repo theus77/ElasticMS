@@ -436,7 +436,7 @@
 			      		{% for child in form.vars.data.children if not child.deleted %}
 			      			<li class="list-group-item">
 			      				<i class="glyphicon glyphicon-move"></i> 
-			      				{{ child.name|humanize }}
+			      				{{ child.name }}
 			      				{{ form_row( attribute(attribute(form, 'ems_'~child.name), 'name')) }}
 			      			</li>
 			      		{% endfor %}

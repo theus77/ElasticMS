@@ -121,11 +121,11 @@ class DataService
 	
 		//TODO: test if draft and last version publish in
 			
-		$objectArray = $this->mapping->dataFieldToArray ($revision->getDataField());
+		$objectArray = $revision->getRawData();
 			
 		if( null == $revision->getOuuid() ) {
 			$status = $this->client->create([
-					'index' => $this->instanceId.$revision->getContentType()->getEnvironment()->getName(),
+					'index' => $revision->getContentType()->getEnvironment()->getAlias(),
 					'type' => $revision->getContentType()->getName(),
 					'body' => $objectArray
 			]);
