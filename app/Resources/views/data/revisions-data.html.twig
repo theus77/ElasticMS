@@ -65,7 +65,7 @@
 						{% for rev in revisionsSummary %}
 						<tr {% if rev.id == revision.id %}class="bg-{{ revision.contentType.color }}"{% endif %}>
 							<td>{{ loop.index }}.</td>
-							<td>{{ rev.created|date }}</td>
+							<td>{{ rev.created|date|date(date_time_format) }}</td>
 							<td>
 								{% if rev.lockUntil and rev.lockUntil > date('now') %}
 									{{ rev.lockBy }}
