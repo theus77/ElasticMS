@@ -108,7 +108,6 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		$revision->setLockUntil($startTime->add(new \DateInterval("PT5M")));//5 minutes
 		$revision->setRawData($rawData);
 		$this->getEntityManager()->persist($revision);
-		$this->getEntityManager()->flush($revision);
 		return $revision;
 	}
 	public function publishRevision(Revision $revision) {
