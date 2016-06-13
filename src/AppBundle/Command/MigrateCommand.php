@@ -153,8 +153,8 @@ class MigrateCommand extends ContainerAwareCommand
 					$repository->publishRevision($newRevision);
 					//TODO: Improvement : http://symfony.com/doc/current/components/console/helpers/progressbar.html
 					$output->write(".");
-// 					$em->flush($newRevision);
-// 					$em->clear($newRevision);
+ 					$em->flush($newRevision);
+ 					$em->clear($newRevision);
 // 					unset($newRevision);
 // 					unset($object);
 // 					unset($arrayElasticsearchIndex);
