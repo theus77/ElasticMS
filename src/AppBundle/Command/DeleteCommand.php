@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use AppBundle\Repository\RevisionRepository;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 
 class DeleteCommand extends ContainerAwareCommand
 {
@@ -67,39 +68,40 @@ class DeleteCommand extends ContainerAwareCommand
 			$revRepo = $em->getRepository('AppBundle:Revision');
 			
 			$counter = 0;
-			while($revRepo->countByContentType($contentType) > 0 ) {
-				$revisions = $revRepo->findByContentType($contentType, null, 20);
-				/**@var \AppBundle\Entity\Revision $revision */
-				foreach ($revisions as $revision){
-					foreach($revision->getEnvironments() as $environment) {
-						$client->delete([
-								'index' => $environment->getAlias(),
-								'type' => $contentType->getName(),
-								'id' => $revision->getOuuid(),
-						]);
-						$revision->removeEnvironment($environment);
-					}					
-					++$counter;
-					$em->remove($revision);
-					$output->write('.');
-					$em->flush($revision);
-					$em->clear($revision);
+			if($revRepo->countByContentType($contentType) == 0) {
+				$output->writeln("Content type \"".$name."\" already empty");
+			} else {
+				while($revRepo->countByContentType($contentType) > 0 ) {
+					$revisions = $revRepo->findByContentType($contentType, null, 20);
+					/**@var \AppBundle\Entity\Revision $revision */
+					foreach ($revisions as $revision){
+						foreach($revision->getEnvironments() as $environment) {
+							try{
+								$client->delete([
+										'index' => $environment->getAlias(),
+										'type' => $contentType->getName(),
+										'id' => $revision->getOuuid(),
+								]);
+							} catch (Missing404Exception $e) {
+								//Deleting something that is not present shouldn't make problem.
+							}
+							$revision->removeEnvironment($environment);
+						}
+						++$counter;
+						$em->remove($revision);
+							
+						$output->write('.');
+						$em->flush($revision);
+						$em->clear($revision);
+					}
+					
+					unset($revisions);
+					$output->writeln("\n".$counter. ' documents have been deleted so far');
 				}
-				
-				unset($revisions);
-				$output->writeln("\n".$counter. ' documents have been deleted so far');
 			}
 			
 		} else {
-			$contentType = $ctRepo->findOneBy([
-					'name' => $name, 
-					'deleted'=> 1
-			]);
-			if($contentType){
-				$output->writeln("Content type ".$name." already empty");
-			} else {
 				$output->writeln("Content type ".$name." not found");
-			}
 		}
 		
 		
