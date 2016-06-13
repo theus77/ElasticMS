@@ -8819,7 +8819,7 @@ span.entity, i.entity {
 /* align select2 container to bootstrap height */
 /* line 15, ../../sass/_bootstrap_fix.scss */
 span.select2-container {
-  height: 34px;
+  min-height: 34px;
   width: 100% !important;
 }
 

@@ -195,10 +195,10 @@ services:
 #### End list available ems views ###
     ems.form.factories.objectChoiceListFactory:
         class: AppBundle\Form\Factory\ObjectChoiceListFactory
-        arguments: ['@app.elasticsearch', '@doctrine']
+        arguments: ['@app.elasticsearch', '@session', '@ems.service.contenttype']
     ems.form.field.objectpickertype:
         class: AppBundle\Form\Field\ObjectPickerType
-        arguments: ['@ems.form.factories.objectChoiceListFactory']
+        arguments: ['@ems.form.factories.objectChoiceListFactory', '@ems.service.contenttype']
         tags:
             - { name: form.type }
     ems.form.field.viewtypepickertype:
@@ -225,6 +225,12 @@ services:
     ems.service.data:
         class: AppBundle\Service\DataService
         arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session']
+    ems.service.environment:
+        class: AppBundle\Service\EnvironmentService
+        arguments: ['@doctrine', '@session']
+    ems.service.contenttype:
+        class: AppBundle\Service\ContentTypeService
+        arguments: ['@doctrine', '@session']
 ### command services ###
     ems.contenttype.migrate:
         class: AppBundle\Command\MigrateCommand

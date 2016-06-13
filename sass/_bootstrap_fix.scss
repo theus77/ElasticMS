@@ -13,6 +13,6 @@ span.entity, i.entity {
 
 /* align select2 container to bootstrap height */
 span.select2-container {
-	height: $input-height-base;
+	min-height: $input-height-base;
 	width: 100% !important;
 }

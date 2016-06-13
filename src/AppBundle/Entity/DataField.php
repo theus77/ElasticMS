@@ -69,7 +69,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     private function initChild(DataField $child, $offset){
     	$child->setParent($this);
     	$child->updateDataStructure($this->getFieldType());
-    	$child->setRevisionIdRecursively($this->getRevisionId());
     	$child->setOrderKey($offset);
     	$child->setChildrenFieldType($this->fieldType);
     }
@@ -115,21 +114,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     {
     	//TODO: why is it not working?
     	$context->addViolationAt('textValue', 'Haaaaha', array(), null);
-    }
-    
-    /**
-     * @ORM\PrePersist
-     * @ORM\PreUpdate
-     */
-    public function updateModified()
-    {
-    	$this->modified = new \DateTime();
-        	if(!isset($this->created)){
-    		$this->created = $this->modified;
-    	}
-    	if(!isset($this->orderKey)){
-    		$this->orderKey = 0;
-    	}
     }
     
     public function propagateOuuid($ouuid) {
@@ -220,8 +204,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    	$found = false;
 	    	if($input !== null){
 		    	/** @var DataField $input */
-		    	$input->setParent($this);
-		    	$input->setRevisionId($this->getRevisionId());	    		
+		    	$input->setParent($this);   		
 	    	}
 	    	
 	    	if(null === $this->getFieldType()){
@@ -250,17 +233,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     		throw new \Exception('__set a DataField wich is not a valid object'.$key);
     	}
 	    	
-    	return $this;
-    }
-
-
-    public function setRevisionIdRecursively($revisionId)
-    {
-    	$this->revision_id = $revisionId;
-    	foreach ($this->children as $child){
-    		$child->setRevisionIdRecursively($revisionId);
-    	}
-    
     	return $this;
     }
     
@@ -332,7 +304,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     			$child = $this->children->get($index);
     			$child->setFieldType($fieldType);
     			$child->setParent($this);
-	    		$child->setRevisionId($this->getRevisionId());
 	    		$child->linkFieldType($fieldType->getChildren());
 	    		++$index;
     		}
@@ -671,96 +642,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      * Generated methods
      ****************************
      */
-    
-
-
-
-
-    
-
-
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * Set created
-     *
-     * @param \DateTime $created
-     *
-     * @return DataField
-     */
-    public function setCreated($created)
-    {
-        $this->created = $created;
-
-        return $this;
-    }
-
-    /**
-     * Get created
-     *
-     * @return \DateTime
-     */
-    public function getCreated()
-    {
-        return $this->created;
-    }
-
-    /**
-     * Set modified
-     *
-     * @param \DateTime $modified
-     *
-     * @return DataField
-     */
-    public function setModified($modified)
-    {
-        $this->modified = $modified;
-
-        return $this;
-    }
-
-    /**
-     * Get modified
-     *
-     * @return \DateTime
-     */
-    public function getModified()
-    {
-        return $this->modified;
-    }
-
-    /**
-     * Set revisionId
-     *
-     * @param integer $revisionId
-     *
-     * @return DataField
-     */
-    public function setRevisionId($revisionId)
-    {
-        $this->revision_id = $revisionId;
-
-        return $this;
-    }
-
-    /**
-     * Get revisionId
-     *
-     * @return integer
-     */
-    public function getRevisionId()
-    {
-        return $this->revision_id;
-    }
 
     /**
      * Set orderKey
@@ -771,11 +652,11 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      */
     public function setOrderKey($orderKey)
     {
-        $this->orderKey = $orderKey;
-
-        return $this;
+    	$this->orderKey = $orderKey;
+    
+    	return $this;
     }
-
+    
     /**
      * Get orderKey
      *
@@ -783,9 +664,8 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      */
     public function getOrderKey()
     {
-        return $this->orderKey;
+    	return $this->orderKey;
     }
-
     /**
      * Set fieldType
      *

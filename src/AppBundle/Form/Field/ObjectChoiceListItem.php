@@ -5,51 +5,46 @@ use AppBundle\Entity\ContentType;
 
 class ObjectChoiceListItem {
 
-	private $object;
+	private $label;
+	private $value;
+	private $group;
 	
-	/**@var ContentType $contentType*/
-	private $contentType;
 	
-	public function __construct(array $object){
-		$this->object = $object;
-		$this->contentType = NULL;
-	}
-	
-	public function getObject(){
-		return $this->object;
-	}
-
-	public function getContentType(){
-		return $this->contentType;
-	}
-	
-	public function setContentType(ContentType $contentType){
-		$this->contentType = $contentType;
-		return $this;
-	}
-	
-	public function getKey(){
-		return $this->object['_type'].':'.$this->object['_id'];
-	}
-	
-	public function getLabel($key){
-		$out = '<i class="fa fa-question"></i> '.$key;
-		if( null !== $this->contentType ) {
-			$out = '<i class="'.(null !== $this->contentType->getIcon()?$this->contentType->getIcon():'fa fa-question').'"></i> ';
-			if(null !== $this->contentType->getLabelField() && isset($this->object['_source'][$this->contentType->getLabelField()])){
-				$out .= $this->object['_source'][$this->contentType->getLabelField()];
-			}
-// 			else {
-				$out .= ' ('.$key. ')';
-// 			}
+	public function __construct(array &$object, ContentType $contentType){
+		$this->value = $object['_type'].':'.$object['_id'];
+		
+		
+		$this->group = null;
+		if( null !== $contentType && $contentType->getCategoryField() && isset($object['_source'][$contentType->getCategoryField()] )) {
+			$this->group = $object['_source'][$contentType->getCategoryField()];
 		}
-		 
-		return $out;
+		
+		$this->label = '<i class="fa fa-question"></i> '.$this->value;
+		if( null !== $contentType ) {
+			$this->label = '<i class="'.(null !== $contentType->getIcon()?$contentType->getIcon():'fa fa-question').'"></i> ';
+			if(null !== $contentType->getLabelField() && isset($object['_source'][$contentType->getLabelField()])){
+				$this->label .= $object['_source'][$contentType->getLabelField()];
+			}
+			$this->label .= ' ('.$this->value. ')';
+		}
+	}	
+	
+	
+	
+	public function getValue(){
+		return $this->value;
 	}
 	
+	public function getLabel(){
+		return $this->label;
+	}	
+	
+	public function getGroup(){
+		return $this->group;
+	}	
 
 	public function __toString()
 	{
-		return $this->getKey();
+		return $this->getValue();
 	}
 }

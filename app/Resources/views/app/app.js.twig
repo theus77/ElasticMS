@@ -75,6 +75,15 @@ $(document).ready(function() {
 	} else {
    		//console.log("Sorry! No Web Storage support.");
 	}
+	
+	
+	$('.toggle-button').click(function(){ 
+	    var toggleTex = $(this).data('toggle-contain');
+	    var text=$(this).html();
+	    $(this).html(toggleTex);
+		$(this).data('toggle-contain', text);
+	});
+	
 });
 
 $(window).load(function() {

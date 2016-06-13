@@ -116,8 +116,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 				'required' => false,
 		] )->add ( 'dynamicLoading', CheckboxType::class, [ 
 				'required' => false,
-		] )->add ( 'environment', TextType::class, [ 
-				'required' => false,
 		] )->add ( 'type', TextType::class, [ 
 				'required' => false,
 		] );

@@ -46,14 +46,16 @@
 								<td>
 								
 									<div class="btn-group">
-										{% include 'elements/get-button.html.twig' with { 
-												'url': path('data.revisions', {
-													'type': revision.contentType.name,
-													'ouuid': revision.ouuid,
-													'revisionId': revision.id
-												}), 
-												'label': 'Revisions', 
-												'icon': 'eye' }%}
+										{% if revision.ouuid %}
+											{% include 'elements/get-button.html.twig' with { 
+													'url': path('data.revisions', {
+														'type': revision.contentType.name,
+														'ouuid': revision.ouuid,
+														'revisionId': revision.id
+													}), 
+													'label': 'Revisions', 
+													'icon': 'eye' }%}
+										{% endif %}
 										{% include 'elements/get-button.html.twig' with {
 											'url':  path('revision.edit', {'revisionId': revision.id}),
 											'label': 'Edit',

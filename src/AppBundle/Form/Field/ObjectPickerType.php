@@ -3,28 +3,20 @@
 namespace AppBundle\Form\Field;
 
 use Symfony\Component\Form\ChoiceList\Factory\ChoiceListFactoryInterface;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\Options;
 
 class ObjectPickerType extends Select2Type {
-	/**@var ObjectChoiceLoader $choiceLoader*/
-	private $choiceLoader;
+	/**@var ChoiceListFactoryInterface $choiceListFactory*/
+	private $choiceListFactory;
 
 	
 	public function __construct(ChoiceListFactoryInterface $factory){
+		$this->choiceListFactory = $factory;
 		parent::__construct($factory);
-		$this->choiceLoader = $factory->createLoader();
-	}
-	
-	/**
-     * {@inheritdoc}
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
-    	$this->choiceLoader->setLoaderOptions($options['environment'], $options['type'], !$options['dynamicLoading']);
-		parent::buildForm ( $builder, $options );
 	}
 	
 	
@@ -40,21 +32,23 @@ class ObjectPickerType extends Select2Type {
 		parent::configureOptions ( $resolver );
 		$resolver->setDefaults(array(
 			'required' => false,
-			'dynamicLoading' => true,
-			'choice_loader' => $this->choiceLoader,
-		    'choice_label' => function ($value, $key, $index) {
-		    	return $value->getLabel($key);
+			'dynamicLoading' => true,  
+			'choice_loader' => function (Options $options) {
+				if($options->offsetGet('dynamicLoading')){
+			        return $this->choiceListFactory->createDynamicLoader($options->offsetGet('type'));					
+				}
+				else{
+					return $this->choiceListFactory->createStaticLoader($options->offsetGet('type'));
+				}
 		    },
-		    'group_by' => function($val, $key, $index) {
-// 		    	TODO choice list group by
-			    return 'other';
+		    'choice_label' => function ($value, $key, $index) {
+		    	return $value->getLabel();
+		    },
+		    'group_by' => function($value, $key, $index) {
+		    	return $value->getGroup();
 		    },
 			'choice_value' => function ($value) {
-				if(is_string($value)){
-					return $value;
-				}
-				$object = $value->getObject();
-		       return $object['_type'].':'.$object['_id'];
+				return $value->getValue();
 		    },
 		    'multiple' => false,
 		    'type' => null ,

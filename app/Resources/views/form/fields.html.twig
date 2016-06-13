@@ -127,26 +127,6 @@
 
 {% block search_filter_row -%}
 	<div class="filter-container row">
-{# 		<div class="col-xs-12 ">#}
-{# 			<div class="col-md-1">#}
-{# 				{{- form_label(form.inverted) -}}#}
-{# 			</div>#}
-{# 			<div class="col-md-2">#}
-{# 				{{- form_label(form.field) -}}#}
-{# 			</div>#}
-{# 			<div class="col-md-3">#}
-{# 				{{- form_label(form.operator) -}}#}
-{# 			</div>#}
-{# 			<div class="col-md-4">#}
-{# 				{{- form_label(form.pattern) -}}#}
-{# 			</div>#}
-{# 			<div class="col-md-1">#}
-{# 				{{- form_label(form.boost) -}}#}
-{# 			</div>#}
-{# 			<div class="col-md-1">#}
-{# 				&nbsp;#}
-{# 			</div>#}
-{# 		</div>#}
 		<div class="col-xs-12">
 			<div class="col-md-1">
 					<label class="control-label">&nbsp;</label>
@@ -237,9 +217,20 @@
 	  		{{- form_label(form) -}}
 	  		<div class="btn-group pull-right">
 	  			{{- form_widget(form.add_nested) -}}
+	  			
+
+				{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %}
+					{% set tempId = form.vars.name~'_'~random() %}
+					<a class="toggle-button pull-right btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#{{ tempId }}" 
+						aria-expanded="false" aria-controls="{{ tempId }}" data-toggle-contain="Hide {{ '<i class="fa fa-chevron-down"></i>'|e }}">
+						Show <i class="fa fa-chevron-right"></i>
+					</a>
+				{% endif %}
 			</div>
 	  	</div>
-	  <div class="panel-body">
+	  <div 
+	  	class="panel-body{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %} collapse{% endif %}" 
+	  	id="{{ tempId }}">
 	    {{- form_widget(attribute(form, form.vars.name)) -}}
 	  </div>
 	  {{- form_errors(form) -}}

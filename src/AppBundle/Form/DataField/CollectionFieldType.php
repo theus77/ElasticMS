@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 /**
  * Defined a Container content type.
@@ -129,6 +130,7 @@ class CollectionFieldType extends DataFieldType {
 		/* an optional icon can't be specified ritgh to the container label */
 		$resolver->setDefault ( 'icon', null );
 		$resolver->setDefault ( 'singularLabel', null );
+		$resolver->setDefault ( 'collapsible', false );
 	}
 	
 // 	/**
@@ -166,10 +168,10 @@ class CollectionFieldType extends DataFieldType {
 				'required' => false 
 		] )->add ( 'icon', IconPickerType::class, [ 
 				'required' => false 
+		] )->add ( 'collapsible', CheckboxType::class, [ 
+				'required' => false 
 		] );
 	}
-	
-
 
 	/**
 	 *

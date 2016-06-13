@@ -22,6 +22,7 @@
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_CollectionFieldType(dataField) %}
+	{% set tempId = dataField.fieldType.name~'_'~random() %}
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h3 class="panel-title">
@@ -33,9 +34,17 @@
 				{% else %}
 				{% endif %}
 				({{ dataField.fieldType.name }})
+				{% if dataField.fieldType.displayOptions.collapsible is defined and dataField.fieldType.displayOptions.collapsible %}
+					<a class="toggle-button pull-right" role="button" data-toggle="collapse" href="#{{ tempId }}" 
+						aria-expanded="false" aria-controls="{{ tempId }}" data-toggle-contain="Hide {{ '<i class="fa fa-chevron-down"></i>'|e }}">
+						Show <i class="fa fa-chevron-right"></i>
+					</a>
+				{% endif %}
 			</h3>
 		</div>
-		<div class="panel-body">
+		<div 
+			class="panel-body{% if dataField.fieldType.displayOptions.collapsible is defined and dataField.fieldType.displayOptions.collapsible %} collapse{% endif %}" 
+			id="{{ tempId }}">
 			{% for child in dataField.children %}
 				<div class="panel panel-default">
 					<div class="panel-heading">

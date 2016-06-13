@@ -5,36 +5,41 @@ namespace AppBundle\Form\Field;
 use Symfony\Component\Form\ChoiceList\ChoiceListInterface;
 use Elasticsearch\Client;
 use Doctrine\Bundle\DoctrineBundle\Registry;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
+use Symfony\Component\HttpFoundation\Session\Session;
+use AppBundle\Service\ContentTypeService;
 
 class ObjectChoiceList implements ChoiceListInterface {
 	
 	/** @var Client $client */
 	private $client;
-	private $doctrine;
-
-	private $choices;
+	/**@var Session $session*/
+	private $session;
+	/**@var ContentTypeService $contentTypes*/
 	private $contentTypes;
-	private $loadAll;
-	private $index;
-	private $type;
+
+	private $types;
 	
-	
-	public function __construct(Client $client, Registry $doctrine){
+	public function __construct(
+			Client $client, 
+			Session $session, 
+			ContentTypeService $contentTypes,
+			$types = false){
 		$this->choices = [];		
 		
-		$this->client = $client;
-		$this->doctrine = $doctrine;	
-		
-		$repository = $this->doctrine->getRepository('AppBundle:ContentType');
-    	$this->contentTypes = $repository->findAllAsAssociativeArray();
-    	$this->loadAll = false;
+		$this->client = $client;	
+		$this->session = $session;
+		$this->contentTypes = $contentTypes;
+		$this->types = $types;
 	}
 	
 	/**
      * {@inheritdoc}
      */
     public function getChoices(){
-    	$this->preLoad([]);
+    	if($this->types){
+	    	$this->loadAll($this->types);    		
+    	}
 		return $this->choices;
 	}
 	
@@ -78,44 +83,36 @@ class ObjectChoiceList implements ChoiceListInterface {
 		$this->loadChoices($choices);
 		return array_keys($this->choices);
 	}
-
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setLoaderOptions($index, $type, $loadAll){
-		$this->index = $index;
-		$this->type = $type;
-		$this->loadAll = $loadAll;
-	}
 	
-	
-	public function preLoad(array $choices){
-		if($this->loadAll){
-			$this->choices = [];
-			$params = [
-					'size' => 500
-			];
-			if(isset($this->index)){
-				$params['index'] = $this->index;
-			}
-			if(isset($this->type)){
-				$params['type'] = $this->type;
-			}
-			$items = $this->client->search($params);
-			
-			//TODO pagination sur toutes les pages
-			foreach ($items['hits']['hits'] as $hit){
-				$listItem = $this->decorate($hit);
-				if($listItem){
-					$this->choices[$listItem->getKey()] = $listItem	;								
+	public function loadAll($types){
+		$array = [];
+		$this->choices = [];
+		$cts = explode(',', $types);
+		foreach ($cts as $type) {
+			$curentType = $this->contentTypes->getByName($type);
+			if($curentType){
+				if(!isset($array[$curentType->getEnvironment()->getAlias()])){
+					$array[$curentType->getEnvironment()->getAlias()] = [];
 				}
+				$array[$curentType->getEnvironment()->getAlias()][] = $type;
 			}
-		}
-		else {
-			$this->loadChoices($choices);
 		}
 		
+		foreach ($array as $envName => $types){
+			$params = [
+					'size'=>  '500',
+					'index'=> $envName,
+					'type'=> implode(',', $types)
+			];
+			//TODO test si > 500...flashbag
+				
+			$items = $this->client->search($params);
+				
+			foreach ($items['hits']['hits'] as $hit){
+				$listItem = new ObjectChoiceListItem($hit, $this->contentTypes->getByName($hit['_type']));
+				$this->choices[$listItem->getValue()] = $listItem;
+			}
+		}
 	}
 	
 	/**
@@ -128,37 +125,34 @@ class ObjectChoiceList implements ChoiceListInterface {
 		foreach ($choices as $choice){
 			
 			if(null == $choice){
-				//TODO: nothing to load for null. BUt is it normal to pass by?
+				//TODO: nothing to load for null. But is it normal to pass by?
 			}
 			else if(is_string($choice)){
 				if(strpos($choice, ':') !== false){
 					$ref = explode(':', $choice);
-					if(isset($this->contentTypes[$ref[0]])){
+					if($this->contentTypes->getByName($ref[0])){
 						/** @var \AppBundle\Entity\ContentType $contentType */
-						$contentType = $this->contentTypes[$ref[0]];
-						$item = $this->client->get([
-								'id' => $ref[1],
-								'type' => $ref[0],
-								'index' => $contentType->getEnvironment()->getAlias(),
-						]);
-						
-						$listItem = $this->decorate($item);
-						if($listItem){
-							$this->choices[$choice] = $listItem	;								
+						$contentType = $this->contentTypes->getByName($ref[0]);
+						try {
+							//TODO get this in one query for all choices
+							$item = $this->client->get([
+									'id' => $ref[1],
+									'type' => $ref[0],
+									'index' => $contentType->getEnvironment()->getAlias(),
+							]);
+							$this->choices[$choice] = new ObjectChoiceListItem($item, $this->contentTypes->getByName($item['_type']));
+							
 						}
-						else{
-							dump('dumpHasException: mot found');
+						catch(Missing404Exception $e) {
+							$this->session->getFlashBag()->add('warning', 'It is impossible to found the object '.$choice);
 						}
-						
 					}
 					else{
-
-						dump("dumpHasException: unkoned type?");
+						$this->session->getFlashBag()->add('warning', 'Unknowed type of object : '.$ref[0]);
 					}
 				}
 				else{
-
-					dump("dumpHasException: misformated object key : ".$choice);
+					$this->session->getFlashBag()->add('warning', 'Malformed object key : '.$choice);
 				}
 			}
 			else if (get_class($choice) === ObjectChoiceListItem::class){
@@ -168,14 +162,5 @@ class ObjectChoiceList implements ChoiceListInterface {
 				throw new \Exception('Unknow type of object choice list item: '.get_class($choice));
 			}
 		}
-	}
-	
-	private function decorate(array $item){
-		$out =  new ObjectChoiceListItem($item);
-		if(isset($this->contentTypes[$item['_type']])){
-			$out->setContentType($this->contentTypes[$item['_type']]);
-			return $out;
-		}
-		return false;
 	}
 }
