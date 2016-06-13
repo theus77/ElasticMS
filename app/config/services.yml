@@ -195,7 +195,7 @@ services:
 #### End list available ems views ###
     ems.form.factories.objectChoiceListFactory:
         class: AppBundle\Form\Factory\ObjectChoiceListFactory
-        arguments: ['@app.elasticsearch', '@session', '@ems.service.contenttype']
+        arguments: ['@ems.service.contenttype', '@ems.service.objectchoicecache']
     ems.form.field.objectpickertype:
         class: AppBundle\Form\Field\ObjectPickerType
         arguments: ['@ems.form.factories.objectChoiceListFactory', '@ems.service.contenttype']
@@ -231,6 +231,9 @@ services:
     ems.service.contenttype:
         class: AppBundle\Service\ContentTypeService
         arguments: ['@doctrine', '@session']
+    ems.service.objectchoicecache:
+        class: AppBundle\Service\ObjectChoiceCacheService
+        arguments: ['@app.elasticsearch', '@session', '@ems.service.contenttype']
 ### command services ###
     ems.contenttype.migrate:
         class: AppBundle\Command\MigrateCommand

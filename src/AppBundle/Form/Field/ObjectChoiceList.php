@@ -2,44 +2,34 @@
 namespace AppBundle\Form\Field;
 
 
+use AppBundle\Service\ObjectChoiceCacheService;
 use Symfony\Component\Form\ChoiceList\ChoiceListInterface;
-use Elasticsearch\Client;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Elasticsearch\Common\Exceptions\Missing404Exception;
-use Symfony\Component\HttpFoundation\Session\Session;
-use AppBundle\Service\ContentTypeService;
 
 class ObjectChoiceList implements ChoiceListInterface {
-	
-	/** @var Client $client */
-	private $client;
-	/**@var Session $session*/
-	private $session;
-	/**@var ContentTypeService $contentTypes*/
-	private $contentTypes;
+	/**@var ObjectChoiceCacheService $objectChoiceCacheService*/
+	private $objectChoiceCacheService;
 
 	private $types;
+	private $choices;
+	private $loadAll;
 	
 	public function __construct(
-			Client $client, 
-			Session $session, 
-			ContentTypeService $contentTypes,
-			$types = false){
-		$this->choices = [];		
+			ObjectChoiceCacheService $objectChoiceCacheService,
+			$types = false,
+			$loadAll = false){
 		
-		$this->client = $client;	
-		$this->session = $session;
-		$this->contentTypes = $contentTypes;
+		$this->objectChoiceCacheService = $objectChoiceCacheService;
+		$this->choices = [];		
 		$this->types = $types;
+		$this->loadAll = $loadAll;
+		
 	}
 	
 	/**
      * {@inheritdoc}
      */
     public function getChoices(){
-    	if($this->types){
-	    	$this->loadAll($this->types);    		
-    	}
+	    $this->loadAll($this->types);  
 		return $this->choices;
 	}
 	
@@ -72,7 +62,7 @@ class ObjectChoiceList implements ChoiceListInterface {
      * {@inheritdoc}
      */
     public function getChoicesForValues(array $values){
-		$this->loadChoices($values);
+		$this->choices = $this->objectChoiceCacheService->load($choices);
 		return array_keys($this->choices);
 	}
 	
@@ -80,38 +70,14 @@ class ObjectChoiceList implements ChoiceListInterface {
      * {@inheritdoc}
      */
     public function getValuesForChoices(array $choices){
-		$this->loadChoices($choices);
+		$this->choices = $this->objectChoiceCacheService->load($choices);
 		return array_keys($this->choices);
 	}
 	
 	public function loadAll($types){
-		$array = [];
-		$this->choices = [];
-		$cts = explode(',', $types);
-		foreach ($cts as $type) {
-			$curentType = $this->contentTypes->getByName($type);
-			if($curentType){
-				if(!isset($array[$curentType->getEnvironment()->getAlias()])){
-					$array[$curentType->getEnvironment()->getAlias()] = [];
-				}
-				$array[$curentType->getEnvironment()->getAlias()][] = $type;
-			}
-		}
-		
-		foreach ($array as $envName => $types){
-			$params = [
-					'size'=>  '500',
-					'index'=> $envName,
-					'type'=> implode(',', $types)
-			];
-			//TODO test si > 500...flashbag
-				
-			$items = $this->client->search($params);
-				
-			foreach ($items['hits']['hits'] as $hit){
-				$listItem = new ObjectChoiceListItem($hit, $this->contentTypes->getByName($hit['_type']));
-				$this->choices[$listItem->getValue()] = $listItem;
-			}
+		if($this->loadAll){
+			$this->choices = $this->objectChoiceCacheService->loadAll($types);
+			
 		}
 	}
 	
@@ -121,46 +87,6 @@ class ObjectChoiceList implements ChoiceListInterface {
 	 * @param array $choices
 	 */
 	public function loadChoices(array $choices){
-		$this->choices = [];
-		foreach ($choices as $choice){
-			
-			if(null == $choice){
-				//TODO: nothing to load for null. But is it normal to pass by?
-			}
-			else if(is_string($choice)){
-				if(strpos($choice, ':') !== false){
-					$ref = explode(':', $choice);
-					if($this->contentTypes->getByName($ref[0])){
-						/** @var \AppBundle\Entity\ContentType $contentType */
-						$contentType = $this->contentTypes->getByName($ref[0]);
-						try {
-							//TODO get this in one query for all choices
-							$item = $this->client->get([
-									'id' => $ref[1],
-									'type' => $ref[0],
-									'index' => $contentType->getEnvironment()->getAlias(),
-							]);
-							$this->choices[$choice] = new ObjectChoiceListItem($item, $this->contentTypes->getByName($item['_type']));
-							
-						}
-						catch(Missing404Exception $e) {
-							$this->session->getFlashBag()->add('warning', 'It is impossible to found the object '.$choice);
-						}
-					}
-					else{
-						$this->session->getFlashBag()->add('warning', 'Unknowed type of object : '.$ref[0]);
-					}
-				}
-				else{
-					$this->session->getFlashBag()->add('warning', 'Malformed object key : '.$choice);
-				}
-			}
-			else if (get_class($choice) === ObjectChoiceListItem::class){
-				$this->choices[$choice->getKey()] = $choice;
-			}
-			else{
-				throw new \Exception('Unknow type of object choice list item: '.get_class($choice));
-			}
-		}
+		$this->choices = $this->objectChoiceCacheService->load($choices);
 	}
 }

@@ -34,12 +34,9 @@ class ObjectPickerType extends Select2Type {
 			'required' => false,
 			'dynamicLoading' => true,  
 			'choice_loader' => function (Options $options) {
-				if($options->offsetGet('dynamicLoading')){
-			        return $this->choiceListFactory->createDynamicLoader($options->offsetGet('type'));					
-				}
-				else{
-					return $this->choiceListFactory->createStaticLoader($options->offsetGet('type'));
-				}
+				$loadAll = 	$options->offsetGet('dynamicLoading')?false:true;
+				
+				return $this->choiceListFactory->createLoader($options->offsetGet('type'), $loadAll);
 		    },
 		    'choice_label' => function ($value, $key, $index) {
 		    	return $value->getLabel();

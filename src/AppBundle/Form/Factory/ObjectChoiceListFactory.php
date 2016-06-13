@@ -3,12 +3,12 @@ namespace AppBundle\Form\Factory;
 
 use AppBundle\Form\Field\ObjectChoiceLoader;
 use AppBundle\Service\ContentTypeService;
+use AppBundle\Service\ObjectChoiceCacheService;
 use Elasticsearch\Client;
 use Symfony\Component\Form\ChoiceList\Factory\DefaultChoiceListFactory;
 use Symfony\Component\Form\ChoiceList\Loader\ChoiceLoaderInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
-use AppBundle\Form\Field\ObjectChoiceDynamicLoader;
-use AppBundle\Form\Field\ObjectChoiceStaticLoader;
+use AppBundle\Exception\PerformanceException;
 
 
 class ObjectChoiceListFactory extends DefaultChoiceListFactory{
@@ -18,37 +18,30 @@ class ObjectChoiceListFactory extends DefaultChoiceListFactory{
 	private $session;
 	/**@var ContentTypeService $contentTypes*/
 	private $contentTypes;
+	/**@var ObjectChoiceCacheService $objectChoiceCacheService*/
+	private $objectChoiceCacheService;
 
 	/**
      * constructor called by the service mechanisme
      */
     public function __construct(
-    		Client $client,
-			Session $session, 
-			ContentTypeService $contentTypes){
-		$this->client = $client;
-		$this->session = $session;
+			ContentTypeService $contentTypes,
+    		ObjectChoiceCacheService $objectChoiceCacheService){
 		$this->contentTypes = $contentTypes;
+		$this->objectChoiceCacheService = $objectChoiceCacheService;
 	}
     
     /**
      * instanciate a ObjectChoiceLoader (with the required services)
      */
-    public function createDynamicLoader($types = null, $dynamicLoad = true){
-    	if(null === $types){
+    public function createLoader($types = null, $loadAll = false){
+    	if(null === $types || $loadAll === ""){
+    		if($loadAll) {
+    			throw new PerformanceException('Try to load all objects of all content types');
+    		}
     		$types = $this->contentTypes->getAllAliases();
     	}
-    	return new ObjectChoiceDynamicLoader($this->client, $this->session, $this->contentTypes, $types);
-    }
-    
-    /**
-     * instanciate a ObjectChoiceLoader (with the required services)
-     */
-    public function createStaticLoader($types = null){
-    	if(null === $types){
-    		$types = $this->contentTypes->getAllAliases();
-    	}
-    	return new ObjectChoiceStaticLoader($this->client, $this->session, $this->contentTypes, $types);
+    	return new ObjectChoiceLoader($this->objectChoiceCacheService, $types, $loadAll);
     }
 
     /**

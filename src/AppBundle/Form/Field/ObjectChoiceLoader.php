@@ -2,26 +2,17 @@
 
 namespace AppBundle\Form\Field;
 
-use AppBundle\Service\ContentTypeService;
-use AppBundle\Service\EnvironmentService;
-use Elasticsearch\Client;
 use Symfony\Component\Form\ChoiceList\Loader\ChoiceLoaderInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 
-class ObjectChoiceDynamicLoader implements ChoiceLoaderInterface {
+class ObjectChoiceLoader implements ChoiceLoaderInterface {
 	
 	private $objectChoiceList;
-	private $environmentService;
-	private $alias;
-	private $types;
-	private $dynamicLoad;
 	
 	public function __construct(
-			Client $client, 
-			Session $session, 
-			ContentTypeService $contentTypes,
-			$types){
-		$this->objectChoiceList = new ObjectChoiceList($client, $session, $contentTypes);
+			$objectChoiceCacheService,
+			$types,
+			$loadAll){
+		$this->objectChoiceList = new ObjectChoiceList($objectChoiceCacheService, $types, $loadAll);
 	}
 
 	/**
