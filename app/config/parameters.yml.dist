@@ -30,3 +30,7 @@ parameters:
     datepicker_weekstart : 1
     datepicker_daysofweek_highlighted: [0,6]
     uploading_folder: 
+    filesystem_storage_folder: 
+    storage_services:
+        - ems.storage.filesystem
+    

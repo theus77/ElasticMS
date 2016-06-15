@@ -241,6 +241,12 @@ services:
     ems.service.objectchoicecache:
         class: AppBundle\Service\ObjectChoiceCacheService
         arguments: ['@app.elasticsearch', '@session', '@ems.service.contenttype']
+### Storage services ###
+    ems.storage.filesystem:
+        class: AppBundle\Service\Storage\FileSystemStorage
+        arguments: ['%filesystem_storage_folder%', '%kernel.root_dir%']
+        tags:
+            -  { name: ems.storage }
 ### command services ###
     ems.contenttype.migrate:
         class: AppBundle\Command\MigrateCommand

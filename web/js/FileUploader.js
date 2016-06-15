@@ -72,7 +72,7 @@ function FileUploader(params) {
 	 * initiate the sha1 computation
 	 */
 	this.computeGitSha1 = function(){	
-		this.gitPrefix = "blob " + this.size + "\0";
+		this.gitPrefix = ""; //"blob " + this.size + "\0";
 		this.sliceToLoad = Math.ceil( (this.size+this.gitPrefix.length) / this.statics.SHA1SLICESIZE);
 		this.sliceLoaded = 0;
 		this.sha1Render = new Sha1();

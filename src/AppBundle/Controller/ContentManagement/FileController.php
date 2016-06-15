@@ -17,13 +17,6 @@ use Doctrine\ORM\EntityManager;
 
 class FileController extends AppController
 {
-	/**
-	 * @Route("/data/file/upload", name="file.upload")
-	 */
-	public function uploadFileAction(Request $request)
-	{
-
-	}
 	
 	/**
 	 * @Route("/data/file/init-upload/{sha1}/{size}" , name="file.init-upload")
@@ -73,6 +66,18 @@ class FileController extends AppController
 		}
 		
 		//TODO check if the file can be found in the repository
+		foreach ($this->getParameter('storage_services') as $serviceName){
+			if($this->get($serviceName)->head($uploadedAsset->getSha1())) {
+				$uploadedAsset->setUploaded($uploadedAsset->getSize());
+				$uploadedAsset->setAvailable(true);
+				
+				$em->persist($uploadedAsset);
+				$em->flush($uploadedAsset);
+
+				return new JsonResponse($uploadedAsset->getResponse());
+			}
+		}
+		
 		
 		
 		//Get temporyName
@@ -151,7 +156,22 @@ class FileController extends AppController
 		$em->persist($uploadedAsset);
 		$em->flush($uploadedAsset);
 		
+		if($uploadedAsset->getUploaded() == $uploadedAsset->getSize()){
+
+			if(sha1_file($filename) != $uploadedAsset->getSha1()) {
+				throw new Conflict409Exception("Sha1 mismatched ".sha1_file($filename).' '.$uploadedAsset->getSha1());
+			}
+			
+			foreach ($this->getParameter('storage_services') as $serviceName){
+				if($this->get($serviceName)->create($uploadedAsset->getSha1(), $filename)) {
+					$uploadedAsset->setAvailable(true);
+					break;
+				}
+			}
+			
+		}
 		
 		return new JsonResponse($uploadedAsset->getResponse());
 	}
+	
 }
