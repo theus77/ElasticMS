@@ -119,6 +119,13 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: email }
             - { name: form.type }
+    ems.fieldtype.asset:
+        class: AppBundle\Form\DataField\AssetFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: asset }
+            - { name: form.type }
     ems.fieldtype.radio:
         class: AppBundle\Form\DataField\RadioFieldType
         calls:

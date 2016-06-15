@@ -9,6 +9,8 @@ use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use AppBundle\Form\Field\ObjectPickerType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class EditEnvironmentType extends AbstractType {
 	/**
@@ -28,6 +30,11 @@ class EditEnvironmentType extends AbstractType {
 		->add ( 'color', ColorPickerType::class, [
 				'required' => false,
 		])
+		->add ( 'circles', ObjectPickerType::class, [
+				'required' => false,
+				'type' => $options['type'],
+				'multiple' => true,
+		])
 		->add ( 'baseUrl', TextType::class, [
 				'required' => false,
 		])
@@ -37,5 +44,16 @@ class EditEnvironmentType extends AbstractType {
 				],
 				'icon' => 'fa fa-save' 
 		] );
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function configureOptions(OptionsResolver $resolver) {
+		/* set the default option value for this kind of compound field */
+		parent::configureOptions ( $resolver );
+		$resolver->setDefault ( 'type', null );
 	}
 }

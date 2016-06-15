@@ -41,7 +41,16 @@
 								<tr>
 									<td class="text-center">{{ loop.index }}.</td>
 									<td>
-										<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
+										<span class="badge bg-{{ environment.color|raw }}" title="Circles:{% for circle in environment.circles %}
+                     {% if not loop.first %}
+                       {% if loop.last %}
+                       &amp;
+                       {% else %}
+                       ,
+                       {% endif %}
+                     {% endif %}
+                      {{ circle|trans }}
+                    {% endfor %}">{{ environment.name|humanize }}</span>		
 									</td>
 									<td>{{ environment.alias }}</td>
 									<td>{{ environment.index }}</td>

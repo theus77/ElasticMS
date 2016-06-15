@@ -107,7 +107,7 @@ class DateFieldType extends DataFieldType {
 		foreach ($sourceArray as $idx => $child){
 			$data[] = \DateTime::createFromFormat($format, $child);
 		}
-		$dataField->setData($data);
+		$dataField->setRawData($data);
 	}
 	
 	

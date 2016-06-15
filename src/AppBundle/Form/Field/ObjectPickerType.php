@@ -49,7 +49,6 @@ class ObjectPickerType extends Select2Type {
 		    },
 		    'multiple' => false,
 		    'type' => null ,
-		    'environment' => null,
 		    
 		));
 	}
@@ -60,7 +59,6 @@ class ObjectPickerType extends Select2Type {
 	 *
 	 */
 	public function buildView(FormView $view, FormInterface $form, array $options) {
-		$view->vars ['attr']['data-environment'] = $options['environment'];
 		$view->vars ['attr']['data-type'] = $options['type'];
 		$view->vars ['attr']['data-dynamic-loading'] = $options['dynamicLoading'];
 	}

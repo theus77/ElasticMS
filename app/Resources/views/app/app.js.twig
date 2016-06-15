@@ -1,4 +1,11 @@
 
+var file_init_upload_url = '{{ url('file.init-upload', {
+		sha1: '__sha1__',
+		size: '__size__'
+	}) }}';
+	
+
+
 function luma(color) // color can be a hx string or an array of RGB values 0-255
 {
     var rgb = (typeof color === 'string') ? hexToRGBArray(color) : color;

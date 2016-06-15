@@ -88,6 +88,7 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 			->where('r.contentType = ?2')
 			->andWhere('r.ouuid = ?3')
 			->andWhere('r.endTime is null')
+			->andWhere('r.lockBy  is null')
 			->setParameter(1, $now, \Doctrine\DBAL\Types\Type::DATETIME)
 			->setParameter(2, $contentType)
 			->setParameter(3, $ouuid);
@@ -108,6 +109,7 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		$revision->setLockUntil($startTime->add(new \DateInterval("PT5M")));//5 minutes
 		$revision->setRawData($rawData);
 		$this->getEntityManager()->persist($revision);
+		$this->getEntityManager()->flush($revision);
 		return $revision;
 	}
 	public function publishRevision(Revision $revision) {

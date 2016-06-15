@@ -93,6 +93,14 @@ class Environment
     private $revisions;
 
     /**
+     * @var \ObjectPickerType
+     *
+     * @ORM\Column(name="circles", type="json_array", nullable=true)
+     */
+    private $circles;
+    
+    
+    /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
      */
@@ -382,5 +390,29 @@ class Environment
     public function getBaseUrl()
     {
         return $this->baseUrl;
+    }
+
+    /**
+     * Set circles
+     *
+     * @param \ObjectPickerType $circles
+     *
+     * @return Environment
+     */
+    public function setCircles($circles)
+    {
+    	$this->circles = $circles;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get circles
+     *
+     * @return \ObjectPickerType
+     */
+    public function getCircles()
+    {
+    	return $this->circles;
     }
 }

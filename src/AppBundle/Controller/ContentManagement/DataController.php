@@ -7,12 +7,11 @@ use AppBundle\Entity\ContentType;
 use AppBundle;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\Environment;
-use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\Revision;
 use AppBundle\Entity\Template;
 use AppBundle\Entity\View;
-use AppBundle\Exception\LockedException;
+use AppBundle\Exception\PrivilegeException;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Form\RevisionType;
 use AppBundle\Form\Form\ViewType;
@@ -22,7 +21,6 @@ use AppBundle\Repository\RevisionRepository;
 use AppBundle\Repository\TemplateRepository;
 use AppBundle\Repository\ViewRepository;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\QueryBuilder;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -33,7 +31,6 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Exception\PrivilegeException;
 
 class DataController extends AppController
 {

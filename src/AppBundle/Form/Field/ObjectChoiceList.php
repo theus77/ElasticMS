@@ -61,7 +61,7 @@ class ObjectChoiceList implements ChoiceListInterface {
 	/**
      * {@inheritdoc}
      */
-    public function getChoicesForValues(array $values){
+    public function getChoicesForValues(array $choices){
 		$this->choices = $this->objectChoiceCacheService->load($choices);
 		return array_keys($this->choices);
 	}
