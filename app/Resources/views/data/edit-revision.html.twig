@@ -199,7 +199,6 @@ function addEventListeners(target){
 	});
 	
 	target.find(".objectpicker").each(function(index){
-		var environment = $( this ).data('environment'); 
 		var type = $( this ).data('type'); 
 		var dynamicLoading = $( this ).data('dynamic-loading'); 
 
@@ -220,7 +219,6 @@ function addEventListeners(target){
 		      		return {
 			        q: params.term, // search term
 			        page: params.page,
-			        environment: environment,
 			        type: type
 			      };
 			    },

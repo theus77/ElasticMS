@@ -79,7 +79,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 					'multiple' => $options['multiple'],
 					'type' => $options['type'],
 					'dynamicLoading' => $options['dynamicLoading'],
-					'environment' => $options['environment'],
 			] );	
 		
 		

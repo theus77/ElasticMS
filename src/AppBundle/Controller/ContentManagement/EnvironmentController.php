@@ -57,6 +57,7 @@ class EnvironmentController extends AppController {
 					$environment = new Environment ();
 					$environment->setName ( $name );
 					$environment->setAlias ( $name );
+					//TODO: setCircles
 					$environment->setManaged ( false );
 					
 					$em->persist ( $environment );
@@ -164,7 +165,7 @@ class EnvironmentController extends AppController {
 				$form->get ( 'name' )->addError ( new FormError ( 'Another environment named ' . $environment->getName () . ' already exists' ) );
 			} else {
 				$environment->setAlias ( $this->getParameter ( 'instance_id' ) . $environment->getName () );
-				$environment->setManaged ( true );		
+				$environment->setManaged ( true );
 				$em = $this->getDoctrine ()->getManager ();
 				$em->persist ( $environment );
 				$em->flush ();
@@ -252,7 +253,10 @@ class EnvironmentController extends AppController {
 			throw new NotFoundHttpException('Unknow environment');
 		}
 	
-		$form = $this->createForm(EditEnvironmentType::class, $environment);
+		$options= [
+				'type' => $this->getParameter("circles_object")
+		];
+		$form = $this->createForm(EditEnvironmentType::class, $environment, $options);
 	
 		$form->handleRequest($request);
 	
