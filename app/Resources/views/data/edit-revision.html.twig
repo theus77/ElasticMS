@@ -78,6 +78,8 @@
 
 
 {% block javascripts %}
+<script src="{{ asset('js/Sha1.js') }}"></script>
+<script src="{{ asset('js/FileUploader.js') }}"></script>
 
 <script type="text/javascript">
 
@@ -154,7 +156,92 @@ function attachObjectPicker(domId) {
 	});
 }
 
+function initFileUploader(fileHandler, container){
+
+
+	var sha1Input = $(container).find(".sha1");
+	var typeInput = $(container).find(".type");
+	var nameInput = $(container).find(".name");
+	var progressBar = $(container).find(".progress-bar");
+	var progressText = $(container).find(".progress-text");
+	var progressNumber = $(container).find(".progress-number");
+
+	
+    var fileUploader = new FileUploader({
+    	file: fileHandler,
+    	onSha1Available: function(sha1, type, name){
+	    		$(sha1Input).val(sha1);
+	    		$(typeInput).val(type);
+	    		$(nameInput).val(name);
+	    },
+	    onProgress: function(status, progress, remaining){
+		    var pourcent = Math.round(progress*100);
+	    		$(progressBar).css('width', pourcent+'%');
+	    		$(progressText).html(status);
+	    		$(progressNumber).html(remaining);
+	    },
+	    onError: function(message, code){
+	    		$(progressBar).css('width', '0%');
+	    		$(progressText).html(message);
+	    		$(progressNumber).html('Error code : '+code);
+	    		$(sha1Input).val('');
+	    		$(typeInput).val('');
+	    		$(nameInput).val('');
+	    },
+	});
+}
+
+
+//file selection
+function FileSelectHandler(e) {
+
+	// cancel event and hover styling
+	FileDragHover(e);
+
+	// fetch FileList object
+	var files = e.target.files || e.dataTransfer.files;
+
+	// process all File objects
+	for (var i = 0, f; f = files[i]; i++) {
+		initFileUploader(f, this);
+		break;
+	}
+
+}
+
+//file drag hover
+function FileDragHover(e) {
+	e.stopPropagation();
+	e.preventDefault();
+	//e.target.className = (e.type == "dragover" ? "hover" : "");
+}
+
 function addEventListeners(target){
+
+
+	target.find(".file-uploader-input").fileinput({
+		'showUpload':false, 
+		'showCaption': false,
+		'showPreview': false,
+		'showRemove': false,
+		'showCancel': false,
+		'showClose': false,
+		'browseIcon': '<i class="fa fa-upload"></i>&nbsp;',
+		'browseLabel': 'Upload file'
+	});
+
+	target.find(".file-uploader-input").change(function(){
+		initFileUploader($(this)[0].files[0], $(this).closest(".file-uploader-row"));
+	});
+
+	
+	target.find(".file-uploader-row").each(function(){
+		// file drop
+		this.addEventListener("dragover", FileDragHover, false);
+		this.addEventListener("dragleave", FileDragHover, false);
+		this.addEventListener("drop", FileSelectHandler, false);
+	});
+
 	target.find('.remove-content-button').on('click', function(e) {
 		// prevent the link from creating a "#" on the URL
         e.preventDefault();

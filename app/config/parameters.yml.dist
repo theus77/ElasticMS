@@ -29,4 +29,4 @@ parameters:
     datepicker_format : 'dd/mm/yyyy'
     datepicker_weekstart : 1
     datepicker_daysofweek_highlighted: [0,6]
-    
+    uploading_folder: 
