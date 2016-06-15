@@ -21,6 +21,30 @@
 	{% endif %}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_AssetFieldType(dataField) %}
+	<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<i class="{% if dataField.fieldType.displayOptions.icon is defined %}{{ dataField.fieldType.displayOptions.icon }}{% else %}fa fa-file-o{% endif %}"></i> 				
+				{% if dataField.fieldType.displayOptions.label is defined %}
+					{{ dataField.fieldType.displayOptions.label }}
+				{% else %}
+					{{ dataField.fieldType.name }}
+				{% endif %}
+		</h3>
+	</div>
+	<div class="panel-body" >
+		<ul>
+			<li>Sha1: {{ dataField.rawData.sha1 }}</li>
+			<li>Name: {{ dataField.rawData.filename }}</li>
+			<li>Type: {{ dataField.rawData.mimetype }}</li>
+		</ul>
+			File preview (it's coming)
+	</div>
+</div>
+{% endmacro %}
+
+
 {% macro AppBundle_Form_DataField_CollectionFieldType(dataField) %}
 	{% set tempId = dataField.fieldType.name~'_'~random() %}
 	<div class="panel panel-default">

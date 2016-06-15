@@ -7,6 +7,8 @@ use AppBundle\Entity\FieldType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\Field\AssetType;
+use AppBundle\Form\Field\IconPickerType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 	
 /**
  * Defined a Container content type.
@@ -47,5 +49,57 @@ class AssetFieldType extends DataFieldType {
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole())
 		] );
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
+		parent::buildOptionsForm ( $builder, $options );
+		$optionsForm = $builder->get ( 'options' );
+		// container aren't mapped in elasticsearch
+		$optionsForm->remove ( 'mappingOptions' );
+		// an optional icon can't be specified ritgh to the container label
+		$optionsForm->get ( 'displayOptions' )
+		->add ( 'icon', IconPickerType::class, [ 
+				'required' => false 
+		] );
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function configureOptions(OptionsResolver $resolver) {
+		/* set the default option value for this kind of compound field */
+		parent::configureOptions ( $resolver );
+		$resolver->setDefault ( 'icon', null );
+	}
+	
+	/**
+	 * {@inheritdoc}
+	 */
+	public static function generateMapping(FieldType $current){
+		return [
+			$current->getName() => array_merge([
+					"type" => "nested",
+					"properties" => [
+							"mimetype" => [
+									"type" => "string",
+									"index" => "not_analyzed"
+							],
+							"sha1" => [
+									"type" => "string",
+									"index" => "not_analyzed"
+							],
+							"filename" => [
+									"type" => "string",
+							]
+					]
+			],  array_filter($current->getMappingOptions()))
+		];
 	}
 }
