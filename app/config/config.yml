@@ -8,7 +8,7 @@ imports:
 parameters:
     locale: en
     paging_size: 20
-    lock_time: "+5 minutes"
+    lock_time: "+1 minutes"
 
 framework:
     #esi:             ~
