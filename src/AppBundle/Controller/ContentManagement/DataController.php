@@ -2,17 +2,17 @@
 
 namespace AppBundle\Controller\ContentManagement;
 
+use AppBundle;
 use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
-use AppBundle;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\Environment;
-use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\Revision;
 use AppBundle\Entity\Template;
 use AppBundle\Entity\View;
-use AppBundle\Exception\LockedException;
+use AppBundle\Exception\HasNotCircleException;
+use AppBundle\Exception\PrivilegeException;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Form\RevisionType;
 use AppBundle\Form\Form\ViewType;
@@ -22,7 +22,6 @@ use AppBundle\Repository\RevisionRepository;
 use AppBundle\Repository\TemplateRepository;
 use AppBundle\Repository\ViewRepository;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\QueryBuilder;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -33,7 +32,6 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Exception\PrivilegeException;
 
 class DataController extends AppController
 {
@@ -664,17 +662,37 @@ class DataController extends AppController
 	}
 	
 	/**
+ 	 * @throws HasNotCircleException
 	 * @Route("/data/add/{contentType}", name="data.add"))
 	 */
 	public function addAction(ContentType $contentType, Request $request)
 	{
+		$userCircles = $this->getUser()->getCircles();
+		$environment = $contentType->getEnvironment();
+		$environmentCircles = $environment->getCircles();
+		if(!empty($environmentCircles)){
+			if (empty($userCircles)){
+				throw new HasNotCircleException($environment);
+			}
+			$found = false;
+			foreach($userCircles as $userCircle){
+				if(in_array($userCircle,$environmentCircles))
+				{
+					$found = true;
+					break;
+				}
+			}
+			if(!$found){
+				throw new HasNotCircleException($environment);
+			}
+		}
+		
 		$em = $this->getDoctrine()->getManager();
 		
 		$repository = $em->getRepository('AppBundle:ContentType');
 		
 		$revision = new Revision();
 
-		
 		$form = $this->createFormBuilder($revision)
 			->add('ouuid', IconTextType::class, [
 					'attr' => [
