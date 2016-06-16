@@ -53,7 +53,7 @@
 	          	</a>
 	          	<ul class="treeview-menu">
 	          		{% for search in searches %}
-	          			<li class=""><a id="menu-search-preset-{{ search.id }}" href="{{ path('elasticsearch.search', { 'searchId': search.id  }) }}"> {{ search.name|humanize }}</a></li>
+	          			<li class=""><a id="menu-search-preset-{{ search.id }}" href="{{ path('elasticsearch.search', { 'searchId': search.id  }) }}"> {{ search.name }}</a></li>
 	          		{% endfor %}
 	          	</ul>
 	          </li>
@@ -79,6 +79,29 @@
 	          	</a>
 	          	<ul class="treeview-menu">
 	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', { 'search_form[typeFacet]': contentType.name, 'search_form[aliasFacet]': contentType.environment.alias }) }}">Search {{ contentType.pluralName|humanize }}</a></li>
+	          		
+	          		{% if contentType.circlesField and app.user.circles|length > 0 %}
+		            	{% set searchForm = { 
+		            		'search_form[typeFacet]': contentType.name, 
+		            		'search_form[aliasFacet]': contentType.environment.alias,
+		            		'search_form[boolean]': 'or'
+						} %}
+						
+		            	
+	          			{% for circle in  app.user.circles%}
+	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][field]'):contentType.circlesField}) %}
+	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][operator]'):('term')}) %}
+	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][pattern]'):circle}) %}
+	          				{# 	          				{% set attribute(searchForm, fieldKey) = contentType.circlesField %}#}
+{# 	          				{% set searchForm['search_form[filters]['~loop.index~'][operator]'] = 'term' %}#}
+{# 	          				{% set searchForm['search_form[filters]['~loop.index~'][pattern]'] = circle %}#}
+		            	
+		            	{% endfor %}
+
+						{{ searchForm|dump }}
+
+	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}">In my circles</a></li>
+	            	{% endif %}
 	            	{% for view in contentType.views %}
 	            		<li>
 	            			<a id="menu-data-view-{{ contentType.id }}-{{ view.id }}" href="{{ path('data.customindexview', { viewId: view.id }) }}">
@@ -91,9 +114,9 @@
 	            	{% endif %}
 	            	{% if contentType.environment.managed %}
 	            	
-	            	{#{% if not contentType.createRole or is_granted(contentType.createRole) %}#}
+	            	{% if not contentType.createRole or is_granted(contentType.createRole) %}
 						<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
-					{#{% endif %}#}
+					{% endif %}
 	            	
 	            	
 	            	{% endif %}

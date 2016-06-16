@@ -54,6 +54,7 @@ security:
         - { path: ^/content-type, roles: ROLE_ADMIN }
         - { path: ^/environment, roles: ROLE_ADMIN }
         - { path: ^/user, roles: ROLE_ADMIN }
+        - { path: ^/elasticsearch/delete-search, roles: ROLE_USER }
         - { path: ^/elasticsearch, roles: ROLE_ADMIN }
         - { path: ^/, roles: ROLE_USER }
         

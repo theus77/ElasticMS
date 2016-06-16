@@ -191,20 +191,18 @@
 		{% endif %}
 		<dd>
 			{% if dataField.fieldType.displayOptions.multiple %}
-				<ul>
 					{% for value in dataField.arrayTextValue %}
 						{% set path = value|split(':') %}
 						{% if path.1 is not defined %}
-              				<li class="bg-red color-palette">Not wel formated data link field: {{ value }}</li>
+              				<a href="#" class="btn btn-primary btn-sm" >Not wel formated data link field: {{ value }}</a>
 						{% else %}
-  							<li><a href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ value }}</a></li>
+  							<a class="btn btn-primary btn-sm" href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ path.0|data_label( path.1)|raw }}</a>
   						{% endif %}
 					{% endfor %}
-				</ul>
 			{% else %}
 			   {% if dataField.textValue %}
 				  {% set path = dataField.textValue|split(':') %}
-				  <a href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ dataField.textValue }}</a>
+				  <a class="btn btn-primary btn-sm" href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ path.0|data_label( path.1)|raw }}</a>
 				 {% else %}
 				  Not set
 				 {% endif %}

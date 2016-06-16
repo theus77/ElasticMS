@@ -1,20 +1,31 @@
 <?php
 namespace AppBundle\Twig;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
 use AppBundle\Form\DataField\DateFieldType;
 use AppBundle\Form\DataField\TimeFieldType;
+use AppBundle\Service\UserService;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use AppBundle\Service\ContentTypeService;
+use Elasticsearch\Client;
 
 class AppExtension extends \Twig_Extension
 {
-	protected $doctrine;
-	protected $authorizationChecker;
+	private $doctrine;
+	private $userService;
+	private $authorizationChecker;
+	/**@var ContentTypeService $contentTypeService*/
+	private $contentTypeService;
+	/**@var Client $client */
+	private $client;
 	
-	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker)
+	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
+		$this->userService = $userService;
+		$this->contentTypeService = $contentTypeService;
+		$this->client = $client;
 	}
 	
 	public function getFilters()
@@ -34,6 +45,8 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('contrastratio', array($this, 'contrastratio')),
 				new \Twig_SimpleFilter('all_granted', array($this, 'all_granted')),
 				new \Twig_SimpleFilter('one_granted', array($this, 'one_granted')),
+				new \Twig_SimpleFilter('in_my_circles', array($this, 'inMyCircles')),
+				new \Twig_SimpleFilter('data_label', array($this, 'dataLabel')),
 		);
 	}
 	
@@ -51,6 +64,63 @@ class AppExtension extends \Twig_Extension
 			}
 		}
 		return true;
+	}
+	
+	function inMyCircles($circles){
+		
+		if(!$circles){
+			return true;
+		}
+		else if ($this->authorizationChecker->isGranted('ROLE_ADMIN')){
+			return true;
+		}
+		else if (is_array($circles)){
+			if(count($circles) > 0){
+				$user = $this->userService->getCurrentUser();
+				return count(array_intersect($circles, $user->getCircles())) > 0;
+			}
+			else {
+				return true;
+			}
+		}
+		else if(is_string($circles)){
+			return in_array($circles, $user->getCircles());
+		}
+		
+		
+		return false;
+	}
+	
+	
+	function dataLabel($type, $ouuid){
+		$out = $type.':'.$ouuid;
+		
+		$contentType = $this->contentTypeService->getByName($type);
+		if($contentType) {
+			if($contentType->getIcon()){
+				$icon = '<i class="'.$contentType->getIcon().'"></i>&nbsp;';
+			}
+			else{
+				$icon = '<i class="fa fa-book"></i>&nbsp;';
+			}
+			
+			if($contentType->getLabelField()){
+				$result = $this->client->get([
+						'id' => $ouuid,
+						'index' => $contentType->getEnvironment()->getAlias(),
+						'type' => $type,
+				]);
+				
+				$label = $result['_source'][$contentType->getLabelField()];
+				if($label && strlen($label) > 0){
+					$out = $label;
+				}
+				
+			}
+			
+			$out = $icon.$out;
+		}
+		return $out;
 	}
 	
 	function one_granted($roles, $super=false){

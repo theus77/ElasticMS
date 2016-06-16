@@ -47,7 +47,6 @@ twig:
         ems_name: <b>elastic</b>MS
         ems_shortname: <b>e</b>MS
         circles_object: %circles_object%
-        circles_environment: %circles_environment%
         #date picker
         datepicker_format : %datepicker_format%
         datepicker_weekstart : %datepicker_weekstart%

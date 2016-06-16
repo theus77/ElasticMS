@@ -74,7 +74,8 @@
 									'url':  path('elasticsearch.search.delete', {'id': searchId, 'search': app.request.query}),
 									'message': 'Do you confirm ?',
 									'label': 'Delete',
-									'icon': 'trash'
+									'icon': 'trash',
+									'class': 'btn'
 								}%}
 							{% endif %}
 							{% if form.exportResults is defined %}

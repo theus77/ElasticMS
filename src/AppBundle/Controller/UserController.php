@@ -123,7 +123,6 @@ class UserController extends Controller
 		))
 		->add('circles', ObjectPickerType::class, [
 				'multiple' => TRUE,
-				'environment' => $this->container->getParameter('circles_environment'),
 				'type' => $this->container->getParameter('circles_object'),
 				'dynamicLoading' => false
 				

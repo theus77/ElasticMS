@@ -90,7 +90,7 @@ class ContentType
     /**
      * @var array
      *
-     * @ORM\Column(name="circles_field", type="simple_array", nullable=true)
+     * @ORM\Column(name="circles_field", type="string", length=100, nullable=true)
      */
     private $circlesField;
     

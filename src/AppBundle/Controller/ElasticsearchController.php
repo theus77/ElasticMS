@@ -355,7 +355,9 @@ class ElasticsearchController extends AppController
 					$body["query"][$search->getBoolean()][] = $esFilter;
 				}	
 					
-			}			
+			}		
+			
+// 			dump(json_encode($body));
 			
 			/** @var EntityManager $em */
 			$em = $this->getDoctrine()->getManager();

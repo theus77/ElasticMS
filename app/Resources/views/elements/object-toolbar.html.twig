@@ -15,19 +15,23 @@
 				'label': 'Revisions',
 				'icon': 'archive'
 			}%}
-			{% if contentType.fieldType.fieldsRoles|one_granted %}
-				{% include 'elements/post-button.html.twig' with { 
-					'url': path('revision.new-draft', {'ouuid': object._id, 'type': contentType.name}), 
-					'label': 'Edit', 
-					'icon': 'pencil' }%} 
+			{% if is_granted(contentType.editRole) %}
+				{% if not  contentType.circlesField or attribute(object._source, contentType.circlesField)|in_my_circles %}
+					{% include 'elements/post-button.html.twig' with { 
+						'url': path('revision.new-draft', {'ouuid': object._id, 'type': contentType.name}), 
+						'label': 'Edit', 
+						'icon': 'pencil' }%}
+				{% endif %}
 			{% endif %}
-			{% if contentType.fieldType.fieldsRoles|all_granted %}
-				{% include 'elements/post-button.html.twig' with {
-					'url':  path('object.delete', {'type': object._type, 'ouuid': object._id} ),
-					'label': 'Delete',
-					'icon': 'trash',
-					'message': 'Do you confirm?'
-				}%}
+			{% if is_granted(contentType.createRole) %}
+				{% if not  contentType.circlesField or attribute(object._source, contentType.circlesField)|in_my_circles %}
+					{% include 'elements/post-button.html.twig' with {
+						'url':  path('object.delete', {'type': object._type, 'ouuid': object._id} ),
+						'label': 'Delete',
+						'icon': 'trash',
+						'message': 'Do you confirm?'
+					}%}
+				{% endif %}
 			{% endif %}
 		{% endif %}
 	</div>

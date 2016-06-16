@@ -47,7 +47,8 @@ class AssetFieldType extends DataFieldType {
 		$fieldType = $options ['metadata'];
 		$builder->add ( 'raw_data', AssetType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
-				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole())
+				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
+				'required' => false,
 		] );
 	}
 	

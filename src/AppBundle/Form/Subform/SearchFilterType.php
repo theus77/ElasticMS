@@ -39,6 +39,7 @@ class SearchFilterType extends AbstractType {
 				'Query (or)' => 'query_or', 
 				'Match (and)' => 'match_and',
 				'Match (or)' => 'match_or', 
+				'Term' => 'term', 
 			]
 		]);
 		

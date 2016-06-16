@@ -6,7 +6,7 @@ parameters:
 services:
     app.twig_extension:
         class: AppBundle\Twig\AppExtension
-        arguments: ['@doctrine', '@security.authorization_checker']
+        arguments: ['@doctrine', '@security.authorization_checker', '@ems.service.user', '@ems.service.contenttype', '@app.elasticsearch' ]
         #public: false
         tags:
             - { name: twig.extension, priority: -2000 }
@@ -238,6 +238,9 @@ services:
     ems.service.contenttype:
         class: AppBundle\Service\ContentTypeService
         arguments: ['@doctrine', '@session']
+    ems.service.user:
+        class: AppBundle\Service\UserService
+        arguments: ['@doctrine', '@session', '@security.token_storage']
     ems.service.objectchoicecache:
         class: AppBundle\Service\ObjectChoiceCacheService
         arguments: ['@app.elasticsearch', '@session', '@ems.service.contenttype']

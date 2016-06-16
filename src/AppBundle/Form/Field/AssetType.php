@@ -20,16 +20,19 @@ class AssetType extends AbstractType {
 			'attr' => [
 					'class' => 'sha1'
 			],
+			'required' => $options['required'],
 		])
 		->add('mimetype', TextType::class, [
 			'attr' => [
 					'class' => 'type'
 			],
+			'required' => $options['required'],
 		])
 		->add('filename', TextType::class, [
 			'attr' => [
 					'class' => 'name'
 			],
+			'required' => $options['required'],
 		]);
 		
 	}

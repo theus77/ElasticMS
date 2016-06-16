@@ -119,6 +119,16 @@ class SearchFilter
 						]
 					];
 					break;
+				case 'term':
+					$out = [
+						"term" => [
+							$field?$field:"_all" => [
+								"value" => $this->pattern?$this->pattern:"*",
+								"boost" => $this->boost?$this->boost:1,
+							]
+						]
+					];
+					break;
 			}
 			
 			if($this->field){
