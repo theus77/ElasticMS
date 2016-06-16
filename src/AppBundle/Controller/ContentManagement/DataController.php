@@ -556,6 +556,22 @@ class DataController extends AppController
 		] );
 	}
 	
+	
+	/**
+	 * @Route("/data/draft/finalize/{revision}", name="revision.finalize"))
+	 */
+	public function finalizeDraftAction(Revision $revision){
+
+		$this->get('ems.service.data')->loadDataStructure($revision);
+		$revision = $this->get("ems.service.data")->finalizeDraft($revision);
+		
+		return $this->redirectToRoute('data.revisions', [
+				'ouuid' => $revision->getOuuid(),
+				'type' => $revision->getContentType()->getName(),
+				'revisionId' => $revision->getId(),
+		]);
+	}
+	
 	public function finalizeDraft(Revision $revision){
 		return $this->get("ems.service.data")->finalizeDraft($revision);
 	}
