@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\RolePickerType;
 
 class ContentTypeType extends AbstractType {
 	/**
@@ -50,6 +51,8 @@ class ContentTypeType extends AbstractType {
 // 		$builder->add ( 'videoField');
 // 		$builder->add ( 'categoryField');
 		$builder->add ( 'pluralName', TextType::class);
+		$builder->add ( 'createRole', RolePickerType::class);
+		$builder->add ( 'editRole', RolePickerType::class);
 		$builder->add ( 'icon', IconPickerType::class, [
 			'required' => false,
 		]);

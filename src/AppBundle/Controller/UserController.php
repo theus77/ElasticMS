@@ -49,7 +49,6 @@ class UserController extends Controller
 				'invalid_message' => 'fos_user.password.mismatch',))
 		->add('circles', ObjectPickerType::class, [
 				'multiple' => TRUE,
-				'environment' => $this->container->getParameter('circles_environment'),
 				'type' => $this->container->getParameter('circles_object'),
 				'dynamicLoading' => false
 				

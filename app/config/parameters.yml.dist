@@ -23,7 +23,6 @@ parameters:
     
     # Circles functionnalities for Users
     circles_object:
-    circles_environment:
     
     # datepicker functionnalities 
     datepicker_format : 'dd/mm/yyyy'
