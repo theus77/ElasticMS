@@ -8,6 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Service\ContentTypeService;
 use Elasticsearch\Client;
+use Symfony\Component\Routing\Router;
 
 class AppExtension extends \Twig_Extension
 {
@@ -18,14 +19,17 @@ class AppExtension extends \Twig_Extension
 	private $contentTypeService;
 	/**@var Client $client */
 	private $client;
+	/**@var Router $router*/
+	private $router;
 	
-	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client)
+	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
 		$this->userService = $userService;
 		$this->contentTypeService = $contentTypeService;
 		$this->client = $client;
+		$this->router = $router;
 	}
 	
 	public function getFilters()
@@ -46,7 +50,7 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('all_granted', array($this, 'all_granted')),
 				new \Twig_SimpleFilter('one_granted', array($this, 'one_granted')),
 				new \Twig_SimpleFilter('in_my_circles', array($this, 'inMyCircles')),
-				new \Twig_SimpleFilter('data_label', array($this, 'dataLabel')),
+				new \Twig_SimpleFilter('data_link', array($this, 'dataLink')),
 		);
 	}
 	
@@ -92,33 +96,54 @@ class AppExtension extends \Twig_Extension
 	}
 	
 	
-	function dataLabel($type, $ouuid){
-		$out = $type.':'.$ouuid;
-		
-		$contentType = $this->contentTypeService->getByName($type);
-		if($contentType) {
-			if($contentType->getIcon()){
-				$icon = '<i class="'.$contentType->getIcon().'"></i>&nbsp;';
-			}
-			else{
-				$icon = '<i class="fa fa-book"></i>&nbsp;';
-			}
+	function dataLink($key){
+		$out = $key;
+		$splitted = explode(':', $key);
+		if($splitted && count($splitted) == 2){
+			$type = $splitted[0];
+			$ouuid =  $splitted[1];
 			
-			if($contentType->getLabelField()){
+			$addAttribute = "";
+			
+			/**@var \AppBundle\Entity\ContentType $contentType*/
+			$contentType = $this->contentTypeService->getByName($type);
+			if($contentType) {
+				if($contentType->getIcon()){
+					
+					$icon = '<i class="'.$contentType->getIcon().'"></i>&nbsp;';
+				}
+				else{
+					$icon = '<i class="fa fa-book"></i>&nbsp;';
+				}
+				
 				$result = $this->client->get([
 						'id' => $ouuid,
 						'index' => $contentType->getEnvironment()->getAlias(),
 						'type' => $type,
 				]);
 				
-				$label = $result['_source'][$contentType->getLabelField()];
-				if($label && strlen($label) > 0){
-					$out = $label;
+				if($contentType->getLabelField()){
+					$label = $result['_source'][$contentType->getLabelField()];
+					if($label && strlen($label) > 0){
+						$out = $label;
+					}
+				}
+				$out = $icon.$out;
+				
+				if($contentType->getColorField() && $result['_source'][$contentType->getColorField()]){
+					$color = $result['_source'][$contentType->getColorField()];
+					$contrasted = $this->contrastratio($color, '#000000') > $this->contrastratio($color, '#ffffff')?'#000000':'#ffffff';
+					
+					$out = '<span class="" style="color:'.$contrasted.';">'.$out.'</span>';
+					$addAttribute = ' style="background-color: '.$result['_source'][$contentType->getColorField()].';border-color: '.$result['_source'][$contentType->getColorField()].';"';
+					
 				}
 				
 			}
-			
-			$out = $icon.$out;
+			$out = '<a class="btn btn-primary btn-sm" href="'.$this->router->generate('data.revisions', [
+					'type' =>$type,
+					'ouuid' => $ouuid,
+			]).'" '.$addAttribute.' >'.$out.'</a>';
 		}
 		return $out;
 	}

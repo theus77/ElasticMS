@@ -35,13 +35,23 @@
 	</div>
 	<div class="panel-body" >
 		{% if dataField.rawData %}
-			<ul>
-				<li>Sha1: {{ dataField.rawData.sha1 }}</li>
-				<li>Name: {{ dataField.rawData.filename }}</li>
-				<li>Type: {{ dataField.rawData.mimetype }}</li>
-			</ul>
+			{% if dataField.rawData.sha1 and dataField.rawData.mimetype starts with 'image/' %}
+				<img src="{{ url('file.download', {'sha1':dataField.rawData.sha1, 'type':dataField.rawData.mimetype, 'name':dataField.rawData.filename }) }}" class="img-responsive" alt="Image of the field {{ dataField.fieldType.name }}">
+			{% else %}
+				<ul>
+					<li>Sha1: {{ dataField.rawData.sha1 }}</li>
+					<li>Name: {{ dataField.rawData.filename }}</li>
+					<li>Type: {{ dataField.rawData.mimetype }}</li>
+				</ul>
+			{% endif %}
 		{% endif %}
+		
 	</div>
+	{% if dataField.rawData and dataField.rawData.sha1 %}
+		<div class="panel-footer" >
+			<a href="{{ url('file.download', {'sha1':dataField.rawData.sha1, 'type':dataField.rawData.mimetype, 'name':dataField.rawData.filename }) }}" class="btn btn-small btn-primary"><i class="fa fa-download"></i>&nbsp;Download</a>
+		</div>
+	{% endif %}
 </div>
 {% endmacro %}
 
@@ -192,20 +202,10 @@
 		<dd>
 			{% if dataField.fieldType.displayOptions.multiple %}
 					{% for value in dataField.arrayTextValue %}
-						{% set path = value|split(':') %}
-						{% if path.1 is not defined %}
-              				<a href="#" class="btn btn-primary btn-sm" >Not wel formated data link field: {{ value }}</a>
-						{% else %}
-  							<a class="btn btn-primary btn-sm" href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ path.0|data_label( path.1)|raw }}</a>
-  						{% endif %}
+			   			{{ value|data_link|raw }}
 					{% endfor %}
 			{% else %}
-			   {% if dataField.textValue %}
-				  {% set path = dataField.textValue|split(':') %}
-				  <a class="btn btn-primary btn-sm" href="{{ url('data.revisions', {type: path.0 , ouuid: path.1 }) }}">{{ path.0|data_label( path.1)|raw }}</a>
-				 {% else %}
-				  Not set
-				 {% endif %}
+			   	{{ dataField.textValue|data_link|raw }}
 			{% endif %}
 		
 		</dd>

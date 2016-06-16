@@ -14,9 +14,42 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Doctrine\ORM\EntityManager;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class FileController extends AppController
 {
+	
+	/**
+	 * @Route("/data/file/{sha1}}" , name="file.download")
+     * @Method({"GET"})
+	 */
+	public function downloadFileAction($sha1, Request $request) {
+
+		$name = $request->query->get('name', 'upload.bin');
+		$type = $request->query->get('type', 'application/bin');
+		
+		$file = false;
+		
+		foreach ($this->getParameter('storage_services') as $serviceName){
+			/**@var \AppBundle\Service\Storage\StorageInterface $service */
+			$service = $this->get($serviceName);
+			$file = $service->read($sha1);
+			if($file) {
+				break;
+			}
+		}
+		
+		if(!$file){
+			throw new NotFoundHttpException('Impossible to find the item corresponding to this id: '.$sha1);
+		}
+		
+		$response = new BinaryFileResponse($file);
+		$response->headers->set('Content-Type', $type);
+		$response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $name);
+		
+		return $response;
+	}
 	
 	/**
 	 * @Route("/data/file/init-upload/{sha1}/{size}" , name="file.init-upload")
