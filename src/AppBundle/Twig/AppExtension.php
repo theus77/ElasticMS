@@ -51,6 +51,7 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('one_granted', array($this, 'one_granted')),
 				new \Twig_SimpleFilter('in_my_circles', array($this, 'inMyCircles')),
 				new \Twig_SimpleFilter('data_link', array($this, 'dataLink')),
+				new \Twig_SimpleFilter('get_content_type', array($this, 'getContentType')),
 		);
 	}
 	
@@ -248,6 +249,11 @@ class AppExtension extends \Twig_Extension
 	{
 		return array_search($needle, $haystack) === 0;
 	}
+	
+	public function getContentType($name){
+		return $this->contentTypeService->getByName($name);
+	}
+
 	
 	/*
 	 * $arguments should contain 'function' key. Optionally 'options' and/or 'parameters'

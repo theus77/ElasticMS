@@ -92,15 +92,14 @@
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][field]'):contentType.circlesField}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][operator]'):('term')}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][pattern]'):circle}) %}
-	          				{# 	          				{% set attribute(searchForm, fieldKey) = contentType.circlesField %}#}
-{# 	          				{% set searchForm['search_form[filters]['~loop.index~'][operator]'] = 'term' %}#}
-{# 	          				{% set searchForm['search_form[filters]['~loop.index~'][pattern]'] = circle %}#}
-		            	
 		            	{% endfor %}
+		            	
+		            	{% set label = circles_object %}
+		            	{% if app.user.circles|length > 1 %}
+			            	{% set label = (circles_object|get_content_type).pluralName %}
+		            	{% endif %}
 
-						{{ searchForm|dump }}
-
-	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}">In my circles</a></li>
+	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}">In my {{ label }}</a></li>
 	            	{% endif %}
 	            	{% for view in contentType.views %}
 	            		<li>
