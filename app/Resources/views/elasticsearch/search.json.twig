@@ -14,15 +14,21 @@
 					"color": {{ attribute(item._source, colorField)|json_encode()|raw }},
 				{% endif %}
 			{% endif %}
+			{% set icon = '<i class="fa fa-question"></i> ' %}
+
+			{% if attribute(types, item._type).icon is defined %}
+				{% set icon = ('<i class=\"' ~ attribute(types, item._type).icon ~ '\"> </i> ') %}
+			{% endif %}
+						
 			{% if attribute(types, item._type).labelField is defined %}
 				{% set labelField = attribute(types, item._type).labelField %}
 				{% if attribute(item._source, labelField) is defined %}
-					"text": {{ attribute(item._source, labelField)|json_encode()|raw }}
+					"text": {{ (icon~attribute(item._source, labelField))|json_encode()|raw }}
 				{% else %}
-					"text": {{ item._id|json_encode()|raw }}
+					"text": {{ (icon~item._id)|json_encode()|raw }}
 				{% endif %}
 			{% else %}
-				"text": {{ item._id|json_encode()|raw }}
+				"text": {{ (icon~item._id)|json_encode()|raw }}
 			{% endif %}
 		}
 	{% endfor %}

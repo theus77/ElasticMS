@@ -19,10 +19,10 @@ class FileSystemStorage implements StorageInterface {
 	}
 	
 	private function getPath($sha1){
-		if(! file_exists($this->storagePath.substr($sha1, 0, 3)) ){
-			mkdir($this->storagePath.substr($sha1, 0, 3));
+		if(! file_exists($this->storagePath.'/'.substr($sha1, 0, 3)) ){
+			mkdir($this->storagePath.'/'.substr($sha1, 0, 3));
 		}
-		return $this->storagePath.substr($sha1, 0, 3).'/'.$sha1;
+		return $this->storagePath.'/'.substr($sha1, 0, 3).'/'.$sha1;
 	}
 	
 	public function head($sha1) {
@@ -30,7 +30,6 @@ class FileSystemStorage implements StorageInterface {
 	}
 	
 	public function create($sha1, $filename){
-		dump($this->getPath($sha1));
 		return rename($filename, $this->getPath($sha1));
 	}
 	
