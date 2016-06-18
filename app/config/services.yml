@@ -21,7 +21,7 @@ services:
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
         factory: [AppBundle\Factories\ElasticsearchClientBuilderFactory, build]
-        arguments: [%elasticsearch_cluster%]
+        arguments: ["%elasticsearch_cluster%"]
     app.twig.extension.stringloader:
         class: Twig_Extension_StringLoader
         tags:

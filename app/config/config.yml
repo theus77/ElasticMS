@@ -46,11 +46,11 @@ twig:
         #blue black purple yellow red green 
         ems_name: <b>elastic</b>MS
         ems_shortname: <b>e</b>MS
-        circles_object: %circles_object%
+        circles_object: "%circles_object%"
         #date picker
-        datepicker_format : %datepicker_format%
-        datepicker_weekstart : %datepicker_weekstart%
-        datepicker_daysofweek_highlighted: %datepicker_daysofweek_highlighted%
+        datepicker_format : "%datepicker_format%"
+        datepicker_weekstart : "%datepicker_weekstart%"
+        datepicker_daysofweek_highlighted: "%datepicker_daysofweek_highlighted%"
     form_themes:
         - "form/fields.html.twig"
 
