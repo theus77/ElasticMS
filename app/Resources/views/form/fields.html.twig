@@ -81,6 +81,22 @@
 
 {%- endblock data_field_options_widget -%}
 
+{% block datafieldtype_widget %}
+	{% if isContainer %}
+		<div id="{{ form.vars.id }}" class="container-fluid">
+			<div class="row">
+				{% for child in form.children %}
+					{{- form_row(child) -}}
+					{% if child.vars.lastOfRow is defined and child.vars.lastOfRow %}
+						</div><div class="row">
+					{% endif %}
+				{% endfor %}
+			</div>
+		</div>
+	{% else %}
+		{{ form_widget(form) }}
+	{% endif %}
+{% endblock datafieldtype_widget %}
 
 {# Labels #}
 {% block container_label -%}
