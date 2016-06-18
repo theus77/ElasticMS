@@ -101,7 +101,7 @@
 									{{ attribute(_self, grandchild.fieldType.type|replace({'\\': '_'}), [grandchild]) }}
 								</div>
 								{% if grandchild.fieldType.displayOptions.lastOfRow is defined and grandchild.fieldType.displayOptions.lastOfRow %}
-									</div><div ="row">
+									</div><div class="row">
 								{% endif %}
 							{% endfor %}
 						</div>
@@ -136,7 +136,7 @@
 				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
 			</div>
 			{% if child.fieldType.displayOptions.lastOfRow is defined and child.fieldType.displayOptions.lastOfRow %}
-				</div><div ="row">
+				</div><div class="row">
 			{% endif %}
 		{% endfor %}
 	</div>
@@ -170,7 +170,7 @@
 				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
 			</div>
 			{% if child.fieldType.displayOptions.lastOfRow is defined and child.fieldType.displayOptions.lastOfRow %}
-				</div><div ="row">
+				</div><div class="row">
 			{% endif %}
 		{% endfor %}
 	</div>
