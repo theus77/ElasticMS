@@ -368,7 +368,7 @@ class ElasticsearchController extends AppController
 				
 			}
 			
-// 			dump(json_encode($body));
+// 			
 			
 			/** @var EntityManager $em */
 			$em = $this->getDoctrine()->getManager();
@@ -448,7 +448,7 @@ class ElasticsearchController extends AppController
 			
 			$params['body'] = $body;
 			
-// 			dump($params);
+			//dump(json_encode($body));
 			try {
 				$results = $client->search($params);
 				$lastPage = ceil($results['hits']['total']/$this->container->getParameter('paging_size'));

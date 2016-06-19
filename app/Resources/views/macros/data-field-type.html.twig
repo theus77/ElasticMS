@@ -398,9 +398,13 @@
 		</dt>
 		<dd>
 			<ul>
-				{% for value in dataField.arrayTextValue if value %}
-					<li>{{ value|raw }}</li>
-				{% endfor %}
+				{% if dataField.fieldType.displayOptions.multiple %}
+					{% for value in dataField.arrayTextValue if value %}
+						<li>{{ value|raw }}</li>
+					{% endfor %}
+				{% else %}
+				{{ dataField.textValue }}
+				{% endif %}
 			</ul>
 		</dd>
 	</dl>

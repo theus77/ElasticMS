@@ -18,78 +18,82 @@
 			<div class="box ">
 				<div class="box-header with-border">
 					<h3>
-						<i class="fa fa-search"></i> Search form
+						<a class="toggle-button collapsed" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="false" aria-controls="searchFormBoxBody">
+							<i class="fa fa-search"></i> Search form
+						</a>
 					</h3>
 				</div>
-				<div class="box-body">
-					<div class="row">
-						<div class=" col-md-2">
-							{{ form_row(form.boolean) }}
+				<div id="searchFormBoxBody" class="collapse">
+					<div class="box-body" >
+						<div class="row">
+							<div class=" col-md-2">
+								{{ form_row(form.boolean) }}
+							</div>
+							<div class=" col-md-2">
+								{{ form_row(form.sortBy) }}
+							</div>
+							<div class=" col-md-2">
+								{{ form_row(form.sortOrder) }}
+							</div>
 						</div>
-						<div class=" col-md-2">
-							{{ form_row(form.sortBy) }}
-						</div>
-						<div class=" col-md-2">
-							{{ form_row(form.sortOrder) }}
+						<div class="row" id="list-of-search-filters" data-prototype="{{ form_row(form.filters.vars.prototype)|e }}" data-index="{{ form.filters|length }}">
+							{{ form_widget(form.filters) }}
 						</div>
 					</div>
-					<div class="row" id="list-of-search-filters" data-prototype="{{ form_row(form.filters.vars.prototype)|e }}" data-index="{{ form.filters|length }}">
-						{{ form_widget(form.filters) }}
-					</div>
-				</div>
-				{% set hasFacets= form.aliasFacet.vars.value or form.typeFacet.vars.value %}
-				{% if hasFacets %}
-				<div class="box-body">
-							Facets : 
-							{% if form.typeFacet.vars.value %}
-								{% if attribute(types, form.typeFacet.vars.value ) is defined %}
-									<a href="{{ path(paginationPath, currentFilters|merge({'search_form[typeFacet]': ''})) }}">
-										<span class=" badge bg-{{ attribute(types, form.typeFacet.vars.value).color }}" >
+					{% set hasFacets= form.aliasFacet.vars.value or form.typeFacet.vars.value %}
+					{% if hasFacets %}
+					<div class="box-body">
+								Facets : 
+								{% if form.typeFacet.vars.value %}
+									{% if attribute(types, form.typeFacet.vars.value ) is defined %}
+										<a href="{{ path(paginationPath, currentFilters|merge({'search_form[typeFacet]': ''})) }}">
+											<span class=" badge bg-{{ attribute(types, form.typeFacet.vars.value).color }}" >
+												<i class="fa fa-close"></i>
+												{{ form.typeFacet.vars.value|humanize }}
+											</span>
+										</a>
+									{% else %}
+										<a href="{{ path(paginationPath, currentFilters|merge({'search_form[typeFacet]': ''})) }}">
+											<span class="badge" >
+												<i class="fa fa-close"></i>
+												{{  form.typeFacet.vars.value|humanize }}
+											</span>
+										</a>
+									{% endif %}
+								{% endif %}
+								{% if form.aliasFacet.vars.value %}
+									<a href="{{ path(paginationPath, currentFilters|merge({'search_form[aliasFacet]': ''})) }}">
+										<span class=" badge bg-{{ attribute(alias, form.aliasFacet.vars.value).color }}" >
 											<i class="fa fa-close"></i>
-											{{ form.typeFacet.vars.value|humanize }}
-										</span>
-									</a>
-								{% else %}
-									<a href="{{ path(paginationPath, currentFilters|merge({'search_form[typeFacet]': ''})) }}">
-										<span class="badge" >
-											<i class="fa fa-close"></i>
-											{{  form.typeFacet.vars.value|humanize }}
+											{{ attribute(alias, form.aliasFacet.vars.value).name|humanize }}
 										</span>
 									</a>
 								{% endif %}
-							{% endif %}
-							{% if form.aliasFacet.vars.value %}
-								<a href="{{ path(paginationPath, currentFilters|merge({'search_form[aliasFacet]': ''})) }}">
-									<span class=" badge bg-{{ attribute(alias, form.aliasFacet.vars.value).color }}" >
-										<i class="fa fa-close"></i>
-										{{ attribute(alias, form.aliasFacet.vars.value).name|humanize }}
-									</span>
-								</a>
-							{% endif %}
-				</div>
-				{% endif %}						
-				<div class="box-footer">
-					<div class="form-group">
-						<div class="btn-group">
-							<a class="btn btn-primary" href="#" id="add-search-filter-button"><i class="fa fa-plus"></i> Add filter</a>
-							{{ form_widget(form.search) }}
-						</div>
-						<div class="btn-group pull-right">
-							{% if searchId %}
-								{% include 'elements/post-button.html.twig' with {
-									'url':  path('elasticsearch.search.delete', {'id': searchId, 'search': app.request.query}),
-									'message': 'Do you confirm ?',
-									'label': 'Delete',
-									'icon': 'trash',
-									'class': 'btn'
-								}%}
-							{% endif %}
-							{% if form.exportResults is defined %}
-								{{ form_widget(form.exportResults) }}
-							{% endif %}
-							{% if form.save is defined %}
-								{{ form_widget(form.save) }}
-							{% endif %}
+					</div>
+					{% endif %}						
+					<div class="box-footer">
+						<div class="form-group">
+							<div class="btn-group">
+								<a class="btn btn-primary" href="#" id="add-search-filter-button"><i class="fa fa-plus"></i> Add filter</a>
+								{{ form_widget(form.search) }}
+							</div>
+							<div class="btn-group pull-right">
+								{% if searchId %}
+									{% include 'elements/post-button.html.twig' with {
+										'url':  path('elasticsearch.search.delete', {'id': searchId, 'search': app.request.query}),
+										'message': 'Do you confirm ?',
+										'label': 'Delete',
+										'icon': 'trash',
+										'class': 'btn'
+									}%}
+								{% endif %}
+								{% if form.exportResults is defined %}
+									{{ form_widget(form.exportResults) }}
+								{% endif %}
+								{% if form.save is defined %}
+									{{ form_widget(form.save) }}
+								{% endif %}
+							</div>
 						</div>
 					</div>
 				</div>

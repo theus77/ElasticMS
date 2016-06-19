@@ -372,6 +372,8 @@ class DataController extends AppController
 		
 	
 		try{
+
+			$this->get('ems.service.data')->loadDataStructure($revision);
 			
 			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 			/** @var \AppBundle\Entity\Environment $environment */

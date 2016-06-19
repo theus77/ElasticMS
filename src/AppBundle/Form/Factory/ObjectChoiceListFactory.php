@@ -39,7 +39,7 @@ class ObjectChoiceListFactory extends DefaultChoiceListFactory{
     		if($loadAll) {
     			throw new PerformanceException('Try to load all objects of all content types');
     		}
-    		$types = $this->contentTypes->getAllAliases();
+    		$types = $this->contentTypes->getAllTypes();
     	}
     	return new ObjectChoiceLoader($this->objectChoiceCacheService, $types, $loadAll);
     }
