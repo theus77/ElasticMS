@@ -163,7 +163,7 @@ class DataController extends AppController
 		}
 		
 	
-		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType) {
+		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType || $revision->getDeleted()) {
 			throw new NotFoundHttpException('Revision not found');
 		}
 		
