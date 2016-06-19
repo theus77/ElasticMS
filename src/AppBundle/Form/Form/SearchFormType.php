@@ -2,17 +2,17 @@
 
 namespace AppBundle\Form\Form;
 
-use AppBundle\Entity\Revision;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Form\Field\SubmitEmsType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use AppBundle\Form\Subform\SearchFilterType;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\FormView;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class SearchFormType extends AbstractType {
 	/**
@@ -27,6 +27,16 @@ class SearchFormType extends AbstractType {
 						'Or' => 'or',
 				],
 				'label' => 'Boolean operator'
+		]);
+		$builder->add('sortBy', TextType::class, [
+				'required' => false,
+		]);
+		$builder->add('sortOrder', ChoiceType::class, [
+				'choices' => [
+						'Ascending' => 'asc',
+						'Descending' => 'desc',
+				],
+				'required' => false,
 		]);
 		$builder->add('aliasFacet', HiddenType::class);
 		$builder->add('typeFacet', HiddenType::class);

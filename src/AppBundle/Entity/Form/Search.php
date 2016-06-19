@@ -62,6 +62,20 @@ class Search
 	 */
 	private $name;
 	
+	/**
+	 * @var string $sortBy
+	 * 
+     * @ORM\Column(name="sort_by", type="string", length=100)
+	 */
+	private $sortBy;
+	
+	/**
+	 * @var string $sortOrder
+	 * 
+     * @ORM\Column(name="sort_order", type="string", length=100)
+	 */
+	private $sortOrder;
+	
 	
 	function __construct(){
 		$this->filters = [];//new \Doctrine\Common\Collections\ArrayCollection();
@@ -233,5 +247,53 @@ class Search
     public function getFilters()
     {
         return $this->filters;
+    }
+
+    /**
+     * Set sortBy
+     *
+     * @param string $sortBy
+     *
+     * @return Search
+     */
+    public function setSortBy($sortBy)
+    {
+        $this->sortBy = $sortBy;
+
+        return $this;
+    }
+
+    /**
+     * Get sortBy
+     *
+     * @return string
+     */
+    public function getSortBy()
+    {
+        return $this->sortBy;
+    }
+
+    /**
+     * Set sortOrder
+     *
+     * @param string $sortOrder
+     *
+     * @return Search
+     */
+    public function setSortOrder($sortOrder)
+    {
+        $this->sortOrder = $sortOrder;
+
+        return $this;
+    }
+
+    /**
+     * Get sortOrder
+     *
+     * @return string
+     */
+    public function getSortOrder()
+    {
+        return $this->sortOrder;
     }
 }

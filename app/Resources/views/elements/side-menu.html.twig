@@ -78,14 +78,24 @@
 	          		{% endif %}
 	          	</a>
 	          	<ul class="treeview-menu">
-	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', { 'search_form[typeFacet]': contentType.name, 'search_form[aliasFacet]': contentType.environment.alias }) }}">Search {{ contentType.pluralName|humanize }}</a></li>
+	            	{% set searchForm = { 
+	            		'search_form[typeFacet]': contentType.name, 
+	            		'search_form[aliasFacet]': contentType.environment.alias,
+	            		'search_form[boolean]': 'and'
+					} %}
+					{% if contentType.labelField %}
+		            	{% set searchForm = searchForm|merge({ 
+		            		'search_form[sortBy]': '_uid',
+		            		'search_form[sortOrder]': 'asc'
+						}) %}
+					{% endif %}
+					
+	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm) }}">Search {{ contentType.pluralName|humanize }}</a></li>
 	          		
 	          		{% if contentType.circlesField and app.user.circles|length > 0 %}
-		            	{% set searchForm = { 
-		            		'search_form[typeFacet]': contentType.name, 
-		            		'search_form[aliasFacet]': contentType.environment.alias,
+		            	{% set searchForm = searchForm|merge({ 
 		            		'search_form[boolean]': 'or'
-						} %}
+						}) %}
 						
 		            	
 	          			{% for circle in  app.user.circles%}

@@ -23,9 +23,15 @@
 				</div>
 				<div class="box-body">
 					<div class="row">
-						<span class=" col-md-2">
+						<div class=" col-md-2">
 							{{ form_row(form.boolean) }}
-						</span>
+						</div>
+						<div class=" col-md-2">
+							{{ form_row(form.sortBy) }}
+						</div>
+						<div class=" col-md-2">
+							{{ form_row(form.sortOrder) }}
+						</div>
 					</div>
 					<div class="row" id="list-of-search-filters" data-prototype="{{ form_row(form.filters.vars.prototype)|e }}" data-index="{{ form.filters|length }}">
 						{{ form_widget(form.filters) }}
@@ -149,12 +155,14 @@
 			  	{% if attribute(types, result._type) is defined %}
 			  		<div class="panel-body">
 					  	<div class="col-xs-12">
-							{% include template_from_string(attribute(types, result._type).indexTwig) with {
+					  		{{ 
+								attribute(types, result._type).indexTwig|generate_from_template({
 									environment: attribute(indexes, result._index),
 									contentType: attribute(types, result._type),
 									object: result,
 									source: result._source
-								} %}
+								})|raw
+							}}
 				  		</div>
 					</div>
 			  	{% endif %}
@@ -216,6 +224,13 @@
 							{% endif %}
 						</li>
 					{% endfor %}
+						{% if results.aggregations.types.sum_other_doc_count > 0 %}
+							<li class="list-group-item">
+								<i class="fa fa-question"></i>
+								Other
+								<span class=" badge pull-right">{{ results.aggregations.types.sum_other_doc_count }}</span>
+							</li>
+						{% endif %}
 					</ul>
 				</div>
 			</div>
