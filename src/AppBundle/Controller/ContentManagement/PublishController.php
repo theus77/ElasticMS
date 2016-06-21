@@ -34,6 +34,9 @@ class PublishController extends AppController
 		}
 		
 
+		$this->get("ems.service.data")->lockRevision($revision);
+		
+
 		/** @var RevisionRepository $revisionRepo */
 		$environmentRepo = $em->getRepository('AppBundle:Environment');
 		
@@ -57,12 +60,12 @@ class PublishController extends AppController
 		/** @var Client $client */
 		$client = $this->get('app.elasticsearch');
 		
-		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
+		
 		$status = $client->index([
 				'id' => $revision->getOuuid(),
 				'index' => $environment->getAlias(),
 				'type' => $revision->getContentType()->getName(),
-				'body' => $objectArray
+				'body' => $revision->getRawData()
 		]);
 		
 		$em->persist($revision);
@@ -91,7 +94,8 @@ class PublishController extends AppController
 		if(!$revision) {
 			throw $this->createNotFoundException('Revision not found');
 		}
-		
+
+		$this->get("ems.service.data")->lockRevision($revision);
 
 		/** @var RevisionRepository $revisionRepo */
 		$environmentRepo = $em->getRepository('AppBundle:Environment');
