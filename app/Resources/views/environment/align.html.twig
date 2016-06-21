@@ -1,0 +1,143 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Align Environments{% endblock %}
+{% block pagetitle %}Align Environments{% endblock %} 
+{% block breadcrumb %}
+	<ol class="breadcrumb">
+		<li><i class="fa fa-database"></i> Environments</li>
+   		<li class="active">Align Environments</li>
+   	</ol>
+{% endblock %}
+
+{% block subtitle %}
+<small>time to align environments?</small>
+{% endblock %}
+
+{% block body %}
+
+
+
+
+
+
+
+<div class="row">
+	<div class="col-xs-12">
+	<div class="box box-primary">
+            <div class="box-header with-border">
+              <h3 class="box-title">Quick Example</h3>
+            </div>
+            <!-- /.box-header -->
+            <!-- form start -->
+            {{ form_start(form) }}
+              <div class="box-body">
+              	<div class="col-md-6">
+              	{{ form_row(form.environment) }}
+              	</div>
+              	<div class="col-md-6">
+              	{{ form_row(form.withEnvironment) }}
+              	</div>
+	              {{ form_errors(form) }}
+              </div>
+              <!-- /.box-body -->
+
+              <div class="box-footer">
+              	{{ form_row(form.compare) }}
+              </div>
+            {{ form_end(form) }}
+          </div>
+	</div>
+
+
+{% if results %}
+	<div class="col-xs-12">
+		<div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Compare </h3>
+
+				{% include 'elements/pagination.html.twig' with {
+					'lastPage': lastPage,
+					'currentPage': page,
+					'currentFilters': app.request.query,
+					'paginationPath': paginationPath,
+					'showAlwaysFirstAndLast': false
+				} %}
+
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body no-padding">
+              <table class="table">
+                <tbody><tr>
+                  <th style="width: 10px">#</th>
+                  <th>Content type</th>
+                  <th>OUUID</th>
+                  <th>Label</th>
+                  <th>In {{ form.vars.value.environment }}</th>
+                  <th>In {{ form.vars.value.withEnvironment }}</th>
+                  <th>Actions</th>
+                </tr>
+                {% for item in results %}
+        			{% set data = (item.content_type_name~':'~item.ouuid)|data %}
+        			{% set minrev = item.minrevid|split('/') %}
+        			{% set maxrev = item.maxrevid|split('/') %}
+	                <tr>
+	                  <td>{{ loop.index+((page-1)*paging_size) }}.</td>
+	                  <td class="text-{{ item.color }}"><i class="{% if item.icon %}{{item.icon}}{% else %}fa fa-document{% endif %}"></i> {{ item.content_type_name|humanize }}</td>
+	                  <td>{{ item.ouuid }}</td>
+	                  <td>{% if item.labelField and attribute(data, item.labelField) is defined %}{{ attribute(data, item.labelField) }}{% endif %}</td>
+	                  <td>
+        				{% if minrev[0] == fromEnv %}
+        					{{ minrev[2]|date(date_time_format) }}
+        					({{ minrev[1] }})
+        				{% elseif maxrev[0] == fromEnv %}
+        					{{ maxrev[2]|date(date_time_format) }}
+        					({{ maxrev[1] }})
+        				{% endif %}
+	                  </td>
+	                  <td>
+        				{% if minrev[0] == withEnv %}
+        					{{ minrev[2]|date(date_time_format) }}
+        					({{ minrev[1] }})
+        				{% elseif maxrev[0] == withEnv %}
+        					{{ maxrev[2]|date(date_time_format) }}
+        					({{ maxrev[1] }})
+        				{% endif %}
+	                  </td>
+	                  <td>
+	                  	<div class="btn-group">     		
+						  	{% include 'elements/get-button.html.twig' with {
+								'url':  path('data.revisions', {'type': item.content_type_name, 'ouuid': item.ouuid} ),
+								'label': 'Revisions',
+								'icon': 'archive'
+							}%}
+	                  	</div>
+	                  </td>
+	                </tr>
+	            {% endfor %}
+              </tbody></table>
+            </div>
+            <div class="box-footer">
+
+				{% include 'elements/pagination.html.twig' with {
+					'lastPage': lastPage,
+					'currentPage': page,
+					'currentFilters': app.request.query,
+					'paginationPath': paginationPath,
+					'showAlwaysFirstAndLast': false
+				} %}
+
+            </div>
+            <!-- /.box-body -->
+          </div>
+	</div>
+{% endif %}
+</div>
+
+{% endblock %} 
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'environment-align'
+	}%}
+{% endblock %}	

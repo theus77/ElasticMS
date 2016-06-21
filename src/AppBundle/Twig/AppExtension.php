@@ -56,6 +56,7 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('data_link', array($this, 'dataLink')),
 				new \Twig_SimpleFilter('get_content_type', array($this, 'getContentType')),
 				new \Twig_SimpleFilter('generate_from_template', array($this, 'generateFromTemplate')),
+				new \Twig_SimpleFilter('data', array($this, 'data')),
 				
 		);
 	}
@@ -163,6 +164,31 @@ class AppExtension extends \Twig_Extension
 			]).'" '.$addAttribute.' >'.$out.'</a>';
 		}
 		return $out;
+	}
+	
+	function data($key){
+		$out = $key;
+		$splitted = explode(':', $key);
+		if($splitted && count($splitted) == 2){
+			$type = $splitted[0];
+			$ouuid =  $splitted[1];
+				
+			$addAttribute = "";
+				
+			/**@var \AppBundle\Entity\ContentType $contentType*/
+			$contentType = $this->contentTypeService->getByName($type);
+			if($contentType) {
+	
+				$result = $this->client->get([
+						'id' => $ouuid,
+						'index' => $contentType->getEnvironment()->getAlias(),
+						'type' => $type,
+				]);
+				
+				return $result['_source'];
+			}
+		}
+		return false;
 	}
 	
 	function one_granted($roles, $super=false){

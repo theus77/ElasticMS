@@ -24,8 +24,84 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Form\Form\CompareEnvironmentFormType;
+use AppBundle\Repository\RevisionRepository;
 
 class EnvironmentController extends AppController {
+
+	/**
+	 *
+	 * @Route("/publisher/align", name="environment.align"))
+	 */
+	public function alignAction(Request $request) {
+
+		$data = [];
+		$form = $this->createForm(CompareEnvironmentFormType::class, $data);
+		
+		$form->handleRequest($request);	
+		$paging_size = $this->getParameter('paging_size');
+		
+		
+		$results = false;
+		$page = 0;
+		$total = 0;
+		$lastPage = 0;
+		$fromEnv = 0;
+		$withEnv = 0;
+		
+		if ($form->isSubmitted() && $form->isValid()) {
+			$data = $form->getData();
+			if($data['environment'] == $data['withEnvironment']){
+				$form->addError(new FormError("Source and target environments must be different"));
+			}
+			else {
+				if(null != $request->query->get('page')){
+					$page = $request->query->get('page');
+				}
+				else{
+					$page = 1;
+				}
+		
+				/** @var EntityManager $em */
+				$em = $this->getDoctrine ()->getManager ();
+				/**@var RevisionRepository $repository*/
+				$repository = $em->getRepository ( 'AppBundle:Revision' );
+
+				$env = $this->get('ems.service.environment')->getAliasByName($data['environment']);
+				$withEnvi = $this->get('ems.service.environment')->getAliasByName($data['withEnvironment']);
+				$fromEnv = $env->getId();
+				$withEnv = $withEnvi->getId();
+				
+				
+				$results = $repository->compareEnvironment($env->getId(), $withEnvi->getId(), ($page-1)*$paging_size, $paging_size);
+				
+				if(count($results) > 0){
+					$total = $repository->countDifferencesBetweenEnvironment($env->getId(), $withEnvi->getId());					
+				}
+				else {
+					$this->addFlash('notice', 'Those environments are aligned');
+					$total = 0;
+				}
+				
+				$lastPage = ceil($total/$paging_size);				
+			}
+		}
+		
+		
+		return $this->render ( 'environment/align.html.twig', [
+				'form' => $form->createView(),
+				'results' => $results,
+				'lastPage' => $lastPage,
+				'paginationPath' => 'environment.align',
+				'page' => $page,
+				'paging_size' => $paging_size,
+				'total' => $total,
+				'currentFilters' => $request->query,
+				'fromEnv' => $fromEnv,
+				'withEnv' => $withEnv,
+		] );
+	}
+	
 	
 	/**
 	 * Attach a external index as a new referenced environment
