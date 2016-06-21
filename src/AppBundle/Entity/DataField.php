@@ -209,7 +209,6 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    	
 	    	if(null === $this->getFieldType()){
 	    		if(NULL === $this->getParent()){
-					dump($this);
 	    			throw new \Exception('null parent !!!!!! '.$key);
 	    		}
 	    		else{

@@ -5,6 +5,7 @@ namespace AppBundle\Form\DataField\Options;
 use AppBundle\Form\Field\IconTextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 /**
  * It's a coumpound field for field specific display option.
@@ -28,6 +29,10 @@ class DisplayOptionsType extends AbstractType {
 				'required' => false,
 				'label' => 'Bootstrap class',
 				'icon' => 'fa fa-css3' 
+		] );
+		$builder->add ( 'lastOfRow', CheckboxType::class, [ 
+				'required' => false,
+				'label' => 'Last item of the row'
 		] );
 	}
 }

@@ -163,7 +163,7 @@ class DataController extends AppController
 		}
 		
 	
-		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType) {
+		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType || $revision->getDeleted()) {
 			throw new NotFoundHttpException('Revision not found');
 		}
 		
@@ -178,11 +178,36 @@ class DataController extends AppController
 		
 		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 	
+		
+
+		/** @var Client $client */
+		$client = $this->get('app.elasticsearch');
+		
+		$refParams = [ 
+					'type' => $this->get('ems.service.contenttype')->getAllTypes(),
+					'index' => $this->get('ems.service.contenttype')->getAllAliases(),
+					'size' => 100,
+					'body'=> [
+						'query' => [
+							'term'	=> [
+									'_all' => [
+											'value' => $type.':'.$ouuid
+									]
+							]	
+						],
+						'sort' => [
+								'_uid' => 'asc',
+								
+						],
+						'track_scores' => true
+				]];
+		
 		return $this->render( 'data/revisions-data.html.twig', [
 				'revision' =>  $revision,
 				'revisionsSummary' => $revisionsSummary,
 				'availableEnv' => $availableEnv,
 				'object' => $revision->getObject($objectArray),
+				'referrers' => $client->search($refParams)
 		] );
 	}
 	
@@ -347,6 +372,8 @@ class DataController extends AppController
 		
 	
 		try{
+
+			$this->get('ems.service.data')->loadDataStructure($revision);
 			
 			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 			/** @var \AppBundle\Entity\Environment $environment */

@@ -21,8 +21,10 @@ class AppExtension extends \Twig_Extension
 	private $client;
 	/**@var Router $router*/
 	private $router;
+	/**@var \Twig_Environment $twig*/
+	private $twig;
 	
-	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router)
+	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router, $twig)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
@@ -30,6 +32,7 @@ class AppExtension extends \Twig_Extension
 		$this->contentTypeService = $contentTypeService;
 		$this->client = $client;
 		$this->router = $router;
+		$this->twig = $twig;
 	}
 	
 	public function getFilters()
@@ -51,6 +54,9 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('one_granted', array($this, 'one_granted')),
 				new \Twig_SimpleFilter('in_my_circles', array($this, 'inMyCircles')),
 				new \Twig_SimpleFilter('data_link', array($this, 'dataLink')),
+				new \Twig_SimpleFilter('get_content_type', array($this, 'getContentType')),
+				new \Twig_SimpleFilter('generate_from_template', array($this, 'generateFromTemplate')),
+				
 		);
 	}
 	
@@ -95,6 +101,17 @@ class AppExtension extends \Twig_Extension
 		return false;
 	}
 	
+	
+	function generateFromTemplate($template, array $params){
+		
+		try {
+			$out = $this->twig->createTemplate($template)->render($params);
+		}
+		catch (\Exception $e) {
+			$out = "Error in template: ".$e->getMessage();
+		}
+		return $out;
+	}
 	
 	function dataLink($key){
 		$out = $key;
@@ -248,6 +265,11 @@ class AppExtension extends \Twig_Extension
 	{
 		return array_search($needle, $haystack) === 0;
 	}
+	
+	public function getContentType($name){
+		return $this->contentTypeService->getByName($name);
+	}
+
 	
 	/*
 	 * $arguments should contain 'function' key. Optionally 'options' and/or 'parameters'

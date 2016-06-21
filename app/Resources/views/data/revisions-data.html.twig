@@ -96,6 +96,41 @@
 		</div>
 	</div>
 </div>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header with-border">
+				<h3 class="box-title">Referrers <small>{{ referrers.hits.hits|length }}/{{ referrers.hits.total }}</small></h3>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body">
+				{% if referrers.hits.total == 0 %}
+					This document does not have any referrers
+				{% else %}
+				
+					<div class="btn-group">
+						{% for obj in referrers.hits.hits %}
+							{{ (obj._type~':'~obj._id)|data_link|raw }}
+						{% endfor %}
+					</div>
+				{% endif %}
+			</div>
+			
+			<div class="box-footer">
+				<div class="btn-group">
+					<a href="{{ path('elasticsearch.search', {
+	            		'search_form[boolean]': 'and',
+	            		'search_form[sortBy]': '_uid',
+	            		'search_form[sortOrder]': 'asc',
+	            		'search_form[filters][0][field]' : '',
+	            		'search_form[filters][0][operator]' : 'term',
+	            		'search_form[filters][0][pattern]' : (revision.contentType.name~':'~revision.ouuid)
+						} ) }}" class="btn btn-primary"><i class="fa fa-search"></i> All referrers</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}
 
 {% block javascripts %}

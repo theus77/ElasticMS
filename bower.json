@@ -33,6 +33,7 @@
     "jquery-ui": "^1.11.4",
     "jquery_lazyload": "jquery.lazyload#^1.9.7",
     "bootstrap-datepicker": "^1.6.0",
-    "bootstrap-timepicker": "^0.5.2"
+    "bootstrap-timepicker": "^0.5.2",
+    "bootstrap-fileinput": "^4.3.2"
   }
 }
