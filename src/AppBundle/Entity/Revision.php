@@ -111,7 +111,7 @@ class Revision
     private $environments;
 
     /**
-     * @var string
+     * @var array
      *
      * @ORM\Column(name="raw_data", type="json_array", nullable=true)
      */
