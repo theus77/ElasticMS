@@ -6,7 +6,7 @@ parameters:
 services:
     app.twig_extension:
         class: AppBundle\Twig\AppExtension
-        arguments: ['@doctrine', '@security.authorization_checker', '@ems.service.user', '@ems.service.contenttype', '@app.elasticsearch', '@router' ]
+        arguments: ['@doctrine', '@security.authorization_checker', '@ems.service.user', '@ems.service.contenttype', '@app.elasticsearch', '@router', '@twig' ]
         #public: false
         tags:
             - { name: twig.extension, priority: -2000 }
@@ -21,7 +21,7 @@ services:
     app.elasticsearch:
         class: Elasticsearch\ClientBuilder
         factory: [AppBundle\Factories\ElasticsearchClientBuilderFactory, build]
-        arguments: [%elasticsearch_cluster%]
+        arguments: ["%elasticsearch_cluster%"]
     app.twig.extension.stringloader:
         class: Twig_Extension_StringLoader
         tags:
@@ -244,6 +244,9 @@ services:
     ems.service.objectchoicecache:
         class: AppBundle\Service\ObjectChoiceCacheService
         arguments: ['@app.elasticsearch', '@session', '@ems.service.contenttype']
+    ems.service.audit:
+        class: AppBundle\Service\AuditService
+        arguments: ['%audit_index%', '@doctrine', '@app.elasticsearch', '@ems.service.user']
 ### Storage services ###
     ems.storage.filesystem:
         class: AppBundle\Service\Storage\FileSystemStorage

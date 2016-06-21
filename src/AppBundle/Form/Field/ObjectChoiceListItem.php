@@ -25,7 +25,9 @@ class ObjectChoiceListItem {
 			if(null !== $contentType->getLabelField() && isset($object['_source'][$contentType->getLabelField()])){
 				$this->label .= $object['_source'][$contentType->getLabelField()];
 			}
-			$this->label .= ' ('.$this->value. ')';
+			else {
+				$this->label .= $this->value;				
+			}
 		}
 	}	
 	

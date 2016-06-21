@@ -1,6 +1,6 @@
-{% include template_from_string(template.body) with {
+{{ template.body|generate_from_template( {
 										environment: environment,
 										contentType: contentType,
 										object: object,
 										source: object._source
-									} %}
+									})|raw }}

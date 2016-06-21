@@ -35,6 +35,33 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class DataController extends AppController
 {
+	
+	
+	/**
+	 * @Route("/data/{name}", name="data.root"))
+	 */
+	public function rootAction($name, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository('AppBundle:ContentType');
+		$contentType = $repository->findOneBy([	
+			'name' => $name,
+			'deleted' => false
+		]);
+		
+		if(!$contentType){
+			throw NotFoundHttpException('Content type '.$name.' not found');
+		}
+
+		return $this->redirectToRoute('data.draft_in_progress', [
+				'contentTypeId' => $contentType->getId(),
+		]);
+	}
+	
+	
 	/**
 	 * @Route("/data/draft/{contentTypeId}", name="data.draft_in_progress"))
 	 */
@@ -163,7 +190,7 @@ class DataController extends AppController
 		}
 		
 	
-		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType) {
+		if(!$revision || $revision->getOuuid() != $ouuid || $revision->getContentType() != $contentType || $revision->getDeleted()) {
 			throw new NotFoundHttpException('Revision not found');
 		}
 		
@@ -178,11 +205,36 @@ class DataController extends AppController
 		
 		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 	
+		
+
+		/** @var Client $client */
+		$client = $this->get('app.elasticsearch');
+		
+		$refParams = [ 
+					'type' => $this->get('ems.service.contenttype')->getAllTypes(),
+					'index' => $this->get('ems.service.contenttype')->getAllAliases(),
+					'size' => 100,
+					'body'=> [
+						'query' => [
+							'term'	=> [
+									'_all' => [
+											'value' => $type.':'.$ouuid
+									]
+							]	
+						],
+						'sort' => [
+								'_uid' => 'asc',
+								
+						],
+						'track_scores' => true
+				]];
+		
 		return $this->render( 'data/revisions-data.html.twig', [
 				'revision' =>  $revision,
 				'revisionsSummary' => $revisionsSummary,
 				'availableEnv' => $availableEnv,
 				'object' => $revision->getObject($objectArray),
+				'referrers' => $client->search($refParams)
 		] );
 	}
 	
@@ -347,6 +399,8 @@ class DataController extends AppController
 		
 	
 		try{
+
+			$this->get('ems.service.data')->loadDataStructure($revision);
 			
 			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
 			/** @var \AppBundle\Entity\Environment $environment */
@@ -658,7 +712,9 @@ class DataController extends AppController
 			}
 				
 		}
-
+		// Call Audit service for log
+		$this->get("ems.service.audit")->auditLog('DataController:editRevision', $revision->getRawData());
+		
 		$logger->debug('Start twig rendering');
 		return $this->render( 'data/edit-revision.html.twig', [
 				'revision' =>  $revision,

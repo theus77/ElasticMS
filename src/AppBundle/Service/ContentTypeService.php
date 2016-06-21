@@ -47,13 +47,48 @@ class ContentTypeService {
 		}
 		return false;
 	}
+
+
+
+	/**
+	 *
+	 * @param string $name
+	 * @return ContentType
+	 */
+	public function getAllByAliases(){
+		$this->loadEnvironment();
+		$out = [];
+		/**@var ContentType $contentType */
+		foreach ($this->orderedContentTypes as $contentType){
+			if(!isset( $out[$contentType->getEnvironment()->getAlias()] )){
+				$out[$contentType->getEnvironment()->getAlias()] = [];
+			}
+			$out[$contentType->getEnvironment()->getAlias()][$contentType->getName()] = $contentType;
+		}
+		return $out;
+	}
 	
+	
+	/**
+	 *
+	 */
+	public function getAllAliases(){
+		$this->loadEnvironment();
+		$out = [];
+		/**@var ContentType $contentType */
+		foreach ($this->orderedContentTypes as $contentType){
+			if(!isset( $out[$contentType->getEnvironment()->getAlias()] )){
+				$out[$contentType->getEnvironment()->getAlias()] = $contentType->getEnvironment()->getAlias();
+			}
+		}
+		return implode(',', $out);
+	}
 
 	/**
 	 * 
 	 * @return string
 	 */
-	 public function getAllAliases(){
+	 public function getAllTypes(){
 		$this->loadEnvironment();
 		return implode(',', array_keys($this->contentTypeArrayByName));
 	}

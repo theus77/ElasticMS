@@ -68,7 +68,7 @@
         {% for contentType in contentTypes %}
         	{% if contentType.active %}
 	          <li class="">
-	          	<a href="/data/{{ contentType.name }}" class="text-{{ contentType.color }}">
+	          	<a href="{{ path('data.root', {name: contentType.name}) }}" class="text-{{ contentType.color }}">
 	          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName|humanize }}</span>
 	          		
 	            	{% if draftCounterGroupedByContentType[contentType.id] is defined %}
@@ -78,29 +78,38 @@
 	          		{% endif %}
 	          	</a>
 	          	<ul class="treeview-menu">
-	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', { 'search_form[typeFacet]': contentType.name, 'search_form[aliasFacet]': contentType.environment.alias }) }}">Search {{ contentType.pluralName|humanize }}</a></li>
+	            	{% set searchForm = { 
+	            		'search_form[typeFacet]': contentType.name, 
+	            		'search_form[aliasFacet]': contentType.environment.alias,
+	            		'search_form[boolean]': 'and'
+					} %}
+					{% if contentType.labelField %}
+		            	{% set searchForm = searchForm|merge({ 
+		            		'search_form[sortBy]': '_uid',
+		            		'search_form[sortOrder]': 'asc'
+						}) %}
+					{% endif %}
+					
+	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm) }}">Search {{ contentType.pluralName|humanize }}</a></li>
 	          		
 	          		{% if contentType.circlesField and app.user.circles|length > 0 %}
-		            	{% set searchForm = { 
-		            		'search_form[typeFacet]': contentType.name, 
-		            		'search_form[aliasFacet]': contentType.environment.alias,
+		            	{% set searchForm = searchForm|merge({ 
 		            		'search_form[boolean]': 'or'
-						} %}
+						}) %}
 						
 		            	
 	          			{% for circle in  app.user.circles%}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][field]'):contentType.circlesField}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][operator]'):('term')}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][pattern]'):circle}) %}
-	          				{# 	          				{% set attribute(searchForm, fieldKey) = contentType.circlesField %}#}
-{# 	          				{% set searchForm['search_form[filters]['~loop.index~'][operator]'] = 'term' %}#}
-{# 	          				{% set searchForm['search_form[filters]['~loop.index~'][pattern]'] = circle %}#}
-		            	
 		            	{% endfor %}
+		            	
+		            	{% set label = circles_object %}
+		            	{% if app.user.circles|length > 1 %}
+			            	{% set label = (circles_object|get_content_type).pluralName %}
+		            	{% endif %}
 
-						{{ searchForm|dump }}
-
-	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}">In my circles</a></li>
+	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}">In my {{ label }}</a></li>
 	            	{% endif %}
 	            	{% for view in contentType.views %}
 	            		<li>

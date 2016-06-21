@@ -15,6 +15,7 @@ use AppBundle\Repository\EnvironmentRepository;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -25,6 +26,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
+use Elasticsearch\Common\Exceptions\ElasticsearchException;
 class ElasticsearchController extends AppController
 {
 	/**
@@ -350,14 +352,23 @@ class ElasticsearchController extends AppController
 			foreach ($search->getFilters() as $filter){
 					
 				$esFilter = $filter->generateEsFilter();
-					
+
 				if($esFilter){
 					$body["query"][$search->getBoolean()][] = $esFilter;
-				}	
+				}
 					
 			}		
+			if ( null != $search->getSortBy() && strlen($search->getSortBy()) > 0  ) {
+				$body["sort"] = [
+					$search->getSortBy() => [
+						'order' => $search->getSortOrder(),
+						'missing' => '_last',
+					]
+				];
+				
+			}
 			
-// 			dump(json_encode($body));
+// 			
 			
 			/** @var EntityManager $em */
 			$em = $this->getDoctrine()->getManager();
@@ -420,12 +431,14 @@ class ElasticsearchController extends AppController
 			   "aggs": {
 			      "types": {
 			         "terms": {
-			            "field": "_type"
+			            "field": "_type",
+						"size": 15
 			         }
 			      },
 			      "indexes": {
 			         "terms": {
-			            "field": "_index"
+			            "field": "_index",
+						"size": 15
 			         }
 			      }
 			   }
@@ -435,18 +448,19 @@ class ElasticsearchController extends AppController
 			
 			$params['body'] = $body;
 			
-// 			dump($params);
-			$results = $client->search($params);
+			//dump(json_encode($body));
+			try {
+				$results = $client->search($params);
+				$lastPage = ceil($results['hits']['total']/$this->container->getParameter('paging_size'));
+			}
+			catch (ElasticsearchException $e) {
+				$this->addFlash('warning', $e->getMessage());
+				$lastPage = 0;
+				$results = ['hits' => ['total' => 0]];
+			}
 	
-		
-			$lastPage = ceil($results['hits']['total']/$this->container->getParameter('paging_size'));
-			
-// 			dump($request);
-
-// 			if($lastPage)
 
 			$currentFilters = $request->query;
-// 			$currentFilters->set('page', 1);
 			$currentFilters->remove('search_form[_token]');
 			
 			//Form treatement after the "Export results" button has been pressed (= ask for a "content type" <-> "template" mapping)

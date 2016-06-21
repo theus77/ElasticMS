@@ -144,7 +144,7 @@ class FileController extends AppController
 			$target = sys_get_temp_dir();
 		}
 		
-		return $target.$sha1;
+		return $target.'/'.$sha1;
 		
 	}
 	

@@ -79,7 +79,7 @@
 		</div>
 		<div 
 			class="panel-body{% if dataField.fieldType.displayOptions.collapsible is defined and dataField.fieldType.displayOptions.collapsible %} collapse{% endif %}" 
-			id="{{ tempId }}">
+				id="{{ tempId }}">
 			{% for child in dataField.children %}
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -94,12 +94,17 @@
 							({{ dataField.fieldType.name }}.{{ loop.index0 }})
 						</h3>
 					</div>
-					<div class="panel-body">
-						{% for grandchild in child.children %}
-							<div class="{% if grandchild.fieldType.displayOptions.class is defined and grandchild.fieldType.displayOptions.class  %}{{ grandchild.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
-								{{ attribute(_self, grandchild.fieldType.type|replace({'\\': '_'}), [grandchild]) }}
-							</div>
-						{% endfor %}
+					<div class="panel-body container-fluid">
+						<div class="row">
+							{% for grandchild in child.children %}
+								<div class="{% if grandchild.fieldType.displayOptions.class is defined and grandchild.fieldType.displayOptions.class  %}{{ grandchild.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
+									{{ attribute(_self, grandchild.fieldType.type|replace({'\\': '_'}), [grandchild]) }}
+								</div>
+								{% if grandchild.fieldType.displayOptions.lastOfRow is defined and grandchild.fieldType.displayOptions.lastOfRow %}
+									</div><div class="row">
+								{% endif %}
+							{% endfor %}
+						</div>
 					</div>
 				</div>
 			{% endfor %}
@@ -123,13 +128,18 @@
 					{% endif %}
 				</h3>
 			</div>
-			<div class="panel-body">
+			<div class="panel-body container-fluid">
 	{% endif %}
+	<div class="row">
 		{% for child in dataField.children if not child.fieldType.deleted %}
 			<div class="{% if child.fieldType.displayOptions.class is defined and child.fieldType.displayOptions.class  %}{{ child.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
 				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
 			</div>
+			{% if child.fieldType.displayOptions.lastOfRow is defined and child.fieldType.displayOptions.lastOfRow %}
+				</div><div class="row">
+			{% endif %}
 		{% endfor %}
+	</div>
     {% if dataField.fieldType.displayOptions.label is defined %}
     		</div>
 		</div>
@@ -152,13 +162,18 @@
 					{% endif %}
 				</h3>
 			</div>
-			<div class="panel-body">
+			<div class="panel-body container-fluid">
 	{% endif %}
+	<div class="row">
 		{% for child in dataField.children if not child.fieldType.deleted %}
 			<div class="{% if child.fieldType.displayOptions.class is defined and child.fieldType.displayOptions.class  %}{{ child.fieldType.displayOptions.class }}{%else%}col-md-12{% endif %}">
 				{{ attribute(_self, child.fieldType.type|replace({'\\': '_'}), [child]) }}
 			</div>
+			{% if child.fieldType.displayOptions.lastOfRow is defined and child.fieldType.displayOptions.lastOfRow %}
+				</div><div class="row">
+			{% endif %}
 		{% endfor %}
+	</div>
     {% if dataField.fieldType.displayOptions.label is defined %}
     		</div>
 		</div>
@@ -383,9 +398,13 @@
 		</dt>
 		<dd>
 			<ul>
-				{% for value in dataField.arrayTextValue if value %}
-					<li>{{ value|raw }}</li>
-				{% endfor %}
+				{% if dataField.fieldType.displayOptions.multiple %}
+					{% for value in dataField.arrayTextValue if value %}
+						<li>{{ value|raw }}</li>
+					{% endfor %}
+				{% else %}
+				{{ dataField.textValue }}
+				{% endif %}
 			</ul>
 		</dd>
 	</dl>
