@@ -106,7 +106,7 @@ class ReindexCommand extends ContainerAwareCommand
 			$counter = $this->client->count(['index' => $index])['count'];
 			$counterAlert = 0;
 			while($counter < $count){
-				$output->writeln('.');
+				$output->write('.');
 				sleep(1);
 				//Detection of infinite loop
 				$newCounter = $this->client->count(['index' => $index])['count'];
