@@ -35,6 +35,33 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class DataController extends AppController
 {
+	
+	
+	/**
+	 * @Route("/data/{name}", name="data.root"))
+	 */
+	public function rootAction($name, Request $request)
+	{
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository('AppBundle:ContentType');
+		$contentType = $repository->findOneBy([	
+			'name' => $name,
+			'deleted' => false
+		]);
+		
+		if(!$contentType){
+			throw NotFoundHttpException('Content type '.$name.' not found');
+		}
+
+		return $this->redirectToRoute('data.draft_in_progress', [
+				'contentTypeId' => $contentType->getId(),
+		]);
+	}
+	
+	
 	/**
 	 * @Route("/data/draft/{contentTypeId}", name="data.draft_in_progress"))
 	 */

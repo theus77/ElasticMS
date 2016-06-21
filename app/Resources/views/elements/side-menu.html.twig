@@ -68,7 +68,7 @@
         {% for contentType in contentTypes %}
         	{% if contentType.active %}
 	          <li class="">
-	          	<a href="/data/{{ contentType.name }}" class="text-{{ contentType.color }}">
+	          	<a href="{{ path('data.root', {name: contentType.name}) }}" class="text-{{ contentType.color }}">
 	          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName|humanize }}</span>
 	          		
 	            	{% if draftCounterGroupedByContentType[contentType.id] is defined %}
