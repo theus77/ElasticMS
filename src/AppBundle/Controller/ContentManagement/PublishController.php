@@ -68,6 +68,9 @@ class PublishController extends AppController
 		$em->persist($revision);
 		$em->flush();
 		
+		// Call Audit service for log
+		$this->get("ems.service.audit")->auditLog('PublishController:publishTo', $revision->getRawData(), $environment->getName());
+		
 		return $this->redirectToRoute('data.revisions', [
 				'ouuid' => $revision->getOuuid(),
 				'type'=> $revision->getContentType()->getName()

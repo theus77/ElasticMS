@@ -244,6 +244,9 @@ services:
     ems.service.objectchoicecache:
         class: AppBundle\Service\ObjectChoiceCacheService
         arguments: ['@app.elasticsearch', '@session', '@ems.service.contenttype']
+    ems.service.audit:
+        class: AppBundle\Service\AuditService
+        arguments: ['%audit_index%', '@doctrine', '@app.elasticsearch', '@ems.service.user']
 ### Storage services ###
     ems.storage.filesystem:
         class: AppBundle\Service\Storage\FileSystemStorage
