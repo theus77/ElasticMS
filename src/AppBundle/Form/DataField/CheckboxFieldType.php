@@ -34,8 +34,11 @@ class CheckboxFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray) {
-		$dataField->setBooleanValue($sourceArray?true:false);
+	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			$dataField->setBooleanValue($sourceArray?true:false);
+		}
 	}
 	
 	/**

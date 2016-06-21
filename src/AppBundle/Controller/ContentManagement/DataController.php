@@ -712,7 +712,9 @@ class DataController extends AppController
 			}
 				
 		}
-
+		// Call Audit service for log
+		$this->get("ems.service.audit")->auditLog('DataController:editRevision', $revision->getRawData());
+		
 		$logger->debug('Start twig rendering');
 		return $this->render( 'data/edit-revision.html.twig', [
 				'revision' =>  $revision,

@@ -77,9 +77,11 @@ abstract class DataFieldType extends AbstractType {
 	 * @param DataField $dataField
 	 * @param unknown $sourceArray
 	 */
-	public function importData(DataField $dataField, $sourceArray) {
-		
-		$dataField->setRawData($sourceArray);
+	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			$dataField->setRawData($sourceArray);			
+		}
 	}
 	
 	/**

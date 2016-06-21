@@ -274,7 +274,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      * @param array $elasticIndexDatas
      * @return $elasticIndexDatas
      */
-    public  function updateDataValue(Array &$elasticIndexDatas){
+    public  function updateDataValue(Array &$elasticIndexDatas, $isMigration = false){
     	$dataFieldTypeClassName = $this->fieldType->getType();
     	/** @var DataFieldType $dataFieldType */
     	$dataFieldType = new $dataFieldTypeClassName();
@@ -282,12 +282,12 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     	if(NULL === $fieldName) {//Virtual container
     		/** @var DataField $child */
 	    	foreach ($this->children as $child){
-	    		$child->updateDataValue($elasticIndexDatas);
+	    		$child->updateDataValue($elasticIndexDatas, $isMigration);
 	    	}
     	} 
     	else {
     		if(array_key_exists($fieldName, $elasticIndexDatas)){
-    			$dataFieldType->importData($this, $elasticIndexDatas[$fieldName]);
+    			$dataFieldType->importData($this, $elasticIndexDatas[$fieldName], $isMigration);
     			unset($elasticIndexDatas[$fieldName]);    				
     		}
     	}

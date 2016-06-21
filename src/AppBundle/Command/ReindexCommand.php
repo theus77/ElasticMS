@@ -78,30 +78,55 @@ class ReindexCommand extends ContainerAwareCommand
 			}
 			
 			$count = 0;
+			$deleted = 0;
+			$error = 0;
 			/** @var \AppBundle\Entity\Revision $revision */
 			foreach ($environment->getRevisions() as $revision) {
-				if(!$revision->getDeleted() && !$revision->getContentType()->getDeleted()){
-					
+				if(!$revision->getDeleted() && !$revision->getContentType()->getDeleted() && $revision->getEndTime() == null){
 					$status = $this->client->index([
 							'index' => $index,
 							'id' => $revision->getOuuid(),
 							'type' => $revision->getContentType()->getName(),
 							'body' => $revision->getRawData()
-					]);		
-					++$count;				
+					]);
+					if($status["_shards"]["failed"] == 1) {
+						dump($status);
+						$error++;
+					} else {
+						$count++;				
+					}
+				} else {
+					$deleted++;
 				}
 			}
 
-			$output->writeln($count.' objects have been reindexed in '.$index);
+			$output->writeln($count.' objects have been reindexed in '.$index.' ('.$deleted.' not indexed, '.$error.' with indexing error)');
 			
-			while($this->client->count(['index' => $index])['count'] < $count){
-				$output->writeln('<comment>Elasticsearch is indexing...</comment>');
-				sleep(1);				
+			$output->writeln('<comment>Elasticsearch is indexing...</comment>');
+			$counter = $this->client->count(['index' => $index])['count'];
+			$counterAlert = 0;
+			while($counter < $count){
+				$output->write('.');
+				sleep(1);
+				//Detection of infinite loop
+				$newCounter = $this->client->count(['index' => $index])['count'];
+				if($counter == $newCounter){
+					$counterAlert++;
+				} else {
+					$counter = $newCounter;
+				}
+				if($counterAlert == 10) {
+					$output->writeln('');
+					$output->writeln('<error>Infinit loop!! '.$this->client->count(['index' => $index])['count'].'/'.$count.'</error>');
+					break;
+				}
+				
 			}
+			$output->writeln('');
+			$output->writeln('<comment>Done!</comment>');
 		}
 		else{
 			$output->writeln("WARNING: Environment named ".$name." not found");
 		}
     }
-    
 }

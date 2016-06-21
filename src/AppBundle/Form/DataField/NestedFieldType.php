@@ -43,9 +43,12 @@ class NestedFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray){
-		foreach ($dataField->getChildren() as $child){
-			$child->updateDataValue($sourceArray);
+	public function importData(DataField $dataField, $sourceArray, $isMigration){
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			foreach ($dataField->getChildren() as $child){
+				$child->updateDataValue($sourceArray);
+			}
 		}
 	}
 	

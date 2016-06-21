@@ -37,11 +37,14 @@ class TimeFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray) {
-		$format = $dataField->getFieldType()->getMappingOptions()['format'];	
-		$format = DateFieldType::convertJavaDateFormat($format);
-		
-		$dataField->getDataValues()[0]->setDateValue(\DateTime::createFromFormat($format, $sourceArray));
+	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			$format = $dataField->getFieldType()->getMappingOptions()['format'];	
+			$format = DateFieldType::convertJavaDateFormat($format);
+			
+			$dataField->getDataValues()[0]->setDateValue(\DateTime::createFromFormat($format, $sourceArray));
+		}
 	}
 	
 	public static function getFormat($options){
