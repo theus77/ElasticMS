@@ -28,6 +28,7 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 					   				   "displayOptions", 
 					   				   "mappingOptions", 
 					   				   "restrictionOptions",
+					   				   "migrationOptions",
 					   				   "fieldRoles"
 					   				  ]
 	];
