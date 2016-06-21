@@ -371,6 +371,14 @@ class FieldType
     	return [];
     }
 
+    public function getMigrationOptions(){
+    	$options = $this->getOptions();
+    	if(isset($options['migrationOptions'])){
+    		return $options['migrationOptions'];
+    	}
+    	return [];
+    }
+
     public function getMinimumRole(){
     	$options = $this->getOptions();
     	if(isset($options['restrictionOptions']) && isset($options['restrictionOptions']['minimum_role'])){

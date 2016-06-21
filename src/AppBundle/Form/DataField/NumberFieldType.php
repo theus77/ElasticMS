@@ -35,8 +35,11 @@ class NumberFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray) {
-		$dataField->setFloatValue($sourceArray);
+	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			$dataField->setFloatValue($sourceArray);
+		}
 	}
 	
 	/**

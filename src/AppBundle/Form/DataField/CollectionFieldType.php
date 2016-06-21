@@ -45,32 +45,35 @@ class CollectionFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray){		
-		if(!is_array($sourceArray)){
-			$sourceArray = [$sourceArray];
-		}
-		
-		foreach ($sourceArray as $idx => $item){
-			$colItem = new DataField();
-			$colItem->setOrderKey($idx);
-			$colItem->setFieldType(NULL); // it's a collection item
-			foreach ($dataField->getFieldType()->getChildren() as $childFieldType){
-				/**@var FieldType $childFieldType */
-				if(!$childFieldType->getDeleted()){
-					$grandChild = new DataField();
-					$grandChild->setOrderKey(0);	
-					$grandChild->setParent($colItem);
-					$grandChild->setFieldType($childFieldType);
-					$grandChild->updateDataStructure($childFieldType);
-					
-					$grandChild->updateDataValue($item);
-					
-					$colItem->addChild($grandChild);
-				}
+	public function importData(DataField $dataField, $sourceArray, $isMigration){
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			if(!is_array($sourceArray)){
+				$sourceArray = [$sourceArray];
 			}
-
-			$dataField->addChild($colItem);	
-			$colItem->setParent($dataField);
+			
+			foreach ($sourceArray as $idx => $item){
+				$colItem = new DataField();
+				$colItem->setOrderKey($idx);
+				$colItem->setFieldType(NULL); // it's a collection item
+				foreach ($dataField->getFieldType()->getChildren() as $childFieldType){
+					/**@var FieldType $childFieldType */
+					if(!$childFieldType->getDeleted()){
+						$grandChild = new DataField();
+						$grandChild->setOrderKey(0);	
+						$grandChild->setParent($colItem);
+						$grandChild->setFieldType($childFieldType);
+						$grandChild->updateDataStructure($childFieldType);
+						
+						$grandChild->updateDataValue($item, $isMigration);
+						
+						$colItem->addChild($grandChild);
+					}
+				}
+		
+				$dataField->addChild($colItem);	
+				$colItem->setParent($dataField);
+			}
 		}
 	}
 	

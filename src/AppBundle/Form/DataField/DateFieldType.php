@@ -95,19 +95,21 @@ class DateFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray) {
-		$format = $dataField->getFieldType()->getMappingOptions()['format'];	
-		$format = DateFieldType::convertJavaDateFormat($format);
+	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			$format = $dataField->getFieldType()->getMappingOptions()['format'];	
+			$format = DateFieldType::convertJavaDateFormat($format);
 		
-	
-		if(is_string($sourceArray)){
-			$sourceArray = [$sourceArray];
+			if(is_string($sourceArray)){
+				$sourceArray = [$sourceArray];
+			}
+			$data = [];
+			foreach ($sourceArray as $idx => $child){
+				$data[] = \DateTime::createFromFormat($format, $child);
+			}
+			$dataField->setRawData($data);
 		}
-		$data = [];
-		foreach ($sourceArray as $idx => $child){
-			$data[] = \DateTime::createFromFormat($format, $child);
-		}
-		$dataField->setRawData($data);
 	}
 	
 	

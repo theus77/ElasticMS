@@ -70,17 +70,39 @@
 			</div>
 		{% endif %}
 		<!-- /.tab-pane -->
-		{% if form.restrictionOptions is defined %}
-			<div class="tab-pane" id="tab_restriction_{{ seed }}">
-				{{- form_widget(form.restrictionOptions) -}}
-			</div>
-		{% endif %}
-		<!-- /.tab-pane -->
+    {% if form.restrictionOptions is defined %}
+      <div class="tab-pane" id="tab_restriction_{{ seed }}">
+        {{- form_widget(form.restrictionOptions) -}}
+      </div>
+    {% endif %}
+    <!-- /.tab-pane -->
+    {% if form.migrationOptions is defined %}
+      <div class="tab-pane" id="tab_migration_{{ seed }}">
+        {{- form_widget(form.migrationOptions) -}}
+      </div>
+    {% endif %}
+    <!-- /.tab-pane -->
 	</div>
 	<!-- /.tab-content -->
 
 {%- endblock data_field_options_widget -%}
 
+{% block datafieldtype_widget %}
+	{% if isContainer %}
+		<div id="{{ form.vars.id }}" class="container-fluid">
+			<div class="row">
+				{% for child in form.children %}
+					{{- form_row(child) -}}
+					{% if child.vars.lastOfRow is defined and child.vars.lastOfRow %}
+						</div><div class="row">
+					{% endif %}
+				{% endfor %}
+			</div>
+		</div>
+	{% else %}
+		{{ form_widget(form) }}
+	{% endif %}
+{% endblock datafieldtype_widget %}
 
 {# Labels #}
 {% block container_label -%}
@@ -148,7 +170,6 @@
 				<div class="form-group">
 					<label class="control-label">&nbsp;</label>
 {# 					<fieldset class="btn-group">#}
-{# 						{{  form|dump }}#}
 						
 						{% if not form|firstInArray(form.parent.children)  %}
 							<a class="btn btn-primary remove-filter form-control" href="#">
@@ -423,9 +444,12 @@
 								{% if form.options.mappingOptions is defined %}
 									<li class=""><a href="#tab_mapping_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Mapping</a></li>
 								{%  endif %}
-								{% if form.options.restrictionOptions is defined %}
-									<li class=""><a href="#tab_restriction_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Restriction</a></li>
-								{%  endif %}
+                {% if form.options.restrictionOptions is defined %}
+                  <li class=""><a href="#tab_restriction_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Restriction</a></li>
+                {%  endif %}
+                {% if form.options.migrationOptions is defined %}
+                  <li class=""><a href="#tab_migration_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Migration</a></li>
+                {%  endif %}
 							</ul>
 							{{- form_widget(form.options, {'seed': form.vars.id} ) -}}
 						</div>

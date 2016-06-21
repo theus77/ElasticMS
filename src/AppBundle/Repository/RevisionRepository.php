@@ -70,7 +70,6 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		return $qb->getQuery()->getResult();
 	}
 	
-
 	public function lockRevision($revisionId, $username,\DateTime $lockUntil) {
 		$qb = $this->createQueryBuilder('r')->update() 
 			->set('r.lockBy', '?1') 
@@ -88,29 +87,34 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 			->where('r.contentType = ?2')
 			->andWhere('r.ouuid = ?3')
 			->andWhere('r.endTime is null')
-			->andWhere('r.lockBy  is null')
+			->andWhere('r.lockBy  <> ?4 OR r.lockBy is null')
 			->setParameter(1, $now, \Doctrine\DBAL\Types\Type::DATETIME)
 			->setParameter(2, $contentType)
-			->setParameter(3, $ouuid);
-		return $qb->getQuery()->execute();
+			->setParameter(3, $ouuid)
+			->setParameter(4, "SYSTEM_MIGRATE");
+			return $qb->getQuery()->execute();
 	
 	}
-	public function insertRevision(ContentType $contentType, $ouuid,\DateTime $startTime, $rawData) {
-		$revision = new Revision();
-		$revision->setContentType($contentType);
-		$revision->addEnvironment($contentType->getEnvironment());
-		$revision->setOuuid($ouuid);
-		$revision->setStartTime($startTime);
-		$revision->setEndTime(null);
-		$revision->setRawData($rawData);
-		$revision->setDeleted(0);
-		$revision->setDraft(1);
-		$revision->setLockBy('SYSTEM_MIGRATE');
-		$revision->setLockUntil($startTime->add(new \DateInterval("PT5M")));//5 minutes
-		$this->getEntityManager()->persist($revision);
-		$this->getEntityManager()->flush($revision);
-		return $revision;
+	
+	public function getCurrentRevision(ContentType $contentType, $ouuid)
+	{
+		$em = $this->getEntityManager();
+		$qb = $this->createQueryBuilder('r')->select()
+			->where('r.contentType = ?2')
+			->andWhere('r.ouuid = ?3')
+			->andWhere('r.endTime is null')
+			->setParameter(2, $contentType)
+			->setParameter(3, $ouuid);
+		
+		/**@var Revision[] $currentRevision*/
+		$currentRevision = $qb->getQuery()->execute();
+		if(isset($currentRevision[0])) {
+			return $currentRevision[0];
+		} else {
+			return null;
+		}
 	}
+	
 	public function publishRevision(Revision $revision) {
 		$qb = $this->createQueryBuilder('r')->update()
 		->set('r.draft', 0)
@@ -122,5 +126,30 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		
 		return $qb->getQuery()->execute();
 		
+	}
+	
+	public function deleteRevision(Revision $revision) {
+		$qb = $this->createQueryBuilder('r')->update()
+		->set('r.delete', 1)
+		->where('r.id = ?1')
+		->setParameter(1, $revision->getId());
+			
+		return $qb->getQuery()->execute();
+	}
+	
+	public function deleteRevisions(ContentType $contentType=null) {
+		if($contentType == null) {
+			$qb = $this->createQueryBuilder('r')->update()
+			->set('r.delete', 1);
+			
+			return $qb->getQuery()->execute();
+		} else {
+			$qb = $this->createQueryBuilder('r')->update()
+			->set('r.delete', 1)
+			->where('r.contentTypeId = ?1')
+			->setParameter(1, $contentType->getId());
+			
+			return $qb->getQuery()->execute();
+		}
 	}
 }

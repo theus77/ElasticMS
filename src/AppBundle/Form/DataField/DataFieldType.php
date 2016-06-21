@@ -66,6 +66,7 @@ abstract class DataFieldType extends AbstractType {
 	public function configureOptions(OptionsResolver $resolver) {
 		$resolver->setDefaults ( [ 
 				'data_class' => 'AppBundle\Entity\DataField',
+				'lastOfRow' => false,
 				'class' => null, // used to specify a bootstrap class arround the compoment
 				'metadata' => null, // used to keep a link to the FieldType
 		]);
@@ -76,9 +77,11 @@ abstract class DataFieldType extends AbstractType {
 	 * @param DataField $dataField
 	 * @param unknown $sourceArray
 	 */
-	public function importData(DataField $dataField, $sourceArray) {
-		
-		$dataField->setRawData($sourceArray);
+	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			$dataField->setRawData($sourceArray);			
+		}
 	}
 	
 	/**
@@ -88,6 +91,7 @@ abstract class DataFieldType extends AbstractType {
 	 */
 	public function buildView(FormView $view, FormInterface $form, array $options) {
 		$view->vars ['class'] = $options ['class'];
+		$view->vars ['lastOfRow'] = $options ['lastOfRow'];
 		$view->vars ['isContainer'] = $this->isContainer();
 		if( null == $options['label']){
 			/** @var FieldType $fieldType */

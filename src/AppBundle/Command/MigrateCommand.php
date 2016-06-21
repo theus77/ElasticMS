@@ -58,6 +58,11 @@ class MigrateCommand extends ContainerAwareCommand
                 InputArgument::REQUIRED,
                 'Elasticsearch index where to find ContentType objects as new source'
             )
+            ->addArgument(
+                'mode',
+                InputArgument::OPTIONAL,
+                'Migration mode: (E)rase, (M)erge'
+            )
             ->addOption(
                 'force',
                 null,
@@ -74,7 +79,12 @@ class MigrateCommand extends ContainerAwareCommand
     	$contentTypeNameFrom = $input->getArgument('contentTypeNameFrom');
     	$contentTypeNameTo = $input->getArgument('contentTypeNameTo');
     	$elasticsearchIndex = $input->getArgument('elasticsearchIndex');
-		$output->writeln("Start migration");
+    	if(null !== $input->getArgument('mode') && ($input->getArgument('mode')[0] == "M" || $input->getArgument('mode')[0] == "m")) {
+    		$mode = "merge";
+    	} else {
+    		$mode = "earse";
+    	}
+    	$output->writeln("Start migration");
 		
 		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
@@ -92,6 +102,14 @@ class MigrateCommand extends ContainerAwareCommand
 		if(!$input->getOption('force') && strcmp($contentTypeTo->getEnvironment()->getAlias(), $elasticsearchIndex) === 0 && strcmp($contentTypeNameFrom, $contentTypeNameTo) === 0) {
 			$output->writeln("<error>You can not import a content type on himself</error>");
 			exit;
+		}
+		
+		//Delete ContentType if erase
+		if($mode == "erase") {
+			/** @var RevisionRepository $repository */
+			$repository = $em->getRepository( 'AppBundle:Revision' );
+			$repository->deleteRevisions();
+			$repository->clear();
 		}
 		
 		$arrayElasticsearchIndex = $this->client->search([
@@ -112,52 +130,54 @@ class MigrateCommand extends ContainerAwareCommand
 			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
 
 			/** @var RevisionRepository $repository */
-			$repository = $em->getRepository ( 'AppBundle:Revision' );
+			$repository = $em->getRepository( 'AppBundle:Revision' );
 
 			foreach ($arrayElasticsearchIndex["hits"]["hits"] as $index => $value) {
-//				dump($value);
 				try{
 					$now = new \DateTime();
+					$until = $now->add(new \DateInterval("PT5M"));//+5 minutes
+					$newRevision = new Revision();
+					$newRevision->setContentType($contentTypeTo);
+					$newRevision->addEnvironment($contentTypeTo->getEnvironment());
+					$newRevision->setOuuid($value['_id']);
+					$newRevision->setStartTime($now);
+					$newRevision->setEndTime(null);
+					$newRevision->setDeleted(0);
+					$newRevision->setDraft(1);
+					$newRevision->setLockBy('SYSTEM_MIGRATE');
+					$newRevision->setLockUntil($until);
+						
+					$currentRevision = $repository->getCurrentRevision($contentTypeTo, $value['_id']);
+					if($currentRevision) {
+						//If there is a current revision, datas in fields that are protected against migration must not be overridden
+						//So we load the datas from the current revision into the next revision
+						$newRevision->setRawData($currentRevision->getRawData());
+						//We build the new revision object
+						$this->container->get('ems.service.data')->loadDataStructure($newRevision);
+						//We update the new revision object with the new datas. Here, the protected fields are not overridden.
+						$newRevision->getDataField()->updateDataValue($value['_source'], true);//isMigrate=true
+						//We serialize the new object
+						$objectArray = $this->container->get('ems.service.mapping')->dataFieldToArray($newRevision->getDataField());
+						$newRevision->setRawData($objectArray);
+					}	
+					else{
+						$newRevision->setRawData($value['_source']);
+						$objectArray = $value['_source'];
+					}
 					
-					$newRevision = $repository->insertRevision($contentTypeTo, $value['_id'], $now, $value['_source']);
-// 					$newRevision = new Revision();
-// 					$newRevision->setContentType($contentTypeTo);
-// 					$newRevision->setDeleted(false);
-// 					$newRevision->setDraft(true);
-// 					$newRevision->setOuuid($value['_id']);
-// 					$newRevision->setLockBy("SYSTEM_MIGRATE");
-// 					$newRevision->setLockUntil(new \DateTime("+5 minutes"));
-					
-
-// 					$data = new DataField();
-// 					$data->setFieldType($newRevision->getContentType()->getFieldType());
-// 					$data->setRevisionId($newRevision->getId());
-// 					$data->setOrderKey(0);//0==$newRevision->getContentType()->getFieldType()->getOrderKey()
-// 					$newRevision->setDataField($data);					
-// 					$newRevision->getDataField()->updateDataStructure($newRevision->getContentType()->getFieldType());
-// 					$data->updateDataValue($value["_source"]);
-					
- 					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
-// 					$newRevision->setStartTime($now);
-					
-// 					$em->persist($newRevision);
-//					$object = $this->mapping->dataFieldToArray($newRevision->getDataField());
-
 					$this->client->index([
 							'index' => $contentTypeTo->getEnvironment()->getAlias(),
 							'type' => $contentTypeNameTo,
 							'id' => $value['_id'],
-							'body' => $value['_source'],
+							'body' => $objectArray,
 					]);
 					//TODO: Test if client->index OK
-					$repository->publishRevision($newRevision);
+					$em->persist($newRevision);
 					//TODO: Improvement : http://symfony.com/doc/current/components/console/helpers/progressbar.html
 					$output->write(".");
- 					$em->flush($newRevision);
- 					$em->clear($newRevision);
-// 					unset($newRevision);
-// 					unset($object);
-// 					unset($arrayElasticsearchIndex);
+					$em->flush();
+ 					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
+					$repository->publishRevision($newRevision);
 
 					//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
 				}
@@ -167,6 +187,7 @@ class MigrateCommand extends ContainerAwareCommand
 			}
 			$repository->clear();
 		}
+		$output->writeln("");
 		$output->writeln("Migration done");
     }
 }

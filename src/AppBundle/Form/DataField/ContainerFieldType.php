@@ -32,7 +32,7 @@ class ContainerFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray){
+	public function importData(DataField $dataField, $sourceArray, $isMigration){
 		throw new Exception("This method should never be called");
 	}
 	

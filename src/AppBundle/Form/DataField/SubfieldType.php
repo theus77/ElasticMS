@@ -34,7 +34,7 @@ class SubfieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray) {
+	public function importData(DataField $dataField, $sourceArray, $isMigration) {
 		//do nothing as it's a virtual field
 	}
 	
