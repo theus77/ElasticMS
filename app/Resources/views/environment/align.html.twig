@@ -19,6 +19,7 @@
 
 
 
+{{ form_start(form) }}
 
 
 <div class="row">
@@ -29,7 +30,6 @@
             </div>
             <!-- /.box-header -->
             <!-- form start -->
-            {{ form_start(form) }}
               <div class="box-body">
               	<div class="col-md-6">
               	{{ form_row(form.environment) }}
@@ -44,7 +44,6 @@
               <div class="box-footer">
               	{{ form_row(form.compare) }}
               </div>
-            {{ form_end(form) }}
           </div>
 	</div>
 
@@ -53,7 +52,7 @@
 	<div class="col-xs-12">
 		<div class="box">
             <div class="box-header">
-              <h3 class="box-title">Compare </h3>
+              <h3 class="box-title">Compare "{{ environment }}" and "{{ withEnvironment }}"</h3> <small>{{ total }} difference(s)</small>
 
 				{% include 'elements/pagination.html.twig' with {
 					'lastPage': lastPage,
@@ -69,36 +68,68 @@
               <table class="table">
                 <tbody><tr>
                   <th style="width: 10px">#</th>
+                  <th>
+                  	<a href="#" onclick="javascript: $('.item-to-align').prop('checked', 'checked'); return false;"><i class="fa fa-check-square-o"></i></a> 
+                  	<a href="#" onclick="javascript: $('.item-to-align').prop('checked', false); return false;"><i class="fa fa-square-o"></i></a></th>
                   <th>Content type</th>
                   <th>OUUID</th>
                   <th>Label</th>
-                  <th>In {{ form.vars.value.environment }}</th>
-                  <th>In {{ form.vars.value.withEnvironment }}</th>
+                  <th><span class="badge bg-{{ environments[environment].color }}" title="Circles:">{{ environment }}</span></th>
+                  <th><span class="badge bg-{{ environments[withEnvironment].color }}" title="Circles:">{{ withEnvironment }}</span></th>
                   <th>Actions</th>
                 </tr>
                 {% for item in results %}
         			{% set data = (item.content_type_name~':'~item.ouuid)|data %}
         			{% set minrev = item.minrevid|split('/') %}
         			{% set maxrev = item.maxrevid|split('/') %}
+        			{% set defaultEnv = false %}
+	                {% for ct in contentTypes %}
+	                	{% if ct.name == item.content_type_name %}
+	                		{% set defaultEnv = ct.environment %}
+	                	{% endif %}
+	                {% endfor %}
 	                <tr>
 	                  <td>{{ loop.index+((page-1)*paging_size) }}.</td>
-	                  <td class="text-{{ item.color }}"><i class="{% if item.icon %}{{item.icon}}{% else %}fa fa-document{% endif %}"></i> {{ item.content_type_name|humanize }}</td>
+	                  <td>
+	                  	<input class="item-to-align" type="checkbox" name="compare_environment_form[item_to_align][{{ minrev[1] }}]" value="{{ item.content_type_name }}:{{ item.ouuid }}">
+	                  	</td>
+	                  <td class="text-{{ item.color }}"><i class="{% if item.icon %}{{item.icon}}{% else %}fa fa-book{% endif %}"></i> {{ item.content_type_name|humanize }}</td>
 	                  <td>{{ item.ouuid }}</td>
 	                  <td>{% if item.labelField and attribute(data, item.labelField) is defined %}{{ attribute(data, item.labelField) }}{% endif %}</td>
 	                  <td>
         				{% if minrev[0] == fromEnv %}
+        					{% if fromEnv == defaultEnv.id %}
+        						<i class="fa fa-lock" aria-hidden="true"></i>
+        					{% elseif minrev[2] >= maxrev[2] %}
+        						<i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+        					{% endif %}
         					{{ minrev[2]|date(date_time_format) }}
         					({{ minrev[1] }})
         				{% elseif maxrev[0] == fromEnv %}
+        					{% if fromEnv == defaultEnv.id %}
+        						<i class="fa fa-lock" aria-hidden="true"></i>
+        					{% elseif minrev[2] <= maxrev[2] %}
+        						<i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+        					{% endif %}
         					{{ maxrev[2]|date(date_time_format) }}
         					({{ maxrev[1] }})
         				{% endif %}
 	                  </td>
 	                  <td>
         				{% if minrev[0] == withEnv %}
+        					{% if withEnv == defaultEnv.id %}
+        						<i class="fa fa-lock" aria-hidden="true"></i>
+        					{% elseif minrev[2] >= maxrev[2] %}
+        						<i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+        					{% endif %}
         					{{ minrev[2]|date(date_time_format) }}
         					({{ minrev[1] }})
         				{% elseif maxrev[0] == withEnv %}
+        					{% if withEnv == defaultEnv.id %}
+        						<i class="fa fa-lock" aria-hidden="true"></i>
+        					{% elseif minrev[2] <= maxrev[2] %}
+        						<i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+        					{% endif %}
         					{{ maxrev[2]|date(date_time_format) }}
         					({{ maxrev[1] }})
         				{% endif %}
@@ -110,6 +141,21 @@
 								'label': 'Revisions',
 								'icon': 'archive'
 							}%}
+							{%  if withEnv != defaultEnv.id %}
+								{% if minrev[0] == fromEnv %}
+		        					<button type="submit" id="{{ minrev[1] }}" name="compare_environment_form[alignWith]" value="{{ minrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-right"></span>&nbsp;Align with {{ minrev[1] }}</button>
+		        				{% elseif maxrev[0] == fromEnv %}
+		        					<button type="submit" id="{{ maxrev[1] }}" name="compare_environment_form[alignWith]" value="{{ maxrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-right"></span>&nbsp;Align with {{ maxrev[1] }}</button>
+		        				{% endif %}
+		        			{% endif %}
+		        			
+							{%  if fromEnv != defaultEnv.id %}
+		        				{% if minrev[0] == withEnv %}
+		        					<button type="submit" id="{{ minrev[1] }}" name="compare_environment_form[alignWith]" value="{{ minrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-left"></span>&nbsp;Align with {{ minrev[1] }}</button>
+		        				{% elseif maxrev[0] == withEnv %}
+		        					<button type="submit" id="{{ maxrev[1] }}" name="compare_environment_form[alignWith]" value="{{ maxrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-left"></span>&nbsp;Align with {{ maxrev[1] }}</button>
+		        				{% endif %}
+		        			{% endif %}
 	                  	</div>
 	                  </td>
 	                </tr>
@@ -117,6 +163,10 @@
               </tbody></table>
             </div>
             <div class="box-footer">
+            	<div class="btn-group">
+	            	<button type="submit" name="compare_environment_form[alignRight]" class="btn-danger btn-md btn"><span class="fa fa-chevron-right"></span>&nbsp;Align Right</button>
+	            	<button type="submit" name="compare_environment_form[alignLeft]" class="btn-danger btn-md btn"><span class="fa fa-chevron-left"></span>&nbsp;Align Left</button>
+            	</div>
 
 				{% include 'elements/pagination.html.twig' with {
 					'lastPage': lastPage,
@@ -125,6 +175,7 @@
 					'paginationPath': paginationPath,
 					'showAlwaysFirstAndLast': false
 				} %}
+				
 
             </div>
             <!-- /.box-body -->
@@ -133,6 +184,7 @@
 {% endif %}
 </div>
 
+{{ form_end(form) }}
 {% endblock %} 
 
 

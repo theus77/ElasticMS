@@ -252,6 +252,9 @@ services:
     ems.service.audit:
         class: AppBundle\Service\AuditService
         arguments: ['%audit_index%', '@doctrine', '@app.elasticsearch', '@ems.service.user']
+    ems.service.publish:
+        class: AppBundle\Service\PublishService
+        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@ems.service.contenttype', '@ems.service.environment', '@ems.service.data']
 ### Storage services ###
     ems.storage.filesystem:
         class: AppBundle\Service\Storage\FileSystemStorage
