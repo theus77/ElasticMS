@@ -152,7 +152,7 @@
 					        // ajax call inspired from http://stackoverflow.com/questions/5293920/ckeditor-dynamic-select-in-a-dialog
 					        $.ajax({
 					            type: 'POST',
-					            url: './sample/_link_to_pages.php',
+					            url: object_search_url,
 					            contentType: 'application/json; charset=utf-8',
 					            dataType: 'json',
 					            async: false,

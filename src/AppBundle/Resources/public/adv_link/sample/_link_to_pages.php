@@ -36,8 +36,7 @@ $a = array();
 
 // SAMPLE DATA
 // This is just a sample - this part of code as to be removed or commented
-echo "[['Contact','index.php?p=4'],['About','index.php?p=5'],['Home page','index.php?p=1']]";
-exit;
+$a = [['Contact','index.php?p=4'],['About','index.php?p=5'],['Home page','index.php?p=1']];
 
 // we finally encode the array into JSON
 $string = json_encode($a);

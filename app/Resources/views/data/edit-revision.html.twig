@@ -279,14 +279,10 @@ function addEventListeners(target){
 	target.find(".ckeditor_ems").each(function(index){
 		var editor = CKEDITOR.replace( $( this ).attr('id'), {
 			//uiColor: 'pink',
-// 			removePlugins: 'link',
-// 			extraPlugins: 'adv_link'
+			removePlugins: 'link',
+			extraPlugins: 'adv_link'
 			//TODO: include the eMS plugin
 		});
-//		CKEDITOR.plugins.addExternal('adv_link', '{{ asset("bundles/app/adv_link/plugin.js") }}', '' );
-// 		CKEDITOR.plugins.load( 'adv_link', function( plugins ) {
-// 		    alert( plugins[ 'adv_link' ] ); // object
-// 		} );
 
 		
 	});
