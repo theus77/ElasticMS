@@ -4,20 +4,19 @@
 namespace AppBundle\Command;
 
 use AppBundle\Entity\ContentType;
-use AppBundle\Entity\DataField;
 use AppBundle\Entity\Revision;
+use AppBundle\Exception\NotLockedException;
+use AppBundle\Repository\RevisionRepository;
+use AppBundle\Service\Mapping;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
+use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Monolog\Logger;
-use AppBundle\Exception\NotLockedException;
-use AppBundle\Repository\RevisionRepository;
-use AppBundle\Service\Mapping;
 
 class MigrateCommand extends ContainerAwareCommand
 {

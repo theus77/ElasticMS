@@ -7,7 +7,6 @@ use AppBundle\Form\DataField\CollectionFieldType;
 use AppBundle\Form\DataField\DataFieldType;
 use AppBundle\Form\DataField\OuuidFieldType;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;

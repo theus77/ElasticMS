@@ -5,14 +5,13 @@ namespace AppBundle\Form\Form;
 use AppBundle\Entity\Template;
 use AppBundle\Form\Field\IconPickerType;
 use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\RenderOptionType;
 use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\Field\RenderOptionType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
 
 
 class TemplateType extends AbstractType {

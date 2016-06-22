@@ -4,9 +4,8 @@ namespace AppBundle\Service;
 
 
 use AppBundle\Entity\ContentType;
-use AppBundle\Form\Field\FieldTypePickerType;
-use AppBundle\Form\FieldType\FieldTypeType;
 use AppBundle\Entity\DataField;
+use AppBundle\Form\FieldType\FieldTypeType;
 
 
 class Mapping
