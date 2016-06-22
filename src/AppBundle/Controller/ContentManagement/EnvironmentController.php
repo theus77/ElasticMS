@@ -93,8 +93,15 @@ class EnvironmentController extends AppController {
 								$em->persist($item);
 							}
 							$revision->addEnvironment($this->get('ems.service.environment')->getAliasByName($env));
+							$status = $this->getElasticsearch()->index([
+									'id' => $revision->getOuuid(),
+									'index' => $this->get('ems.service.environment')->getAliasByName($env)->getAlias(),
+									'type' => $revision->getContentType()->getName(),
+									'body' => $revision->getRawData()
+							]);
 							
 						}
+
 						
 						$em->persist($revision);
 						$em->flush();

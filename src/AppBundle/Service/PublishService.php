@@ -101,6 +101,14 @@ class PublishService
 				$revision = $revision[0];
 				$this->dataService->lockRevision($revision);
 				$revision->addEnvironment($this->environmentService->getAliasByName($envirronmentTarget));
+				
+				$status = $this->client->index([
+					'id' => $revision->getOuuid(),
+					'index' => $this->environmentService->getAliasByName($envirronmentTarget)->getAlias(),
+					'type' => $revision->getContentType()->getName(),
+					'body' => $revision->getRawData()
+				]);
+				
 				$em->persist($revision);
 				$em->flush();
 				$this->session->getFlashBag()->add('notice', 'Object '.$type.':'.$ouuid.' published in '.$envirronmentTarget);
