@@ -6,6 +6,7 @@ namespace AppBundle\Service;
 use AppBundle\Entity\Audit;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Elasticsearch\Client;
+use Monolog\Logger;
 
 class AuditService {
 	
@@ -17,13 +18,17 @@ class AuditService {
 	protected $client;
 	/**@var UserService $userService*/
 	protected $userService;
+	/**@var Logger $logger*/
+	protected $logger;
 	
-	public function __construct($index, Registry $doctrine, Client $client, UserService $userService)
+	public function __construct($index, Registry $doctrine, Client $client, UserService $userService, Logger $logger)
 	{
 		$this->index = $index;
 		$this->doctrine = $doctrine;
 		$this->client = $client;
 		$this->userService = $userService;
+		$this->logger = $logger;
+		
 	} 
 	
 	public function auditLog($action, $rawData, $environment = null) { 
@@ -57,8 +62,8 @@ class AuditService {
 					'body' => $objectArray
 			]);
 		}
-		catch(NotLockedException $e){
-			$output->writeln("<error>'.$e.'</error>");
+		catch(\Exception $e){
+			$this->logger->err('An error occured: '.$e->getMessage());
 		}
 	}
 	
@@ -77,8 +82,8 @@ class AuditService {
 			$em->persist($audit);
 			$em->flush();
 		}
-		catch(NotLockedException $e){
-			$output->writeln("<error>'.$e.'</error>");
+		catch(\Exception $e){
+			$this->logger->err('An error occured: '.$e->getMessage());
 		}
 	}
 }

@@ -251,7 +251,7 @@ services:
         arguments: ['@app.elasticsearch', '@session', '@ems.service.contenttype']
     ems.service.audit:
         class: AppBundle\Service\AuditService
-        arguments: ['%audit_index%', '@doctrine', '@app.elasticsearch', '@ems.service.user']
+        arguments: ['%audit_index%', '@doctrine', '@app.elasticsearch', '@ems.service.user', '@logger']
     ems.service.publish:
         class: AppBundle\Service\PublishService
         arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@ems.service.contenttype', '@ems.service.environment', '@ems.service.data']
