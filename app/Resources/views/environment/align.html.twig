@@ -143,17 +143,17 @@
 							}%}
 							{%  if withEnv != defaultEnv.id %}
 								{% if minrev[0] == fromEnv %}
-		        					<button type="submit" id="{{ minrev[1] }}" name="compare_environment_form[alignWith]" value="{{ minrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-right"></span>&nbsp;Align with {{ minrev[1] }}</button>
+		        					<button type="submit" id="{{ minrev[1] }}" name="compare_environment_form[alignWith]" value="{{ minrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-right"></span>&nbsp;Align {{ withEnvironment }} with {{ environment }}</button>
 		        				{% elseif maxrev[0] == fromEnv %}
-		        					<button type="submit" id="{{ maxrev[1] }}" name="compare_environment_form[alignWith]" value="{{ maxrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-right"></span>&nbsp;Align with {{ maxrev[1] }}</button>
+		        					<button type="submit" id="{{ maxrev[1] }}" name="compare_environment_form[alignWith]" value="{{ maxrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-right"></span>&nbsp;Align {{ withEnvironment }} with {{ environment }}</button>
 		        				{% endif %}
 		        			{% endif %}
 		        			
 							{%  if fromEnv != defaultEnv.id %}
 		        				{% if minrev[0] == withEnv %}
-		        					<button type="submit" id="{{ minrev[1] }}" name="compare_environment_form[alignWith]" value="{{ minrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-left"></span>&nbsp;Align with {{ minrev[1] }}</button>
+		        					<button type="submit" id="{{ minrev[1] }}" name="compare_environment_form[alignWith]" value="{{ minrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-left"></span>&nbsp;Align {{ environment }} with {{ withEnvironment }}</button>
 		        				{% elseif maxrev[0] == withEnv %}
-		        					<button type="submit" id="{{ maxrev[1] }}" name="compare_environment_form[alignWith]" value="{{ maxrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-left"></span>&nbsp;Align with {{ maxrev[1] }}</button>
+		        					<button type="submit" id="{{ maxrev[1] }}" name="compare_environment_form[alignWith]" value="{{ maxrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-left"></span>&nbsp;Align {{ environment }} with {{ withEnvironment }}</button>
 		        				{% endif %}
 		        			{% endif %}
 	                  	</div>
@@ -164,8 +164,8 @@
             </div>
             <div class="box-footer">
             	<div class="btn-group">
-	            	<button type="submit" name="compare_environment_form[alignRight]" class="btn-danger btn-md btn"><span class="fa fa-chevron-right"></span>&nbsp;Align Right</button>
-	            	<button type="submit" name="compare_environment_form[alignLeft]" class="btn-danger btn-md btn"><span class="fa fa-chevron-left"></span>&nbsp;Align Left</button>
+	            	<button type="submit" name="compare_environment_form[alignRight]" class="btn-danger btn-md btn"><span class="fa fa-chevron-right"></span>&nbsp;Align {{ withEnvironment }} with {{ environment }}</button>
+	            	<button type="submit" name="compare_environment_form[alignLeft]" class="btn-danger btn-md btn"><span class="fa fa-chevron-left"></span>&nbsp;Align {{ environment }} with {{ withEnvironment }}</button>
             	</div>
 
 				{% include 'elements/pagination.html.twig' with {

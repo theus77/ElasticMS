@@ -11,9 +11,11 @@ use AppBundle\Entity\Revision;
 use AppBundle\Form\Field\ColorPickerType;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Form\Form\CompareEnvironmentFormType;
 use AppBundle\Form\Form\EditEnvironmentType;
 use AppBundle\Form\Form\RebuildIndexType;
 use AppBundle\Repository\ContentTypeRepository;
+use AppBundle\Repository\RevisionRepository;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
@@ -23,9 +25,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Form\Form\CompareEnvironmentFormType;
-use AppBundle\Repository\RevisionRepository;
 
 class EnvironmentController extends AppController {
 
@@ -35,6 +36,11 @@ class EnvironmentController extends AppController {
 	 */
 	public function alignAction(Request $request) {
 
+		if(! $this->get('security.authorization_checker')->isGranted('ROLE_PUBLISHER') ){
+			throw new AccessDeniedHttpException('You must be at least publisher');
+		}
+		
+		
 		$data = [];
 		
 		$form = $this->createForm(CompareEnvironmentFormType::class, $data);
@@ -89,7 +95,7 @@ class EnvironmentController extends AppController {
 							/** @var Revision $item */
 							foreach ($result as $item){
 								$this->get("ems.service.data")->lockRevision($item);
-								$item->removeEnvironment($env);
+								$item->removeEnvironment($this->get('ems.service.environment')->getAliasByName($env));
 								$em->persist($item);
 							}
 							$revision->addEnvironment($this->get('ems.service.environment')->getAliasByName($env));
