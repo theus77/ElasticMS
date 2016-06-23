@@ -41,35 +41,44 @@ class AuditService {
 	}
 	
 	public function auditLogToIndex($action, $rawData, $environment = null){
-		$date = new \DateTime();
-		$userName = $this->userService->getCurrentUser()->getUserName();
-		$objectArray = ["action" => $action,
-				"date" => $date,
-				"raw_data" => $rawData,
-				"user" => $userName,
-				"environment" => $environment
-		];
-		
-		$status = $this->client->create([
-				'index' => $this->index . '_' . date_format($date, 'Ymd'),
-				'type' => 'Audit',
-				'body' => $objectArray
-		]);
+		try{
+			$date = new \DateTime();
+			$userName = $this->userService->getCurrentUser()->getUserName();
+			$objectArray = ["action" => $action,
+					"date" => $date,
+					"raw_data" => serialize($rawData),
+					"user" => $userName,
+					"environment" => $environment
+			];
+			
+			$status = $this->client->create([
+					'index' => $this->index . '_' . date_format($date, 'Ymd'),
+					'type' => 'Audit',
+					'body' => $objectArray
+			]);
+		}
+		catch(NotLockedException $e){
+			$output->writeln("<error>'.$e.'</error>");
+		}
 	}
 	
 	public function auditLogToDB($action, $rawData, $environment = null){
-		$audit = new Audit();
-		$audit->setAction($action);
-		$audit->setRawData($rawData);
-		$audit->setEnvironment($environment);
-		$date = new \DateTime();
-		$audit->setDate($date);
-		$userName = $this->userService->getCurrentUser()->getUserName();
-		$audit->setUsername($userName);
-		
-		$em = $this->doctrine->getManager();
-		$em->persist($audit);
-		$em->flush();
-	
+		try{
+			$audit = new Audit();
+			$audit->setAction($action);
+			$audit->setRawData(serialize($rawData));
+			$audit->setEnvironment($environment);
+			$date = new \DateTime();
+			$audit->setDate($date);
+			$userName = $this->userService->getCurrentUser()->getUserName();
+			$audit->setUsername($userName);
+			
+			$em = $this->doctrine->getManager();
+			$em->persist($audit);
+			$em->flush();
+		}
+		catch(NotLockedException $e){
+			$output->writeln("<error>'.$e.'</error>");
+		}
 	}
 }
