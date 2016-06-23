@@ -38,7 +38,7 @@ class Audit
     /**
      * @var string
      *
-     * @ORM\Column(name="raw_data", type="string", nullable=true)
+     * @ORM\Column(name="raw_data", type="text", nullable=true)
      */
     private $rawData;
 
