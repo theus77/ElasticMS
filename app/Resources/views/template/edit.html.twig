@@ -25,12 +25,14 @@
 					{{ form_row(form.editWithWysiwyg) }}
 					{{ form_row(form.renderOption) }}
                     {{ form_row(form.preview) }}
+                    {{ form_row(form.active) }}
+                    {{ form_row(form.role) }}
                     {{ form_row(form.downloadResultUrl) }}
                     {{ form_row(form.mimeType) }}
 					{{ form_row(form.filename) }}
 					{{ form_row(form.extension) }}
-					{{ form_row(form.recipient) }}
-
+   					{{ form_row(form.circlesTo) }}
+                    {{ form_row(form.responseTemplate) }}
 				</div>
 				<!-- /.box-body -->
 				<div class="box-footer">
@@ -50,4 +52,50 @@
 	{% include 'app/menu.html.twig' with {
 		'item':  'contenttype-index'
 	}%}
+	
+		
+<script type="text/javascript">
+$(window).ready(function() {  
+
+    var type = $( '#template_circlesTo' ).data('type'); 
+    var dynamicLoading = $( '#template_circlesTo' ).data('dynamic-loading'); 
+
+  $('#template_circlesTo').css('width', '100%');
+  $('#template_circlesTo').css('z-index', '20000');
+  $('#template_circlesTo').select2({
+    ajax: {
+      url: '{{ url("elasticsearch.api.search") }}',
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+            return {
+            q: params.term, // search term
+            page: params.page,
+            type: type
+          };
+        },
+      processResults: function (data, params) {
+        // parse the results into the format expected by Select2
+        // since we are using custom formatting functions we do not need to
+        // alter the remote JSON data, except to indicate that infinite
+        // scrolling can be used
+        params.page = params.page || 1;
+    
+            return {
+              results: data.items,
+              pagination: {
+                more: (params.page * 30) < data.total_count
+              }
+            };
+        },
+        cache: true
+      },
+      //escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+      //templateResult: formatRepo, // omitted for brevity, see the source of this page
+      //templateSelection: formatRepoSelection, // omitted for brevity, see the source of this page
+      minimumInputLength: 1
+  });
+});
+	
+</script>
 {% endblock %}	

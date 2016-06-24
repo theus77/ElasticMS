@@ -65,7 +65,11 @@ class TemplateController extends AppController
 		$template = new Template();
 		$template->setContentType($contentTypes[0]);
 		
-		$form = $this->createForm ( TemplateType::class, $template );
+		$options= [
+				'type' => $this->container->getParameter('circles_object')
+		];
+		
+		$form = $this->createForm ( TemplateType::class, $template, $options );
 		
 		$form->handleRequest ( $request );
 		
@@ -105,7 +109,11 @@ class TemplateController extends AppController
 			throw new NotFoundHttpException('Template type not found');
 		}
 		
-		$form = $this->createForm ( TemplateType::class, $template );
+		$options= [
+				'type' => $this->container->getParameter('circles_object')
+		];
+		
+		$form = $this->createForm ( TemplateType::class, $template, $options );
 		
 		$form->handleRequest ( $request );
 		

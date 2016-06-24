@@ -153,9 +153,9 @@ class Template
    	/**
    	 * @var \ObjectPickerType
    	 *
-   	 * @ORM\Column(name="circles", type="json_array", nullable=true)
+   	 * @ORM\Column(name="circles_to", type="json_array", nullable=true)
    	 */
-   	private $circles;
+   	private $circlesTo;
    	
    	/**
    	 * @var string
@@ -646,27 +646,27 @@ class Template
     }
     
     /**
-     * Set circles
+     * Set circlesTo
      *
-     * @param \ObjectPickerType $circles
+     * @param \ObjectPickerType $circlesTo
      *
      * @return Template
      */
-    public function setCircles($circles)
+    public function setCirclesTo($circlesTo)
     {
-    	$this->circles = $circles;
+    	$this->circlesTo = $circlesTo;
     
     	return $this;
     }
     
     /**
-     * Get circles
+     * Get circlesTo
      *
      * @return \ObjectPickerType
      */
-    public function getCircles()
+    public function getCirclesTo()
     {
-    	return $this->circles;
+    	return $this->circlesTo;
     }
     
     /**
