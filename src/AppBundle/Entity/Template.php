@@ -118,11 +118,51 @@ class Template
      */
     private $extension;
     
-    /** @var string
-     * 
-     * @ORM\Column(name="recipient", type="string", nullable=true)
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="active", type="boolean")
      */
-    private $recipient;
+    private $active;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="role", type="json_array")
+     */
+   	private $role;
+   	
+   	/**
+   	 * @ORM\ManyToOne(targetEntity="Environment")
+   	 * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
+   	 */
+   	private $environment;
+   	
+   	/** @var string
+   	*
+   	* @ORM\Column(name="role_to", type="json_array")
+   	*/
+   	private $roleTo;
+   	
+   	/** @var string
+   	*
+   	* @ORM\Column(name="role_cc", type="json_array")
+   	*/
+   	private $roleCc;
+   	
+   	/**
+   	 * @var \ObjectPickerType
+   	 *
+   	 * @ORM\Column(name="circles", type="json_array", nullable=true)
+   	 */
+   	private $circles;
+   	
+   	/**
+   	 * @var string
+   	 *
+   	 * @ORM\Column(name="response_template", type="text", nullable=true)
+   	 */
+   	private $responseTemplate;
     
     /**
      * @ORM\PrePersist
@@ -459,31 +499,7 @@ class Template
     {
     	return $this->extension;
     }
-
-    /**
-     * Set recipient
-     *
-     * @param string $recipient
-     *
-     * @return Template
-     */
-    public function setRecipient($recipient)
-    {
-        $this->recipient = $recipient;
-
-        return $this;
-    }
-
-    /**
-     * Get recipient
-     *
-     * @return string
-     */
-    public function getRecipient()
-    {
-        return $this->recipient;
-    }
-
+  
     /**
      * Set preview
      *
@@ -506,5 +522,174 @@ class Template
     public function getPreview()
     {
         return $this->preview;
+    }
+    
+    /**
+     * Set active
+     *
+     * @param boolean $active
+     *
+     * @return Template
+     */
+    public function setActive($active)
+    {
+    	$this->active = $active;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get active
+     *
+     * @return boolean
+     */
+    public function getActive()
+    {
+    	return $this->active;
+    }
+    
+    /**
+     * Set role
+     *
+     * @param string $role
+     *
+     * @return Template
+     */
+    public function setRole($role)
+    {
+    	$this->role = $role;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get role
+     *
+     * @return string
+     */
+    public function getRole()
+    {
+    	return $this->role;
+    }
+    
+    /**
+     * Set environment
+     *
+     * @param \AppBundle\Entity\Environment $environmentId
+     *
+     * @return Template
+     */
+    public function setEnvironment(\AppBundle\Entity\Environment $environment)
+    {
+    	$this->environment = $environment;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get environment
+     *
+     * @return \AppBundle\Entity\Environment
+     */
+    public function getEnvironment()
+    {
+    	return $this->environment;
+    }
+    
+    
+    /**
+     * Set roleTo
+     *
+     * @param string $roleTo
+     *
+     * @return Template
+     */
+    public function setRoleTo($roleTo)
+    {
+    	$this->roleTo = $roleTo;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get roleTo
+     *
+     * @return string
+     */
+    public function getRoleTo()
+    {
+    	return $this->roleTo;
+    }
+    
+    /**
+     * Set roleCc
+     *
+     * @param string $roleCc
+     *
+     * @return Template
+     */
+    public function setRoleCc($roleCc)
+    {
+    	$this->roleCc = $roleCc;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get roleCc
+     *
+     * @return string
+     */
+    public function getRoleCc()
+    {
+    	return $this->roleCc;
+    }
+    
+    /**
+     * Set circles
+     *
+     * @param \ObjectPickerType $circles
+     *
+     * @return Template
+     */
+    public function setCircles($circles)
+    {
+    	$this->circles = $circles;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get circles
+     *
+     * @return \ObjectPickerType
+     */
+    public function getCircles()
+    {
+    	return $this->circles;
+    }
+    
+    /**
+     * Set responseTemplate
+     *
+     * @param string $responseTemplate
+     *
+     * @return Template
+     */
+    public function setResponseTemplate($responseTemplate)
+    {
+    	$this->responseTemplate = $responseTemplate;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get responseTemplate
+     *
+     * @return string
+     */
+    public function getResponseTemplate()
+    {
+    	return $this->responseTemplate;
     }
 }
