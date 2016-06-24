@@ -16,11 +16,14 @@ class UserService {
 	
 	private $currentUser;
 	
-	public function __construct(Registry $doctrine, Session $session, TokenStorageInterface $tokenStorage) {
+	private $securityRoles;
+	
+	public function __construct(Registry $doctrine, Session $session, TokenStorageInterface $tokenStorage, $securityRoles) {
 		$this->doctrine = $doctrine;
 		$this->session = $session;
 		$this->tokenStorage = $tokenStorage;
 		$this->currentUser = null;
+		$this->securityRoles = $securityRoles;
 	}
 	
 	public function getUser($username) {
@@ -44,5 +47,8 @@ class UserService {
 		return $this->currentUser;
 	}
 	
-	
+	public  function getsecurityRoles() {
+		return $this->securityRoles;
+	}
+
 }
