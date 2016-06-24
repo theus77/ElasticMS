@@ -295,7 +295,9 @@ class UserController extends Controller
 	{
 	    $roleHierarchy = $this->container->getParameter('security.role_hierarchy.roles');
 	    $roles = array_keys($roleHierarchy);
-	
+	    
+	    $theRoles['ROLE_USER'] = 'ROLE_USER';
+	    
 	    foreach ($roles as $role) {
 	        $theRoles[$role] = $role;
 	    }
