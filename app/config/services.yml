@@ -231,6 +231,11 @@ services:
         arguments: ['@ems.form.field.datafieldtypepickertype']
         tags:
             - { name: form.type }
+    ems.form.form.templatetype:
+        class: AppBundle\Form\Form\TemplateType
+        arguments: ['%circles_object%', '@ems.service.environment']
+        tags:
+            - { name: form.type }
 ### regular services
     ems.service.mapping:
         class: AppBundle\Service\Mapping

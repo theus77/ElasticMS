@@ -5,20 +5,30 @@ namespace AppBundle\Form\Form;
 use AppBundle\Entity\Template;
 use AppBundle\Form\Field\IconPickerType;
 use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\ObjectPickerType;
 use AppBundle\Form\Field\RenderOptionType;
+use AppBundle\Form\Field\RolePickerType;
 use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Service\EnvironmentService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\Field\RolePickerType;
-use AppBundle\Form\Field\ObjectPickerType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Form\Field\EnvironmentPickerType;
 
-
 class TemplateType extends AbstractType {
+	
+	private $choices;
+	private $service;
+	
+	public function __construct($circleType, EnvironmentService $service)
+	{
+		$this->service = $service;
+		$this->circleType = $circleType;
+		$this->choices = null;
+	}
 	/**
 	 *
 	 * @param FormBuilderInterface $builder        	
@@ -43,8 +53,22 @@ class TemplateType extends AbstractType {
 			'required' => false,
 			'label' => 'Preview (exports)',
 		])
-		->add('environments', EnvironmentPickerType::class, [
- 			'multiple' => true,
+		->add('environments', ChoiceType::class, [
+				'attr' => [
+					'class' => 'select2'
+				],
+ 				'multiple' => true,
+				'choices' => $this->service->getAll(),
+				'required' => false,
+				'choice_label' => function ($value, $key, $index) {
+					return '<i class="fa fa-square text-'.$value->getColor().'"></i>&nbsp;&nbsp;'.$value->getName();
+				},
+				'choice_value' => function ($value) {
+					if($value != null){
+						return $value->getId();					
+					}
+					return $value;
+				},
 		])
 		->add('role', RolePickerType::class)
 		->add ( 'active', CheckboxType::class, [
@@ -80,7 +104,7 @@ class TemplateType extends AbstractType {
 		->add('roleTo', RolePickerType::class)
 		->add('circlesTo', ObjectPickerType::class, [
 				'required' => false,
-				'type' => $options['type'],
+				'type' => $this->circleType,
 				'multiple' => true,
 		])
 		->add( 'responseTemplate', TextType::class, [
@@ -92,17 +116,5 @@ class TemplateType extends AbstractType {
 				],
 				'icon' => 'fa fa-save' 
 		] );
-	}
-	
-	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function configureOptions(OptionsResolver $resolver) {
-		/* set the default option value for this kind of compound field */
-		parent::configureOptions ( $resolver );
-		$resolver->setDefault ( 'type', null );
 	}
 }
