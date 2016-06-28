@@ -145,35 +145,51 @@
 						type : 'select',
 						label : linkLang.selectPageLabel,
 						id : 'localPage',
+						className : 'select2',
 						title : linkLang.selectPageTitle,
 						items : [],
 						onLoad : function(element) {
-					        var element_id = '#' + this.getInputElement().$.id;
-					        // ajax call inspired from http://stackoverflow.com/questions/5293920/ckeditor-dynamic-select-in-a-dialog
-					        $.ajax({
-					            type: 'POST',
-					            url: object_search_url,
-					            contentType: 'application/json; charset=utf-8',
-					            dataType: 'json',
-					            async: false,
-					            success: function(data) {
-					            	$.each(data, function(index, item) {
-					                    $(element_id).get(0).options[$(element_id).get(0).options.length] = new Option(decodeURIComponent(item[0]), item[1]);
-					                });
-					            },
-					            error:function (xhr, ajaxOptions, thrownError){
-					                alert(xhr.status);
-					                alert(thrownError);
-					            }
-					        });
+							$(".cke_dialog_ui_input_select.select2").select2({
+								ajax: {
+									url: object_search_url,
+							    	dataType: 'json',
+							    	delay: 250,
+							    	data: function (params) {
+							      		return {
+								        q: params.term, // search term
+								        page: params.page
+								      };
+								    },
+									processResults: function (data, params) {
+										// parse the results into the format expected by Select2
+										// since we are using custom formatting functions we do not need to
+										// alter the remote JSON data, except to indicate that infinite
+										// scrolling can be used
+										params.page = params.page || 1;
+								
+								      	return {
+									        results: data.items,
+									        pagination: {
+									          more: (params.page * 30) < data.total_count
+									        }
+								      	};
+							    	},
+							    	cache: true
+							  	},
+							  	escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+							  	templateResult: formatRepo, // omitted for brevity, see the source of this page
+							  	templateSelection: formatRepoSelection, // omitted for brevity, see the source of this page
+							  	minimumInputLength: 1
+							});
 					    },
 						
 						commit : function( data )
 						{
+							
 							if ( !data.localPage )
-								// console.log(data);
 								data.localPage = {};
-								data.localPage = this.getValue();
+								data.localPage = data_link_url.replace(/__object_key__/g, 'object:' + this.getValue());
+	
 						}
 					}]						
 				},
@@ -845,6 +861,8 @@
 				this._.selectedElement = element;
 
 				this.setupContent( data );
+				
+				
 			},
 			onOk: function() {
 				var data = {};
@@ -902,23 +920,30 @@
 
 					delete this._.selectedElement;
 				}
+				
 			},
 			onLoad: function() {
+				
 				if ( !editor.config.linkShowAdvancedTab )
 					this.hidePage( 'advanced' ); //Hide Advanded tab.
 
 				if ( !editor.config.linkShowTargetTab )
 					this.hidePage( 'target' ); //Hide Target tab.
+				
+				
 			},
 			// Inital focus on 'url' field if link is of type URL.
 			onFocus: function() {
+
 				var linkType = this.getContentElement( 'info', 'linkType' ),
 					urlField;
 
 				if ( linkType && linkType.getValue() == 'url' ) {
 					urlField = this.getContentElement( 'info', 'url' );
 					urlField.select();
+
 				}
+				
 			}
 		};
 	} );

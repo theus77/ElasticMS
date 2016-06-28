@@ -859,4 +859,29 @@ class DataController extends AppController
 				'revisionId' => $revertedRevsision->getId()
 		]);
 	}
+	
+	/**
+	 * @Route("/data/link/{key}", name="data.link")
+	 */
+	public function linkDataAction($key, Request $request)
+	{	
+		$splitted = explode(':', $key);		
+		if($splitted && count($splitted) == 3){
+			$category 	= $splitted[0]; // object or asset
+			$type 		= $splitted[1];
+			$ouuid 		= $splitted[2];
+		}
+		
+		if(null != $ouuid && null != $type) {
+			// For each type, we must perform a different redirect.
+			if($category == 'object'){
+				return $this->redirectToRoute('data.revisions', [
+						'type' => $type,
+						'ouuid'=> $ouuid,
+				]);
+			} else { 
+				/* TODO asset redirect */			
+			}
+		}
+	}
 }
