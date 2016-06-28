@@ -128,25 +128,28 @@ class Template
     /**
      * @var string
      *
-     * @ORM\Column(name="role", type="json_array")
+     * @ORM\Column(name="role", type="string")
      */
    	private $role;
    	
    	/**
-   	 * @ORM\ManyToOne(targetEntity="Environment")
-   	 * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
-   	 */
-   	private $environment;
+   	 * @ORM\ManyToMany(targetEntity="Environment", cascade={"persist", "remove"})
+   	 * @ORM\JoinTable(name="environment_template",
+     *      joinColumns={@ORM\JoinColumn(name="template_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="environment_id", referencedColumnName="id")}
+     *      )
+     */
+   	private $environments;
    	
    	/** @var string
    	*
-   	* @ORM\Column(name="role_to", type="json_array")
+   	* @ORM\Column(name="role_to", type="string")
    	*/
    	private $roleTo;
    	
    	/** @var string
    	*
-   	* @ORM\Column(name="role_cc", type="json_array")
+   	* @ORM\Column(name="role_cc", type="string")
    	*/
    	private $roleCc;
    	
@@ -163,6 +166,14 @@ class Template
    	 * @ORM\Column(name="response_template", type="text", nullable=true)
    	 */
    	private $responseTemplate;
+   	
+   	/**
+   	 * Constructor
+   	 */
+   	public function __construct()
+   	{
+   		$this->environments = new \Doctrine\Common\Collections\ArrayCollection();
+   	}
     
     /**
      * @ORM\PrePersist
@@ -573,31 +584,6 @@ class Template
     }
     
     /**
-     * Set environment
-     *
-     * @param \AppBundle\Entity\Environment $environmentId
-     *
-     * @return Template
-     */
-    public function setEnvironment(\AppBundle\Entity\Environment $environment)
-    {
-    	$this->environment = $environment;
-    
-    	return $this;
-    }
-    
-    /**
-     * Get environment
-     *
-     * @return \AppBundle\Entity\Environment
-     */
-    public function getEnvironment()
-    {
-    	return $this->environment;
-    }
-    
-    
-    /**
      * Set roleTo
      *
      * @param string $roleTo
@@ -691,5 +677,45 @@ class Template
     public function getResponseTemplate()
     {
     	return $this->responseTemplate;
+    }
+    
+    /**
+     * Add environments
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     *
+     * @return Template
+     */
+    public function addEnvironments(\AppBundle\Entity\Environment $environment)
+    {
+    	
+        $this->environments[] = $environment;
+     
+        return $this;
+    }
+
+    /**
+     * Remove environments
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     */
+    public function removeEnvironments(\AppBundle\Entity\Environment $environments)
+    {	
+        $this->environments->removeElement($environments);
+    }
+
+    /**
+     * Get environments
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEnvironments()
+    {
+    	
+        if (!is_array($this->environments)) {
+    		return null;
+    	} 
+    	
+    	return $this->environments;
     }
 }

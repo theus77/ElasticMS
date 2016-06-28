@@ -47,7 +47,7 @@ class RolePickerType extends SelectPickerType {
 		$roleHierarchy = $this->userService->getsecurityRoles();
 		$roles = array_keys($roleHierarchy);
 		
-		$theRoles['not-defined'] = null;
+		$theRoles['not-defined'] = 'not-defined';
 		$theRoles['ROLE_USER'] = 'ROLE_USER';
 		
 		foreach ($roles as $role) {

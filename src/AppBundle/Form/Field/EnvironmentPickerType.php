@@ -40,8 +40,9 @@ class EnvironmentPickerType extends SelectPickerType {
 				];
 			},
 			'choice_value' => function ($value) {
-		       return $value;
+				return $value;
 		    },
+		    'multiple' => false,
 		));
 	}
 }

@@ -15,6 +15,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\Field\RolePickerType;
 use AppBundle\Form\Field\ObjectPickerType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\EnvironmentPickerType;
 
 
 class TemplateType extends AbstractType {
@@ -41,6 +42,9 @@ class TemplateType extends AbstractType {
 		->add ( 'preview', CheckboxType::class, [
 			'required' => false,
 			'label' => 'Preview (exports)',
+		])
+		->add('environments', EnvironmentPickerType::class, [
+ 			'multiple' => true,
 		])
 		->add('role', RolePickerType::class)
 		->add ( 'active', CheckboxType::class, [
