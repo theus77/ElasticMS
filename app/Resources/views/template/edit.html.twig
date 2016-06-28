@@ -21,20 +21,25 @@
 				<div class="box-body">
 					{{ form_row(form.name) }}
 					{{ form_row(form.icon) }}
+                    {{ form_row(form.environments) }}
 					{{ form_row(form.body) }}
 					{{ form_row(form.editWithWysiwyg) }}
-					{{ form_row(form.renderOption) }}
                     {{ form_row(form.preview) }}
                     {{ form_row(form.active) }}
                     {{ form_row(form.role) }}
+                    {{ form_row(form.renderOption) }}
+                    <div id="export">			
                     {{ form_row(form.downloadResultUrl) }}
-                    {{ form_row(form.mimeType) }}
+					{{ form_row(form.mimeType) }}
 					{{ form_row(form.filename) }}
 					{{ form_row(form.extension) }}
+					</div>
+					<div id="notification">					
 					{{ form_row(form.roleCc) }}
 					{{ form_row(form.roleTo) }}
-   					{{ form_row(form.circlesTo) }}
+					{{ form_row(form.circlesTo) }}
                     {{ form_row(form.responseTemplate) }}
+					</div>
 				</div>
 				<!-- /.box-body -->
 				<div class="box-footer">
@@ -59,6 +64,30 @@
 <script type="text/javascript">
 $(window).ready(function() {  
 
+
+	// Jira - ELASTICMS-41
+	$('#export').hide();
+	$('#notification').hide();
+	
+	if ($('#template_renderOption').val() == 'notification'){ 
+		$('#notification').show();
+	} else if ($('#template_renderOption').val() == 'export') {
+		 $('#export').show();
+	}
+
+	$('#template_renderOption').change(function(e){
+	  if ($(this).val() == 'notification'){
+	    $('#notification').show();
+	    $('#export').hide();
+	  } else if ($(this).val() == 'export'){
+	    $('#export').show();
+	    $('#notification').hide();
+	  } else{
+	    $('#export').hide();
+	    $('#notification').hide();
+	  }
+	});
+	
     var type = $( '#template_circlesTo' ).data('type'); 
     var dynamicLoading = $( '#template_circlesTo' ).data('dynamic-loading'); 
 

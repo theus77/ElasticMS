@@ -132,6 +132,13 @@ class Environment
     	$this->revisions = new \Doctrine\Common\Collections\ArrayCollection();
     }
     
+	/**
+	 * ToString
+	 */
+    public function __toString() {
+    	return $this->id;
+    }
+    
     /**
      * Get id
      *

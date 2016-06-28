@@ -128,25 +128,28 @@ class Template
     /**
      * @var string
      *
-     * @ORM\Column(name="role", type="json_array")
+     * @ORM\Column(name="role", type="string")
      */
    	private $role;
    	
    	/**
-   	 * @ORM\ManyToOne(targetEntity="Environment")
-   	 * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
-   	 */
-   	private $environment;
+   	 * @ORM\ManyToMany(targetEntity="Environment", cascade={"persist", "remove"})
+   	 * @ORM\JoinTable(name="environment_template",
+     *      joinColumns={@ORM\JoinColumn(name="template_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="environment_id", referencedColumnName="id")}
+     *      )
+     */
+   	private $environments;
    	
    	/** @var string
    	*
-   	* @ORM\Column(name="role_to", type="json_array")
+   	* @ORM\Column(name="role_to", type="string")
    	*/
    	private $roleTo;
    	
    	/** @var string
    	*
-   	* @ORM\Column(name="role_cc", type="json_array")
+   	* @ORM\Column(name="role_cc", type="string")
    	*/
    	private $roleCc;
    	
@@ -178,6 +181,9 @@ class Template
     		$this->orderKey = 0;
     	}
     }
+    
+    
+
 
     /**
      * Get id
@@ -332,7 +338,7 @@ class Template
     {
         return $this->editWithWysiwyg;
     }
-    
+
     /**
      * Set renderOption
      *
@@ -342,10 +348,11 @@ class Template
      */
     public function setRenderOption($renderOption)
     {
-    	$this->renderOption = $renderOption;
-    	return $this;
+        $this->renderOption = $renderOption;
+
+        return $this;
     }
-    
+
     /**
      * Get renderOption
      *
@@ -353,7 +360,7 @@ class Template
      */
     public function getRenderOption()
     {
-    	return $this->renderOption;
+        return $this->renderOption;
     }
 
     /**
@@ -381,125 +388,29 @@ class Template
     }
 
     /**
-     * Set contentType
-     *
-     * @param \AppBundle\Entity\ContentType $contentType
-     *
-     * @return Template
-     */
-    public function setContentType(\AppBundle\Entity\ContentType $contentType = null)
-    {
-        $this->contentType = $contentType;
-
-        return $this;
-    }
-
-    /**
-     * Get contentType
-     *
-     * @return \AppBundle\Entity\ContentType
-     */
-    public function getContentType()
-    {
-        return $this->contentType;
-    }
-
-    /**
      * Set downloadResultUrl
      *
-     * @param bool $downloadResultUrl
+     * @param boolean $downloadResultUrl
      *
      * @return Template
      */
     public function setDownloadResultUrl($downloadResultUrl)
     {
-    	$this->downloadResultUrl = $downloadResultUrl;
-    
-    	return $this;
-    }
-    
-    /**
-     * Get downloadResultUrl
-     *
-     * @return bool
-     */
-    public function getDownloadResultUrl()
-    {
-    	return $this->downloadResultUrl;
-    }
-    
-    /**
-     * Set mimeType
-     *
-     * @param string $mimeType
-     *
-     * @return Template
-     */
-    public function setMimeType($mimeType)
-    {
-        $this->mimeType = $mimeType;
+        $this->downloadResultUrl = $downloadResultUrl;
 
         return $this;
     }
 
     /**
-     * Get mimeType
+     * Get downloadResultUrl
      *
-     * @return string
+     * @return boolean
      */
-    public function getMimeType()
+    public function getDownloadResultUrl()
     {
-        return $this->mimeType;
+        return $this->downloadResultUrl;
     }
-    
-    /**
-     * Set filename
-     *
-     * @param string $filename
-     *
-     * @return Template
-     */
-    public function setFilename($filename)
-    {
-    	$this->filename = $filename;
-    
-    	return $this;
-    }
-    
-    /**
-     * Get filename
-     *
-     * @return string
-     */
-    public function getFilename()
-    {
-    	return $this->filename;
-    }
-    
-    /**
-     * Set extension
-     *
-     * @param string $extension
-     *
-     * @return Template
-     */
-    public function setExtension($extension)
-    {
-    	$this->extension = $extension;
-    
-    	return $this;
-    }
-    
-    /**
-     * Get extension
-     *
-     * @return string
-     */
-    public function getExtension()
-    {
-    	return $this->extension;
-    }
-  
+
     /**
      * Set preview
      *
@@ -523,7 +434,79 @@ class Template
     {
         return $this->preview;
     }
-    
+
+    /**
+     * Set mimeType
+     *
+     * @param string $mimeType
+     *
+     * @return Template
+     */
+    public function setMimeType($mimeType)
+    {
+        $this->mimeType = $mimeType;
+
+        return $this;
+    }
+
+    /**
+     * Get mimeType
+     *
+     * @return string
+     */
+    public function getMimeType()
+    {
+        return $this->mimeType;
+    }
+
+    /**
+     * Set filename
+     *
+     * @param string $filename
+     *
+     * @return Template
+     */
+    public function setFilename($filename)
+    {
+        $this->filename = $filename;
+
+        return $this;
+    }
+
+    /**
+     * Get filename
+     *
+     * @return string
+     */
+    public function getFilename()
+    {
+        return $this->filename;
+    }
+
+    /**
+     * Set extension
+     *
+     * @param string $extension
+     *
+     * @return Template
+     */
+    public function setExtension($extension)
+    {
+        $this->extension = $extension;
+
+        return $this;
+    }
+
+    /**
+     * Get extension
+     *
+     * @return string
+     */
+    public function getExtension()
+    {
+        return $this->extension;
+    }
+
     /**
      * Set active
      *
@@ -533,11 +516,11 @@ class Template
      */
     public function setActive($active)
     {
-    	$this->active = $active;
-    
-    	return $this;
+        $this->active = $active;
+
+        return $this;
     }
-    
+
     /**
      * Get active
      *
@@ -545,9 +528,9 @@ class Template
      */
     public function getActive()
     {
-    	return $this->active;
+        return $this->active;
     }
-    
+
     /**
      * Set role
      *
@@ -557,11 +540,11 @@ class Template
      */
     public function setRole($role)
     {
-    	$this->role = $role;
-    
-    	return $this;
+        $this->role = $role;
+
+        return $this;
     }
-    
+
     /**
      * Get role
      *
@@ -569,34 +552,9 @@ class Template
      */
     public function getRole()
     {
-    	return $this->role;
+        return $this->role;
     }
-    
-    /**
-     * Set environment
-     *
-     * @param \AppBundle\Entity\Environment $environmentId
-     *
-     * @return Template
-     */
-    public function setEnvironment(\AppBundle\Entity\Environment $environment)
-    {
-    	$this->environment = $environment;
-    
-    	return $this;
-    }
-    
-    /**
-     * Get environment
-     *
-     * @return \AppBundle\Entity\Environment
-     */
-    public function getEnvironment()
-    {
-    	return $this->environment;
-    }
-    
-    
+
     /**
      * Set roleTo
      *
@@ -606,11 +564,11 @@ class Template
      */
     public function setRoleTo($roleTo)
     {
-    	$this->roleTo = $roleTo;
-    
-    	return $this;
+        $this->roleTo = $roleTo;
+
+        return $this;
     }
-    
+
     /**
      * Get roleTo
      *
@@ -618,9 +576,9 @@ class Template
      */
     public function getRoleTo()
     {
-    	return $this->roleTo;
+        return $this->roleTo;
     }
-    
+
     /**
      * Set roleCc
      *
@@ -630,11 +588,11 @@ class Template
      */
     public function setRoleCc($roleCc)
     {
-    	$this->roleCc = $roleCc;
-    
-    	return $this;
+        $this->roleCc = $roleCc;
+
+        return $this;
     }
-    
+
     /**
      * Get roleCc
      *
@@ -642,33 +600,33 @@ class Template
      */
     public function getRoleCc()
     {
-    	return $this->roleCc;
+        return $this->roleCc;
     }
-    
+
     /**
      * Set circlesTo
      *
-     * @param \ObjectPickerType $circlesTo
+     * @param array $circlesTo
      *
      * @return Template
      */
     public function setCirclesTo($circlesTo)
     {
-    	$this->circlesTo = $circlesTo;
-    
-    	return $this;
+        $this->circlesTo = $circlesTo;
+
+        return $this;
     }
-    
+
     /**
      * Get circlesTo
      *
-     * @return \ObjectPickerType
+     * @return array
      */
     public function getCirclesTo()
     {
-    	return $this->circlesTo;
+        return $this->circlesTo;
     }
-    
+
     /**
      * Set responseTemplate
      *
@@ -678,11 +636,11 @@ class Template
      */
     public function setResponseTemplate($responseTemplate)
     {
-    	$this->responseTemplate = $responseTemplate;
-    
-    	return $this;
+        $this->responseTemplate = $responseTemplate;
+
+        return $this;
     }
-    
+
     /**
      * Get responseTemplate
      *
@@ -690,6 +648,71 @@ class Template
      */
     public function getResponseTemplate()
     {
-    	return $this->responseTemplate;
+        return $this->responseTemplate;
+    }
+
+    /**
+     * Set contentType
+     *
+     * @param \AppBundle\Entity\ContentType $contentType
+     *
+     * @return Template
+     */
+    public function setContentType(\AppBundle\Entity\ContentType $contentType = null)
+    {
+        $this->contentType = $contentType;
+
+        return $this;
+    }
+
+    /**
+     * Get contentType
+     *
+     * @return \AppBundle\Entity\ContentType
+     */
+    public function getContentType()
+    {
+        return $this->contentType;
+    }
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->environments = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
+    /**
+     * Add environment
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     *
+     * @return Template
+     */
+    public function addEnvironment(\AppBundle\Entity\Environment $environment)
+    {
+        $this->environments[] = $environment;
+
+        return $this;
+    }
+
+    /**
+     * Remove environment
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     */
+    public function removeEnvironment(\AppBundle\Entity\Environment $environment)
+    {
+        $this->environments->removeElement($environment);
+    }
+
+    /**
+     * Get environments
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEnvironments()
+    {
+        return $this->environments->toArray();
     }
 }
