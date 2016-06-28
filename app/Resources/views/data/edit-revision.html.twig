@@ -385,19 +385,6 @@ function addEventListeners(target){
 	});
 }
 
-function formatRepo (repo) {
-    if (repo.loading) return repo.text;
-
-    var markup = "<div class='select2-result-repository clearfix'>" +
-      repo.text + "</div>";
-      
-	return markup;
-}
-
-function formatRepoSelection (repo) {
-    return repo.text;
-}
-
 
 $(window).ready(function() {	
 	CKEDITOR.plugins.addExternal('adv_link', '{{ asset("bundles/app/adv_link/plugin.js") }}', '' );

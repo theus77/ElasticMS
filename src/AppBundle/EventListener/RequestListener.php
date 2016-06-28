@@ -50,25 +50,30 @@ class RequestListener
 		//hide all errors to unauthenticated users        
 		$exception = $event->getException();
 		
-		if (!($exception instanceof NotFoundHttpException) && !$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
-			$response = new RedirectResponse($this->router->generate('user.login'));
-			$event->setResponse($response);
+		try {
+			if (!($exception instanceof NotFoundHttpException) && !$this->authorizationChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
+				$response = new RedirectResponse($this->router->generate('user.login'));
+				$event->setResponse($response);
+			}
+			else if($exception instanceof LockedException || $exception instanceof PrivilegeException) {
+				$this->session->getFlashBag()->add('error', $exception->getMessage());
+				/** @var LockedException $exception */
+				if(null == $exception->getRevision()->getOuuid()){
+					$response = new RedirectResponse($this->router->generate('data.draft_in_progress', [
+							'contentTypeId' => $exception->getRevision()->getContentType()->getId(),
+					]));
+				}
+				else {
+					$response = new RedirectResponse($this->router->generate('data.revisions', [
+							'type' => $exception->getRevision()->getContentType()->getName(),
+							'ouuid'=> $exception->getRevision()->getOuuid()
+					]));				
+				}
+				$event->setResponse($response);
+			}
 		}
-		else if($exception instanceof LockedException || $exception instanceof PrivilegeException) {
-			$this->session->getFlashBag()->add('error', $exception->getMessage());
-			/** @var LockedException $exception */
-			if(null == $exception->getRevision()->getOuuid()){
-				$response = new RedirectResponse($this->router->generate('data.draft_in_progress', [
-						'contentTypeId' => $exception->getRevision()->getContentType()->getId(),
-				]));
-			}
-			else {
-				$response = new RedirectResponse($this->router->generate('data.revisions', [
-						'type' => $exception->getRevision()->getContentType()->getName(),
-						'ouuid'=> $exception->getRevision()->getOuuid()
-				]));				
-			}
-			$event->setResponse($response);
+		catch(\Exception $e){
+			dump($e);
 		}
 	}
 	
