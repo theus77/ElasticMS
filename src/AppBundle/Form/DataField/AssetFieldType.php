@@ -4,10 +4,9 @@ namespace AppBundle\Form\DataField;
 
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\FormBuilderInterface;
 use AppBundle\Form\Field\AssetType;
 use AppBundle\Form\Field\IconPickerType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 	
 /**

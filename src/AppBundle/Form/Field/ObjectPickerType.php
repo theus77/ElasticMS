@@ -3,11 +3,10 @@
 namespace AppBundle\Form\Field;
 
 use Symfony\Component\Form\ChoiceList\Factory\ChoiceListFactoryInterface;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\Options;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ObjectPickerType extends Select2Type {
 	/**@var ChoiceListFactoryInterface $choiceListFactory*/

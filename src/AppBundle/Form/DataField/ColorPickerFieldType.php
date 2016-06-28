@@ -2,16 +2,10 @@
 
 namespace AppBundle\Form\DataField;
 
-use AppBundle\Entity\FieldType;
-use AppBundle\Form\Field\AnalyzerPickerType;
-use AppBundle\Form\Field\IconPickerType;
-use AppBundle\Form\Field\IconTextType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Form\Field\ColorPickerType;
-use AppBundle\Form\Field\ColorPickerFullType;
 use AppBundle\Entity\DataField;
+use AppBundle\Entity\FieldType;
+use AppBundle\Form\Field\ColorPickerFullType;
+use Symfony\Component\Form\FormBuilderInterface;
 						
 /**
  * Defined a Container content type.

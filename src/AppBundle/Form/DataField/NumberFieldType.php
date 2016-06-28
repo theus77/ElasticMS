@@ -2,13 +2,12 @@
 
 namespace AppBundle\Form\DataField;
 
+use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
 use AppBundle\Form\Field\AnalyzerPickerType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Entity\DataField;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 
 class NumberFieldType extends DataFieldType {
 

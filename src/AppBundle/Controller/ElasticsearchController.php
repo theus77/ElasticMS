@@ -15,7 +15,7 @@ use AppBundle\Repository\EnvironmentRepository;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
+use Elasticsearch\Common\Exceptions\ElasticsearchException;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -26,7 +26,6 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
-use Elasticsearch\Common\Exceptions\ElasticsearchException;
 class ElasticsearchController extends AppController
 {
 	/**

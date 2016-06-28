@@ -3,31 +3,30 @@
 namespace AppBundle\Form\Field;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Service\UserService;
 
 class RolePickerType extends SelectPickerType {
+	/**
+	 * 
+	 * @var UserService $userService
+	 */
+	private $userService;
 	
-	//TODO: it would be nice to generate this list form the actual list
-	private $choices = [
-		'not-defined' => null,
-		'ROLE_USER' => 'ROLE_USER',      
-        'ROLE_SUPER_USER' => 'ROLE_SUPER_USER',      
-        'ROLE_AUTHOR' => 'ROLE_AUTHOR',      
-        'ROLE_SUPER_AUTHOR' => 'ROLE_SUPER_AUTHOR',      
-        'ROLE_PUBLISHER' => 'ROLE_PUBLISHER',      
-        'ROLE_SUPER_PUBLISHER' => 'ROLE_SUPER_PUBLISHER',      
-        'ROLE_WEBMASTER' => 'ROLE_WEBMASTER',      
-        'ROLE_SUPER_WEBMASTER' => 'ROLE_SUPER_WEBMASTER',      
-        'ROLE_ADMIN' => 'ROLE_ADMIN',      
-        'ROLE_SUPER_ADMIN' => 'ROLE_SUPER_ADMIN',   
-	];
-	
+	public function __construct(UserService $userService)
+	{
+		parent::__construct();
+		$this->userService = $userService;
+	}
+
 	/**
 	 * @param OptionsResolver $resolver
 	 */
 	public function configureOptions(OptionsResolver $resolver)
 	{
+		$choices = $this->getExistingRoles();
+
 		$resolver->setDefaults(array(
-			'choices' => $this->choices,
+			'choices' => $choices,
 			'attr' => [
 					'data-live-search' => true
 			],
@@ -41,5 +40,19 @@ class RolePickerType extends SelectPickerType {
 		       return $value;
 		    },
 		));
+	}
+	
+	private  function getExistingRoles()
+	{
+		$roleHierarchy = $this->userService->getsecurityRoles();
+		$roles = array_keys($roleHierarchy);
+		
+		$theRoles['not-defined'] = 'not-defined';
+		$theRoles['ROLE_USER'] = 'ROLE_USER';
+		
+		foreach ($roles as $role) {
+			$theRoles[$role] = $role;
+		}
+		return $theRoles;
 	}
 }

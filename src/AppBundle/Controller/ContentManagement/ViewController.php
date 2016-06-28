@@ -4,19 +4,18 @@ namespace AppBundle\Controller\ContentManagement;
 
 use AppBundle\Controller\AppController;
 use AppBundle;
+use AppBundle\Entity\View;
+use AppBundle\Form\Field\IconPickerType;
+use AppBundle\Form\Field\IconTextType;
+use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Form\Form\ViewType;
 use AppBundle\Repository\ContentTypeRepository;
+use AppBundle\Repository\ViewRepository;
 use Doctrine\ORM\EntityManager;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Form\Form\ViewType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use AppBundle\Entity\View;
-use AppBundle\Repository\ViewRepository;
-use AppBundle\Form\Field\IconTextType;
-use AppBundle\Form\Field\IconPickerType;
-use AppBundle\Form\Field\SubmitEmsType;
-use AppBundle\Form\View\KeywordsViewType;
 
 class ViewController extends AppController
 {

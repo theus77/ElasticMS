@@ -87,18 +87,23 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 	}
 
 	public function findByOuuidContentTypeAndEnvironnement(Revision $revision, Environment $env=null) {
-	
 		if(!isset($env)){
 			$env = $revision->getContentType()->getEnvironment();
 		}
+		
+		return $this->findByOuuidAndContentTypeAndEnvironnement($revision->getContentType(), $revision->getOuuid(), $env);
+	}
+	
+	public function findByOuuidAndContentTypeAndEnvironnement(ContentType $contentType, $ouuid, Environment $env) {
+	
 		
 		$qb = $this->createQueryBuilder('r');
 		$qb->join('r.environments', 'e');
 		$qb->where('r.ouuid = :ouuid and e.id = :envId and r.contentType = :contentTypeId');
 		$qb->setParameters([
-				'ouuid' => $revision->getOuuid(),
+				'ouuid' => $ouuid,
 				'envId' => $env->getId(),
-				'contentTypeId' => $revision->getContentType()->getId()
+				'contentTypeId' => $contentType->getId()
 		]);
 	
 		return $qb->getQuery()->getResult();

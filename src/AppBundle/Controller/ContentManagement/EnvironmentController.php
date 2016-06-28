@@ -11,9 +11,11 @@ use AppBundle\Entity\Revision;
 use AppBundle\Form\Field\ColorPickerType;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Form\Form\CompareEnvironmentFormType;
 use AppBundle\Form\Form\EditEnvironmentType;
 use AppBundle\Form\Form\RebuildIndexType;
 use AppBundle\Repository\ContentTypeRepository;
+use AppBundle\Repository\RevisionRepository;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\BadRequest400Exception;
@@ -23,9 +25,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Form\Form\CompareEnvironmentFormType;
-use AppBundle\Repository\RevisionRepository;
 
 class EnvironmentController extends AppController {
 
@@ -35,19 +36,18 @@ class EnvironmentController extends AppController {
 	 */
 	public function alignAction(Request $request) {
 
+		if(! $this->get('security.authorization_checker')->isGranted('ROLE_PUBLISHER') ){
+			throw new AccessDeniedHttpException('You must be at least publisher');
+		}
+		
+		
 		$data = [];
+		
 		$form = $this->createForm(CompareEnvironmentFormType::class, $data);
 		
 		$form->handleRequest($request);	
+		
 		$paging_size = $this->getParameter('paging_size');
-		
-		
-		$results = false;
-		$page = 0;
-		$total = 0;
-		$lastPage = 0;
-		$fromEnv = 0;
-		$withEnv = 0;
 		
 		if ($form->isSubmitted() && $form->isValid()) {
 			$data = $form->getData();
@@ -55,38 +55,167 @@ class EnvironmentController extends AppController {
 				$form->addError(new FormError("Source and target environments must be different"));
 			}
 			else {
-				if(null != $request->query->get('page')){
-					$page = $request->query->get('page');
-				}
-				else{
-					$page = 1;
-				}
-		
-				/** @var EntityManager $em */
-				$em = $this->getDoctrine ()->getManager ();
-				/**@var RevisionRepository $repository*/
-				$repository = $em->getRepository ( 'AppBundle:Revision' );
+				if(array_key_exists('alignWith', $request->request->get('compare_environment_form'))){
+					$alignTo = [];
+					$alignTo[$request->query->get('withEnvironment')] = $request->query->get('withEnvironment');
+					$alignTo[$request->query->get('environment')] = $request->query->get('environment');
+					$revid = $request->request->get('compare_environment_form')['alignWith'];
 
-				$env = $this->get('ems.service.environment')->getAliasByName($data['environment']);
-				$withEnvi = $this->get('ems.service.environment')->getAliasByName($data['withEnvironment']);
-				$fromEnv = $env->getId();
-				$withEnv = $withEnvi->getId();
-				
-				
-				$results = $repository->compareEnvironment($env->getId(), $withEnvi->getId(), ($page-1)*$paging_size, $paging_size);
-				
-				if(count($results) > 0){
-					$total = $repository->countDifferencesBetweenEnvironment($env->getId(), $withEnvi->getId());					
+					/** @var  Client $client */
+					$client = $this->get ( 'app.elasticsearch' );
+
+					/** @var EntityManager $em */
+					$em = $this->getDoctrine()->getManager();
+					
+					$repository = $em->getRepository('AppBundle:Revision');
+					
+					/**@var Revision $revision */
+					$revision = $repository->findOneBy([
+							'id' => $revid
+					]);
+					
+					foreach ($revision->getEnvironments() as $item) {
+						if(array_key_exists($item->getName(), $alignTo)){
+							unset($alignTo[$item->getName()]);
+						}
+					}
+
+					$continue = true;
+					foreach ($alignTo as $env){
+						if($revision->getContentType()->getEnvironment()->getName() == $env) {
+							$this->session->getFlashBag()->add('warning', 'You can not align the default environment for '.$type.':'.$ouuid);
+							$continue = false;
+							break;
+						}						
+					}
+					if($continue) {
+						$this->get("ems.service.data")->lockRevision($revision);
+						foreach ($alignTo as $env){
+							$result = $repository->findByOuuidContentTypeAndEnvironnement($revision, $this->get('ems.service.environment')->getAliasByName($env));
+							/** @var Revision $item */
+							foreach ($result as $item){
+								$this->get("ems.service.data")->lockRevision($item);
+								$item->removeEnvironment($this->get('ems.service.environment')->getAliasByName($env));
+								$em->persist($item);
+							}
+							$revision->addEnvironment($this->get('ems.service.environment')->getAliasByName($env));
+							$status = $this->getElasticsearch()->index([
+									'id' => $revision->getOuuid(),
+									'index' => $this->get('ems.service.environment')->getAliasByName($env)->getAlias(),
+									'type' => $revision->getContentType()->getName(),
+									'body' => $revision->getRawData()
+							]);
+							
+						}
+
+						
+						$em->persist($revision);
+						$em->flush();
+	
+						foreach ($alignTo as $env){
+							$this->addFlash('notice','Revision '.$revid.' of the object '.$revision->getOuuid().' has been published in '.$env);						
+						}
+						
+					}
+					
 				}
-				else {
-					$this->addFlash('notice', 'Those environments are aligned');
-					$total = 0;
+				else if(array_key_exists('alignLeft', $request->request->get('compare_environment_form'))) {
+					foreach ($request->request->get('compare_environment_form')['item_to_align'] as $item){
+						$exploded = explode(':', $item);
+						if(count($exploded) == 2){
+							$this->get('ems.service.publish')->alignRevision($exploded[0], $exploded[1], $request->query->get('withEnvironment'), $request->query->get('environment'));					
+						}
+						else{
+							$this->addFlash('warning', 'Malformed OUUID: '.$item);
+						}
+					}
+				}
+				else if(array_key_exists('alignRight', $request->request->get('compare_environment_form'))) {
+					foreach ($request->request->get('compare_environment_form')['item_to_align'] as $item){
+						$exploded = explode(':', $item);
+						if(count($exploded) == 2){
+							$this->get('ems.service.publish')->alignRevision($exploded[0], $exploded[1], $request->query->get('environment'), $request->query->get('withEnvironment'));					
+						}
+						else{
+							$this->addFlash('warning', 'Malformed OUUID: '.$item);
+						}
+					}
+				}
+				else if(array_key_exists('compare', $request->request->get('compare_environment_form'))) {
+					$request->query->set('environment', $data['environment']);
+					$request->query->set('withEnvironment', $data['withEnvironment']);
+					$request->query->set('page', 1);					
 				}
 				
-				$lastPage = ceil($total/$paging_size);				
+				return $this->redirectToRoute('environment.align', $request->query->all());
 			}
 		}
+
+		if(null != $request->query->get('page')){
+			$page = $request->query->get('page');
+		}
+		else{
+			$page = 1;
+		}
 		
+		if(null != $request->query->get('environment')){
+			$environment = $request->query->get('environment');
+			if (!$form->isSubmitted()){
+				$form->get('environment')->setData($environment);
+				
+			}
+		}
+		else{
+			$environment = false;
+		}
+		
+		if(null != $request->query->get('withEnvironment')){
+			$withEnvironment = $request->query->get('withEnvironment');
+
+			if (!$form->isSubmitted()){
+				$form->get('withEnvironment')->setData($withEnvironment);
+			}
+		}
+		else{
+			$withEnvironment = false;
+		}
+		
+		if($environment && $withEnvironment){
+			/** @var EntityManager $em */
+			$em = $this->getDoctrine ()->getManager ();
+			/**@var RevisionRepository $repository*/
+			$repository = $em->getRepository ( 'AppBundle:Revision' );
+
+			$env = $this->get('ems.service.environment')->getAliasByName($environment);
+			$withEnvi = $this->get('ems.service.environment')->getAliasByName($withEnvironment);
+			$fromEnv = $env->getId();
+			$withEnv = $withEnvi->getId();
+
+			$total = $repository->countDifferencesBetweenEnvironment($env->getId(), $withEnvi->getId());
+			$lastPage = ceil($total/$paging_size);
+			if($page > $lastPage){
+				$page = $lastPage;
+			}
+
+			$results = $repository->compareEnvironment($env->getId(), $withEnvi->getId(), ($page-1)*$paging_size, $paging_size);
+
+			if(count($results) == 0){
+				$this->addFlash('notice', 'Those environments are aligned');
+				$total = 0;
+			}
+
+
+		}
+		else {
+			$environment = false; 
+			$withEnvironment = false;
+			$results = false;
+			$page = 0;
+			$total = 0;
+			$lastPage = 0;
+			$fromEnv = 0;
+			$withEnv = 0;
+		}
 		
 		return $this->render ( 'environment/align.html.twig', [
 				'form' => $form->createView(),
@@ -99,6 +228,9 @@ class EnvironmentController extends AppController {
 				'currentFilters' => $request->query,
 				'fromEnv' => $fromEnv,
 				'withEnv' => $withEnv,
+				'environment' => $environment,
+				'withEnvironment' => $withEnvironment,
+				'environments' => $this->get('ems.service.environment')->getAll()
 		] );
 	}
 	

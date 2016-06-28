@@ -36,9 +36,9 @@ class Audit
     private $action;
 
     /**
-     * @var array
+     * @var string
      *
-     * @ORM\Column(name="row_data", type="json_array", nullable=true)
+     * @ORM\Column(name="raw_data", type="text", nullable=true)
      */
     private $rawData;
 
@@ -118,7 +118,7 @@ class Audit
     /**
      * Set rowData
      *
-     * @param array $rowData
+     * @param string $rowData
      *
      * @return Audit
      */
@@ -132,7 +132,7 @@ class Audit
     /**
      * Get rowData
      *
-     * @return array
+     * @return string
      */
     public function getRawData()
     {

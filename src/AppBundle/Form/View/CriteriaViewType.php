@@ -3,12 +3,11 @@
 namespace AppBundle\Form\View;
 
 use AppBundle\Entity\DataField;
-use AppBundle\Form\View\ViewType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Elasticsearch\Client;
 use AppBundle\Entity\View;
+use AppBundle\Form\View\ViewType;
+use Elasticsearch\Client;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
 
 /**
  * It's the mother class of all specific DataField used in eMS

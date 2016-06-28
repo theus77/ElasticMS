@@ -118,11 +118,62 @@ class Template
      */
     private $extension;
     
-    /** @var string
-     * 
-     * @ORM\Column(name="recipient", type="string", nullable=true)
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="active", type="boolean")
      */
-    private $recipient;
+    private $active;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="role", type="string")
+     */
+   	private $role;
+   	
+   	/**
+   	 * @ORM\ManyToMany(targetEntity="Environment", cascade={"persist", "remove"})
+   	 * @ORM\JoinTable(name="environment_template",
+     *      joinColumns={@ORM\JoinColumn(name="template_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="environment_id", referencedColumnName="id")}
+     *      )
+     */
+   	private $environments;
+   	
+   	/** @var string
+   	*
+   	* @ORM\Column(name="role_to", type="string")
+   	*/
+   	private $roleTo;
+   	
+   	/** @var string
+   	*
+   	* @ORM\Column(name="role_cc", type="string")
+   	*/
+   	private $roleCc;
+   	
+   	/**
+   	 * @var \ObjectPickerType
+   	 *
+   	 * @ORM\Column(name="circles_to", type="json_array", nullable=true)
+   	 */
+   	private $circlesTo;
+   	
+   	/**
+   	 * @var string
+   	 *
+   	 * @ORM\Column(name="response_template", type="text", nullable=true)
+   	 */
+   	private $responseTemplate;
+   	
+   	/**
+   	 * Constructor
+   	 */
+   	public function __construct()
+   	{
+   		$this->environments = new \Doctrine\Common\Collections\ArrayCollection();
+   	}
     
     /**
      * @ORM\PrePersist
@@ -459,31 +510,7 @@ class Template
     {
     	return $this->extension;
     }
-
-    /**
-     * Set recipient
-     *
-     * @param string $recipient
-     *
-     * @return Template
-     */
-    public function setRecipient($recipient)
-    {
-        $this->recipient = $recipient;
-
-        return $this;
-    }
-
-    /**
-     * Get recipient
-     *
-     * @return string
-     */
-    public function getRecipient()
-    {
-        return $this->recipient;
-    }
-
+  
     /**
      * Set preview
      *
@@ -506,5 +533,189 @@ class Template
     public function getPreview()
     {
         return $this->preview;
+    }
+    
+    /**
+     * Set active
+     *
+     * @param boolean $active
+     *
+     * @return Template
+     */
+    public function setActive($active)
+    {
+    	$this->active = $active;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get active
+     *
+     * @return boolean
+     */
+    public function getActive()
+    {
+    	return $this->active;
+    }
+    
+    /**
+     * Set role
+     *
+     * @param string $role
+     *
+     * @return Template
+     */
+    public function setRole($role)
+    {
+    	$this->role = $role;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get role
+     *
+     * @return string
+     */
+    public function getRole()
+    {
+    	return $this->role;
+    }
+    
+    /**
+     * Set roleTo
+     *
+     * @param string $roleTo
+     *
+     * @return Template
+     */
+    public function setRoleTo($roleTo)
+    {
+    	$this->roleTo = $roleTo;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get roleTo
+     *
+     * @return string
+     */
+    public function getRoleTo()
+    {
+    	return $this->roleTo;
+    }
+    
+    /**
+     * Set roleCc
+     *
+     * @param string $roleCc
+     *
+     * @return Template
+     */
+    public function setRoleCc($roleCc)
+    {
+    	$this->roleCc = $roleCc;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get roleCc
+     *
+     * @return string
+     */
+    public function getRoleCc()
+    {
+    	return $this->roleCc;
+    }
+    
+    /**
+     * Set circlesTo
+     *
+     * @param \ObjectPickerType $circlesTo
+     *
+     * @return Template
+     */
+    public function setCirclesTo($circlesTo)
+    {
+    	$this->circlesTo = $circlesTo;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get circlesTo
+     *
+     * @return \ObjectPickerType
+     */
+    public function getCirclesTo()
+    {
+    	return $this->circlesTo;
+    }
+    
+    /**
+     * Set responseTemplate
+     *
+     * @param string $responseTemplate
+     *
+     * @return Template
+     */
+    public function setResponseTemplate($responseTemplate)
+    {
+    	$this->responseTemplate = $responseTemplate;
+    
+    	return $this;
+    }
+    
+    /**
+     * Get responseTemplate
+     *
+     * @return string
+     */
+    public function getResponseTemplate()
+    {
+    	return $this->responseTemplate;
+    }
+    
+    /**
+     * Add environments
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     *
+     * @return Template
+     */
+    public function addEnvironments(\AppBundle\Entity\Environment $environment)
+    {
+    	
+        $this->environments[] = $environment;
+     
+        return $this;
+    }
+
+    /**
+     * Remove environments
+     *
+     * @param \AppBundle\Entity\Environment $environment
+     */
+    public function removeEnvironments(\AppBundle\Entity\Environment $environments)
+    {	
+        $this->environments->removeElement($environments);
+    }
+
+    /**
+     * Get environments
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getEnvironments()
+    {
+    	
+        if (!is_array($this->environments)) {
+    		return null;
+    	} 
+    	
+    	return $this->environments;
     }
 }
