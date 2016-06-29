@@ -331,8 +331,8 @@ function FileUploader(params) {
 				.replace('__sha1__', encodeURIComponent(this.sha1))
 				.replace('__size__', encodeURIComponent(this.size));
 			
-
-			xhttp.open("POST", "/data/file/init-upload/"+encodeURIComponent(this.sha1)+"/"+encodeURIComponent(this.size), true);
+			
+			xhttp.open("POST", url, true);
 			var params = JSON.stringify({ name: this.name, type: this.type });			
 			xhttp.setRequestHeader("Content-type", "application/json; charset=utf-8");
 			
@@ -407,8 +407,15 @@ function FileUploader(params) {
 			//xhr.addEventListener('error', Ext.Function.bind(this.onUploadError, this));
 			xhr.addEventListener('load', function(evt){ self.onChunkUploadSuccess(self, evt)});
 
+			
+
+			var url = file_chunk_upload_url
+				.replace('__sha1__', encodeURIComponent(self.sha1));
+			
+			
 			//init the XHR request
-			xhr.open('POST', '/data/file/upload-chunk/'+self.sha1, true);
+			xhr.open("POST", url, true);
+//			xhr.open('POST', '/data/file/upload-chunk/'+self.sha1, true);
 
 			//send form with the XHR
 			xhr.send(blob);

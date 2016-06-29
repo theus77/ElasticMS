@@ -21,7 +21,7 @@ class FileController extends AppController
 {
 	
 	/**
-	 * @Route("/data/file/{sha1}}" , name="file.download")
+	 * @Route("/data/file/{sha1}" , name="file.download")
      * @Method({"GET"})
 	 */
 	public function downloadFileAction($sha1, Request $request) {
