@@ -6,6 +6,7 @@ use AppBundle\Entity\FieldType;
 use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use AppBundle\Entity\View;
+use AppBundle\Entity\Template;
 
 /**
  * Normalize and denormalize ContentType and FieldType objects in Json.
@@ -33,8 +34,9 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 					   				   "fieldRoles"
 					   				  ],
 					   "Template" => ["id",
-					   				  "contentType",
-					   				  "environment"
+					   				  "created",
+					   				  "modified",
+					   				  "environments"
 					   				 ],
 					   "View" => ["id",
 					   			  "created",
@@ -85,6 +87,12 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 						}
 	 					$value = $arrayValues;
 					}
+ 					if($property == "templates") {
+						foreach ($value as $index => $template) {
+							$arrayValues[$index] = $this->normalize($template, $format, $context);//Recursive
+						}
+	 					$value = $arrayValues;
+					}
  				} elseif($object instanceof FieldType) {
 	 				if(in_array($property, $this->toSkip["FieldType"])) {
 	 					continue;
@@ -98,6 +106,7 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 						$value = $arrayValues;
 					}
 	 			} elseif($object instanceof Template) {
+	 				
 	 				if(in_array($property, $this->toSkip["Template"])) {
 	 					continue;
 	 				}
@@ -127,17 +136,18 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 		$object = $reflectionClass->newInstanceArgs($constructorArguments);
 	
 		unset($data['__jsonclass__']);
-		
 		$options = [];
 		foreach ($data as $property => $value) {
 			if($property == "fieldType") {
 				$object->setFieldType($this->denormalize($value, $class, $format, $context));
+				
 			} elseif($property == "validChildren") {
 				foreach ($value as $index => $subElement) {
 					if(!empty($subElement)){
 						$object->addChild($this->denormalize($subElement, $class, $format, $context));
 					}
 				}
+				
 			} elseif($property == "views"){
 				foreach ($value as $index => $view) {
 					if(!empty($view)){
@@ -145,8 +155,19 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 					}
 				}
 				
+			} elseif($property == "templates"){
+				foreach ($value as $index => $template) {
+					if(!empty($template)){
+						$object->addTemplate($this->denormalize($template, "AppBundle\Entity\Template", $format, array("contentType" => $object)));
+					}
+				}
+				
+			} elseif($class == "AppBundle\Entity\Template" && $property == "contentType"){
+				$object->setContentType($context["contentType"]);
+				
 			} elseif($class == "AppBundle\Entity\View" && $property == "contentType"){
 				$object->setContentType($context["contentType"]);
+				
 			} else {
 				$setter = 'set' . ucfirst($property);
 				if (method_exists($object, $setter)) {

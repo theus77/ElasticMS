@@ -713,9 +713,9 @@ class ContentTypeController extends AppController {
 		$contentType->setModified(NULL);
 		$contentType->getFieldType()->removeCircularReference();		
 		$contentType->setEnvironment(NULL);
-		$contentType->getTemplates()->clear();
+		//$contentType->getTemplates()->clear();
 		//$contentType->getViews()->clear();
-		
+
 		//Serialize the CT
 		$encoders = array(new JsonEncoder());
 		$normalizers = array(new JsonNormalizer());
