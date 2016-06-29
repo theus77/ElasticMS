@@ -880,8 +880,38 @@ class DataController extends AppController
 						'ouuid'=> $ouuid,
 				]);
 			} else { 
-				/* TODO asset redirect */			
+
+				/** @var EntityManager $em */
+				$em = $this->getDoctrine ()->getManager ();
+				
+				/** @var UploadedAssetRepository $repository */
+				$repository = $em->getRepository ( 'AppBundle:Revision' );
+
+				/**@var Revision $revision */			
+				$revision = $repository->findOneBy([
+					'ouuid' => $ouuid,
+				]);
+				
+				if(!$revision){
+					throw new NotFoundHttpException('Impossible to find this item : ' . $ouuid);
+				}
+								
+				$attachedFile = $revision->getRawData();			
+
+				foreach ($attachedFile as $file) {
+						$sha1 = $file['sha1'];
+						$type = $file['mimetype'];
+						$name = $file['filename'];
+				}
+				
+				return $this->redirectToRoute('file.download', [
+						'sha1' => $sha1,
+						'type' => $type, 
+						'name' => $name
+				]);
 			}
+		} else {
+			throw new NotFoundHttpException('Impossible to find this item : ' . $key);
 		}
 	}
 }
