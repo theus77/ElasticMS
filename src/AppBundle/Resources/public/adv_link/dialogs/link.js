@@ -44,7 +44,7 @@
 		// Handles the event when the "Type" selection box is changed.
 		var linkTypeChanged = function() {
 				var dialog = this.getDialog(),
-					partIds = [ 'urlOptions', 'localPageOptions', 'anchorOptions', 'emailOptions' ], // added by @simo - http://blog.xoundboy.com/?p=393
+					partIds = [ 'urlOptions', 'localPageOptions', 'assetOptions', 'anchorOptions', 'emailOptions' ], // added by @simo - http://blog.xoundboy.com/?p=393
 					typeValue = this.getValue(),
 					uploadTab = dialog.definition.getContents( 'upload' ),
 					uploadInitiallyHidden = uploadTab && uploadTab.hidden;
@@ -123,7 +123,8 @@
 					items: [
 						[ linkLang.toUrl, 'url' ],
 						[ linkLang.toAnchor, 'anchor' ],
-						[ linkLang.localPages, 'localPage'], // added by @simo - http://blog.xoundboy.com/?p=393
+						[ linkLang.localPages, 'localPage'],// added by @simo - http://blog.xoundboy.com/?p=393
+						[ linkLang.asset, 'asset'],
 						[ linkLang.toEmail, 'email' ]
 					],
 					onChange: linkTypeChanged,
@@ -193,7 +194,61 @@
 						}
 					}]						
 				},
-				// added by @simo - end
+				{
+					type : 'vbox',
+					id : 'assetOptions',
+					children : [
+					{
+						type : 'select',
+						label : linkLang.selectPageLabel,
+						id : 'asset',
+						className : 'select2asset',
+						title : linkLang.selectPageTitle,
+						items : [],
+						onLoad : function(element) {
+							$(".cke_dialog_ui_input_select.select2asset").select2({
+								ajax: {
+									url: object_search_url,
+							    	dataType: 'json',
+							    	delay: 250,
+							    	data: function (params) {
+							      		return {
+								        q: params.term, // search term
+								        page: params.page
+								      };
+								    },
+									processResults: function (data, params) {
+										// parse the results into the format expected by Select2
+										// since we are using custom formatting functions we do not need to
+										// alter the remote JSON data, except to indicate that infinite
+										// scrolling can be used
+										params.page = params.page || 1;
+								
+								      	return {
+									        results: data.items,
+									        pagination: {
+									          more: (params.page * 30) < data.total_count
+									        }
+								      	};
+							    	},
+							    	cache: true
+							  	},
+							  	escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+							  	templateResult: formatRepo, // omitted for brevity, see the source of this page
+							  	templateSelection: formatRepoSelection, // omitted for brevity, see the source of this page
+							  	minimumInputLength: 1
+							});
+					    },
+						
+						commit : function( data )
+						{
+							
+							if ( !data.asset )
+								data.asset = {};
+								data.asset = data_link_url.replace(/__object_key__/g, 'asset:' + this.getValue());
+						}
+					}]						
+				},
 				{
 					type: 'vbox',
 					id: 'urlOptions',
@@ -879,8 +934,13 @@
 					// Use link URL as text with a collapsed cursor.
 					if ( range.collapsed ) {
 						// @simo, if localPage do insert link
-						if( data.type == 'localPage') var text = new CKEDITOR.dom.text(data.localPage, editor.document );
-						else {
+						if( data.type == 'localPage' || data.type == 'asset' ) { 
+							if (data.type == 'localPage') {
+								var text = new CKEDITOR.dom.text(data.localPage, editor.document );
+							} else {
+								var text = new CKEDITOR.dom.text(data.asset, editor.document );
+							}
+						} else {
 							// Short mailto link text view (#5736).
 							var text = new CKEDITOR.dom.text( data.type == 'email' ?
 							data.email.address : attributes.set[ 'data-cke-saved-href' ], editor.document );

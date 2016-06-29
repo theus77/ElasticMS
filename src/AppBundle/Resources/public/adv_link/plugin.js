@@ -14,6 +14,7 @@
 		icons: 'anchor,anchor-rtl,link,unlink', // %REMOVE_LINE_CORE%
 		hidpi: true, // %REMOVE_LINE_CORE%
 		onLoad: function() {
+
 			// Add the CSS styles for anchor placeholders.
 			var iconPath = CKEDITOR.getUrl( this.path + 'images' + ( CKEDITOR.env.hidpi ? '/hidpi' : '' ) + '/anchor.png' ),
 				baseStyle = 'background:url(' + iconPath + ') no-repeat %1 center;border:1px dotted #00f;background-size:16px;';
@@ -87,7 +88,7 @@
 					toolbar: 'links,30'
 				} );
 			}
-
+			
 			CKEDITOR.dialog.add( 'link', this.path + 'dialogs/link.js' );
 			CKEDITOR.dialog.add( 'anchor', this.path + 'dialogs/anchor.js' );
 
@@ -581,6 +582,10 @@
 					break;
 				case 'localPage':// @simo
 					set[ 'data-cke-saved-href' ] = data.localPage;
+
+					break;
+				case 'asset':
+					set[ 'data-cke-saved-href' ] = data.asset;
 
 					break;
 				case 'anchor':
