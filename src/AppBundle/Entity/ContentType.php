@@ -222,6 +222,13 @@ class ContentType
     /**
      * @var int
      *
+     * @ORM\Column(name="asset_field", type="string", length=100, nullable=true)
+     */
+    private $assetField;
+    
+    /**
+     * @var int
+     *
      * @ORM\Column(name="create_role", type="string", length=100, nullable=true)
      */
     private $createRole;
@@ -1256,5 +1263,29 @@ class ContentType
     public function getEditRole()
     {
         return $this->editRole;
+    }
+
+    /**
+     * Set assetField
+     *
+     * @param string $assetField
+     *
+     * @return ContentType
+     */
+    public function setAssetField($assetField)
+    {
+        $this->assetField = $assetField;
+
+        return $this;
+    }
+
+    /**
+     * Get assetField
+     *
+     * @return string
+     */
+    public function getAssetField()
+    {
+        return $this->assetField;
     }
 }
