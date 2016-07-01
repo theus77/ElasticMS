@@ -9,7 +9,7 @@
 		<ul class="dropdown-menu" role="menu">
 	{# 		{% if recursiveView is not defined or not recursiveView  %}#}
 				{% for template in contentType.templates %}
-					{%if template.role == "not-defined" or is_granted(template.role) and (environment in template.environments or template.isEnvironmentExist(environment.name)) %}
+					{%if template.role == "not-defined" or is_granted(template.role) and (template.environments is empty or environment in template.environments or template.isEnvironmentExist(environment.name)) %}
 					<li>
 						{% if template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::EXTERNALLINK') %}
 							<a href="{% include template_from_string(template.body) with {
