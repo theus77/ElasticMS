@@ -214,6 +214,7 @@
 							    	data: function (params) {
 							      		return {
 								        q: params.term, // search term
+								        asset_name: 'asset',
 								        page: params.page
 								      };
 								    },
