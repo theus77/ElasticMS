@@ -2,13 +2,14 @@
 	<div class="btn-group">
 		<button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 			<i class="fa fa-eye"></i>
-			Views in {{ environment.name }}
+			Actions in {{ environment.name }}
 			<span class="caret"></span>
 			<span class="sr-only">Toggle dropdown of {{ contentType.name }}'s custom views</span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
 	{# 		{% if recursiveView is not defined or not recursiveView  %}#}
 				{% for template in contentType.templates %}
+					{%if template.role == "not-defined" or is_granted(template.role) and (environment in template.environments or template.isEnvironmentExist(environment.name)) %}
 					<li>
 						{% if template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::EXTERNALLINK') %}
 							<a href="{% include template_from_string(template.body) with {
@@ -18,9 +19,14 @@
 										source: object._source
 									} %}" target="_blank">
 								<i class="{{ template.icon|raw }}"></i>
-								{{ template.name }}
+								{{ template.name}}
 								<i class="fa fa-external-link pull-right"></i>
-							</a>	
+							</a>
+						{% elseif template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::NOTIFICATION') %}
+							<a class="request_notification" onclick="requestNotification(this, {{template.id}}, '{{environment.name}}', '{{contentType.id}}' , '{{ouuid}}')" data-url="{{ url('notification.ajaxnotification', {'objectId' : ouuid}) }}">
+								<i class="{{ template.icon|raw }}"></i>
+								{{ template.name }}
+							</a>
 						{% else %}{#  #}
 							<a href="{{ path('data.customview', {
 										environmentName: environment.name,
@@ -32,6 +38,8 @@
 						{% endif %}						
 							
 					</li>
+				</li>
+					{% endif %}					
 				{% endfor %}
 				<li>
 					<a href="{{ path('data.view', {'environmentName': environment.name, 'type': contentType.name, 'ouuid': object._id} ) }}">
@@ -39,6 +47,7 @@
 						Raw view
 					</a>
 				</li>
+			
 	{# 		{% endif %}#}
 		</ul>
 	</div>
@@ -47,4 +56,6 @@
 		<a class="btn btn-sm btn-primary " href="{{ path('data.view', {'environmentName': environment.name, 'type': object._type, 'ouuid': object._id} ) }}">
 			<span class="entity">&infin;</span>Raw view
 		</a>
-{% endif %}
+{% endif %}	
+	
+

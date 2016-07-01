@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="notification")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\NotificationRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Notification
 {
@@ -36,7 +37,7 @@ class Notification
     private $modified;
     
     /**
-     * @ORM\OneToOne(targetEntity="Template")
+     * @ORM\ManyToOne(targetEntity="Template")
      * @ORM\JoinColumn(name="template_id", referencedColumnName="id")
      */
     private $templateId;
@@ -77,17 +78,28 @@ class Notification
     private $responseTimestamp;
 
     /**
-     * @ORM\OneToOne(targetEntity="Revision")
+     * @ORM\ManyToOne(targetEntity="Revision")
      * @ORM\JoinColumn(name="revision_id", referencedColumnName="id")
      */
     private $revisionId;
 
    	/**
-     * @ORM\OneToOne(targetEntity="Environment")
+     * @ORM\ManyToOne(targetEntity="Environment")
      * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
      */
     private $environmentId;
     
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updateModified()
+    {
+    	$this->modified = new \DateTime();
+    	if(!isset($this->created)){
+    		$this->created = $this->modified;
+    	}
+    }
 
     /**
      * Get id
