@@ -64,4 +64,19 @@ class NotificationController extends AppController
 				'message' => true,
 		] );
 	}
+	
+	
+	/**
+	 * @Route("/notification/menu", name="notification.menu"))
+	 */
+	public function menuNotificationAction(Request $request)
+	{
+		
+		
+		// TODO call service counter
+		$vars = $this->get('ems.service.notification')->menuNotification();
+		
+		return $this->render('notification/menu.html.twig', $vars);
+	}
+	
 }

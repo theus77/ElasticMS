@@ -32,7 +32,7 @@ class NotificationService {
 	
 	
 	/**
-	 * @todo => rendre tempalte revivion dynamic + autres params
+	 * Call addNotification when click on a request
 	 * 
 	 * @param unknown $template
 	 * @param unknown $revision
@@ -70,5 +70,20 @@ class NotificationService {
 		catch(\Exception $e){
 			$this->logger->err('An error occured: '.$e->getMessage());
 		}
+	}
+	
+	/**
+	 * Call to display notification in header menu
+	 */
+	public function menuNotification () {
+		
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		
+		$count = $repository->countPendingByUserRoleAndCircle($this->userService->getCurrentUser());
+		//dump($count);
+
+		return array('counter' => "10");
 	}
 }

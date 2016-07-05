@@ -2,6 +2,7 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Entity\User;
 /**
  * NotificationRepository
  *
@@ -10,4 +11,35 @@ namespace AppBundle\Repository;
  */
 class NotificationRepository extends \Doctrine\ORM\EntityRepository
 {
+	
+	/**
+	 * @todo limit roleTo with role of user
+	 * 
+	 * @param User $user
+	 */
+	public function countPendingByUserRoleAndCircle(User $user) {
+		
+		$circles = $user->getCircles();
+		//dump($circles);
+		
+		$query = $this->createQueryBuilder('n')
+		->select('COUNT(n)')
+		->leftJoin('n.templateId', 't');
+	
+		$params = array('status' => "pending");
+
+		if (!empty($circles)) {
+			foreach ($circles as $key => $circle) {
+				$query->orWhere('t.circlesTo LIKE :circle' . $key);
+				$params["circle" . $key] = "%{$circle}%";
+			}
+		}		
+	
+		$query->andwhere('n.status = :status');
+		$query->setParameters($params);
+		$result = $query->getQuery()
+		->getSingleScalarResult();
+		
+		return $result;
+	}
 }
