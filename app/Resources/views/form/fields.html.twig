@@ -279,7 +279,7 @@
 
 
 {% block datafieldtype_row -%}
-<div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+<div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if force_error|default(false) or not valid %} has-error{% endif %}">
 	{% if isContainer %}
 		<div class="panel panel-default">
 			<div class="panel-heading">
