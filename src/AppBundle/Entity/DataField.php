@@ -6,6 +6,7 @@ use AppBundle\Exception\DataFormatException;
 use AppBundle\Form\DataField\CollectionFieldType;
 use AppBundle\Form\DataField\DataFieldType;
 use AppBundle\Form\DataField\OuuidFieldType;
+use AppBundle\Validator\Constraints as EmsAssert;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -41,6 +42,7 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 
     /**
      * object
+	 * @EmsAssert\IsMandatory
      */
     private $rawData;
     
