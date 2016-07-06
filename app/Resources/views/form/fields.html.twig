@@ -279,7 +279,6 @@
 
 
 {% block datafieldtype_row -%}
-{{ form|dump }}
 <div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if force_error|default(false) or not valid or form.vars.errors|length > 0 %} has-error{% endif %}">
 	{% if isContainer %}
 		<div class="panel panel-default">
