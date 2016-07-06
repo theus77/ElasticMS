@@ -120,8 +120,6 @@ class CollectionItemFieldType extends DataFieldType {
 		}
 	}
 
-
-
 	public function isNested(){
 		return true;
 	}

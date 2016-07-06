@@ -24,5 +24,4 @@ class OuuidFieldType extends DataFieldType {
 		return 'fa fa-key';
 	}
 	
-
 }

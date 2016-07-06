@@ -646,7 +646,7 @@ class DataController extends AppController
 	}
 	
 	public function finalizeDraft(Revision $revision, \Symfony\Component\Form\Form $form=null, $username=null){
-//		TODO: User validators
+//		TODO: User validators. See AppBundle\Validator\Constraints
 // 		$validator = $this->get('validator');
 // 		$errors = $validator->validate($revision);
 // 		dump($validator);
