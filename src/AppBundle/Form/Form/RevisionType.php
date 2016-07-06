@@ -20,7 +20,8 @@ class RevisionType extends AbstractType {
 		$revision = $builder->getData ();
 		
 		$builder->add ( 'dataField', $revision->getContentType ()->getFieldType ()->getType (), [ 
-				'metadata' => $revision->getContentType ()->getFieldType () 
+				'metadata' => $revision->getContentType ()->getFieldType (),
+				'error_bubbling' => false,
 		] )->add ( 'save', SubmitEmsType::class, [ 
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm ' 

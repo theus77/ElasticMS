@@ -69,6 +69,7 @@ abstract class DataFieldType extends AbstractType {
 				'lastOfRow' => false,
 				'class' => null, // used to specify a bootstrap class arround the compoment
 				'metadata' => null, // used to keep a link to the FieldType
+				'error_bubbling' => false,
 		]);
 	}
 	/**
@@ -141,6 +142,40 @@ abstract class DataFieldType extends AbstractType {
 	}
 	
 	/**
+	 * Test if the field is valid.
+	 *
+	 * @return boolean
+	 */
+	public function isValid(DataField &$dataField){
+		$isValid = TRUE;
+		//Madatory Validation
+		$isValid = $isValid && $this->isValidMadatory($dataField);
+		//Add here an other validation
+		//$isValid = isValid && isValidYourValidation();
+		return $isValid;
+	}
+	
+	/**
+	 * Test if the requirment of the field is reached.
+	 *
+	 * @return boolean
+	 */
+	public function isValidMadatory(DataField &$dataField){
+		$isValidMadatory = TRUE;
+		//Get FieldType mandatory option
+		$restrictionOptions = $dataField->getFieldType()->getRestrictionOptions();
+		if(isset($restrictionOptions["mandatory"]) && true == $restrictionOptions["mandatory"]) {
+			//Get rawData
+			$rawData = $dataField->getRawData();
+			if(!isset($rawData) || empty($rawData) || $rawData === null) {
+				$isValidMadatory = FALSE;
+				$dataField->addMessage("Empty field");
+			}
+		}
+		return $isValidMadatory;
+	}
+	
+	/**
 	 * Build a Field specific options sub-form (or compount field) (used in edit content type).
 	 *
 	 * @param FormBuilderInterface $builder        	
@@ -150,7 +185,8 @@ abstract class DataFieldType extends AbstractType {
 		/**
 		 * preset with the most used options
 		 */
-		$builder->add ( 'options', OptionsType::class );
+		$builder->add ( 'options', OptionsType::class, [
+		] );
 	}
 	
 

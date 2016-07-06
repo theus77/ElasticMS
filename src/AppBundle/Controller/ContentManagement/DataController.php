@@ -28,6 +28,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -617,7 +618,25 @@ class DataController extends AppController
 	public function finalizeDraftAction(Revision $revision){
 
 		$this->get('ems.service.data')->loadDataStructure($revision);
-		$revision = $this->get("ems.service.data")->finalizeDraft($revision);
+		try{
+			$form = $this->createForm(RevisionType::class, $revision);
+			$revision = $this->get("ems.service.data")->finalizeDraft($revision, $form);
+			if(count($form->getErrors()) !== 0) {
+				$this->addFlash("error", "This draft (".$revision->getContentType()->getName().":".$revision->getOuuid().") can't be finlized.");
+				return $this->render( 'data/edit-revision.html.twig', [
+						'revision' =>  $revision,
+						'form' => $form->createView(),
+				] );
+			}
+				
+		}
+		catch (\Exception $e){
+			$this->addFlash("error", "This draft (".$revision->getContentType()->getName().":".$revision->getOuuid().") can't be finlized.");
+			$this->addFlash('error', $e->getMessage());
+			return $this->redirectToRoute('revision.edit', [
+					'revisionId' => $revision->getId(),
+			]);
+		}
 		
 		return $this->redirectToRoute('data.revisions', [
 				'ouuid' => $revision->getOuuid(),
@@ -626,8 +645,14 @@ class DataController extends AppController
 		]);
 	}
 	
-	public function finalizeDraft(Revision $revision){
-		return $this->get("ems.service.data")->finalizeDraft($revision);
+	public function finalizeDraft(Revision $revision, \Symfony\Component\Form\Form $form=null, $username=null){
+//		TODO: User validators
+// 		$validator = $this->get('validator');
+// 		$errors = $validator->validate($revision);
+// 		dump($validator);
+// 		dump($errors);
+		
+		return $this->get("ems.service.data")->finalizeDraft($revision, $form, $username);
 	}
 	
 	/**
@@ -635,6 +660,7 @@ class DataController extends AppController
 	 */
 	public function editRevisionAction($revisionId, Request $request)
 	{
+//		dump($request);
 		$em = $this->getDoctrine()->getManager();
 		$logger = $this->get('logger');
 		
@@ -663,41 +689,50 @@ class DataController extends AppController
 
 		$logger->debug('Revision request form handled');
 		
-		if ($form->isSubmitted() && (array_key_exists('discard', $request->request->get('revision')) || $form->isValid() )) {
-			
-			/** @var Revision $revision */
-			$revision = $form->getData();
-			$this->get('logger')->debug('Revision extracted from the form');
-			
-			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
-			$revision->setRawData($objectArray);
-			
-			$logger->debug('Revision before persist');
-			$em->persist($revision);
-			$em->flush();
-
-			$logger->debug('Revision after persist flush');
-			
-			if(array_key_exists('publish', $request->request->get('revision'))) {
+		if ($form->isSubmitted()) {//Save, Finalize or Discard
+			if(!array_key_exists('discard', $request->request->get('revision'))) {//Save or Finalize
+				//Save anyway
+				/** @var Revision $revision */
+				$revision = $form->getData();
+				$this->get('logger')->debug('Revision extracted from the form');
 				
+				$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
+				$revision->setRawData($objectArray);
 				
+				$logger->debug('Revision before persist');
+				$em->persist($revision);
+				$em->flush();
+	
+				$logger->debug('Revision after persist flush');
 				
-				try{
-					$revision = $this->finalizeDraft($revision);
-
-					return $this->redirectToRoute('data.revisions', [
-							'ouuid' => $revision->getOuuid(),
-							'type' => $revision->getContentType()->getName(),
-							
-					]);	
+				if(array_key_exists('publish', $request->request->get('revision'))) {//Finalize
+					
+					try{
+						$revision = $this->finalizeDraft($revision, $form);
+						if(count($form->getErrors()) === 0) {
+							return $this->redirectToRoute('data.revisions', [
+									'ouuid' => $revision->getOuuid(),
+									'type' => $revision->getContentType()->getName(),
+							]);
+						} else {
+							$this->addFlash("error", "This draft (".$revision->getContentType()->getName().":".$revision->getOuuid().") can't be finlized.");
+							return $this->render( 'data/edit-revision.html.twig', [
+									'revision' =>  $revision,
+									'form' => $form->createView(),
+							] );
+						}
+					}
+					catch (\Exception $e){
+						$this->addFlash('error', 'The draft has been saved but something when wrong when we tried to publish it. '.$revision->getContentType()->getName().':'.$revision->getOuuid());
+						$this->addFlash('error', $e->getMessage());
+						return $this->redirectToRoute('revision.edit', [
+								'revisionId' => $revisionId,
+						]);	
+					}
+					
 				}
-				catch (\Exception $e){
-					$this->addFlash('error', 'The draft has been saved but something when wrong when we tried to publish it. '.$revision->getContentType()->getName().':'.$revision->getOuuid());
-					$this->addFlash('error', $e->getMessage());
-				}
-				
 			}
-
+			//if Save or Discard
 			if(null != $revision->getOuuid()){
 				return $this->redirectToRoute('data.revisions', [
 						'ouuid' => $revision->getOuuid(),
