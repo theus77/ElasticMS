@@ -162,6 +162,8 @@ class ElasticsearchController extends AppController
 		$pattern = $request->query->get('q');
 		$environment = $request->query->get('environment');
 		$type = $request->query->get('type');
+		// Added for ckeditor adv_link plugin.
+		$assetName = $request->query->get('asset_name');
 		
 		
 		/** @var EntityManager $em */
@@ -171,16 +173,25 @@ class ElasticsearchController extends AppController
 		$contentTypeRepository = $em->getRepository ( 'AppBundle:ContentType' );
 		
 		$types = $contentTypeRepository->findAllAsAssociativeArray();
-			
+				
 		/** @var EnvironmentRepository $environmentRepository */
 		$environmentRepository = $em->getRepository ( 'AppBundle:Environment' );
 			
 		$environments = $environmentRepository->findAllAsAssociativeArray('alias');
 		
-		if(!$type){
-			$type = array_keys($types);
+	
+		if (!$type) {	
+			// For search only in contentType with Asset field == $assetName.
+			if ($assetName) {
+				foreach ($types as $key => $value) {
+					if ($value->getAssetField() === $assetName) {
+						$type[] = $key;
+					}
+				}	
+			} else {
+				$type = array_keys($types);
+			}
 		}
-		
 		
 		$alias = array_keys($environments);
 		if($environment){
@@ -190,8 +201,7 @@ class ElasticsearchController extends AppController
 				}
 			}			
 		}
-		
-		
+			
 		
 		$params = [
 				'index' => $alias,

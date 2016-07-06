@@ -715,4 +715,21 @@ class Template
     {
         return $this->environments->toArray();
     }
+    
+    /**
+     * is Environment Exist
+     *
+	 * Use in twig object-views-button.html.twig
+	 *
+     * @return boolean
+     */
+    public function isEnvironmentExist($name)
+    {
+    	foreach ($this->environments as $environment) {
+    		if( $environment->getname() === $name) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
 }

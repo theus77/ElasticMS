@@ -43,7 +43,8 @@
 			{% include 'elements/object-views-button.html.twig' with { 
 				'object':  object,
 				'contentType': instance.contentType,
-				'environment': env
+				'environment': env,
+				'ouuid': revision.ouuid
 			}%}
    		{% endfor %}
 

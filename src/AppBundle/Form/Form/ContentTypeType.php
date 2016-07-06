@@ -47,7 +47,8 @@ class ContentTypeType extends AbstractType {
 			'required' => false,
 		]);
 // 		$builder->add ( 'ouuidField');
-// 		$builder->add ( 'imageField');
+		$builder->add ( 'imageField');
+		$builder->add ( 'assetField');
 // 		$builder->add ( 'videoField');
 // 		$builder->add ( 'categoryField');
 		$builder->add ( 'pluralName', TextType::class);
