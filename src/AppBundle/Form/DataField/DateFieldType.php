@@ -44,7 +44,13 @@ class DateFieldType extends DataFieldType {
 			foreach ($dataField->getRawData() as $dataValue){
 				/**@var \DateTime $converted*/
 				$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $dataValue);
-				$dates[] = $dateTime->format($format);
+				if($dateTime){
+					$dates[] = $dateTime->format($format);
+				}
+				else{
+					$dates[] = null;
+					//TODO: should add a flash message
+				}
 			}			
 		}
 		return implode(',', $dates);
