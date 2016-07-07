@@ -347,7 +347,7 @@ class DataService
 		return $out.'</ul>';
 	}
 	
-	protected function isValid(\Symfony\Component\Form\Form &$form) {
+	public function isValid(\Symfony\Component\Form\Form &$form) {
 		
 		$viewData = $form->getViewData();
 		if($viewData instanceof Revision) {
@@ -369,7 +369,8 @@ class DataService
 			$formChildren = $form->all();
 			foreach ($formChildren as $child) {
 				if($child instanceof \Symfony\Component\Form\Form) {
-					$isValid = $isValid && $this->isValid($child);//Recursive
+					$tempIsValid = $this->isValid($child);//Recursive
+					$isValid = $isValid && $tempIsValid;
 				}
 			}
 		}

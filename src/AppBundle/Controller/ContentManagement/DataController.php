@@ -715,7 +715,7 @@ class DataController extends AppController
 									'type' => $revision->getContentType()->getName(),
 							]);
 						} else {
-							$this->addFlash("error", "This draft (".$revision->getContentType()->getName().":".$revision->getOuuid().") can't be finlized.");
+							$this->addFlash("warning", "This draft (".$revision->getContentType()->getName().":".$revision->getOuuid().") can't be finlized.");
 							return $this->render( 'data/edit-revision.html.twig', [
 									'revision' =>  $revision,
 									'form' => $form->createView(),
@@ -747,9 +747,14 @@ class DataController extends AppController
 			}
 				
 		}
+		else{
+			$isValid = $this->get("ems.service.data")->isValid($form);
+			if ( !$isValid ) {
+				$this->addFlash("warning", "This draft (".$revision->getContentType()->getName().":".$revision->getOuuid().") can't be finlized.");
+			}
+		}
 		// Call Audit service for log
 		$this->get("ems.service.audit")->auditLog('DataController:editRevision', $revision->getRawData());
-		
 		$logger->debug('Start twig rendering');
 		return $this->render( 'data/edit-revision.html.twig', [
 				'revision' =>  $revision,
