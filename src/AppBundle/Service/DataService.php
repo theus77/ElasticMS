@@ -359,8 +359,8 @@ class DataService
 		} else {
 			throw new \Exception("Unforeseen type of viewData");
 		}
-		$dataFieldTypeClassName = $dataField->getFieldType()->getType();
-		if($dataFieldTypeClassName !== null) {
+		if($dataField->getFieldType() !== null && $dataField->getFieldType()->getType() !== null) {
+			$dataFieldTypeClassName = $dataField->getFieldType()->getType();
 	    	/** @var DataFieldType $dataFieldType */
 	    	$dataFieldType = new $dataFieldTypeClassName();
 		}

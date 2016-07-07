@@ -124,7 +124,7 @@ class UserController extends Controller
 		->add('circles', ObjectPickerType::class, [
 				'multiple' => TRUE,
 				'type' => $this->container->getParameter('circles_object'),
-				'dynamicLoading' => false
+				'dynamicLoading' => true
 				
 		])
 		->add('enabled')
