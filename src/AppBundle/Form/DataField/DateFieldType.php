@@ -198,7 +198,13 @@ class DateFieldType extends DataFieldType {
 				if(null !== $data->getRawData() && count($data->getRawData()) >= 1){
 					/**@var \DateTime $converted*/
 					$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()[0]);
-					$dates = $dateTime->format($format);
+					if($dateTime) {
+						$dates = $dateTime->format($format);						
+					}
+					else{
+						//TODO: at least a warning
+						$dates = null;
+					}
 				}
 			}
 			
