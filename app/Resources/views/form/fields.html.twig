@@ -260,7 +260,7 @@
 {% endblock collectionfieldtype_row %}
 
 {% block collectionitemtype_row -%}
-<div class="form-group collection-item-panel{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+<div class="form-group collection-item-panel{% if form.parent.parent.vars.itemBootstrapClass %} {{ form.parent.parent.vars.itemBootstrapClass }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			{{ form_label(form) }}
