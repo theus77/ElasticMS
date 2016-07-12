@@ -105,10 +105,14 @@ class DateFieldType extends DataFieldType {
 			$format = $dataField->getFieldType()->getMappingOptions()['format'];	
 			$format = DateFieldType::convertJavaDateFormat($format);
 		
+			if(null == $sourceArray) {
+				$sourceArray = [];
+			}
 			if(is_string($sourceArray)){
 				$sourceArray = [$sourceArray];
 			}
 			$data = [];
+			dump($sourceArray);
 			foreach ($sourceArray as $idx => $child){
 				$dateObject = \DateTime::createFromFormat($format, $child);
 				$data[] = $dateObject->format(\DateTime::ISO8601);
