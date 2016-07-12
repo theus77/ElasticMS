@@ -240,8 +240,8 @@
 	  			{{- form_widget(form.add_nested) -}}
 	  			
 
+				{% set tempId = form.vars.name~'_'~random() %}
 				{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %}
-					{% set tempId = form.vars.name~'_'~random() %}
 					<a class="toggle-button pull-right btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#{{ tempId }}" 
 						aria-expanded="false" aria-controls="{{ tempId }}" data-toggle-contain="Hide {{ '<i class="fa fa-chevron-down"></i>'|e }}">
 						Show <i class="fa fa-chevron-right"></i>
@@ -279,7 +279,7 @@
 
 
 {% block datafieldtype_row -%}
-<div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if form.vars.value.fieldType.options.restrictionOptions.mandatory %} required {% endif %}{% if force_error|default(false) or not valid or form.vars.errors|length > 0 %} has-error{% endif %}">
+<div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if form.vars.value.fieldType is defined and form.vars.value.fieldType.options.restrictionOptions.mandatory %} required {% endif %}{% if force_error|default(false) or not valid or form.vars.errors|length > 0 %} has-error{% endif %}">
 	{% if isContainer %}
 		<div class="panel panel-default">
 			<div class="panel-heading">
