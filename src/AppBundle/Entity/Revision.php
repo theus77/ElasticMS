@@ -38,6 +38,13 @@ class Revision
     private $modified;
 
     /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="auto_save_at", type="datetime", nullable=true)
+     */
+    private $autoSaveAt;
+
+    /**
      * @var bool
      *
      * @ORM\Column(name="deleted", type="boolean")
@@ -98,6 +105,13 @@ class Revision
     private $lockBy;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="auto_save_by", type="string", length=255, nullable=true)
+     */
+    private $autoSaveBy;
+
+    /**
      * @var \DateTime
      *
      * @ORM\Column(name="lock_until", type="datetime", nullable=true)
@@ -116,6 +130,13 @@ class Revision
      * @ORM\Column(name="raw_data", type="json_array", nullable=true)
      */
     private $rawData;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="auto_save", type="json_array", nullable=true)
+     */
+    private $autoSave;
     
     /**
      * @ORM\PrePersist
@@ -528,5 +549,77 @@ class Revision
     public function getRawData()
     {
         return $this->rawData;
+    }
+
+    /**
+     * Set autoSaveAt
+     *
+     * @param \DateTime $autoSaveAt
+     *
+     * @return Revision
+     */
+    public function setAutoSaveAt($autoSaveAt)
+    {
+        $this->autoSaveAt = $autoSaveAt;
+
+        return $this;
+    }
+
+    /**
+     * Get autoSaveAt
+     *
+     * @return \DateTime
+     */
+    public function getAutoSaveAt()
+    {
+        return $this->autoSaveAt;
+    }
+
+    /**
+     * Set autoSaveBy
+     *
+     * @param string $autoSaveBy
+     *
+     * @return Revision
+     */
+    public function setAutoSaveBy($autoSaveBy)
+    {
+        $this->autoSaveBy = $autoSaveBy;
+
+        return $this;
+    }
+
+    /**
+     * Get autoSaveBy
+     *
+     * @return string
+     */
+    public function getAutoSaveBy()
+    {
+        return $this->autoSaveBy;
+    }
+
+    /**
+     * Set autoSave
+     *
+     * @param array $autoSave
+     *
+     * @return Revision
+     */
+    public function setAutoSave($autoSave)
+    {
+        $this->autoSave = $autoSave;
+
+        return $this;
+    }
+
+    /**
+     * Get autoSave
+     *
+     * @return array
+     */
+    public function getAutoSave()
+    {
+        return $this->autoSave;
     }
 }

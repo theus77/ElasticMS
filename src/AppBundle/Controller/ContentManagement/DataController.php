@@ -195,6 +195,8 @@ class DataController extends AppController
 			throw new NotFoundHttpException('Revision not found');
 		}
 		
+		$this->loadAutoSavedVersion($revision);
+		
 		$this->get('ems.service.data')->loadDataStructure($revision);
 		
 		$revision->getDataField()->orderChildren();
@@ -362,6 +364,37 @@ class DataController extends AppController
 		$ouuid = $revision->getOuuid();
 		
 		$this->discardDraft($revision);
+		
+		if(null != $ouuid){
+			return $this->redirectToRoute('data.revisions', [
+					'type' => $type,
+					'ouuid'=> $ouuid,
+			]);
+		}
+		return $this->redirectToRoute('data.draft_in_progress', [
+				'contentTypeId' => $contentTypeId
+		]);			
+	}
+	
+	
+	/**
+	 * 
+	 * @Route("/data/cancel/{revision}", name="revision.cancel"))
+     * @Method({"POST"})
+	 */
+	public function cancelModificationsAction(Revision $revision, Request $request)
+	{
+		$contentTypeId = $revision->getContentType()->getId();
+		$type = $revision->getContentType()->getName();
+		$ouuid = $revision->getOuuid();
+		
+
+		$this->lockRevision($revision);
+		
+		$em = $this->getDoctrine()->getManager();
+		$revision->setAutoSave(null);
+		$em->persist($revision);
+		$em->flush();
 		
 		if(null != $ouuid){
 			return $this->redirectToRoute('data.revisions', [
@@ -567,6 +600,13 @@ class DataController extends AppController
 		] );
 		
 	}
+	
+	private function loadAutoSavedVersion(Revision $revision){
+		if(null != $revision->getAutoSave()){
+			$revision->setRawData($revision->getAutoSave());
+			$this->addFlash('warning', "Data were loaded from an autosave version by ".$revision->getAutoSaveBy()." at ".$revision->getAutoSaveAt()->format($this->getParameter('date_time_format')));			
+		}
+	}
 
 
 	/**
@@ -594,15 +634,17 @@ class DataController extends AppController
 		$form = $this->createForm(RevisionType::class, $revision);
 		$form->handleRequest($request);
 		
-		if( $form->isValid() ){
+// 		if( $form->isValid() ){
 			/** @var Revision $revision */
 			$revision = $form->getData();
 			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
-			$revision->setRawData($objectArray);
+			$revision->setAutoSave($objectArray);
+			$revision->setAutoSaveAt(new \DateTime());
+			$revision->setAutoSaveBy($this->getUser()->getUsername());
 			
 			$em->persist($revision);
 			$em->flush();			
-		}
+// 		}
 		
 		return $this->render( 'data/ajax-revision.json.twig', [
 				'revision' =>  $revision,
@@ -676,6 +718,9 @@ class DataController extends AppController
 		$this->lockRevision($revision);
 		$logger->debug('Revision '.$revisionId.' locked');
 		
+		if ( $request->isMethod('GET') ) {
+			$this->loadAutoSavedVersion($revision);
+		}
 		
 		$this->get('ems.service.data')->loadDataStructure($revision);
 
@@ -690,6 +735,7 @@ class DataController extends AppController
 		$logger->debug('Revision request form handled');
 		
 		if ($form->isSubmitted()) {//Save, Finalize or Discard
+			$revision->setAutoSave(null);
 			if(!array_key_exists('discard', $request->request->get('revision'))) {//Save or Finalize
 				//Save anyway
 				/** @var Revision $revision */
