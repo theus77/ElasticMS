@@ -38,6 +38,7 @@
 								'environments': revision.environments,
 								'draft': revision.draft,
 								'current': not revision.endTime,
+								'autoSave': revision.autoSave,
 								'instance': revision
 				}%}
 					
@@ -59,6 +60,7 @@
 							<th style="width: 10px">#</th>
 							<th>Date</th>
 							<th>Locked</th>
+							<th>Autosave</th>
 							<th>Environments</th>
 							<th>Actions</th>
 						</tr>
@@ -68,7 +70,14 @@
 							<td>{{ rev.created|date|date(date_time_format) }}</td>
 							<td>
 								{% if rev.lockUntil and rev.lockUntil > date('now') %}
-									{{ rev.lockBy }}
+									by {{ rev.lockBy }} <br>
+									until  {{ rev.lockUntil|date(date_time_format) }}
+								{% endif %}
+							</td>
+							<td>
+								{% if rev.autoSave %}
+									by {{ rev.autoSaveBy }} <br>
+									at {{ rev.autoSaveAt|date(date_time_format) }}
 								{% endif %}
 							</td>
 							<td>
@@ -85,6 +94,7 @@
 								'environments': rev.environments,
 								'draft': rev.draft,
 								'current': not rev.endTime,
+								'autoSave': rev.autoSave,
 								'instance': revision
 							}%}
 							</td>

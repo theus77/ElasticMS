@@ -41,7 +41,8 @@
 					'label': 'Cancel',
 					'icon': 'remove'
 				}%}
-		
+			</div>
+			<div class="btn-group">
 				{% if revision.draft %}
 					{{ form_widget(form.publish) }}
 					{% include 'elements/post-button.html.twig' with {
