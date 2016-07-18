@@ -83,12 +83,16 @@ class DataController extends AppController
 		
 		/** @var RevisionRepository $revisionRep */
 		$revisionRep = $em->getRepository('AppBundle:Revision');
-		$revisions = $revisionRep->findBy([
-				'deleted' => false,
-				'draft' => true,
-				'endTime' => null,
-				'contentType' => $contentTypeId
-		]);
+// 		$revisions = $revisionRep->findBy([
+// 				'deleted' => false,
+// 				'draft' => true,
+// 				'endTime' => null,
+// 				'contentType' => $contentTypeId
+// 		]);
+		
+// 		dump($revisions);
+		$revisions= $revisionRep->findInProgresByContentType($contentType);
+		
 		
 		return $this->render( 'data/draft-in-progress.html.twig', [
 				'contentType' =>  $contentType,

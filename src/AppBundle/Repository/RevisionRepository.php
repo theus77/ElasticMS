@@ -20,13 +20,46 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 	public function draftCounterGroupedByContentType() {
 
 		$qb = $this->createQueryBuilder('r');
+
+		$draftConditions = $qb->expr()->andX();
+		$draftConditions->add($qb->expr()->eq('r.draft', true));		
+		$draftConditions->add($qb->expr()->isNull('r.endTime'));
+		
+		$draftOrAutosave = $qb->expr()->orX();
+		$draftOrAutosave->add($draftConditions);
+		$draftOrAutosave->add($qb->expr()->isNotNull('r.autoSave'));
+		
 		$qb->select('c.id content_type_id', 'count(c.id) counter');
 		$qb->join('r.contentType', 'c');
 		$and = $qb->expr()->andX();
 		$and->add($qb->expr()->eq('r.deleted', 0));
-		$and->add($qb->expr()->eq('r.draft', true));
+		$and->add($draftOrAutosave);
 		$qb->where($and);
 		$qb->groupBy('c.id');
+		
+		return $qb->getQuery()->getResult();
+	}
+	
+	public function findInProgresByContentType($contentType) {
+
+		$qb = $this->createQueryBuilder('r');
+
+		$draftConditions = $qb->expr()->andX();
+		$draftConditions->add($qb->expr()->eq('r.draft', true));		
+		$draftConditions->add($qb->expr()->isNull('r.endTime'));
+		
+		$draftOrAutosave = $qb->expr()->orX();
+		$draftOrAutosave->add($draftConditions);
+		$draftOrAutosave->add($qb->expr()->isNotNull('r.autoSave'));
+		
+		$and = $qb->expr()->andX();
+		$and->add($qb->expr()->eq('r.deleted', 0));
+		$and->add($draftOrAutosave);
+		
+
+		$qb->where($and)
+			->andWhere($qb->expr()->eq('r.contentType', ':contentType'))
+			->setParameter('contentType', $contentType);
 		
 		return $qb->getQuery()->getResult();
 	}
