@@ -881,7 +881,7 @@ class DataController extends AppController
 			/** @var Revision $revision */
 			$revision = $form->getData();
 			
-			if(! $this->get('app.twig_extension')->all_granted($contentType->getFieldType()->getFieldsRoles())){
+			if( !$this->get('security.authorization_checker')->isGranted($contentType->getCreateRole()) ){
 				throw new PrivilegeException($revision);
 			}
 
