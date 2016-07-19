@@ -69,11 +69,13 @@ class NotificationController extends AppController
 	/**
 	 * @Route("/notification/menu", name="notification.menu"))
 	 */
-	public function menuNotificationAction(Request $request)
+	public function menuNotificationAction()
 	{
+		// TODO use a servce to pass authorization_checker to repositoryNotification.
+		$em = $this->getDoctrine()->getManager();
+		$repositoryNotification = $em->getRepository('AppBundle:Notification');
+		$repositoryNotification->setAuthorizationChecker($this->get('security.authorization_checker'));
 		
-		
-		// TODO call service counter
 		$vars = $this->get('ems.service.notification')->menuNotification();
 		
 		return $this->render('notification/menu.html.twig', $vars);

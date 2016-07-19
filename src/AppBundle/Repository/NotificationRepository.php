@@ -3,6 +3,7 @@
 namespace AppBundle\Repository;
 
 use AppBundle\Entity\User;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * NotificationRepository
  *
@@ -11,35 +12,61 @@ use AppBundle\Entity\User;
  */
 class NotificationRepository extends \Doctrine\ORM\EntityRepository
 {
+	/**@var AuthorizationCheckerInterface $authorizationChecker*/
+	protected $authorizationChecker;
+	
+	public function setAuthorizationChecker(AuthorizationCheckerInterface $authorizationChecker){
+		$this->authorizationChecker = $authorizationChecker;
+	}
 	
 	/**
-	 * @todo limit roleTo with role of user
+	 * Count notifications for logged user
 	 * 
 	 * @param User $user
 	 */
 	public function countPendingByUserRoleAndCircle(User $user) {
 		
-		$circles = $user->getCircles();
-		//dump($circles);
+		$templateIds = $this->getTemplatesIdsForUser($user);
 		
 		$query = $this->createQueryBuilder('n')
 		->select('COUNT(n)')
-		->leftJoin('n.templateId', 't');
-	
-		$params = array('status' => "pending");
-
-		if (!empty($circles)) {
-			foreach ($circles as $key => $circle) {
-				$query->orWhere('t.circlesTo LIKE :circle' . $key);
-				$params["circle" . $key] = "%{$circle}%";
-			}
-		}		
-	
-		$query->andwhere('n.status = :status');
-		$query->setParameters($params);
-		$result = $query->getQuery()
-		->getSingleScalarResult();
+		->where('n.status = :status')
+		->andwhere('n.templateId IN (:ids)')
+		->setParameters(array('status' => "pending", 'ids' => $templateIds));
+		$result = $query->getQuery()->getSingleScalarResult();
 		
 		return $result;
 	}
+	
+	/**
+	 * Limit template by user role and user circles
+	 * 
+	 * @param User $user
+	 * @return array() of templateId
+	 */
+	 private function getTemplatesIdsForUser($user) {
+	 	$circles = $user->getCircles();
+	 	
+	 	$em = $this->getEntityManager();
+	 	$templateRepoitory = $em->getRepository( 'AppBundle:Template' );
+	 	
+	 	$results = $templateRepoitory->findByRenderOption('notification');
+	 	$templateIds = array();
+	 	foreach ($results as $template) {
+	 	
+	 		$role = $template->getRoleTo();
+	 	
+	 		if ($this->authorizationChecker->isGranted($role) || $role === 'not-defined'){
+	 			if(empty($template->getCirclesTo())) {
+	 				$templateIds[] = $template->getId();
+	 			} else {
+	 				$commonCircle = array_intersect($circles, $template->getCirclesTo());
+	 				if(!empty($commonCircle)) {
+	 					$templateIds[] = $template->getId();
+	 				}
+	 			}
+	 		}
+	 	}
+	 	return $templateIds;
+	 }
 }

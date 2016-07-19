@@ -73,7 +73,7 @@ class NotificationService {
 	}
 	
 	/**
-	 * Call to display notification in header menu
+	 * Call to display notifications in header menu
 	 */
 	public function menuNotification () {
 		
@@ -84,6 +84,6 @@ class NotificationService {
 		$count = $repository->countPendingByUserRoleAndCircle($this->userService->getCurrentUser());
 		//dump($count);
 
-		return array('counter' => "10");
+		return array('counter' => $count);
 	}
 }
