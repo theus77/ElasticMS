@@ -24,23 +24,25 @@
 							<th>Create by</th>
 							<th>Date</th>
 							<th>Environment</th>
-							<th>Oouid</th>
+							<th>Type</th>
+							<th>Node</th>
 							<th>Action</th>
 						</tr>
 					</tbody>
 					{% for notification in notifications %}
 						<tr>
 							<td class="text-center">{{ loop.index }}.</td>
-							<td>{{ notification.template }}</td>
-							<td>{{ notification.notification.username|humanize }}</td>
-							<td>{{ notification.notification.created|date|date(date_time_format) }}</td>
+							<td><i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}</td>
+							<td>{{ notification.username|humanize }}</td>
+							<td>{{ notification.created|date|date(date_time_format) }}</td>
 							<td>
-								<span class="badge bg-{{ notification.envColor|raw }}">{{ notification.env|humanize }}</span>
+								<span class="badge bg-{{ notification.environmentId.color|raw }}">{{ notification.environmentId.name|humanize }}</span>
 							</td>
+							<td class="text-{{ notification.revisionId.contentType.color }}"><i class="{{ notification.revisionId.contentType.icon }}"></i>{{ notification.revisionId.contentType.name }}</td>
 							<td>
-							<a href="{{ path('data.revisions', {'type': notification.contentType, 'ouuid': notification.revisionOuuid, 'revisionId': notification.revisionId} ) }}">
-								<span class="fa fa-eye"></span>
-								{{ notification.revisionOuuid }}
+							<a href="{{ path('data.revisions', {'type': notification.revisionId.contentType.name, 'ouuid':  notification.revisionId.ouuid, 'revisionId':  notification.revisionId.id} ) }}">
+								<i class="fa fa-eye"></i>
+								{{ notification.revisionId.ouuid }}
 							</a>
 		
 							<td>

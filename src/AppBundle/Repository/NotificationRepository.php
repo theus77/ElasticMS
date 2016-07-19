@@ -51,17 +51,13 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		$templateIds = $this->getTemplatesIdsForUser($user);
 	
 		$qb = $this->createQueryBuilder('n')
-		->select('n as notification, t.name as template, r.id as revisionId, r.ouuid as revisionOuuid, e.name as env, e.color as envColor, ct.name as contentType')
-		->leftJoin('n.templateId', 't')
-		->leftJoin('n.environmentId', 'e')
-		->leftJoin('n.revisionId', 'r')
-		->leftJoin('r.contentType', 'ct')
+		->select('n')
 		->where('n.status = :status')
 		->andwhere('n.templateId IN (:ids)')
 		->setParameters(array('status' => "pending", 'ids' => $templateIds));
 		$query = $qb->getQuery();
 
-		$results = $query->getArrayResult();
+		$results = $query->getResult();
 	
 		return $results;
 	}
