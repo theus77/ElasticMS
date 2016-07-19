@@ -84,16 +84,34 @@ class NotificationController extends AppController
 	/**
 	 * @Route("/notifications/list", name="notifications.list"))
 	 */
-	public function listNotificationsAction()
+	public function listNotificationsAction(Request $request)
 	{
 		// TODO use a servce to pass authorization_checker to repositoryNotification.
 		$em = $this->getDoctrine()->getManager();
 		$repositoryNotification = $em->getRepository('AppBundle:Notification');
 		$repositoryNotification->setAuthorizationChecker($this->get('security.authorization_checker'));
 	
-		$vars['counter'] = $this->get('ems.service.notification')->menuNotification();
-		$vars['notifications'] = $this->get('ems.service.notification')->listNotifications();
+		$count = $this->get('ems.service.notification')->menuNotification();
+		
+		// for pagination
+		$paging_size = $this->getParameter('paging_size');
+		$lastPage = ceil($count/$paging_size);;
+		if(null != $request->query->get('page')){
+			$page = $request->query->get('page');
+		}
+		else{
+			$page = 1;
+		}
+		
+		$notifications = $this->get('ems.service.notification')->listNotifications(($page-1)*$paging_size, $paging_size);
+		//'currentFilters' => $request->query,
 	
-		return $this->render('notification/list.html.twig', $vars);
+		return $this->render('notification/list.html.twig', array(
+				'counter' => $count,
+				'notifications' => $notifications,
+				'lastPage' => $lastPage,
+				'paginationPath' => 'notifications.list',
+				'page' => $page,
+		));
 	}
 }

@@ -26,7 +26,7 @@
 							<th>Environment</th>
 							<th>Type</th>
 							<th>Node</th>
-							<th>Action</th>
+							<th>Actions</th>
 						</tr>
 					</tbody>
 					{% for notification in notifications %}
@@ -53,6 +53,15 @@
 						</tr>
 					{% endfor %}
 				</table>
+			</div>
+			<div class="box-footer with-border">
+				{% include 'elements/pagination.html.twig' with {
+					'lastPage': lastPage,
+					'currentPage': page,
+					'currentFilters': app.request.query,
+					'paginationPath': paginationPath,
+					'showAlwaysFirstAndLast': false
+				} %}
 			</div>
 		</div>
 	</div>

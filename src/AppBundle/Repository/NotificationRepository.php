@@ -46,7 +46,7 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	 * @param User $user
 	 * @return array Notification
 	 */
-	public function findByPendingAndUserRoleAndCircle(User $user) {
+	public function findByPendingAndUserRoleAndCircle(User $user, $from, $limit) {
 	
 		$templateIds = $this->getTemplatesIdsForUser($user);
 	
@@ -54,7 +54,9 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		->select('n')
 		->where('n.status = :status')
 		->andwhere('n.templateId IN (:ids)')
-		->setParameters(array('status' => "pending", 'ids' => $templateIds));
+		->setParameters(array('status' => "pending", 'ids' => $templateIds))
+		->setFirstResult($from)
+		->setMaxResults($limit);
 		$query = $qb->getQuery();
 
 		$results = $query->getResult();

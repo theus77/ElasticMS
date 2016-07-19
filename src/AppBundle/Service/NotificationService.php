@@ -93,12 +93,12 @@ class NotificationService {
 	 * 
 	 * @return array Notification
 	 */
-	public function listNotifications() {
+	public function listNotifications($from, $limit) {
 		$em = $this->doctrine->getManager();
 		/** @var NotificationRepository $repository */
 		$repository = $em->getRepository('AppBundle:Notification');
 		
-		$notifications = $repository->findByPendingAndUserRoleAndCircle($this->userService->getCurrentUser());
+		$notifications = $repository->findByPendingAndUserRoleAndCircle($this->userService->getCurrentUser(), $from, $limit);
 		dump($notifications);
 		
 		return $notifications;
