@@ -76,9 +76,24 @@ class NotificationController extends AppController
 		$repositoryNotification = $em->getRepository('AppBundle:Notification');
 		$repositoryNotification->setAuthorizationChecker($this->get('security.authorization_checker'));
 		
-		$vars = $this->get('ems.service.notification')->menuNotification();
+		$vars['counter'] = $this->get('ems.service.notification')->menuNotification();
 		
 		return $this->render('notification/menu.html.twig', $vars);
 	}
 	
+	/**
+	 * @Route("/notifications/list", name="notifications.list"))
+	 */
+	public function listNotificationsAction()
+	{
+		// TODO use a servce to pass authorization_checker to repositoryNotification.
+		$em = $this->getDoctrine()->getManager();
+		$repositoryNotification = $em->getRepository('AppBundle:Notification');
+		$repositoryNotification->setAuthorizationChecker($this->get('security.authorization_checker'));
+	
+		$vars['counter'] = $this->get('ems.service.notification')->menuNotification();
+		$vars['notifications'] = $this->get('ems.service.notification')->listNotifications();
+	
+		return $this->render('notification/list.html.twig', $vars);
+	}
 }

@@ -74,16 +74,33 @@ class NotificationService {
 	
 	/**
 	 * Call to display notifications in header menu
+	 * 
+	 * @return int
 	 */
-	public function menuNotification () {
+	public function menuNotification() {
 		
 		$em = $this->doctrine->getManager();
 		/** @var NotificationRepository $repository */
 		$repository = $em->getRepository('AppBundle:Notification');
 		
 		$count = $repository->countPendingByUserRoleAndCircle($this->userService->getCurrentUser());
-		//dump($count);
 
-		return array('counter' => $count);
+		return $count;
+	}
+	
+	/**
+	 * Call to generate list of notifications
+	 * 
+	 * @return array Notification
+	 */
+	public function listNotifications() {
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		
+		$notifications = $repository->findByPendingAndUserRoleAndCircle($this->userService->getCurrentUser());
+		dump($notifications);
+		
+		return $notifications;
 	}
 }
