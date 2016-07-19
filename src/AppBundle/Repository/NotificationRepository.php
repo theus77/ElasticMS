@@ -4,6 +4,7 @@ namespace AppBundle\Repository;
 
 use AppBundle\Entity\User;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use AppBundle\Entity\Notification;
 /**
  * NotificationRepository
  *
@@ -23,6 +24,7 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	 * Count notifications for logged user
 	 * 
 	 * @param User $user
+	 * @return int
 	 */
 	public function countPendingByUserRoleAndCircle(User $user) {
 		
@@ -36,6 +38,32 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		$result = $query->getQuery()->getSingleScalarResult();
 		
 		return $result;
+	}
+	
+	/**
+	 * Select notifications for logged user
+	 *
+	 * @param User $user
+	 * @return array Notification
+	 */
+	public function findByPendingAndUserRoleAndCircle(User $user) {
+	
+		$templateIds = $this->getTemplatesIdsForUser($user);
+	
+		$qb = $this->createQueryBuilder('n')
+		->select('n as notification, t.name as template, r.id as revisionId, r.ouuid as revisionOuuid, e.name as env, e.color as envColor, ct.name as contentType')
+		->leftJoin('n.templateId', 't')
+		->leftJoin('n.environmentId', 'e')
+		->leftJoin('n.revisionId', 'r')
+		->leftJoin('r.contentType', 'ct')
+		->where('n.status = :status')
+		->andwhere('n.templateId IN (:ids)')
+		->setParameters(array('status' => "pending", 'ids' => $templateIds));
+		$query = $qb->getQuery();
+
+		$results = $query->getArrayResult();
+	
+		return $results;
 	}
 	
 	/**
@@ -55,7 +83,6 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	 	foreach ($results as $template) {
 	 	
 	 		$role = $template->getRoleTo();
-	 	
 	 		if ($this->authorizationChecker->isGranted($role) || $role === 'not-defined'){
 	 			if(empty($template->getCirclesTo())) {
 	 				$templateIds[] = $template->getId();
