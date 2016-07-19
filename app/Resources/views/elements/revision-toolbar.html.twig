@@ -14,6 +14,16 @@
 					'url': path('revision.edit', {'revisionId': revisionId}), 
 					'label': 'Edit draft', 
 					'icon': 'pencil' }%}
+				{% if autoSave  %}
+					{% include 'elements/post-button.html.twig' with {
+						'url': path('revision.cancel', {'revision': revisionId}),
+						'message': 'Cancel last modifications ?',
+						'label': 'Cancel',
+						'icon': 'remove'
+					}%}
+				{% endif %}
+				</div>
+				<div class="btn-group">
 				{% include 'elements/post-button.html.twig' with {
 					'url': path('revision.finalize', {'revision': revisionId}),
 					'message': 'Finalize this draft ?',
@@ -56,6 +66,14 @@
 						'url': path('revision.edit', {'revisionId': revisionId}), 
 						'label': 'Edit draft', 
 						'icon': 'pencil' }%}
+					{% if autoSave  %}
+						{% include 'elements/post-button.html.twig' with {
+							'url': path('revision.cancel', {'revision': revisionId}),
+							'message': 'Cancel last modifications ?',
+							'label': 'Cancel',
+							'icon': 'remove'
+						}%}
+					{% endif %}
 				{% elseif current  %} 
 					{% include 'elements/post-button.html.twig' with { 
 						'url': path('revision.new-draft', {'ouuid': revision.ouuid, 'type':revision.contentType.name }), 
@@ -68,11 +86,23 @@
 							'label': 'Edit revision', 
 							'icon': 'pencil' }%}
 					{% endif %}
+					{% if autoSave  %}
+						{% include 'elements/post-button.html.twig' with {
+							'url': path('revision.cancel', {'revision': revisionId}),
+							'message': 'Cancel last modifications ?',
+							'label': 'Cancel',
+							'icon': 'remove'
+						}%}
+					{% endif %}
 					{% include 'elements/post-button.html.twig' with { 
 						'url': path('revision.revert', {'id': revisionId}), 
 						'label': 'Revert revision', 
 						'icon': 'undo' }%}
-				{% endif %}		
+				{% endif %}
+				
+				</div>
+				<div class="btn-group">
+				
 				{% if environments|length %}
 					{% include 'elements/post-button.html.twig' with { 
 						'url': path('revision.reindex', {'revisionId': revisionId}), 

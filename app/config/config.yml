@@ -41,7 +41,7 @@ twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
     globals:
-        date_time_format: "j/m/Y \\a\\t G:i"
+        date_time_format: "%date_time_format%"
         theme_color: blue
         #blue black purple yellow red green 
         ems_name: <b>elastic</b>MS

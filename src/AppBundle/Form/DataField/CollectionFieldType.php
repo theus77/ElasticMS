@@ -120,6 +120,7 @@ class CollectionFieldType extends DataFieldType {
 		parent::buildView ( $view, $form, $options );
 		$view->vars ['icon'] = $options ['icon'];
 		$view->vars ['singularLabel'] = $options ['singularLabel'];
+		$view->vars ['itemBootstrapClass'] = $options ['itemBootstrapClass'];
 	}
 	
 	/**
@@ -134,6 +135,7 @@ class CollectionFieldType extends DataFieldType {
 		$resolver->setDefault ( 'icon', null );
 		$resolver->setDefault ( 'singularLabel', null );
 		$resolver->setDefault ( 'collapsible', false );
+		$resolver->setDefault ( 'itemBootstrapClass', null );
 	}
 	
 // 	/**
@@ -168,6 +170,8 @@ class CollectionFieldType extends DataFieldType {
 		$optionsForm->remove ( 'mappingOptions' );
 		// an optional icon can't be specified ritgh to the container label
 		$optionsForm->get ( 'displayOptions' )->add ( 'singularLabel', TextType::class, [ 
+				'required' => false 
+		] )->add ( 'itemBootstrapClass', TextType::class, [ 
 				'required' => false 
 		] )->add ( 'icon', IconPickerType::class, [ 
 				'required' => false 

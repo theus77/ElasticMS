@@ -33,3 +33,4 @@ parameters:
     storage_services:
         - ems.storage.filesystem
     audit_index:
+    date_time_format: "j/m/Y \\a\\t G:i"

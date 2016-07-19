@@ -40,8 +40,9 @@ class TimeFieldType extends DataFieldType {
 		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
 			$format = $dataField->getFieldType()->getMappingOptions()['format'];	
 			$format = DateFieldType::convertJavaDateFormat($format);
-			
-			$dataField->getDataValues()[0]->setDateValue(\DateTime::createFromFormat($format, $sourceArray));
+
+			$timeObject = \DateTime::createFromFormat($format, $sourceArray);
+			$dataField->setRawData($timeObject->format(\DateTime::ISO8601));
 		}
 	}
 	

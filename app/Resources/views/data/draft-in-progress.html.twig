@@ -42,7 +42,19 @@
 										{{ revision.lockBy }}
 									{% endif %}
 								</td>
-								<td>{{ revision.modified|date(date_time_format) }}</td>
+								<td>
+									{% if revision.autoSave %}
+										autosave by {{ revision.autoSaveBy }} <br>
+										at {{ revision.autoSaveAt|date(date_time_format) }}
+									{% else %}
+										draft 
+										{% if revision.lockBy %}
+											by {{ revision.lockBy }} <br>
+										{% endif %}
+										at {{ revision.modified|date(date_time_format) }}
+									{% endif %}							
+								
+								</td>
 								<td>
 								
 									<div class="btn-group">

@@ -352,4 +352,3 @@ class Notification
         return $this->environmentId;
     }
 }
-

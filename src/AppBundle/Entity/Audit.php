@@ -187,4 +187,3 @@ class Audit
         return $this->environment;
     }
 }
-

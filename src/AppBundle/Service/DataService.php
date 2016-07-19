@@ -3,22 +3,25 @@
 namespace AppBundle\Service;
 
 
+use AppBundle\Entity\DataField;
 use AppBundle\Entity\Revision;
 use AppBundle\Exception\LockedException;
 use AppBundle\Exception\PrivilegeException;
+use AppBundle\Form\Form\RevisionType;
+use AppBundle\Repository\ContentTypeRepository;
+use AppBundle\Repository\RevisionRepository;
 use AppBundle\Twig\AppExtension;
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Elasticsearch\Client;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use AppBundle\Repository\RevisionRepository;
 use Doctrine\ORM\EntityManager;
-use AppBundle\Repository\ContentTypeRepository;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Elasticsearch\Client;
+use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormFactory;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use AppBundle\Entity\DataField;
-
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\Form\FormError;
 
 class DataService
 {
@@ -42,6 +45,8 @@ class DataService
 	protected $revRepository;
 	/**@var Session $session*/
 	protected $session;
+	/**@var Session $session*/
+	protected $formFactory;
 	
 	public function __construct(
 			Registry $doctrine, 
@@ -52,7 +57,8 @@ class DataService
 			Client $client, 
 			Mapping $mapping, 
 			$instanceId,
-			Session $session)
+			Session $session,
+			$formFactory)
 	{
 		$this->twigExtension = $twigExtension;
 		$this->doctrine = $doctrine;
@@ -65,6 +71,7 @@ class DataService
 		$this->em = $this->doctrine->getManager();
 		$this->revRepository = $this->em->getRepository('AppBundle:Revision');
 		$this->session = $session;
+		$this->formFactory = $formFactory;
 	}
 	
 	
@@ -106,13 +113,18 @@ class DataService
 	}
 	
 	
-	public function finalizeDraft(Revision $revision, $username=null){
+	public function finalizeDraft(Revision $revision, \Symfony\Component\Form\Form &$form=null, $username=null){
 		if($revision->getDeleted()){
 			throw new \Exception("Can not finalized a deleted revision");
 		}
-		
+		if(null == $form) {
+			//Get the form from Factory
+			$builder = $this->formFactory->createBuilder(RevisionType::class, $revision);
+			$form = $builder->getForm();
+		}
 		
 		$this->lockRevision($revision, false, false, $username);
+		
 		
 		$em = $this->doctrine->getManager();
 	
@@ -122,44 +134,48 @@ class DataService
 		//TODO: test if draft and last version publish in
 			
 		$objectArray = $revision->getRawData();
-			
-		if( null == $revision->getOuuid() ) {
-			$status = $this->client->create([
-					'index' => $revision->getContentType()->getEnvironment()->getAlias(),
-					'type' => $revision->getContentType()->getName(),
-					'body' => $objectArray
-			]);
-	
-	
-	
-			$revision->setOuuid($status['_id']);
-		}
-		else {
-			$status = $this->client->index([
-					'id' => $revision->getOuuid(),
-					'index' => $this->instanceId.$revision->getContentType()->getEnvironment()->getName(),
-					'type' => $revision->getContentType()->getName(),
-					'body' => $objectArray
-			]);
-	
-	
-			$result = $repository->findByOuuidContentTypeAndEnvironnement($revision);
-	
-	
-			/** @var Revision $item */
-			foreach ($result as $item){
-				$this->lockRevision($item, false, false, $username);
-				$item->removeEnvironment($revision->getContentType()->getEnvironment());
-				$em->persist($item);
+		
+		//Validation
+//    	if(!$form->isValid()){//Trying to work with validators
+  		if($this->isValid($form)){
+		
+			if( null == $revision->getOuuid() ) {
+				$status = $this->client->create([
+						'index' => $revision->getContentType()->getEnvironment()->getAlias(),
+						'type' => $revision->getContentType()->getName(),
+						'body' => $objectArray
+				]);
+		
+				$revision->setOuuid($status['_id']);
 			}
+			else {
+				$status = $this->client->index([
+						'id' => $revision->getOuuid(),
+						'index' => $this->instanceId.$revision->getContentType()->getEnvironment()->getName(),
+						'type' => $revision->getContentType()->getName(),
+						'body' => $objectArray
+				]);
+		
+				$result = $repository->findByOuuidContentTypeAndEnvironnement($revision);
+		
+		
+				/** @var Revision $item */
+				foreach ($result as $item){
+					$this->lockRevision($item, false, false, $username);
+					$item->removeEnvironment($revision->getContentType()->getEnvironment());
+					$em->persist($item);
+				}
+			}
+				
+			$revision->addEnvironment($revision->getContentType()->getEnvironment());
+			$revision->getDataField()->propagateOuuid($revision->getOuuid());
+			$revision->setDraft(false);
+			$em->persist($revision);
+			$em->flush();
+		
+		} else {
+			$form->addError(new FormError("This Form is not valid!"));
 		}
-			
-		$revision->addEnvironment($revision->getContentType()->getEnvironment());
-		$revision->getDataField()->propagateOuuid($revision->getOuuid());
-		$revision->setDraft(false);
-		$em->persist($revision);
-		$em->flush();
-	
 		return $revision;
 	}
 	
@@ -329,5 +345,41 @@ class DataService
 			$out .= '</li>';
 		}
 		return $out.'</ul>';
+	}
+	
+	public function isValid(\Symfony\Component\Form\Form &$form) {
+		
+		$viewData = $form->getViewData();
+		if($viewData instanceof Revision) {
+			/** @var DataField $dataField */
+			$dataField = $viewData->getDatafield();
+		} elseif($viewData instanceof DataField) {
+			/** @var DataField $dataField */
+			$dataField = $viewData;
+		} else {
+			throw new \Exception("Unforeseen type of viewData");
+		}
+		if($dataField->getFieldType() !== null && $dataField->getFieldType()->getType() !== null) {
+			$dataFieldTypeClassName = $dataField->getFieldType()->getType();
+	    	/** @var DataFieldType $dataFieldType */
+	    	$dataFieldType = new $dataFieldTypeClassName();
+		}
+		$isValid = true;
+		if(isset($dataFieldType) && $dataFieldType->isContainer()) {//If datafield is container or type is null => Container => Recursive
+			$formChildren = $form->all();
+			foreach ($formChildren as $child) {
+				if($child instanceof \Symfony\Component\Form\Form) {
+					$tempIsValid = $this->isValid($child);//Recursive
+					$isValid = $isValid && $tempIsValid;
+				}
+			}
+		}
+//   		$isValid = $isValid && $dataFieldType->isValid($dataField);
+		if(isset($dataFieldType) && !$dataFieldType->isValid($dataField)) {
+			$isValid = false;
+			$form->addError(new FormError("This Field is not valid! ".$dataField->getMessages()[0]));
+		}
+    	
+		return $isValid;
 	}
 }

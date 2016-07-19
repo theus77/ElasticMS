@@ -44,7 +44,13 @@ class DateFieldType extends DataFieldType {
 			foreach ($dataField->getRawData() as $dataValue){
 				/**@var \DateTime $converted*/
 				$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $dataValue);
-				$dates[] = $dateTime->format($format);
+				if($dateTime){
+					$dates[] = $dateTime->format($format);
+				}
+				else{
+					$dates[] = null;
+					//TODO: should add a flash message
+				}
 			}			
 		}
 		return implode(',', $dates);
@@ -99,12 +105,17 @@ class DateFieldType extends DataFieldType {
 			$format = $dataField->getFieldType()->getMappingOptions()['format'];	
 			$format = DateFieldType::convertJavaDateFormat($format);
 		
+			if(null == $sourceArray) {
+				$sourceArray = [];
+			}
 			if(is_string($sourceArray)){
 				$sourceArray = [$sourceArray];
 			}
 			$data = [];
+			dump($sourceArray);
 			foreach ($sourceArray as $idx => $child){
-				$data[] = \DateTime::createFromFormat($format, $child);
+				$dateObject = \DateTime::createFromFormat($format, $child);
+				$data[] = $dateObject->format(\DateTime::ISO8601);
 			}
 			$dataField->setRawData($data);
 		}
@@ -192,7 +203,13 @@ class DateFieldType extends DataFieldType {
 				if(null !== $data->getRawData() && count($data->getRawData()) >= 1){
 					/**@var \DateTime $converted*/
 					$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()[0]);
-					$dates = $dateTime->format($format);
+					if($dateTime) {
+						$dates = $dateTime->format($format);						
+					}
+					else{
+						//TODO: at least a warning
+						$dates = null;
+					}
 				}
 			}
 			
