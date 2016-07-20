@@ -4,7 +4,11 @@
    <!-- Menu toggle button -->
    <a href="{{ url('notifications.list') }}">
      <i class="fa fa-envelope-o"></i>
-     <span class="label label-warning">{{ counter }}</span>
+     {% if counter < 1 %}
+     	<span class="label label-primary">{{ counter }}</span>
+     {% else %}
+     	<span class="label label-warning">{{ counter }}</span>
+     {% endif %}
    </a>
 {#   <ul class="dropdown-menu">#}
 {#    <li class="header">You have 10 notifications</li>#}
