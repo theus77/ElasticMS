@@ -77,13 +77,27 @@ class NotificationService {
 	 * 
 	 * @return int
 	 */
-	public function menuNotification() {
+	public function menuNotification($filters = null) {
+		
+		$contentTypes = null;
+		$environments = null;
+		$templates = null;
+		
+		if($filters != null) {
+			if (isset($filters['contentType'])) {
+				$contentTypes = $filters['contentType'];
+			} else if(isset($filters['environment'])) {
+				$environments = $filters['environment'];
+			} else if(isset($filters['template'])) {
+				$templates = $filters['template'];
+			}
+		}
 		
 		$em = $this->doctrine->getManager();
 		/** @var NotificationRepository $repository */
 		$repository = $em->getRepository('AppBundle:Notification');
 		
-		$count = $repository->countPendingByUserRoleAndCircle($this->userService->getCurrentUser());
+		$count = $repository->countPendingByUserRoleAndCircle($this->userService->getCurrentUser(), $contentTypes, $environments, $templates);
 
 		return $count;
 	}
@@ -93,14 +107,27 @@ class NotificationService {
 	 * 
 	 * @return array Notification
 	 */
-	public function listNotifications($from, $limit) {
+	public function listNotifications($from, $limit, $filters = null) {
+		
+		$contentTypes = null;
+		$environments = null;
+		$templates = null;
+		
+		if($filters != null) {
+			if (isset($filters['contentType'])) {
+				$contentTypes = $filters['contentType'];
+			} else if(isset($filters['environment'])) {
+				$environments = $filters['environment'];
+			} else if(isset($filters['template'])) {
+				$templates = $filters['template'];
+			}
+		} 
+		
 		$em = $this->doctrine->getManager();
 		/** @var NotificationRepository $repository */
 		$repository = $em->getRepository('AppBundle:Notification');
-		
-		$notifications = $repository->findByPendingAndUserRoleAndCircle($this->userService->getCurrentUser(), $from, $limit);
-		dump($notifications);
-		
+		$notifications = $repository->findByPendingAndUserRoleAndCircle($this->userService->getCurrentUser(), $from, $limit, $contentTypes, $environments, $templates);
+			
 		return $notifications;
 	}
 }

@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * DataField
  *
  * @ORM\Table(name="template")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\LinkRepository")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TemplateRepository")
  * @ORM\HasLifecycleCallbacks()
  */
 class Template

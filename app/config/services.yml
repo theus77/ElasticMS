@@ -236,6 +236,11 @@ services:
         arguments: ['%circles_object%', '@ems.service.environment']
         tags:
             - { name: form.type }
+    ems.form.form.notificationtype:
+        class: AppBundle\Form\Form\NotificationFormType
+        arguments: ['%circles_object%', '@ems.service.environment']
+        tags:
+            - { name: form.type }
 ### regular services
     ems.service.mapping:
         class: AppBundle\Service\Mapping

@@ -13,6 +13,8 @@ use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
 use AppBundle\Entity\Environment;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Form\Form\NotificationFormType;
+use AppBundle\Entity\Notification;
 
 class NotificationController extends AppController
 {
@@ -82,16 +84,29 @@ class NotificationController extends AppController
 	}
 	
 	/**
-	 * @Route("/notifications/list", name="notifications.list"))
+	 * @Route("/notifications/list", name="notifications.list")
 	 */
 	public function listNotificationsAction(Request $request)
 	{
+		$filters = $request->query->get('notification_form');
+ 		$data = [];
+		
+ 		if (is_array($filters)) {
+ 			unset($filters['filter']);
+ 			unset($filters['_token']);
+ 		}
+
+ 		//@TODO keep filters settings after a submit
+ 		
+ 		$form = $this->createForm(NotificationFormType::class, $data);
+		
+		
 		// TODO use a servce to pass authorization_checker to repositoryNotification.
 		$em = $this->getDoctrine()->getManager();
 		$repositoryNotification = $em->getRepository('AppBundle:Notification');
 		$repositoryNotification->setAuthorizationChecker($this->get('security.authorization_checker'));
 	
-		$count = $this->get('ems.service.notification')->menuNotification();
+		$count = $this->get('ems.service.notification')->menuNotification($filters);
 		
 		// for pagination
 		$paging_size = $this->getParameter('paging_size');
@@ -103,8 +118,7 @@ class NotificationController extends AppController
 			$page = 1;
 		}
 		
-		$notifications = $this->get('ems.service.notification')->listNotifications(($page-1)*$paging_size, $paging_size);
-		//'currentFilters' => $request->query,
+		$notifications = $this->get('ems.service.notification')->listNotifications(($page-1)*$paging_size, $paging_size, $filters);
 	
 		return $this->render('notification/list.html.twig', array(
 				'counter' => $count,
@@ -112,6 +126,8 @@ class NotificationController extends AppController
 				'lastPage' => $lastPage,
 				'paginationPath' => 'notifications.list',
 				'page' => $page,
+				'form' => $form->createView(),
+				'currentFilters' => $filters
 		));
 	}
 }
