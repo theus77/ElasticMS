@@ -286,8 +286,8 @@ function addEventListeners(target){
 		var editor = CKEDITOR.replace( $( this ).attr('id'), {
 			//uiColor: 'pink',
 			removePlugins: 'link',
-			extraPlugins: 'adv_link',
-			extraPlugins: 'dialogadvtab'
+			extraPlugins: 'adv_link,dialogadvtab,div',
+			div_wrapTable: 'true',
 			//TODO: include the eMS plugin
 		});
 
@@ -319,6 +319,12 @@ function addEventListeners(target){
 		         var advCSSClasses = advancedTab.get( 'advCSSClasses' );
 		         advCSSClasses['default'] = "table table-bordered";
   		         
+  		     }
+  		     if (dialogName == 'creatediv')
+  		   	 {
+  		    	var infoTab = dialogDefinition.getContents( 'info' );
+  		    	var classes = infoTab.get( 'class' );
+  		    	classes['default'] = "table-responsive";
   		     }
   		   });
 		
@@ -425,6 +431,7 @@ function addEventListeners(target){
 
 $(window).ready(function() {	
 	CKEDITOR.plugins.addExternal('adv_link', '{{ asset("bundles/app/adv_link/plugin.js") }}', '' );
+	CKEDITOR.plugins.addExternal('div', '{{ asset("bundles/app/div/plugin.js") }}', '' );
 	addEventListeners($('form[name={{ form.vars.id }}]'));
 });
 
