@@ -16,14 +16,14 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 class NotificationFormType extends AbstractType {
 	
 	private $circleType;
-	private $choices;
+	//private $choices;
 	private $service;
 	
 	public function __construct($circleType, EnvironmentService $service)
 	{
 		$this->service = $service;
 		$this->circleType = $circleType;
-		$this->choices = null;
+		//$this->choices = null;
 	}
 	/**
 	 *
@@ -31,10 +31,12 @@ class NotificationFormType extends AbstractType {
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {		
+		
+		//TODO: why is this here?
 		//http://symfony.com/doc/current/cookbook/form/dynamic_form_modification.html#cookbook-dynamic-form-modification-suppressing-form-validation
-		$builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
-			$event->stopPropagation();
-		}, 900);
+		//$builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event) {
+		//	$event->stopPropagation();
+		//}, 900);
 
 		$builder->add('template', EntityType::class, [
 			'class' => 'AppBundle:Template',

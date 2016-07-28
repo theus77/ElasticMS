@@ -15,6 +15,7 @@ use AppBundle\Entity\Environment;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Form\Form\NotificationFormType;
 use AppBundle\Entity\Notification;
+use AppBundle\Entity\Form\NotificationFilter;
 
 class NotificationController extends AppController
 {
@@ -88,25 +89,32 @@ class NotificationController extends AppController
 	 */
 	public function listNotificationsAction(Request $request)
 	{
-		$filters = $request->query->get('notification_form');
- 		$data = [];
-		
- 		if (is_array($filters)) {
- 			unset($filters['filter']);
- 			unset($filters['_token']);
- 		}
+ 		$filters = $request->query->get('notification_form');
 
- 		//@TODO keep filters settings after a submit
+ 		//TODO: Why do we need to unset these fields ? 
+//  		if (is_array($filters)) {
+//  			unset($filters['filter']);
+//  			unset($filters['_token']);
+//  		}
  		
- 		$form = $this->createForm(NotificationFormType::class, $data);
+		$notificationFilter = new NotificationFilter();
 		
+ 		$form = $this->createForm(NotificationFormType::class, $notificationFilter, [
+ 				'method' => 'GET'
+ 		]);
+ 		$form->handleRequest ( $request );
+ 		
+ 		if($form->isSubmitted()){
+ 			$notificationFilter = $form->getData();
+ 		}
+ 		
 		
-		// TODO use a servce to pass authorization_checker to repositoryNotification.
+		//TODO: use a servce to pass authorization_checker to repositoryNotification.
 		$em = $this->getDoctrine()->getManager();
 		$repositoryNotification = $em->getRepository('AppBundle:Notification');
 		$repositoryNotification->setAuthorizationChecker($this->get('security.authorization_checker'));
 	
-		$count = $this->get('ems.service.notification')->menuNotification($filters);
+ 		$count = $this->get('ems.service.notification')->menuNotification($filters);
 		
 		// for pagination
 		$paging_size = $this->getParameter('paging_size');
@@ -119,7 +127,7 @@ class NotificationController extends AppController
 		}
 		
 		$notifications = $this->get('ems.service.notification')->listNotifications(($page-1)*$paging_size, $paging_size, $filters);
-	
+
 		return $this->render('notification/list.html.twig', array(
 				'counter' => $count,
 				'notifications' => $notifications,
@@ -127,7 +135,7 @@ class NotificationController extends AppController
 				'paginationPath' => 'notifications.list',
 				'page' => $page,
 				'form' => $form->createView(),
-				'currentFilters' => $filters
+				'currentFilters' => $request->query
 		));
 	}
 }

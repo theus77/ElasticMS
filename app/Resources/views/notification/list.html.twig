@@ -5,7 +5,7 @@
 
 {% block body %}
 
-{{ form_start(form, {'method': 'GET'}) }}
+{{ form_start(form) }}
 <div class="row">
 	<div class="col-md-12">
 		<div class="box box-primary">
@@ -43,7 +43,12 @@
 			<!-- /.box-header -->
 			<div class="box-body">
 				<!-- Notifications Menu -->
-				<span>You have {{ counter }} notification(s)</span>
+				<span>
+				{% trans %}You have {% endtrans %} {{ counter }}
+				{% transchoice counter %}
+					{0} notifications|{1} notification|]1,Inf[ notifications
+				{% endtranschoice %}
+				</span>
 
 				<table class="table table-condensed table-striped">
 					<tbody>
