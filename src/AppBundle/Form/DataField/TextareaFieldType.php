@@ -43,7 +43,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
 		$builder->add ( 'text_value', TextareaType::class, [
-				'label' => $options['label'],
+				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'required' => false,
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 		]);
