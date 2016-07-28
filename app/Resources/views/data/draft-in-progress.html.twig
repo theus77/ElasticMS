@@ -31,6 +31,7 @@
 								<td class="text-center">{{ loop.index }}.</td>
 								<td>{{ revision.ouuid }}</td>
 								<td>
+								{# //TODO: revision.dataField seems to be empty at all times for drafts ! #}
 								{% if revision.contentType.labelField is defined and revision.dataField %}
 									{% if attribute(revision.dataField, '__get', {key: 'ems_'~revision.contentType.labelField}) %}
 										{{ attribute(revision.dataField, '__get', {key: 'ems_'~revision.contentType.labelField}).textValue }}
