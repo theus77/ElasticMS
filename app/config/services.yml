@@ -74,6 +74,7 @@ services:
         calls:
             - [setAuthorizationChecker, ['@security.authorization_checker']]
             - [setClient, ['@app.elasticsearch']]
+            - [setRegistry, ['@form.registry']]
         tags:
             - { name: ems.form.datafieldtype, alias: datalink }
             - { name: form.type }

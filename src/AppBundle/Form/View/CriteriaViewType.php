@@ -8,6 +8,9 @@ use AppBundle\Form\View\ViewType;
 use Elasticsearch\Client;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormFactoryInterface;
+use AppBundle\Form\View\Criteria\CriteriaFilterType;
+use AppBundle\Entity\Form\CriteriaUpdateConfig;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -53,10 +56,11 @@ class CriteriaViewType extends ViewType {
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		parent::buildForm($builder, $options);
+		
 		$builder
-		->add ( 'criteriaField', TextType::class, [
+			->add ( 'criteriaField', TextType::class, [
 				'label' => 'The collection field containing the list of criteria (string)'
-		] );
+			] );
 	}
 	
 	/**
@@ -74,14 +78,29 @@ class CriteriaViewType extends ViewType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function getParameters(View $view) {
+	public function getParameters(View $view, FormFactoryInterface $formFactoty) {
+		
+		$criteriaUpdateConfig = new CriteriaUpdateConfig($view);
+		
+		$form = $formFactoty->create(CriteriaFilterType::class, $criteriaUpdateConfig, [
+				'view' => $view
+		]);
+		
+		
+		
+		$categoryField = false;
+		if($view->getContentType()->getCategoryField()) {
+			$categoryField = $view->getContentType()->getFieldType()->__get('ems_'.$view->getContentType()->getCategoryField());
+		}
 		
 		return [
 			'criteriaField' => 	$view->getOptions()['criteriaField'],
+			'categoryField' => 	$categoryField,
 			'view' => $view,
 			'contentType' => $view->getContentType(),
 			'environment' => $view->getContentType()->getEnvironment(),
-			'criterionList' => $view->getContentType()->getFieldType()->__get($view->getOptions()['criteriaField'])
+			'criterionList' => $view->getContentType()->getFieldType()->__get('ems_'.$view->getOptions()['criteriaField']),
+			'form' => $form->createView(),
 		];
 	}
 	

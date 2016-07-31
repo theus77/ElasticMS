@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ view.name }} of {{view.contentType.name|humanize}}{% endblock %}
-{% block pagetitle %}{{ view.name }} of {{view.contentType.name|humanize}}{% endblock %} 
+{% block title %}{{ view.name }} for {{view.contentType.pluralName|humanize}}{% endblock %}
+{% block pagetitle %}{{ view.name }} for {{view.contentType.pluralName|humanize}}{% endblock %} 
 {# {% block subtitle %}<!-- TODO -->{% endblock %} #}
 
 
@@ -15,57 +15,32 @@
 				<h3 class="box-title">Configuration</h3>
 			</div>
 			<!-- /.box-header -->
+			
 			<!-- form start -->
-			<form action="{{ url('views.criteria.table') }}" method="get" name="criteriaconfig">
-				<input type="hidden" name="contentTypeId" value="{{ contentType.id }}">
-				<input type="hidden" name="viewId" value="{{ view.id }}">
+			{{ form_start(form) }}
+				
 				<div class="box-body">
-					{% for criteria in criterionList.validChildren %}
-						<div class="form-group col-md-3">
-							<label for="criterion_{{ loop.index }}">
-								{% if loop.index == criterionList.validChildren|length %}
-									Column
-								{% elseif (loop.index+1) == criterionList.validChildren|length  %}
-									Row
-								{% else %}
-									Criterion {{ loop.index }} (field)
-								{% endif %}
-							</label>
-							<select data-filter="criterion_filter_{{ loop.index }}"  class="form-control select2 select2FieldTarget" id="criterion_{{ loop.index }}" name="criterion[{{ loop.index-1 }}][field]" style="width: 100%;">
-								{% set currentCirterion = loop.index %}
-								{% for option in criterionList.validChildren %}
-		                    		<option value="{{ option.id }}" {% if currentCirterion == loop.index %}selected{% endif %}>{{ option.name|humanize }}</option>
-		                    	{% endfor %}
-			                </select>
+					<div class="row">
+						<div class="col-md-4">
+							{{ form_row(form.columnCriteria) }}
 						</div>
-							<div class="form-group col-md-3">
-								<label for="criterion_filter_{{ loop.index }}">
-									{% if loop.index == criterionList.validChildren|length %}
-										Column
-									{% elseif (loop.index+1) == criterionList.validChildren|length  %}
-										Row
-									{% else %}
-										Criterion {{ loop.index }}
-									{% endif %}
-									(filter)
-								</label>
-								<select 
-									{% if loop.index >= (criterionList.validChildren|length - 1)  %}
-										multiple="multiple" 
-									{% else %}
-										required="true"
-									{% endif %}									
-									data-field-target="criterion_{{ loop.index }}" class="form-control select2Filter" id="criterion_filter_{{ loop.index }}" name="criterion[{{ loop.index-1 }}][filters][]" style="width: 100%;">
-				                </select>
-							</div>
-					{% endfor %}
+						<div class="col-md-4">
+							{{ form_row(form.rowCriteria) }}
+						</div>
+						{% if form.category %}
+							{{ form_row(form.category) }}
+						{% endif %}
+					</div>
+					<div class="row" id="criterion">
+						{{ form_widget(form.criterion) }}
+					</div>
+			
 				</div>
+				{{ form_end(form) }}
 				<!-- /.box-body -->
-	
 				<div class="box-footer">
 					<button type="submit" class="btn btn-primary" id="applyConfig">Apply</button>
 				</div>
-			</form>
 		</div>
 	</div>
 </div>
@@ -124,13 +99,61 @@ function formatRepoSelectionForTable (repo) {
 
 $(window).load(function() {
 
+
+
+	$('.criteria-filter-columnrow').change(function(event){
+
+		if($('#criteria_filter_columnCriteria option:selected').val() == $('#criteria_filter_rowCriteria  option:selected').val()){
+			if($(this).attr('id') == 'criteria_filter_columnCriteria'){
+// 				console.log('row');
+// 				console.log($('#criteria_filter_rowCriteria option:not(:selected)').first().val());
+				$('#criteria_filter_rowCriteria').val($('#criteria_filter_rowCriteria option:not(:selected)').first().val());
+
+			}
+			else {
+// 				console.log('col');
+// 				console.log($('#criteria_filter_columnCriteria option:not(:selected)').first().val());
+				$('#criteria_filter_columnCriteria').val($('#criteria_filter_columnCriteria option:not(:selected)').first().val());
+
+			}
+		
+		}
+
+		$('div#criterion select').each(function(index){
+			var criterionName = $( this ).closest('div[data-name]').data('name');
+			var colCriteria = $('#criteria_filter_columnCriteria').val();
+			var rowCriteria = $('#criteria_filter_rowCriteria').val();
+
+			var attr = $(this).attr('multiple');
+
+			// For some browsers, `attr` is undefined; for others,
+			// `attr` is false.  Check for both.
+			if (typeof attr !== typeof undefined && attr !== false) {
+				if(criterionName != colCriteria && criterionName != rowCriteria) {
+					$(this).val('');
+					$(this).removeAttr('multiple');
+					objectPickerListeners($( this ));
+				}
+			}
+			else {
+
+				if(criterionName == colCriteria || criterionName == rowCriteria) {
+					$(this).val('');
+					$(this).attr('multiple', true);
+					objectPickerListeners($( this ));
+				}
+			}
+
+	 	});
+	});
+
 	$('#applyConfig').click(function(event){
 		event.preventDefault();
-		var formContent = $("form[name=criteriaconfig").serialize();
+		var formContent = $("form[name=criteria_filter").serialize();
 
 		$('#table_container').empty();
 		
-		$.get("{{ url('views.criteria.table') }}", formContent)
+		$.get("{{ url('views.criteria.table', {view: view.id}) }}", formContent)
 		  .done(function(message) {
 
 			  $('#table_container').append(message);
@@ -219,6 +242,10 @@ $(window).load(function() {
 		});
 	});
 
+	$(".objectpicker").each(function(index){
+		objectPickerListeners($( this ));
+	});
+
 	$(".select2Filter").each(function(){
 		
 		var targetField = $("#"+$(this).data('field-target'));
@@ -259,6 +286,8 @@ $(window).load(function() {
 			});
 		
 	});
+
+	$('.criteria-filter-columnrow').trigger('change');
 	
 });
 

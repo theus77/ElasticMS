@@ -25,6 +25,10 @@ class ObjectChoiceList implements ChoiceListInterface {
 		
 	}
 	
+	public function getTypes(){
+		return $this->types;
+	}
+	
 	/**
      * {@inheritdoc}
      */
@@ -77,8 +81,8 @@ class ObjectChoiceList implements ChoiceListInterface {
 	public function loadAll($types){
 		if($this->loadAll){
 			$this->choices = $this->objectChoiceCacheService->loadAll($types);
-			
 		}
+		return $this->choices;
 	}
 	
 	/**
@@ -88,5 +92,6 @@ class ObjectChoiceList implements ChoiceListInterface {
 	 */
 	public function loadChoices(array $choices){
 		$this->choices = $this->objectChoiceCacheService->load($choices);
+		return $this->choices;
 	}
 }

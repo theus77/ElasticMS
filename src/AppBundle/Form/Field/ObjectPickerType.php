@@ -53,6 +53,15 @@ class ObjectPickerType extends Select2Type {
 	}
 	
 	/**
+	 * Returns the choice list factory (getter function)
+	 * 
+	 * @return ChoiceListFactoryInterface
+	 */
+	public function getChoiceListFactory() {
+		return $this->choiceListFactory;
+	}
+	
+	/**
 	 *
 	 * {@inheritdoc}
 	 *
