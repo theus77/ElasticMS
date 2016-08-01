@@ -5,13 +5,10 @@ namespace AppBundle\Form\View\Criteria;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\View;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Button;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * It's the mother class of all specific DataField used in eMS

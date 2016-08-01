@@ -4,14 +4,14 @@ namespace AppBundle\Form\DataField;
 
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
+use AppBundle\Exception\ContentTypeStructureException;
 use AppBundle\Form\DataField\Options\OptionsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Exception\ContentTypeStructureException;
-use Symfony\Component\Form\FormRegistryInterface;
+
 
 /**
  * It's the mother class of all specific DataField used in eMS

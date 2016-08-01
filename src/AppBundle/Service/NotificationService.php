@@ -5,7 +5,6 @@ namespace AppBundle\Service;
 
 use AppBundle\Entity\Notification;
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Elasticsearch\Client;
 use Monolog\Logger;
 
 class NotificationService {

@@ -4,15 +4,14 @@ namespace AppBundle\Form\DataField;
 
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
+use AppBundle\Form\Field\ObjectChoiceLoader;
 use AppBundle\Form\Field\ObjectPickerType;
 use Elasticsearch\Client;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Exception\ContentTypeStructureException;
 use Symfony\Component\Form\FormRegistryInterface;
-use AppBundle\Form\Field\ObjectChoiceLoader;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 															
 /**
  * Defined a Container content type.
