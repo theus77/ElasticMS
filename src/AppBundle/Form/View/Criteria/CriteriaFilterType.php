@@ -67,6 +67,12 @@ class CriteriaFilterType extends AbstractType {
 			if($view->getContentType()->getCategoryField()){
 				$categoryField = $view->getContentType()->getFieldType()->__get('ems_'.$view->getContentType()->getCategoryField());
 				$displayOptions = $categoryField->getDisplayOptions();
+				
+				$options = $categoryField->getOptions();
+				if(isset($options['restrictionOptions']) && isset($options['restrictionOptions']['minimum_role'])){
+					$options['restrictionOptions']['minimum_role'] = null;
+					$categoryField->setOptions($options);
+				}
 				$displayOptions['metadata'] = $categoryField;
 				$displayOptions['class'] = 'col-md-4';
 				$displayOptions['multiple'] = false;
@@ -84,6 +90,13 @@ class CriteriaFilterType extends AbstractType {
 			/**@var \AppBundle\Entity\FieldType $child*/
 			foreach ($criteriaField->getChildren() as $child){
 				if(!$child->getDeleted()) {
+
+					$options = $child->getOptions();
+					if(isset($options['restrictionOptions']) && isset($options['restrictionOptions']['minimum_role'])){
+						$options['restrictionOptions']['minimum_role'] = null;
+						$child->setOptions($options);
+					}
+					
 					$displayOptions = $child->getDisplayOptions();
 	// 				dump($displayOptions);
 					$displayOptions['metadata'] = $child;
