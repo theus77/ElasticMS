@@ -41,8 +41,8 @@ class CriteriaFilterType extends AbstractType {
 				if(!$child->getDeleted()) {
 					$label = $child->getDisplayOptions()['label']?$child->getDisplayOptions()['label']:$child->getName();
 					$choices[$label] = $child->getName();
-					$defaultColumn = $defaultRow;
-					$defaultRow = $child->getName();					
+					$defaultRow = $defaultColumn;
+					$defaultColumn = $child->getName();					
 				}
 			}
 
@@ -74,7 +74,7 @@ class CriteriaFilterType extends AbstractType {
 					$categoryField->setOptions($options);
 				}
 				$displayOptions['metadata'] = $categoryField;
-				$displayOptions['class'] = 'col-md-4';
+				$displayOptions['class'] = 'col-md-12';
 				$displayOptions['multiple'] = false;
 				$displayOptions['required'] = true;
 				if(isset($displayOptions['dynamicLoading'])){

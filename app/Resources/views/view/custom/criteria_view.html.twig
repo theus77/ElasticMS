@@ -20,21 +20,23 @@
 			{{ form_start(form) }}
 				
 				<div class="box-body">
-					<div class="row">
-						<div class="col-md-4">
-							{{ form_row(form.columnCriteria) }}
-						</div>
-						<div class="col-md-4">
-							{{ form_row(form.rowCriteria) }}
-						</div>
-						{% if form.category %}
+						<table class="table table-bordered">
+                <tbody><tr>
+                  <td>&nbsp;</td>
+                  <td width="66%">{{ form_row(form.columnCriteria) }}</td>
+                </tr>
+                <tr>
+                  <td>{{ form_row(form.rowCriteria) }}</td>
+                  <td>
+                  	{% if form.category %}
 							{{ form_row(form.category) }}
-						{% endif %}
-					</div>
+					{% endif %}
+				</td>
+                </tr>
+              </tbody></table>
 					<div class="row" id="criterion">
 						{{ form_widget(form.criterion) }}
 					</div>
-			
 				</div>
 				{{ form_end(form) }}
 				<!-- /.box-body -->
