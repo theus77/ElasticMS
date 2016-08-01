@@ -36,11 +36,14 @@ class CriteriaFilterType extends AbstractType {
 			$choices = [];
 			$defaultColumn = false;
 			$defaultRow = false;
+			/**@var \AppBundle\Entity\FieldType $child*/
 			foreach ($criteriaField->getChildren() as $child){
-				$label = $child->getDisplayOptions()['label']?$child->getDisplayOptions()['label']:$child->getName();
-				$choices[$label] = $child->getName();
-				$defaultColumn = $defaultRow;
-				$defaultRow = $child->getName();
+				if(!$child->getDeleted()) {
+					$label = $child->getDisplayOptions()['label']?$child->getDisplayOptions()['label']:$child->getName();
+					$choices[$label] = $child->getName();
+					$defaultColumn = $defaultRow;
+					$defaultRow = $child->getName();					
+				}
 			}
 
 			$builder->add('columnCriteria', ChoiceType::class, array(
@@ -77,23 +80,26 @@ class CriteriaFilterType extends AbstractType {
 			
 			
 			$criterion = $builder->create('criterion', FormType::class);
-			
+
+			/**@var \AppBundle\Entity\FieldType $child*/
 			foreach ($criteriaField->getChildren() as $child){
-				$displayOptions = $child->getDisplayOptions();
-// 				dump($displayOptions);
-				$displayOptions['metadata'] = $child;
-				$displayOptions['class'] = 'col-md-12';
-				if(isset($displayOptions['dynamicLoading'])){
-					$displayOptions['dynamicLoading'] = false;					
+				if(!$child->getDeleted()) {
+					$displayOptions = $child->getDisplayOptions();
+	// 				dump($displayOptions);
+					$displayOptions['metadata'] = $child;
+					$displayOptions['class'] = 'col-md-12';
+					if(isset($displayOptions['dynamicLoading'])){
+						$displayOptions['dynamicLoading'] = false;					
+					}
+					$displayOptions['attr'] =
+						[
+								'data-name' => $child->getName()
+						];
+					
+					$displayOptions['multiple'] = true;//($child->getName() == $defaultRow || $child->getName() == $defaultColumn);
+					$criterion
+							->add ( $child->getName(), $child->getType(), $displayOptions);			
 				}
-				$displayOptions['attr'] =
-					[
-							'data-name' => $child->getName()
-					];
-				
-				$displayOptions['multiple'] = true;//($child->getName() == $defaultRow || $child->getName() == $defaultColumn);
-				$criterion
-						->add ( $child->getName(), $child->getType(), $displayOptions);				
 			}
 			
 			$builder->add($criterion);

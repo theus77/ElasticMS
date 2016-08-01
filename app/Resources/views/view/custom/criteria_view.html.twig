@@ -149,6 +149,9 @@ $(window).load(function() {
 
 	$('#applyConfig').click(function(event){
 		event.preventDefault();
+
+		$('#waitingModal').modal('show');
+		
 		var formContent = $("form[name=criteria_filter").serialize();
 
 		$('#table_container').empty();
@@ -235,9 +238,15 @@ $(window).load(function() {
 			  
 		  })
 		  .fail(function() {
-			alert( "Unable to retrieve the criteria table." );
+			  $('#table_container').append('<div class="alert alert-danger alert-dismissible">'+
+		                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+
+		                '<h4><i class="icon fa fa-ban"></i> Alert!</h4>'+
+		                'It was impossible to retrieve the criteria table.'+
+		                '</div>');
+// 			alert( "It was impossible to retrieve the criteria table." );
 		  })
 		  .always(function() {
+			$('#waitingModal').modal('hide');
 // 			globalWaitingResponse = false;
 		});
 	});

@@ -385,6 +385,25 @@ desired effect
   <!-- Add the sidebar's background. This div must be placed
        immediately after the control sidebar -->
   <div class="control-sidebar-bg"></div>
+  
+  <div class="modal fade" id="waitingModal" tabindex="-1" role="dialog" aria-labelledby="waitingModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="waitingModalLabel">Loading information</h3>
+      </div>
+      <div class="modal-body">
+        <div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>
+      </div>
+{#       <div class="modal-footer">#}
+{#         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>#}
+{#         <button type="button" class="btn btn-primary">Send message</button>#}
+{#       </div>#}
+    </div>
+  </div>
+</div>
+  
+  
 </div>
 <!-- ./wrapper -->
 
