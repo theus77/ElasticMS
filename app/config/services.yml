@@ -6,7 +6,7 @@ parameters:
 services:
     app.twig_extension:
         class: AppBundle\Twig\AppExtension
-        arguments: ['@doctrine', '@security.authorization_checker', '@ems.service.user', '@ems.service.contenttype', '@app.elasticsearch', '@router', '@twig' ]
+        arguments: ['@doctrine', '@security.authorization_checker', '@ems.service.user', '@ems.service.contenttype', '@app.elasticsearch', '@router', '@twig', '@ems.form.factories.objectChoiceListFactory' ]
         #public: false
         tags:
             - { name: twig.extension, priority: -2000 }
@@ -199,6 +199,12 @@ services:
         arguments: ['@twig', '@app.elasticsearch']
         tags:
             - { name: ems.form.viewtype, alias: criteria }
+            - { name: form.type }
+    ems.view.report:
+        class: AppBundle\Form\View\ReportViewType
+        arguments: ['@twig', '@app.elasticsearch']
+        tags:
+            - { name: ems.form.viewtype, alias: report }
             - { name: form.type }
 #### End list available ems views ###
     ems.form.factories.objectChoiceListFactory:
