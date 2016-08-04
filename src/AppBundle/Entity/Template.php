@@ -87,9 +87,9 @@ class Template
     /**
      * @var bool
      *
-     * @ORM\Column(name="download_result_url", type="boolean")
+     * @ORM\Column(name="accumulate_in_one_file", type="boolean")
      */
-    private $downloadResultUrl;
+    private $accumulateInOneFile;
     
     /** @var string
     
@@ -388,27 +388,27 @@ class Template
     }
 
     /**
-     * Set downloadResultUrl
+     * Set accumulateInOneFile
      *
-     * @param boolean $downloadResultUrl
+     * @param boolean $accumulateInOneFile
      *
      * @return Template
      */
-    public function setDownloadResultUrl($downloadResultUrl)
+    public function setAccumulateInOneFile($accumulateInOneFile)
     {
-        $this->downloadResultUrl = $downloadResultUrl;
+        $this->accumulateInOneFile = $accumulateInOneFile;
 
         return $this;
     }
 
     /**
-     * Get downloadResultUrl
+     * Get accumulateInOneFile
      *
      * @return boolean
      */
-    public function getDownloadResultUrl()
+    public function getAccumulateInOneFile()
     {
-        return $this->downloadResultUrl;
+        return $this->accumulateInOneFile;
     }
 
     /**
