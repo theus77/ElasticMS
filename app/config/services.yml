@@ -155,6 +155,13 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: number }
             - { name: form.type }
+    ems.fieldtype.integer:
+        class: AppBundle\Form\DataField\IntegerFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: integer }
+            - { name: form.type }
     ems.fieldtype.date:
         class: AppBundle\Form\DataField\DateFieldType
         #arguments: ['%date_format%']

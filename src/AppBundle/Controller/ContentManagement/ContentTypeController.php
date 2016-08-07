@@ -745,7 +745,7 @@ class ContentTypeController extends AppController {
 					
 					$em->persist ( $contentType );
 					$em->flush ();
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
 							'id' => $id 
 					] );
 				}
@@ -754,7 +754,7 @@ class ContentTypeController extends AppController {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					$em->persist ( $contentType );
 					$em->flush ();
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
 							'id' => $id 
 					] );
 				}
@@ -764,7 +764,7 @@ class ContentTypeController extends AppController {
 					$em->persist ( $contentType );
 					$em->flush ();
 					$this->addFlash ( 'notice', 'A field has been removed.' );
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
 							'id' => $id 
 					] );
 				}
@@ -773,7 +773,7 @@ class ContentTypeController extends AppController {
 					$em->persist ( $contentType );
 					$em->flush ();
 					$this->addFlash ( 'notice', 'Fields have been reordered.' );
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
 							'id' => $id 
 					] );
 				}
