@@ -5,7 +5,7 @@
 
 {% block breadcrumb %}
 	<ol class="breadcrumb">
-		<li><a href="{{ url("contenttype.index") }}"><i class="fa fa-cubes"></i> Content Types`</a></li>
+		<li><a href="{{ url("contenttype.index") }}"><i class="fa fa-cubes"></i> Content Types</a></li>
    		<li class="active">edit</li>
    	</ol>
 {% endblock %}
@@ -61,52 +61,30 @@
 
 
 				<div class="col-md-12">
-					<div class="nav-tabs-custom">
-						<ul class="nav nav-tabs">
-							{% if contentType.environment.managed %}
-								<li class="active"><a href="#tab_1" data-toggle="tab"
-									aria-expanded="true">Structure</a></li>
-							{% endif %}
-							{% if mapping %}
-								<li class="{% if not contentType.environment.managed %}active{% endif %}"><a href="#tab_2" data-toggle="tab"
-									aria-expanded="false">Mapping</a></li>
-							{% endif %}
-						</ul>
-						<div class="tab-content">
-							{% if contentType.environment.managed %}
-								<div class="tab-pane active" id="tab_1">
-									<ul class="list-group">
-										{{ form_row(form.fieldType) }}
-									</ul>
-								</div>
-							{% endif %}	
-							{% if mapping %}
-								{% import "macros/view.html.twig" as macros %}
-								<div class="tab-pane{% if not contentType.environment.managed %} active{% endif %}" id="tab_2">
-									{{ macros.renderMapping(mapping) }}
-								</div>
-								<!-- /.tab-pane -->
-							{% endif %}	
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h3 class="panel-title">
+								<i class="fa fa-sliders"></i> Mapping
+								<a class="toggle-button pull-right" role="button" data-toggle="collapse" href="#mapping-info" aria-expanded="false" aria-controls="mapping-info" data-toggle-contain="Hide <i class=&quot;fa fa-chevron-down&quot;></i>">
+									Show <i class="fa fa-chevron-right"></i>
+								</a>
+							</h3>
 						</div>
-						<!-- /.tab-content -->
+						
+						{% import "macros/view.html.twig" as macros %}
+						<div class="panel-body collapse" id="mapping-info">
+							{{ macros.renderMapping(mapping) }}
+						</div>
 					</div>
 				</div>
-
-
-{# 					{% if contentType.environment.managed %}#}
-{# 						<div class="col-md-12">test#}
-{# 							<ul class="list-group sortable">#}
-{# 								{{ form_row(form.fieldType) }}#}
-{# 							</ul>#}
-{# 						</div>#}
-{# 					{% endif %}#}
 										
 				</div>
 				<!-- /.box-body -->		
 				<div class="box-footer">
-					<div class="btn-group pull-right">
+					<div class="btn-group">
 						{{ form_widget(form.save) }}
 						{{ form_widget(form.saveAndClose) }}
+						{{ form_widget(form.saveAndEditStructure) }}
 					</div>
 				</div>
 			</div>

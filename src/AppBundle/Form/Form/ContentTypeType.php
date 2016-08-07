@@ -63,9 +63,9 @@ class ContentTypeType extends AbstractType {
 		]);
 
 		if($contentType->getEnvironment()->getManaged()){
-			$builder->add ( 'fieldType', FieldTypeType::class, [
-				'data' => $contentType->getFieldType()
-			]);			
+// 			$builder->add ( 'fieldType', FieldTypeType::class, [
+// 				'data' => $contentType->getFieldType()
+// 			]);			
 			$builder->add ( 'rootContentType');
 		}
 		
@@ -91,6 +91,12 @@ class ContentTypeType extends AbstractType {
 				'icon' => 'fa fa-save'
 		] );		
 		$builder->add ( 'saveAndClose', SubmitEmsType::class, [ 
+				'attr' => [ 
+						'class' => 'btn-primary btn-sm ' 
+				],
+				'icon' => 'fa fa-save'
+		] );		
+		$builder->add ( 'saveAndEditStructure', SubmitEmsType::class, [ 
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm ' 
 				],
