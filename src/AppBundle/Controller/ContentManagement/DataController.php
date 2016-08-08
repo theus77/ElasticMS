@@ -574,23 +574,7 @@ class DataController extends AppController
 						'object' => $object,
 						'source' => $object['_source'],
 				]);
-			if (null != $template->getDownloadResultUrl()){
-				$ch = curl_init($output);
-				curl_setopt($ch, CURLOPT_NOBODY, true);
-				curl_setopt($ch, CURLOPT_HEADER, true);
-				curl_exec($ch);
-				$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-				curl_close($ch);
-				
-				if ($code == 200) {
-					echo file_get_contents($output);
-				} else {
-					echo "Error ".$code." while downloading file: ".$output;
-				}
-				
-			} else {
-				echo $output;
-			}
+			echo $output;
 			
 			exit;
 		}

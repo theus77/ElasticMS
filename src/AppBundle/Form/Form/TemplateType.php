@@ -79,7 +79,7 @@ class TemplateType extends AbstractType {
 		->add( 'renderOption', RenderOptionType::class, [
 				'required' => true,
 		])
-		->add( 'downloadResultUrl', CheckboxType::class, [
+		->add( 'accumulateInOneFile', CheckboxType::class, [
 				'required' => false,
 		])
 		->add( 'mimeType', TextType::class, [

@@ -570,7 +570,7 @@ class ElasticsearchController extends AppController
 					}
 				}
 				
-				//Create the xml of each result and accumulate in a zip stream
+				//Create the file for each result and accumulate in a zip stream
 				$extime = ini_get('max_execution_time');
 				ini_set('max_execution_time', 0);
 				
@@ -579,7 +579,28 @@ class ElasticsearchController extends AppController
 				
 				$exportMapping = new ExportMapping();
 				$exportMapping->addTemplates($results);
+
+				$resultsSize = count($results['hits']['hits']);
+				$loop = [];
+				$accumulatedContent = "";
 				foreach ($results['hits']['hits'] as $result){
+					if (array_key_exists('first', $loop)){
+						$loop['first'] = false;
+					} else {
+						$loop['first'] = true;
+					}
+					if (array_key_exists('index0', $loop)) {
+						$loop['index0'] = $loop['index0']+1;
+					} else {
+						$loop['index0'] = 0;
+					}
+					if (array_key_exists('index1', $loop)) {
+						$loop['index1'] = $loop['index1']+1;
+					} else {
+						$loop['index1'] = 1;
+					}
+					$loop['last'] =  $resultsSize == $loop['index1'];
+					
 					$name = $result['_type'];
 					$formFieldName = $exportMapping->getCombinedName($name);
 					$template = $templateMapping[$formFieldName];
@@ -596,6 +617,7 @@ class ElasticsearchController extends AppController
 							continue;
 						}
 						$filename = $filename->render([
+								'loop' => $loop,
 								'contentType' => $template->getContentType(),
 								'object' => $result,
 								'source' => $result['_source'],
@@ -608,6 +630,7 @@ class ElasticsearchController extends AppController
 					
 					try {
 						$content = $body->render([
+									'loop' => $loop,
 									'contentType' => $template->getContentType(),
 									'object' => $result,
 									'source' => $result['_source'],
@@ -619,7 +642,16 @@ class ElasticsearchController extends AppController
 						$errorList[] = "Error in templateBody->render() for: ".$filename;
 						continue;
 					}
-					$zip->addFile($filename, $content);
+					
+					if ($template->getAccumulateInOneFile()){
+						$accumulatedContent = $accumulatedContent.$content;
+						if ($loop['last']){
+							$zip->addFile($template->getName().'.'.$template->getExtension(), $accumulatedContent);
+						}
+					} else {
+						$zip->addFile($filename, $content);
+					}
+					
 				}
 				
 				if (!empty($errorList))
