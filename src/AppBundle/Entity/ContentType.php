@@ -129,112 +129,126 @@ class ContentType
     private $fieldType;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="labelField", type="string", length=100, nullable=true)
      */
     private $labelField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="color_field", type="string", length=100, nullable=true)
      */
     private $colorField;
 
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="parentField", type="string", length=100, nullable=true)
      */
     private $parentField;
 
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="userField", type="string", length=100, nullable=true)
      */
     private $userField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="dateField", type="string", length=100, nullable=true)
      */
     private $dateField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="startDateField", type="string", length=100, nullable=true)
      */
     private $startDateField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="endDateField", type="string", length=100, nullable=true)
      */
     private $endDateField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="locationField", type="string", length=100, nullable=true)
      */
     private $locationField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="category_field", type="string", length=100, nullable=true)
      */
     private $categoryField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="ouuidField", type="string", length=100, nullable=true)
      */
     private $ouuidField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="imageField", type="string", length=100, nullable=true)
      */
     private $imageField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="videoField", type="string", length=100, nullable=true)
      */
     private $videoField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="email_field", type="string", length=100, nullable=true)
      */
     private $emailField;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="asset_field", type="string", length=100, nullable=true)
      */
     private $assetField;
     
     /**
-     * @var int
+     * @var string
+     *
+     * @ORM\Column(name="order_field", type="string", length=100, nullable=true)
+     */
+    private $orderField;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="sort_by", type="string", length=100, nullable=true)
+     */
+    private $sortBy;
+    
+    /**
+     * @var string
      *
      * @ORM\Column(name="create_role", type="string", length=100, nullable=true)
      */
     private $createRole;
     
     /**
-     * @var int
+     * @var string
      *
      * @ORM\Column(name="edit_role", type="string", length=100, nullable=true)
      */
@@ -1287,5 +1301,53 @@ class ContentType
     public function getAssetField()
     {
         return $this->assetField;
+    }
+
+    /**
+     * Set orderField
+     *
+     * @param string $orderField
+     *
+     * @return ContentType
+     */
+    public function setOrderField($orderField)
+    {
+        $this->orderField = $orderField;
+
+        return $this;
+    }
+
+    /**
+     * Get orderField
+     *
+     * @return string
+     */
+    public function getOrderField()
+    {
+        return $this->orderField;
+    }
+
+    /**
+     * Set sortBy
+     *
+     * @param string $sortBy
+     *
+     * @return ContentType
+     */
+    public function setSortBy($sortBy)
+    {
+        $this->sortBy = $sortBy;
+
+        return $this;
+    }
+
+    /**
+     * Get sortBy
+     *
+     * @return string
+     */
+    public function getSortBy()
+    {
+        return $this->sortBy;
     }
 }

@@ -49,8 +49,8 @@ class ContentTypeType extends AbstractType {
 // 		$builder->add ( 'ouuidField');
 		$builder->add ( 'imageField');
 		$builder->add ( 'assetField');
-// 		$builder->add ( 'videoField');
-// 		$builder->add ( 'categoryField');
+		$builder->add ( 'orderField');
+		$builder->add ( 'sortBy');
 		$builder->add ( 'pluralName', TextType::class);
 		$builder->add ( 'createRole', RolePickerType::class);
 		$builder->add ( 'editRole', RolePickerType::class);
