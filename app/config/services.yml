@@ -261,7 +261,7 @@ services:
         arguments: ['@ems.form.fieldtype.fieldtypetype']
     ems.service.data:
         class: AppBundle\Service\DataService
-        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory']
+        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory', '@service_container']
     ems.service.environment:
         class: AppBundle\Service\EnvironmentService
         arguments: ['@doctrine', '@session']
@@ -293,7 +293,7 @@ services:
 ### command services ###
     ems.contenttype.migrate:
         class: AppBundle\Command\MigrateCommand
-        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@ems.service.data']
         tags:
             -  { name: console.command }
     ems.environment.rebuild:

@@ -187,6 +187,7 @@ class DataController extends AppController
 			$revision = $repository->findOneBy([
 					'endTime' => null,
 					'ouuid' => $ouuid,
+					'deleted' => false,
 					'contentType' => $contentType,
 			]);			
 		}

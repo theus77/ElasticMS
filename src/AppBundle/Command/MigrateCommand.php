@@ -17,6 +17,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use AppBundle\Service\DataService;
 
 class MigrateCommand extends ContainerAwareCommand
 {
@@ -26,14 +27,15 @@ class MigrateCommand extends ContainerAwareCommand
 	protected $doctrine;
 	protected $logger;
 	protected $container;
+	protected $dataService;
 	
-	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, $container)
+	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, DataService $dataService)
 	{
 		$this->doctrine = $doctrine;
 		$this->logger = $logger;
 		$this->client = $client;
 		$this->mapping = $mapping;
-		$this->container = $container;
+		$this->dataService = $dataService;
 		parent::__construct();
 	}
 	
@@ -124,7 +126,8 @@ class MigrateCommand extends ContainerAwareCommand
 					'index' => $elasticsearchIndex,
 					'type' => $contentTypeNameFrom,
 					'size' => 10,
-					'from' => $from
+					'from' => $from,
+					'preference' => '_primary', //http://stackoverflow.com/questions/10836142/elasticsearch-duplicate-results-with-paging
 			]);
 			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
 
@@ -152,11 +155,11 @@ class MigrateCommand extends ContainerAwareCommand
 						//So we load the datas from the current revision into the next revision
 						$newRevision->setRawData($currentRevision->getRawData());
 						//We build the new revision object
-						$this->container->get('ems.service.data')->loadDataStructure($newRevision);
+						$this->dataService->loadDataStructure($newRevision);
 						//We update the new revision object with the new datas. Here, the protected fields are not overridden.
 						$newRevision->getDataField()->updateDataValue($value['_source'], true);//isMigrate=true
 						//We serialize the new object
-						$objectArray = $this->container->get('ems.service.mapping')->dataFieldToArray($newRevision->getDataField());
+						$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
 						$newRevision->setRawData($objectArray);
 					}	
 					else{

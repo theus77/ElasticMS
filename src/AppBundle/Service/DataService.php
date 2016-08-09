@@ -33,8 +33,6 @@ class DataService
 	protected $authorizationChecker;
 	/**@var TokenStorageInterface $tokenStorage*/
 	protected $tokenStorage;
-	/**@var AppExtension $twigExtension*/
-	protected $twigExtension;
 	protected $lockTime;
 	/**@Client $client*/
 	protected $client;
@@ -47,20 +45,20 @@ class DataService
 	protected $session;
 	/**@var Session $session*/
 	protected $formFactory;
+	protected $container;
 	
 	public function __construct(
 			Registry $doctrine, 
 			AuthorizationCheckerInterface $authorizationChecker, 
 			TokenStorageInterface $tokenStorage, 
-			AppExtension $twigExtension, 
 			$lockTime, 
 			Client $client, 
 			Mapping $mapping, 
 			$instanceId,
 			Session $session,
-			$formFactory)
+			$formFactory,
+			$container)
 	{
-		$this->twigExtension = $twigExtension;
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
 		$this->tokenStorage = $tokenStorage;
@@ -72,6 +70,7 @@ class DataService
 		$this->revRepository = $this->em->getRepository('AppBundle:Revision');
 		$this->session = $session;
 		$this->formFactory = $formFactory;
+		$this->container = $container;
 	}
 	
 	
@@ -91,7 +90,7 @@ class DataService
 			throw new LockedException($revision);
 		}
 		
-		if(!$username && !$this->twigExtension->one_granted($revision->getContentType()->getFieldType()->getFieldsRoles(), $super)) {
+		if(!$username && !$this->container->get('app.twig_extension')->one_granted($revision->getContentType()->getFieldType()->getFieldsRoles(), $super)) {
 			throw new PrivilegeException($revision);
 		}
 		//TODO: test circles
@@ -297,10 +296,13 @@ class DataService
 			/** @var QueryBuilder $qb */
 			$qb = $repository->createQueryBuilder('t')
 			->where('t.ouuid = :ouuid')
-			->setParameter('ouuid', $revision->getOuuid())
 			->andWhere('t.id <> :id')
-			->setParameter('id', $revision->getId())
+			->andWhere('t.deleted =  false')
+			->andWhere('t.contentType =  :contentType')
 			->orderBy('t.startTime', 'desc')
+			->setParameter('ouuid', $revision->getOuuid())
+			->setParameter('contentType', $revision->getContentType())
+			->setParameter('id', $revision->getId())
 			->setMaxResults(1);
 			$query = $qb->getQuery();
 	
