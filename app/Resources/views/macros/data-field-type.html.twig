@@ -447,6 +447,22 @@
 	{{ _self.messages(dataField) }}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_IntegerFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name|raw }}
+			{% endif %}
+		</dt>
+		<dd>
+			{{ dataField.integerValue }}
+		</dd>
+	</dl>
+	{{ _self.messages(dataField) }}
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_DateFieldType(dataField) %}
 	<dl>
 		<dt>

@@ -549,13 +549,21 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 * @return integer
 	 */
 	public function getIntegerValue() {
-		if(is_array($this->rawData) && count($this->rawData) === 0){
-			return null; //empty array means null/empty
+		if(is_array($this->rawData)){
+			$this->addMessage('Integer expected array found: '.print_r($this->rawData, true));
+			return count($this->rawData); //empty array means null/empty
 		}
 		
-    	if($this->rawData !== null && !is_int($this->rawData)){
-    		throw new DataFormatException('Integer expected: '.print_r($this->rawData, true));
+    	if($this->rawData === null || is_int($this->rawData)){
+			return $this->rawData;
+		}
+    	else if( intval($this->rawData) || $this->rawData === 0 || $this->rawData === '0'){
+
+    		return intval($this->rawData);
+//     		return $this->rawData;
+//     		throw new DataFormatException('Integer expected: '.print_r($this->rawData, true));
     	}
+    	$this->addMessage('Integer expected: '.print_r($this->rawData, true));
 		return $this->rawData;
 	}
 	
@@ -567,10 +575,17 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	 * @return DataField
 	 */
 	public function setIntegerValue($rawData) {
-    	if($rawData !== null && !is_int($rawData)){
-    		throw new DataFormatException('Integer expected: '.print_r($rawData, true));
+		if($rawData === null || is_int($rawData)){
+			$this->rawData = $rawData;
+		}
+    	else if(intval($rawData) || $rawData === 0 || $rawData === '0'){
+			$this->rawData = intval($rawData);
     	}
-		$this->rawData = $integerValue;
+    	else{
+    		$this->addMessage('Integer expected: '.print_r($rawData, true));
+			$this->rawData = $rawData;    		
+    	}
+    	
 		return $this;
 	}    
 	

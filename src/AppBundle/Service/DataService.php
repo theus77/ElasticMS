@@ -118,6 +118,10 @@ class DataService
 			throw new \Exception("Can not finalized a deleted revision");
 		}
 		if(null == $form) {
+			if( $revision->getDatafield() == NULL){
+				$this->loadDataStructure($revision);
+			}
+			
 			//Get the form from Factory
 			$builder = $this->formFactory->createBuilder(RevisionType::class, $revision);
 			$form = $builder->getForm();

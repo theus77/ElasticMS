@@ -171,7 +171,7 @@ abstract class DataFieldType extends AbstractType {
 	public function isValid(DataField &$dataField){
 		$isValid = TRUE;
 		//Madatory Validation
-		$isValid = $isValid && $this->isValidMadatory($dataField);
+		$isValid = $isValid && $this->isMandatory($dataField);
 		//Add here an other validation
 		//$isValid = isValid && isValidYourValidation();
 		return $isValid;
@@ -182,7 +182,7 @@ abstract class DataFieldType extends AbstractType {
 	 *
 	 * @return boolean
 	 */
-	public function isValidMadatory(DataField &$dataField){
+	public function isMandatory(DataField &$dataField){
 		$isValidMadatory = TRUE;
 		//Get FieldType mandatory option
 		$restrictionOptions = $dataField->getFieldType()->getRestrictionOptions();

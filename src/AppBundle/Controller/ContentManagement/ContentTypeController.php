@@ -34,6 +34,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Form\Form;
+use AppBundle\Form\Form\ContentTypeStructureType;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -573,8 +574,7 @@ class ContentTypeController extends AppController {
 	}
 	
 	/**
-	 * Edit a content type; generic information, but also add subfields.
-	 * Each times that a content type is saved the flag dirty is turned on.
+	 * Edit a content type; generic information, but Nothing impacting its structure or it's mapping
 	 *
 	 * @param integer $id        	
 	 * @param Request $request
@@ -605,62 +605,68 @@ class ContentTypeController extends AppController {
 		if ($form->isSubmitted () && $form->isValid ()) {
 			$contentType->getFieldType()->setName('source');
 			
-			if (array_key_exists ( 'save', $inputContentType ) || array_key_exists ( 'saveAndClose', $inputContentType )) {
-				$contentType->getFieldType ()->updateOrderKeys ();
-				$contentType->setDirty ( $contentType->getEnvironment ()->getManaged () );
+			if (array_key_exists ( 'save', $inputContentType ) || array_key_exists ( 'saveAndClose', $inputContentType ) || array_key_exists ( 'saveAndEditStructure', $inputContentType )) {
+// 				$contentType->getFieldType ()->updateOrderKeys ();
+// 				$contentType->setDirty ( $contentType->getEnvironment ()->getManaged () );
 
 
 // 				exit;
 				$em->persist ( $contentType );
 				$em->flush ();
+				
 				if($contentType->getDirty()){
 					$this->addFlash ( 'warning', 'Content type has beend saved. Please consider to update the Elasticsearch mapping.' );					
 				}
 				if (array_key_exists ( 'saveAndClose', $inputContentType )){
 					return $this->redirectToRoute ( 'contenttype.index' );					
 				}
+				else if (array_key_exists ( 'saveAndEditStructure', $inputContentType )){
+					return $this->redirectToRoute ( 'contenttype.structure', [
+						'id' => $id
+				] );					
+				}
 				return $this->redirectToRoute ( 'contenttype.edit', [
 						'id' => $id
 				] );
-			} else {
-				if ($this->addNewField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
-					$contentType->getFieldType ()->updateOrderKeys ();
+// 			} else {
+// 				if ($this->addNewField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+// 					$contentType->getFieldType ()->updateOrderKeys ();
 					
-					$em->persist ( $contentType );
-					$em->flush ();
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
-							'id' => $id 
-					] );
-				}
+// 					$em->persist ( $contentType );
+// 					$em->flush ();
+// 					return $this->redirectToRoute ( 'contenttype.edit', [ 
+// 							'id' => $id 
+// 					] );
+// 				}
 				
-				else if ($this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
-					$contentType->getFieldType ()->updateOrderKeys ();
-					$em->persist ( $contentType );
-					$em->flush ();
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
-							'id' => $id 
-					] );
-				}
+// 				else if ($this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+// 					$contentType->getFieldType ()->updateOrderKeys ();
+// 					$em->persist ( $contentType );
+// 					$em->flush ();
+// 					return $this->redirectToRoute ( 'contenttype.edit', [ 
+// 							'id' => $id 
+// 					] );
+// 				}
 				
-				else if ($this->removeField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
-					$contentType->getFieldType ()->updateOrderKeys ();
-					$em->persist ( $contentType );
-					$em->flush ();
-					$this->addFlash ( 'notice', 'A field has been removed.' );
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
-							'id' => $id 
-					] );
-				}
+// 				else if ($this->removeField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+// 					$contentType->getFieldType ()->updateOrderKeys ();
+// 					$em->persist ( $contentType );
+// 					$em->flush ();
+// 					$this->addFlash ( 'notice', 'A field has been removed.' );
+// 					return $this->redirectToRoute ( 'contenttype.edit', [ 
+// 							'id' => $id 
+// 					] );
+// 				}
 				
-				else if ($this->reorderFields ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
-					// $contentType->getFieldType()->updateOrderKeys();
-					$em->persist ( $contentType );
-					$em->flush ();
-					$this->addFlash ( 'notice', 'Fields have been reordered.' );
-					return $this->redirectToRoute ( 'contenttype.edit', [ 
-							'id' => $id 
-					] );
-				}
+// 				else if ($this->reorderFields ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+// 					// $contentType->getFieldType()->updateOrderKeys();
+// 					$em->persist ( $contentType );
+// 					$em->flush ();
+// 					$this->addFlash ( 'notice', 'Fields have been reordered.' );
+// 					return $this->redirectToRoute ( 'contenttype.edit', [ 
+// 							'id' => $id 
+// 					] );
+// 				}
 			}
 		}
 		
@@ -680,6 +686,116 @@ class ContentTypeController extends AppController {
 				'form' => $form->createView (),
 				'contentType' => $contentType,
 				'mapping' => isset ( current ( $mapping ) ['mappings'] [$contentType->getName ()] ['properties'] ) ? current ( $mapping ) ['mappings'] [$contentType->getName ()] ['properties'] : false 
+		] );
+	}
+	
+	/**
+	 * Edit a content type structure; add subfields.
+	 * Each times that a content type strucuture is saved the flag dirty is turned on.
+	 *
+	 * @param integer $id        	
+	 * @param Request $request
+	 *        	@Route("/content-type/structure/{id}", name="contenttype.structure"))
+	 */
+	public function editStructureAction($id, Request $request) {
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine ()->getManager ();
+		/** @var ContentTypeRepository $repository */
+		$repository = $em->getRepository ( 'AppBundle:ContentType' );
+		
+		/** @var ContentType $contentType */
+		$contentType = $repository->find ( $id );
+		
+		if (! $contentType || count ( $contentType ) != 1) {
+			$this-> addFlash ( 'warning', 'Content type not found.' );
+			return $this->redirectToRoute ( 'contenttype.index' );
+		}
+		
+		$inputContentType = $request->request->get ( 'content_type_structure' );
+		
+		$form = $this->createForm ( ContentTypeStructureType::class, $contentType, [
+// 			'twigWithWysiwyg' => $contentType->getEditTwigWithWysiwyg()
+		] );
+		
+		$form->handleRequest ( $request );
+		
+		if ($form->isSubmitted () && $form->isValid ()) {
+			$contentType->getFieldType()->setName('source');
+			
+			if (array_key_exists ( 'save', $inputContentType ) || array_key_exists ( 'saveAndClose', $inputContentType )) {
+				$contentType->getFieldType ()->updateOrderKeys ();
+				$contentType->setDirty ( $contentType->getEnvironment ()->getManaged () );
+
+				$em->persist ( $contentType );
+				$em->flush ();
+				if($contentType->getDirty()){
+					$this->addFlash ( 'warning', 'Content type has beend saved. Please consider to update the Elasticsearch mapping.' );					
+				}
+				if (array_key_exists ( 'saveAndClose', $inputContentType )){
+					return $this->redirectToRoute ( 'contenttype.edit', [
+						'id' => $id
+				] );					
+				}
+				return $this->redirectToRoute ( 'contenttype.structure', [
+						'id' => $id
+				] );
+			} else {
+				if ($this->addNewField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+					$contentType->getFieldType ()->updateOrderKeys ();
+					
+					$em->persist ( $contentType );
+					$em->flush ();
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
+							'id' => $id 
+					] );
+				}
+				
+				else if ($this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+					$contentType->getFieldType ()->updateOrderKeys ();
+					$em->persist ( $contentType );
+					$em->flush ();
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
+							'id' => $id 
+					] );
+				}
+				
+				else if ($this->removeField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+					$contentType->getFieldType ()->updateOrderKeys ();
+					$em->persist ( $contentType );
+					$em->flush ();
+					$this->addFlash ( 'notice', 'A field has been removed.' );
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
+							'id' => $id 
+					] );
+				}
+				else if ($this->reorderFields ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+					// $contentType->getFieldType()->updateOrderKeys();
+					$em->persist ( $contentType );
+					$em->flush ();
+					$this->addFlash ( 'notice', 'Fields have been reordered.' );
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
+							'id' => $id 
+					] );
+				}
+			}
+		}
+		
+// 		/** @var  Client $client */
+// 		$client = $this->get ( 'app.elasticsearch' );
+		
+// 		$mapping = $client->indices ()->getMapping ( [ 
+// 				'index' => $contentType->getEnvironment ()->getAlias (),
+// 				'type' => $contentType->getName () 
+// 		] );
+		
+		if($contentType->getDirty()){
+			$this->addFlash('warning', $contentType->getName().' is dirty. Consider to update its mapping.');
+		}
+		
+		return $this->render ( 'contenttype/structure.html.twig', [ 
+				'form' => $form->createView (),
+				'contentType' => $contentType,
+// 				'mapping' => isset ( current ( $mapping ) ['mappings'] [$contentType->getName ()] ['properties'] ) ? current ( $mapping ) ['mappings'] [$contentType->getName ()] ['properties'] : false 
 		] );
 	}
 	
