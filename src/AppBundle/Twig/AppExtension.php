@@ -37,6 +37,8 @@ class AppExtension extends \Twig_Extension
 		$this->router = $router;
 		$this->twig = $twig;
 		$this->objectChoiceListFactory = $objectChoiceListFactory;
+		
+		$this->twig->getExtension('core')->setEscaper('csv', array($this, 'csvEscaper'));
 	}
 	
 	public function getFilters()
@@ -61,8 +63,7 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('get_content_type', array($this, 'getContentType')),
 				new \Twig_SimpleFilter('generate_from_template', array($this, 'generateFromTemplate')),
 				new \Twig_SimpleFilter('objectChoiceLoader', array($this, 'objectChoiceLoader')),
-				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),
-				
+				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),				
 		);
 	}
 	
@@ -351,6 +352,10 @@ class AppExtension extends \Twig_Extension
 		
 		return $response;
 		
+	}
+	
+	public function csvEscaper($twig, $name, $charset) {
+		return $name;
 	}
 
 	public function getName()
