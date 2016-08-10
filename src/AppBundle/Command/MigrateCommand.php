@@ -18,6 +18,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use AppBundle\Service\DataService;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class MigrateCommand extends ContainerAwareCommand
 {
@@ -85,12 +86,12 @@ class MigrateCommand extends ContainerAwareCommand
     	} else {
     		$mode = "earse";
     	}
-    	$output->writeln("Start migration");
 		
 		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
 		/** @var \AppBundle\Entity\ContentType $contentTypeTo */
 		$contentTypeTo = $contentTypeRepository->findOneBy(array("name" => $contentTypeNameTo, 'deleted' => false));
+    	$output->writeln("Start migration of ".$contentTypeTo->getPluralName());
 		
 		if(!$contentTypeTo) {
 			$output->writeln("<error>Content type not found</error>");
@@ -120,6 +121,11 @@ class MigrateCommand extends ContainerAwareCommand
 		]);
 		
 		$total = $arrayElasticsearchIndex["hits"]["total"];
+		// create a new progress bar
+		$progress = new ProgressBar($output, $total);
+		// start and displays the progress bar
+		$progress->start();
+		
 		
 		for($from = 0; $from < $total; $from = $from + 10) {
 			$arrayElasticsearchIndex = $this->client->search([
@@ -129,7 +135,7 @@ class MigrateCommand extends ContainerAwareCommand
 					'from' => $from,
 					'preference' => '_primary', //http://stackoverflow.com/questions/10836142/elasticsearch-duplicate-results-with-paging
 			]);
-			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
+// 			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
 
 			/** @var RevisionRepository $repository */
 			$repository = $em->getRepository( 'AppBundle:Revision' );
@@ -179,9 +185,11 @@ class MigrateCommand extends ContainerAwareCommand
 					$output->write(".");
 					$em->flush();
  					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
+					//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
 					$repository->publishRevision($newRevision);
 
-					//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
+					// advance the progress bar 1 unit
+					$progress->advance();
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");
@@ -189,6 +197,8 @@ class MigrateCommand extends ContainerAwareCommand
 			}
 			$repository->clear();
 		}
+		// ensure that the progress bar is at 100%
+		$progress->finish();
 		$output->writeln("");
 		$output->writeln("Migration done");
     }
