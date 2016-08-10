@@ -35,17 +35,44 @@ class ObjectChoiceCacheService
 		$out = [];
 		
 		$cts = explode(',', $types);
+		$body = [];
 		foreach ($cts as $type) {
 			if(!isset($this->fullyLoaded[$type])){
-				$curentType = $this->contentTypeService->getByName($type);
-				if($curentType){
-					if(!isset($aliasTypes[$curentType->getEnvironment()->getAlias()])){
-						$aliasTypes[$curentType->getEnvironment()->getAlias()] = [];
+				$currentType = $this->contentTypeService->getByName($type);
+				if($currentType){
+					if(!isset($aliasTypes[$currentType->getEnvironment()->getAlias()])){
+						$aliasTypes[$currentType->getEnvironment()->getAlias()] = [];
 					}
-					$aliasTypes[$curentType->getEnvironment()->getAlias()][] = $type;
+					$aliasTypes[$currentType->getEnvironment()->getAlias()][] = $type;
+					$params = [
+							'size'=>  '500',
+							'index'=> $currentType->getEnvironment()->getAlias(),
+							'type'=> $type,
+					];
+					//TODO test si > 500...flashbag
+					
+					if($currentType->getOrderField()) {
+						$params['body'] = [
+							'sort' => [
+								$currentType->getOrderField() => [
+									'order' => 'asc',
+									'missing' => "_last",
+								]
+							]
+						];
+					}
+					
+						
+					$items = $this->client->search($params);
+						
+					foreach ($items['hits']['hits'] as $hit){
+						$listItem = new ObjectChoiceListItem($hit, $this->contentTypeService->getByName($hit['_type']));
+						$out[$listItem->getValue()] = $listItem;
+						$this->cache[$hit['_type']][$hit['_id']] = $listItem;
+					}
 				}
 				else {
-					$this->session->getFlashBag()->add('warning', 'ems was not able to find the content type "'.$curentType.'"');
+					$this->session->getFlashBag()->add('warning', 'ems was not able to find the content type "'.$type.'"');
 				}				
 				$this->fullyLoaded[$type] = true;
 			}
@@ -58,23 +85,6 @@ class ObjectChoiceCacheService
 			}
 		}
 		
-		foreach ($aliasTypes as $envName => $types){
-			$params = [
-					'size'=>  '500',
-					'index'=> $envName,
-					'type'=> implode(',', $types)
-			];
-			//TODO test si > 500...flashbag
-			
-				
-			$items = $this->client->search($params);
-				
-			foreach ($items['hits']['hits'] as $hit){
-				$listItem = new ObjectChoiceListItem($hit, $this->contentTypeService->getByName($hit['_type']));
-				$out[$listItem->getValue()] = $listItem;
-				$this->cache[$hit['_type']][$hit['_id']] = $listItem;
-			}
-		}
 		return $out;
 	}
 	
