@@ -181,7 +181,6 @@ class MigrateCommand extends ContainerAwareCommand
 					]);
 					//TODO: Test if client->index OK
 					$em->persist($newRevision);
-					//TODO: Improvement : http://symfony.com/doc/current/components/console/helpers/progressbar.html
 					$output->write(".");
 					$em->flush();
  					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
