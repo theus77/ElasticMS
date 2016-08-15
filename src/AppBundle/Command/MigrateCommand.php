@@ -186,13 +186,13 @@ class MigrateCommand extends ContainerAwareCommand
  					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
 					//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
 					$repository->publishRevision($newRevision);
-
-					// advance the progress bar 1 unit
-					$progress->advance();
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");
 				}
+
+				// advance the progress bar 1 unit
+				$progress->advance();
 			}
 			$repository->clear();
 		}
