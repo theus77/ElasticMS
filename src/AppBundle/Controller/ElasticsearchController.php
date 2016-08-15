@@ -26,6 +26,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
+use AppBundle\Service\ContentTypeService;
 class ElasticsearchController extends AppController
 {
 	/**
@@ -162,6 +163,7 @@ class ElasticsearchController extends AppController
 		$pattern = $request->query->get('q');
 		$environment = $request->query->get('environment');
 		$type = $request->query->get('type');
+		$category = $request->query->get('category', false);
 		// Added for ckeditor adv_link plugin.
 		$assetName = $request->query->get('asset_name');
 		
@@ -233,6 +235,38 @@ class ElasticsearchController extends AppController
 						'_all' => $patterns[$i].'*'
 				]
 		];
+		
+		/**@var ContentTypeService $contentTypeService*/ 
+		$contentTypeService = $this->get('ems.service.contenttype');
+		$contentType = $contentTypeService->getByName($type);
+		if($contentType && $contentType->getOrderField()) {
+			$params['body']['sort'] = [
+				$contentType->getOrderField() => [
+						'order' => 'asc',
+						'missing' => '_last',
+				]
+			];
+		}
+		else if($contentType && $contentType->getLabelField()) {
+			$params['body']['sort'] = [
+				$contentType->getLabelField() => [
+						'order' => 'asc',
+						'missing' => '_last',
+				]
+			];
+		}
+		
+		if($category && $contentType && $contentType->getCategoryField()) {
+			$params['body']['query']['and'][] = [
+					'term' => [
+							$contentType->getCategoryField() => [
+									'value' => $category
+							]
+					]
+			];
+		}
+		
+		//dump($params);
 		
 
 		/** @var \Elasticsearch\Client $client */

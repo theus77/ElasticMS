@@ -38,11 +38,12 @@
 						{{ form_widget(form.criterion) }}
 					</div>
 				</div>
-				{{ form_end(form) }}
 				<!-- /.box-body -->
 				<div class="box-footer">
-					<button type="submit" class="btn btn-primary" id="applyConfig">Apply</button>
+							{{ form_row(form.manage) }}
+{# 					<button type="submit" class="btn btn-primary" id="applyConfig">Apply</button>#}
 				</div>
+				{{ form_end(form) }}
 		</div>
 	</div>
 </div>
@@ -75,28 +76,6 @@ function formatRepo (repo) {
 
 function formatRepoSelection (repo) {
 	return repo.text;
-}
-
-
-function formatRepoSelectionForTable (repo) {
-	var color = $(repo.element).data('color');
-	if(!color) {
-		color = repo.color;
-	}
-	
-	var url = "{{ url('data.revisions', {type: '__type__' , ouuid: '__ouuid__' }) }}";
-	url = url.replace('__type__:__ouuid__', repo.id);
-
-	var complementary;
-	if(color){
-		//var colorIntValue = parseInt(color.replace("#", "0x"));
-		//complementary = '#'+('000000' + (('0xffffff' ^ colorIntValue).toString(16))).slice(-6);
-
-		complementary = (luma(color.replace("#", "")) >= 165) ? '#000000' : '#ffffff';
-	}
-
-	var html = $("<a href=\""+url+"\" style=\"color: "+complementary+";background-color: "+color+"; padding: 2px;\">"+repo.text+"</a>");
-	return html;
 }
 
 $(window).load(function() {
@@ -149,7 +128,7 @@ $(window).load(function() {
 	 	});
 	});
 
-	$('#applyConfig').click(function(event){
+	$('#applyConfig55555').click(function(event){
 		event.preventDefault();
 
 		$('#waitingModal').modal('show');
@@ -163,80 +142,7 @@ $(window).load(function() {
 
 			  $('#table_container').append(message);
 
-			  $('#table_container select').select2({
-				  ajax: {
-					    url: '{{ url("elasticsearch.api.search") }}',
-					    dataType: 'json',
-					    delay: 250,
-					    data: function (params) {
-					      return {
-					        q: params.term, // search term
-					        environment: {{ contentType.environment.name|json_encode|raw }},
-					        type: {{ contentType.name|json_encode|raw }},
-					        page: params.page
-					      };
-					    },
-					    processResults: function (data, params) {
-					      // parse the results into the format expected by Select2
-					      // since we are using custom formatting functions we do not need to
-					      // alter the remote JSON data, except to indicate that infinite
-					      // scrolling can be used
-					      params.page = params.page || 1;
-					
-					      return {
-					        results: data.items,
-					        pagination: {
-					          more: (params.page * 30) < data.total_count
-					        }
-					      };
-					    },
-					    cache: true
-					  },
-					  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-					  minimumInputLength: 1,
-					  templateResult: formatRepo, // omitted for brevity, see the source of this page
-					  templateSelection: formatRepoSelectionForTable // omitted for brevity, see the source of this page
-				});
 
-			  	$('#table_container select').change(function(){
-					var filters = $.merge( $(this).closest('td').data('filters'), $(this).closest('table').data('filters') )
-				  	$(this).children("option:selected").each(function() {
-					  	var data = { 
-					  			filters: filters, 
-							  	target: $(this).val(), 
-							  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
-						};
-						
-					  	$.post( "{{ url('views.criteria.add') }}", data)
-				  	  		.fail(function( ) {
-					  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
-					  	});
-
-// 					  	color = $(this).data('color');
-// 					  	console.log(color);
-// 					  	console.log($(this));
-// 					  	if(color){
-// 						  	$(this).closest('td').find('li[title="'+$(this).html()+'"]').each(function (){
-// 								console.log($(this));
-// 							  	$(this).attr('style', 'background-color: red; border-color: red;');
-// 							});
-// 						}
-					  	
-				  	});
-				  	
-				  	$(this).children("option:not(:selected)").each(function() {
-					  	var data = { 
-					  			filters: filters, 
-							  	target: $(this).val(), 
-							  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
-						};
-						
-					  	$.post( "{{ url('views.criteria.remove') }}", data)
-				  	  		.fail(function( ) {
-					  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
-					  		});
-				  	});
-				});
 			  
 		  })
 		  .fail(function() {

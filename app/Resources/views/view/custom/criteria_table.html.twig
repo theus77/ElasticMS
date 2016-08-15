@@ -1,4 +1,13 @@
- 	<form role="form" id="criteria-form" data-filters="{#{{ criteriaFilters|json_encode }}#}">
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ view.name }} for {{view.contentType.pluralName|humanize}}{% endblock %}
+{% block pagetitle %}{{ view.name }} for {{view.contentType.pluralName|humanize}}{% endblock %} 
+{# {% block subtitle %}<!-- TODO -->{% endblock %} #}
+
+
+{% block body %}
+		{% set criteriaFilters = {} %}
+	 	<form role="form" id="criteria-form">
 		<div class="box">
 			<div class="box-header">
 				<h3 class="box-title">
@@ -6,9 +15,10 @@
 				
 				{% if config.criterion|length > 2 %}
 					for criterion 				
-					{% for criterion in config.criterion %}	
+					{% for index, criterion in config.criterion %}	
 							{% if criterion.rawData|length == 1 %}
 								{% for item in criterion.rawData %}
+									{% set criteriaFilters = criteriaFilters|merge({(index):item}) %}
 									<span class="label label-primary">{{ attribute(attribute(criteriaChoiceLists, criterion.fieldType.name), item).label|raw }}</span>
 								{% endfor %}
 
@@ -27,13 +37,12 @@
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
-				<div id="example1_wrapper"
-					class="dataTables_wrapper form-inline dt-bootstrap">
+				<div class="dataTables_wrapper form-inline dt-bootstrap">
 					<div class="row">
 						<div class="col-sm-12 table-responsive">
 							<table id="CriteriaUpdateCustomViewTable"
 								class="table table-bordered table-striped dataTable" role="grid"
-								aria-describedby="example1_info" data-filters="{#{{ criteriaFilters|json_encode }}#}" >
+								aria-describedby="example1_info" data-filters="{{ criteriaFilters|json_encode }}" >
 								<thead>
 									<tr role="row">
 										<th rowspan="1" colspan="1">&nbsp;</th>
@@ -67,10 +76,10 @@
 												{% if loop.index is divisible by(10) and loop.revindex >= 5 %}		
 													<th nowrap>{{ attribute(rows, rowIdx).label|raw }}</th>
 												{% endif %}
-												<td class="row" data-filters="[{ &quot;id&quot;:{{ rowFieldType.id|e }}, &quot;name&quot;: &quot;{{ rowFieldType.name|e }}&quot;, &quot;value&quot;: &quot;{{ rowIdx|e }}&quot; },{ &quot;id&quot;:{{ columnFieldType.id|e }}, &quot;name&quot;: &quot;{{ columnFieldType.name|e }}&quot;, &quot;value&quot;: &quot;{{ attribute(table|first|keys, loop.index0) }}&quot;}]">
-								                  <select style="width: 100%" multiple disabled>
+												<td class="row" data-filters="{{ {(rowFieldType.name):rowIdx, (columnFieldType.name):attribute(table|first|keys, loop.index0) }|json_encode }}">
+								                  <select style="width: 100%" multiple {% if not authorized %}disabled{% endif %}>
 								                  	{% for card in col %}
-									                    <option value="{{ card.value }}" selected{% if card.color %} data-color="{{ card.color }}"{% endif %}>{{ card.label }}</option>
+									                    <option data-status="added" value="{{ card.value }}" selected{% if card.color %} data-color="{{ card.color }}"{% endif %}>{{ card.label }}</option>
 								                  	{% endfor %}
 								                  </select>
 												</td>
@@ -99,3 +108,207 @@
 			<!-- /.box-body -->
 		</div>
 	</form>
+{% endblock %} 
+
+
+{% block javascripts %}
+	{% include 'app/menu.html.twig' with {
+		'item':  'data-view-'~ view.contentType.id ~ '-' ~ view.id
+	}%}	
+	
+<script type="text/javascript">
+<!--
+
+//-->	
+
+
+
+function formatRepoSelectionForTable (repo) {
+	var color = $(repo.element).data('color');
+	if(!color) {
+		color = repo.color;
+	}
+	
+	var url = "{{ url('data.revisions', {type: '__type__' , ouuid: '__ouuid__' }) }}";
+	url = url.replace('__type__:__ouuid__', repo.id);
+
+	var complementary;
+	if(color){
+		//var colorIntValue = parseInt(color.replace("#", "0x"));
+		//complementary = '#'+('000000' + (('0xffffff' ^ colorIntValue).toString(16))).slice(-6);
+
+		complementary = (luma(color.replace("#", "")) >= 165) ? '#000000' : '#ffffff';
+	}
+
+	var html = $("<a href=\""+url+"\" style=\"color: "+complementary+";background-color: "+color+"; padding: 2px;\">"+repo.text+"</a>");
+	return html;
+}
+
+	$(window).load(function() {
+	
+	  var allSelect2 = $('#CriteriaUpdateCustomViewTable select').select2({
+	  ajax: {
+		    url: '{{ url("elasticsearch.api.search") }}',
+		    dataType: 'json',
+		    delay: 250,
+		    data: function (params) {
+		      return {
+		        		q: params.term, // search term
+		        		environment: {{ view.contentType.environment.name|json_encode|raw }},
+		        		type: {{ view.contentType.name|json_encode|raw }},
+			        	{% if config.category and config.category.rawData %}category: {{ config.category.rawData|json_encode|raw }}, {% endif %} 
+			        	page: params.page
+			     	};
+			    },
+			    processResults: function (data, params) {
+			      // parse the results into the format expected by Select2
+			      // since we are using custom formatting functions we do not need to
+			      // alter the remote JSON data, except to indicate that infinite
+			      // scrolling can be used
+			      params.page = params.page || 1;
+			
+			      return {
+			        results: data.items,
+			        pagination: {
+			          more: (params.page * 30) < data.total_count
+			        }
+			      };
+			    },
+			    cache: true
+			  },
+			  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+			  minimumInputLength: 1,
+			  templateResult: formatRepo, // omitted for brevity, see the source of this page
+			  templateSelection: formatRepoSelectionForTable // omitted for brevity, see the source of this page
+		});
+	
+	  	$('#CriteriaUpdateCustomViewTable select').change(function(){
+			var filters = $.extend( $(this).closest('td').data('filters'), $(this).closest('table').data('filters') );
+
+			$(this).children("option:selected").each(function() {
+				var optionElem = $(this);
+				if( optionElem.attr('data-status') != 'added') {
+					var data = { 
+			  			filters: filters, 
+					  	target: $(this).val(), 
+					  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
+					};
+	
+					  					
+				  	$.post( "{{ url('views.criteria.add') }}", data )
+			  	  		.done(function(data) {
+			  	          	var response = jQuery.parseJSON(data);
+				  	  		if(response.success) {
+					  	  		console.log('sucess');
+								optionElem.attr('data-status', 'added');
+				  	          	if(response.messages.length > 0) {
+					  	          	var msgs = '';
+									for(i=0; i < response.messages.length; ++i) {
+										msgs += '<div class="flash-notice">'+response.messages[i]+'</div>';
+									}
+					  	          	
+						  	  		$('#flashbags').append(
+								  	  		'<div class="alert alert-info alert-dismissible">'
+							                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
+							                +'<h4><i class="icon fa fa-info"></i> Info! </h4>'
+							                + msgs
+							                +'</div>');
+					  	        }
+					  	  	}
+				  	  		else {
+
+					  	  		console.log('fail');
+					  	  		optionElem.attr('data-status', 'removed');
+					  	  		var valuesArray = optionElem.parents("select").val();
+						  	  	valuesArray = jQuery.grep(valuesArray, function(value) {
+						  	  	  return value != optionElem.val();
+						  	  	});
+						  	  	optionElem.parents("select").val(valuesArray).trigger("change");
+						  	  	
+				  	          	if(response.messages.length > 0) {
+					  	          	var msgs = '';
+									for(i=0; i < response.messages.length; ++i) {
+										msgs += '<div class="flash-warning">'+response.messages[i]+'</div>';
+									}
+					  	          	
+						  	  		$('#flashbags').append(
+								  	  		'<div class="alert alert-warning alert-dismissible">'
+							                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
+							                +'<h4><i class="icon fa fa-info"></i> Warning! </h4>'
+							                + msgs
+							                +'</div>');
+					  	        }
+					  	  	}
+	
+				  	        
+						})
+					  	.fail(function( ) {
+				  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
+				  		});
+				}
+	  		});
+	  	
+			$(this).children("option:not(:selected)").each(function() {
+				var optionElem = $(this);
+				if( optionElem.attr('data-status') != 'removed') {
+					var data = { 
+			  			filters: filters, 
+					  	target: $(this).val(), 
+					  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
+					};
+	
+					  					
+				  	$.post( "{{ url('views.criteria.remove') }}", data )
+			  	  		.done(function(data) {
+			  	          	var response = jQuery.parseJSON(data);
+				  	  		if(response.success) {
+								optionElem.attr('data-status', 'removed');
+				  	          	if(response.messages.length > 0) {
+					  	          	var msgs = '';
+									for(i=0; i < response.messages.length; ++i) {
+										msgs += '<div class="flash-notice">'+response.messages[i]+'</div>';
+									}
+					  	          	
+						  	  		$('#flashbags').append(
+								  	  		'<div class="alert alert-info alert-dismissible">'
+							                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
+							                +'<h4><i class="icon fa fa-info"></i> Info! </h4>'
+							                + msgs
+							                +'</div>');
+					  	        }
+				  	  		}
+				  	  		else{
+					  	  		var valuesArray = optionElem.parents("select").val();
+					  	  		if(valuesArray == null){
+					  	  			valuesArray = [optionElem.val()];
+						  	  	}
+					  	  		else{
+						  	  		valuesArray.push(optionElem.val());
+					  	  		}
+					  	  		
+						  	  	optionElem.parents("select").val(valuesArray).trigger("change");
+						  	  	
+				  	          	if(response.messages.length > 0) {
+					  	          	var msgs = '';
+									for(i=0; i < response.messages.length; ++i) {
+										msgs += '<div class="flash-warning">'+response.messages[i]+'</div>';
+									}
+					  	          	
+						  	  		$('#flashbags').append(
+								  	  		'<div class="alert alert-warning alert-dismissible">'
+							                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
+							                +'<h4><i class="icon fa fa-info"></i> Warning! </h4>'
+							                + msgs
+							                +'</div>');
+					  	        }
+					  	  	}
+						})
+					  	.fail(function( ) {
+				  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
+				  		});
+				}
+		  	});
+		});
+	});
+</script>
+{% endblock %}	

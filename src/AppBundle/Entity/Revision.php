@@ -182,6 +182,22 @@ class Revision
     	//TODO: Refactoring: Dependency injection of the first Datafield in the Revision.
     }
     
+    public function __toString()
+    {
+    	$out = 'New instance';
+    	if($this->ouuid){
+    		$out = $this->ouuid;
+    	}
+    	if($this->contentType) {
+    		$out = $this->contentType->getName().':'.$out;
+    	}
+    	
+    	
+    	if($this->contentType && $this->contentType->getLabelField() && $this->rawData && isset($this->rawData[$this->contentType->getLabelField()])){
+    		return $this->rawData[$this->contentType->getLabelField()]." ($out)";
+    	}
+    	return $out;
+    }
 
     public function getObject($object){
     	$object = [

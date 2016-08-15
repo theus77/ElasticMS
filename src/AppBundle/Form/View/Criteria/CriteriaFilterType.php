@@ -9,6 +9,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\SubmitEmsType;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -61,6 +62,13 @@ class CriteriaFilterType extends AbstractType {
 							'class' => 'criteria-filter-columnrow'
 					],
 			));
+			
+			$builder->add('manage', SubmitEmsType::class, [
+					'icon'  => 'fa fa-table',
+					'attr' => [
+							'class' => 'btn-primary',
+					]
+			]);
 			
 			
 			

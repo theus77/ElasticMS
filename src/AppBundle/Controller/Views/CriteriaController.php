@@ -2,19 +2,20 @@
 namespace AppBundle\Controller\Views;
 
 use AppBundle;
-use AppBundle\Controller\ContentManagement\DataController;
+use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Form\CriteriaUpdateConfig;
+use AppBundle\Entity\Revision;
 use AppBundle\Entity\View;
-use AppBundle\Form\DataField\CollectionItemFieldType;
 use AppBundle\Form\DataField\DataFieldType;
 use AppBundle\Form\Factory\ObjectChoiceListFactory;
 use AppBundle\Form\Field\ObjectChoiceListItem;
 use AppBundle\Form\View\Criteria\CriteriaFilterType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\RevisionRepository;
+use AppBundle\Service\DataService;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -22,8 +23,11 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use AppBundle\Exception\LockedException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 
-class CriteriaController extends DataController
+class CriteriaController extends AppController
 {
 	/**
 	 *
@@ -31,6 +35,20 @@ class CriteriaController extends DataController
 	 */
 	public function generateCriteriaTableAction(View $view, Request $request)
 	{
+
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var RevisionRepository $revisionRep */
+		$revisionRep = $em->getRepository('AppBundle:Revision');
+		$counters = $revisionRep->draftCounterGroupedByContentType();
+		
+		foreach ($counters as $counter){
+			if($counter['content_type_id'] == $view->getContentType()->getId()) {
+				$this->addFlash('warning', 'There is '.$counter['counter'].' drafts, you wont be able to update them from here.');
+			}
+		}
+		
+		
 		$criteriaUpdateConfig = new CriteriaUpdateConfig($view);
 		
 		$form = $this->createForm(CriteriaFilterType::class, $criteriaUpdateConfig, [
@@ -42,6 +60,8 @@ class CriteriaController extends DataController
 		
 		$form->handleRequest($request);
 		
+		
+		
 		/** @var CriteriaUpdateConfig $criteriaUpdateConfig */
 		$criteriaUpdateConfig = $form->getData();
 		
@@ -51,6 +71,19 @@ class CriteriaController extends DataController
 		$contentType = $view->getContentType();
 		$criteriaFieldName = $view->getOptions()['criteriaField'];
 		$criteriaField = $contentType->getFieldType()->__get('ems_'.$criteriaFieldName);
+		
+		/**@var AuthorizationChecker $security*/
+		$security = $this->get('security.authorization_checker');
+		
+		$authorized = $security->isGranted($criteriaField->getMinimumRole());
+		if($authorized) {
+			foreach ($criteriaField->getChildren() as $child){
+				$authorized = $security->isGranted($criteriaField->getMinimumRole());
+				if(!$authorized){
+					break;
+				}
+			}
+		}
 		
 		
 		$body = [
@@ -88,7 +121,8 @@ class CriteriaController extends DataController
 			if(count($criteria->getRawData()) > 0) {
 				$criteriaFilters[] = $dataFieldType->getElasticsearchQuery($criteria, ['nested' => $criteriaFieldName]);				
 			}
-			$criteriaChoiceLists[$criteria->getFieldType()->getName()] = $dataFieldType->getChoiceList($criteria->getFieldType(), $criteria->getRawData());
+			$choicesList = $dataFieldType->getChoiceList($criteria->getFieldType(), $criteria->getRawData());
+			$criteriaChoiceLists[$criteria->getFieldType()->getName()] = $choicesList;
 		}
 		
 
@@ -107,8 +141,7 @@ class CriteriaController extends DataController
 
 		/** @var \AppBundle\Entity\FieldType $rowField */
 		$rowField = $criteriaField->__get('ems_'.$criteriaUpdateConfig->getRowCriteria());
-		
-		
+				
 		$table = [];
 		/**@var ObjectChoiceListItem $rowItem*/
 		foreach($criteriaChoiceLists[$criteriaUpdateConfig->getRowCriteria()] as $rowItem){
@@ -149,6 +182,7 @@ class CriteriaController extends DataController
 			'criteriaChoiceLists' => $criteriaChoiceLists,
 			'view' => $view,
 			'categoryChoiceList' => $categoryChoiceList,
+			'authorized' => $authorized,
 		]);
 	}
 	
@@ -164,46 +198,102 @@ class CriteriaController extends DataController
 		$target = $request->request->get('target');
 		$criteriaField = $request->request->get('criteriaField');
 		
+		//TODO securtity test
+		
+		/**@var DataService $dataService*/
+		$dataService = $this->get('ems.service.data');
+		
 		$structuredTarget = explode(":", $target);
 		
 		$type = $structuredTarget[0];
 		$ouuid = $structuredTarget[1];
 		
-		$revision = $this->initNewDraft($type, $ouuid);
+		/**@var Session $session */
+		$session = $this->get('session');
+		
+		/**@var Revision $revision*/
+		$revision = $dataService->getNewestRevision($type, $ouuid);	
+		
+		if($revision->getDraft()) {
+			$this->addFlash('notice', 'Impossible to update '.$revision. ' has there is a draft in progress');
+			$out =[
+					'messages'=> $session->getFlashBag()->get('notice'),
+					'success' => false,
+			];
+			return new Response(json_encode($out));
+		}
+		
+		$rawData = $revision->getRawData();
+		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine ()->getManager ();
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
 		
-		$criteriaField = $revision->getDataField()->__get('ems_'.$criteriaField);	
-		if(! $this->findCriterion($criteriaField, $filters)){
-			$filedType = clone $criteriaField->getFieldType();
-			$filedType->setType(CollectionItemFieldType::class);
-			$newDataField = new DataField();
-			$newDataField->setRevisionId($revision->getId());
-			$newDataField->setOrderKey($criteriaField->getChildren()->count());
-			$newDataField->setParent($criteriaField);
-			$newDataField->setFieldType($filedType);
-			$criteriaField->addChild($newDataField);
-				
-			$newDataField->updateDataStructure($filedType);
+		try {
+			if(!isset($rawData[$criteriaField])) {
+				$rawData[$criteriaField] = [];
+			}
+			$multipleField = $this->getMultipleField($revision->getContentType()->getFieldType()->__get('ems_'.$criteriaField));
 			
-			foreach ($filters as $filter){
-				$newDataField->__get('ems_'.$filter['name'])->setTextValue($filter['value']);
+			$found = false;
+			foreach ($rawData[$criteriaField] as &$criteriaSet) {
+				$found = true;
+				foreach ($filters as $criterion => $value) {
+					if($criterion != $multipleField && $value != $criteriaSet[$criterion] ){
+						$found = false;
+						break;
+					}
+				}
+				if($found){
+					
+					if($multipleField && FALSE === array_search($filters[$multipleField], $criteriaSet[$multipleField]) ){
+						$criteriaSet[$multipleField][] = $filters[$multipleField];
+						$revision->setRawData($rawData);
+						$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+						$dataService->finalizeDraft($revision);
+						$this->addFlash('notice', 'Criteria '.$multipleField.' with value '.$filters[$multipleField].' added to '.$revision);
+					}
+					else{
+						$this->addFlash('notice', 'Criteria already existing for '.$revision);
+	// 					$this->discardDraft($revision);
+					}
+					break;
+				}
 			}
 			
-			$newDataField->setFieldType(null);
-			
-			$this->finalizeDraft($revision);
-			
+			if(!$found){
+				$newCriterion = [];
+				foreach ($filters as $criterion => $value) {
+					if($criterion == $multipleField){
+						$newCriterion[$criterion] = [$value];
+					}
+					else {
+						$newCriterion[$criterion] = $value;
+					}
+				}
+				$rawData[$criteriaField][] = $newCriterion;
+				$revision->setRawData($rawData);
+				$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+				$dataService->finalizeDraft($revision);
+				$this->addFlash('notice', 'Criteria added to '.$revision);
+			}
+
+		} catch (LockedException $e) {
+			$this->addFlash('notice', 'Impossible to update '.$revision. ' has the revision is locked by '.$revision->getLockBy());
+			$out =[
+					'messages'=> $session->getFlashBag()->get('notice'),
+					'success' => false,
+			];
+			return new Response(json_encode($out));
 		}
-		else{
-			$this->discardDraft($revision);
-		}
+		$out =[
+				'messages'=>$session->getFlashBag()->get('notice'),
+				'success' => true,
+		];
 		
-		
-		return new Response(json_encode([]));
+		return new Response(json_encode($out));
 	}
 	
 	
@@ -218,43 +308,122 @@ class CriteriaController extends DataController
 		$target = $request->request->get('target');
 		$criteriaField = $request->request->get('criteriaField');
 		
+		//TODO securtity test
+		
+		/**@var DataService $dataService*/
+		$dataService = $this->get('ems.service.data');
+		
 		$structuredTarget = explode(":", $target);
 		
 		$type = $structuredTarget[0];
 		$ouuid = $structuredTarget[1];
-		
-		$revision = $this->initNewDraft($type, $ouuid);
 
+		/**@var Session $session */
+		$session = $this->get('session');
+		
+		/**@var Revision $revision*/
+		$revision = $dataService->getNewestRevision($type, $ouuid);		
+		
+		if($revision->getDraft()) {
+			$this->addFlash('notice', 'Impossible to update '.$revision. ' has there is a draft in progress');
+			$out =[
+					'messages'=> $session->getFlashBag()->get('notice'),
+					'success' => false,
+			];
+			return new Response(json_encode($out));
+		}
+		
+		$rawData = $revision->getRawData();
+		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine ()->getManager ();
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
 		
-		$criteriaField = $revision->getDataField()->__get('ems_'.$criteriaField);
-		
-		while($child = $this->findCriterion($criteriaField, $filters)){
-			$criteriaField->removeChild($child);		
-		}
+		try {
+			if(!isset($rawData[$criteriaField])) {
+				$rawData[$criteriaField] = [];
+			}
+			$multipleField = $this->getMultipleField($revision->getContentType()->getFieldType()->__get('ems_'.$criteriaField));
+			
+			$found = false;
+			foreach ($rawData[$criteriaField] as $index => $criteriaSet) {
+				$found = true;
+				foreach ($filters as $criterion => $value) {
+					if($criterion != $multipleField && $value != $criteriaSet[$criterion] ){
+						$found = false;
+						break;
+					}
+				}
+				if($found){
+					
+					if($multipleField){
+						$indexKey = array_search($filters[$multipleField], $criteriaSet[$multipleField]);
+						if($indexKey === FALSE){
+							$this->addFlash('notice', 'Criteria not found in multiple key');
+						}
+						else {
+							$this->addFlash('notice', $criteriaSet[$multipleField][$indexKey]);
+							unset($rawData[$criteriaField][$index][$multipleField][$indexKey]);
+							$rawData[$criteriaField][$index][$multipleField] = array_values($rawData[$criteriaField][$index][$multipleField]);
+							if(count($rawData[$criteriaField][$index][$multipleField]) == 0){
+								unset($rawData[$criteriaField][$index]);
+								$rawData[$criteriaField] = array_values($rawData[$criteriaField]);
+							}
+							$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+							$revision->setRawData($rawData);
+							$dataService->finalizeDraft($revision);
+							$this->addFlash('notice', 'Criteria '.$multipleField.' with value '.$filters[$multipleField].' remove from '.$revision);	
+						}
+					}
+					else{
+						unset($rawData[$criteriaField][$index]);
+						$rawData[$criteriaField][$index] = array_values($rawData[$criteriaField][$index]);
+							$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+							$revision->setRawData($rawData);
+							$dataService->finalizeDraft($revision);
+							$this->addFlash('notice', 'Criteria remove from '.$revision);	
+					}
+					break;
+				}
+			}
+			
+			if(!$found){
+				$this->addFlash('notice', 'Criteria not found for '.$revision);
+			}
 
-		$this->finalizeDraft($revision);
+		} catch (LockedException $e) {
+			$this->addFlash('notice', 'Impossible to update '.$revision. ' has the revision is locked by '.$revision->getLockBy());
+			$out =[
+					'messages'=> $session->getFlashBag()->get('notice'),
+					'success' => false,
+			];
+			return new Response(json_encode($out));
+		}
+		$out =[
+				'messages'=>$session->getFlashBag()->get('notice'),
+				'success' => true,
+		];
 		
-		return new Response(json_encode([]));
+		return new Response(json_encode($out));
 	}
 	
 	private function addToTable(ObjectChoiceListItem &$choice, array &$table, array &$criterion, array $criteriaNames, array &$criteriaChoiceLists, CriteriaUpdateConfig &$config, array $context = []){
 		$criteriaName = array_pop($criteriaNames);
-		foreach ($criterion[$criteriaName] as $value) {
+		$criterionList = $criterion[$criteriaName];
+		if(! is_array($criterionList)){
+			$criterionList = [$criterionList];
+		}
+		foreach ($criterionList as $value) {
 			if(isset($criteriaChoiceLists[$criteriaName][$value])){
 				$context[$criteriaName] = $value;
-// 				dump($value);
 				if(count($criteriaNames) > 0){
 					//let see (recursively) if the other criterion applies to find a matching context
 					$this->addToTable($choice, $table, $criterion, $criteriaNames, $criteriaChoiceLists, $config, $context);
 				}
 				else{
 					//all criterion apply the current choice can be added to the table depending the context
-// 					dump($context);
 					if(!isset($table[$context[$config->getRowCriteria()]][$context[$config->getColumnCriteria()]])) {
 						$table[$context[$config->getRowCriteria()]][$context[$config->getColumnCriteria()]] = [];
 					}
@@ -264,6 +433,16 @@ class CriteriaController extends DataController
 		}
 		
 	}
+	
+	private function getMultipleField(FieldType $criteriaFieldType){
+		foreach ($criteriaFieldType->getChildren() as $criteria){
+			if(isset($criteria->getDisplayOptions()['multiple']) && $criteria->getDisplayOptions()['multiple']){
+				return $criteria->getName();
+			}
+		}
+		return false;
+	}
+	
 	
 	private function findCriterion(DataField $criteriaField, $filters){
 		/** @var DataField $child */

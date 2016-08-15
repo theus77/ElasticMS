@@ -203,7 +203,7 @@ services:
             - { name: form.type }
     ems.view.criteria:
         class: AppBundle\Form\View\CriteriaViewType
-        arguments: ['@twig', '@app.elasticsearch']
+        arguments: ['@twig', '@app.elasticsearch', '@router']
         tags:
             - { name: ems.form.viewtype, alias: criteria }
             - { name: form.type }

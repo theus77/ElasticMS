@@ -177,7 +177,8 @@ class DataService
 			$em->flush();
 		
 		} else {
-			$form->addError(new FormError("This Form is not valid!"));
+ 			$form->addError(new FormError("This Form is not valid!"));
+			$this->session->getFlashBag()->add('notice', 'The revision '.$revision.' can be finalized');
 		}
 		return $revision;
 	}
@@ -207,6 +208,7 @@ class DataService
 				'ouuid' => $ouuid,
 				'endTime' => null,
 				'contentType' => $contentType,
+				'deleted' => false,
 		]);
 	
 		if(count($revisions) != 1 || null != $revisions[0]->getEndTime()) {

@@ -250,6 +250,13 @@ class DataController extends AppController
 		return $this->get("ems.service.data")->getNewestRevision($type, $ouuid);
 	}
 	
+	/**
+	 * 
+	 * @param unknown $type
+	 * @param unknown $ouuid
+	 * @param unknown $fromRev
+	 * @return Revision
+	 */
 	public function initNewDraft($type, $ouuid, $fromRev = null){
 		return $this->get("ems.service.data")->initNewDraft($type, $ouuid, $fromRev);
 	}
@@ -442,6 +449,7 @@ class DataController extends AppController
 			$this->get('ems.service.data')->loadDataStructure($revision);
 			
 			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
+// 			dump($objectArray);
 			/** @var \AppBundle\Entity\Environment $environment */
 			foreach ($revision->getEnvironments() as $environment ){
 				$status = $client->index([

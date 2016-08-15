@@ -11,6 +11,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use AppBundle\Form\View\Criteria\CriteriaFilterType;
 use AppBundle\Entity\Form\CriteriaUpdateConfig;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -20,15 +21,19 @@ use AppBundle\Entity\Form\CriteriaUpdateConfig;
  */
 class CriteriaViewType extends ViewType {
 
-	
+	/** @var \Twig_Environment twig*/
 	private $twig;
-	
+
 	/** @var Client $client */
 	private $client;
 	
-	public function __construct($twig, $client){
+	/** @var Router $router */
+	private $router;
+	
+	public function __construct($twig, $client, $router){
 		$this->twig = $twig;
 		$this->client = $client;
+		$this->router = $router;
 	}
 	
 	/**
@@ -82,8 +87,13 @@ class CriteriaViewType extends ViewType {
 		
 		$criteriaUpdateConfig = new CriteriaUpdateConfig($view);
 		
+		//dump(get_class($this->router));
 		$form = $formFactoty->create(CriteriaFilterType::class, $criteriaUpdateConfig, [
-				'view' => $view
+				'view' => $view,
+				'method' => 'GET',
+				'action' => $this->router->generate('views.criteria.table', [
+					'view' => 	$view->getId(),
+				]),
 		]);
 		
 		
