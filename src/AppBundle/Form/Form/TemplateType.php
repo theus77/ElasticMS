@@ -107,8 +107,11 @@ class TemplateType extends AbstractType {
 				'type' => $this->circleType,
 				'multiple' => true,
 		])
-		->add( 'responseTemplate', TextType::class, [
-				'required' => false,
+		->add( 'responseTemplate', TextareaType::class, [
+			'required' => false,
+			'attr' => [
+				'class' => $template->getEditWithWysiwyg()?'ckeditor':''
+			]
 		])
 		->add ( 'save', SubmitEmsType::class, [ 
 				'attr' => [ 
