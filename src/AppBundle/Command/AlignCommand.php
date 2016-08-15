@@ -133,7 +133,8 @@ class AlignCommand extends ContainerAwareCommand
 						
 						/**@var Revision $previousRev*/
 						$previousRev = $revRepo->findByOuuidContentTypeAndEnvironnement($revision, $target);
-						if($previousRev){
+						if($previousRev && count($previousRev) == 1){
+							$previousRev = $previousRev[0];
 							$previousRev->setLockBy('SYSTEM_ALIGN');
 							$previousRev->setLockUntil($until);
 							$previousRev->removeEnvironment($target);
