@@ -79,7 +79,7 @@
                   <th>Actions</th>
                 </tr>
                 {% for item in results %}
-        			{% set data = (item.content_type_name~':'~item.ouuid)|merge(data) %}
+        			{% set data = (item.content_type_name~':'~item.ouuid) %}
         			{% set minrev = item.minrevid|split('/') %}
         			{% set maxrev = item.maxrevid|split('/') %}
         			{% set defaultEnv = false %}
