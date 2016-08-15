@@ -272,6 +272,7 @@ class ContentTypeController extends AppController {
 					$contentType->setPluralName($pluralName);
 					$contentType->setEnvironment($environment);
 					$contentType->setActive(false);
+					$contentType->setDirty(true);
 					$contentType->getFieldType()->updateAncestorReferences($contentType, NULL);
 					$contentType->setOrderKey($contentTypeRepository->countContentType());
 
