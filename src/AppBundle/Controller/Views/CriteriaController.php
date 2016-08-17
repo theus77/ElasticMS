@@ -215,12 +215,10 @@ class CriteriaController extends AppController
 		$revision = $dataService->getNewestRevision($type, $ouuid);	
 		
 		if($revision->getDraft()) {
-			$this->addFlash('notice', 'Impossible to update '.$revision. ' has there is a draft in progress');
-			$out =[
-					'messages'=> $session->getFlashBag()->get('notice'),
+			$this->addFlash('warning', 'Impossible to update '.$revision. ' has there is a draft in progress');
+			return $this->render( 'ajax/notification.json.twig', [
 					'success' => false,
-			];
-			return new Response(json_encode($out));
+			] );
 		}
 		
 		$rawData = $revision->getRawData();
@@ -253,7 +251,7 @@ class CriteriaController extends AppController
 						$revision->setRawData($rawData);
 						$revision = $dataService->initNewDraft($type, $ouuid, $revision);
 						$dataService->finalizeDraft($revision);
-						$this->addFlash('notice', 'Criteria '.$multipleField.' with value '.$filters[$multipleField].' added to '.$revision);
+						$this->addFlash('notice', '<b>Added</b> '.$multipleField.' with value '.$filters[$multipleField].' to '.$revision);
 					}
 					else{
 						$this->addFlash('notice', 'Criteria already existing for '.$revision);
@@ -277,23 +275,18 @@ class CriteriaController extends AppController
 				$revision->setRawData($rawData);
 				$revision = $dataService->initNewDraft($type, $ouuid, $revision);
 				$dataService->finalizeDraft($revision);
-				$this->addFlash('notice', 'Criteria added to '.$revision);
+				$this->addFlash('notice', '<b>Added</b> to '.$revision);
 			}
 
 		} catch (LockedException $e) {
-			$this->addFlash('notice', 'Impossible to update '.$revision. ' has the revision is locked by '.$revision->getLockBy());
-			$out =[
-					'messages'=> $session->getFlashBag()->get('notice'),
+			$this->addFlash('warning', 'Impossible to update '.$revision. ' has the revision is locked by '.$revision->getLockBy());
+			return $this->render( 'ajax/notification.json.twig', [
 					'success' => false,
-			];
-			return new Response(json_encode($out));
+			] );
 		}
-		$out =[
-				'messages'=>$session->getFlashBag()->get('notice'),
+		return $this->render( 'ajax/notification.json.twig', [
 				'success' => true,
-		];
-		
-		return new Response(json_encode($out));
+		] );
 	}
 	
 	
@@ -325,12 +318,10 @@ class CriteriaController extends AppController
 		$revision = $dataService->getNewestRevision($type, $ouuid);		
 		
 		if($revision->getDraft()) {
-			$this->addFlash('notice', 'Impossible to update '.$revision. ' has there is a draft in progress');
-			$out =[
-					'messages'=> $session->getFlashBag()->get('notice'),
+			$this->addFlash('warning', 'Impossible to update '.$revision. ' has there is a draft in progress');
+			return $this->render( 'ajax/notification.json.twig', [
 					'success' => false,
-			];
-			return new Response(json_encode($out));
+			] );
 		}
 		
 		$rawData = $revision->getRawData();
@@ -364,7 +355,6 @@ class CriteriaController extends AppController
 							$this->addFlash('notice', 'Criteria not found in multiple key');
 						}
 						else {
-							$this->addFlash('notice', $criteriaSet[$multipleField][$indexKey]);
 							unset($rawData[$criteriaField][$index][$multipleField][$indexKey]);
 							$rawData[$criteriaField][$index][$multipleField] = array_values($rawData[$criteriaField][$index][$multipleField]);
 							if(count($rawData[$criteriaField][$index][$multipleField]) == 0){
@@ -374,16 +364,16 @@ class CriteriaController extends AppController
 							$revision = $dataService->initNewDraft($type, $ouuid, $revision);
 							$revision->setRawData($rawData);
 							$dataService->finalizeDraft($revision);
-							$this->addFlash('notice', 'Criteria '.$multipleField.' with value '.$filters[$multipleField].' remove from '.$revision);	
+							$this->addFlash('notice', '<b>Remove</b> '.$multipleField.' with value '.$filters[$multipleField].' from '.$revision);	
 						}
 					}
 					else{
 						unset($rawData[$criteriaField][$index]);
 						$rawData[$criteriaField][$index] = array_values($rawData[$criteriaField][$index]);
-							$revision = $dataService->initNewDraft($type, $ouuid, $revision);
-							$revision->setRawData($rawData);
-							$dataService->finalizeDraft($revision);
-							$this->addFlash('notice', 'Criteria remove from '.$revision);	
+						$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+						$revision->setRawData($rawData);
+						$dataService->finalizeDraft($revision);
+						$this->addFlash('notice', '<b>Remove</b> from '.$revision);	
 					}
 					break;
 				}
@@ -394,19 +384,14 @@ class CriteriaController extends AppController
 			}
 
 		} catch (LockedException $e) {
-			$this->addFlash('notice', 'Impossible to update '.$revision. ' has the revision is locked by '.$revision->getLockBy());
-			$out =[
-					'messages'=> $session->getFlashBag()->get('notice'),
+			$this->addFlash('warning', 'Impossible to update '.$revision. ' has the revision is locked by '.$revision->getLockBy());
+			return $this->render( 'ajax/notification.json.twig', [
 					'success' => false,
-			];
-			return new Response(json_encode($out));
+			] );
 		}
-		$out =[
-				'messages'=>$session->getFlashBag()->get('notice'),
-				'success' => true,
-		];
-		
-		return new Response(json_encode($out));
+		return $this->render( 'ajax/notification.json.twig', [
+			'success' => true,
+		] );
 	}
 	
 	private function addToTable(ObjectChoiceListItem &$choice, array &$table, array &$criterion, array $criteriaNames, array &$criteriaChoiceLists, CriteriaUpdateConfig &$config, array $context = []){

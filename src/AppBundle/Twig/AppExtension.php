@@ -10,6 +10,7 @@ use AppBundle\Service\ContentTypeService;
 use Elasticsearch\Client;
 use Symfony\Component\Routing\Router;
 use AppBundle\Form\Factory\ObjectChoiceListFactory;
+use Symfony\Component\Form\FormError;
 
 class AppExtension extends \Twig_Extension
 {
@@ -63,7 +64,8 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('get_content_type', array($this, 'getContentType')),
 				new \Twig_SimpleFilter('generate_from_template', array($this, 'generateFromTemplate')),
 				new \Twig_SimpleFilter('objectChoiceLoader', array($this, 'objectChoiceLoader')),
-				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),				
+				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),		
+				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),				
 		);
 	}
 	
@@ -188,6 +190,19 @@ class AppExtension extends \Twig_Extension
 					'type' =>$type,
 					'ouuid' => $ouuid,
 			]).'" '.$addAttribute.' >'.$out.'</a>';
+		}
+		return $out;
+	}
+	
+	function propertyPath(FormError $error) {
+		$parent = $error->getOrigin();
+		$out = '';
+		while($parent) {
+			$out = $parent->getPropertyPath().$out;
+			$parent = $parent->getParent();
+			if($parent) {
+				$out = '_'.$out;
+			}
 		}
 		return $out;
 	}

@@ -47,7 +47,8 @@ class RevisionType extends AbstractType {
 	public function configureOptions(OptionsResolver $resolver) {
 		$resolver->setDefaults ( array (
 				'compound' => true,
-				'data_class' => 'AppBundle\Entity\Revision' 
+            	'csrf_protection' => false,
+				'data_class' => 'AppBundle\Entity\Revision',
 		) );
 	}
 	

@@ -1,12 +1,15 @@
-{
-   "acknowledged": {% if errors|length > 0 %}false{% else %}true{% endif %}
-   {% if errors|length > 0 %}
-		,"errors": [
-	{% for error in errors %}
-		{
-			"propertyPath": {{ (form.vars.id~'_'~(error.cause.propertyPath|replace({'children[':'', ']':'', '.': '_'})))|json_encode|raw }}
-		}
-	{% endfor %}
-	]   
+{% extends 'ajax/notification.json.twig' %}
+
+{% block body %}
+   {% if formErrors|length > 0 %}
+		"formErrors": [
+		{% for error in formErrors %}
+			{ 
+				"propertyPath": {{ error|propertyPath|json_encode|raw }},
+				"message": {{ error.message|json_encode|raw }}
+			}
+			{% if not loop.last %},{% endif %}
+		{% endfor %}
+		] ,
 	{% endif %}
-}
+{% endblock %}

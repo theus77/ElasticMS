@@ -131,17 +131,17 @@ desired effect
          
 
           <!-- Tasks Menu -->
-{#           <li class="dropdown tasks-menu">#}
-{#             <!-- Menu Toggle Button -->#}
-{#             <a href="#" class="dropdown-toggle" data-toggle="dropdown">#}
-{#               <i class="fa fa-flag-o"></i>#}
-{#               <span class="label label-danger">9</span>#}
-{#             </a>#}
-{#             <ul class="dropdown-menu">#}
-{#               <li class="header">You have 9 tasks</li>#}
-{#               <li>#}
-{#                 <!-- Inner menu: contains the tasks -->#}
-{#                 <ul class="menu">#}
+          <li class="dropdown tasks-menu" id="system-messages">
+            <!-- Menu Toggle Button -->
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <i id="ajax-activity" class="fa fa-refresh"></i>
+              <span class="label label-danger"></span>
+            </a>
+            <ul class="dropdown-menu">
+{#               <li class="header">You do not get any system message yet</li>#}
+              <li>
+                <!-- Inner menu: contains the tasks -->
+                <ul class="menu">
 {#                   <li><!-- Task item -->#}
 {#                     <a href="#">#}
 {#                       <!-- Task title and progress text -->#}
@@ -158,14 +158,14 @@ desired effect
 {#                       </div>#}
 {#                     </a>#}
 {#                   </li>#}
-{#                   <!-- end task item -->#}
-{#                 </ul>#}
-{#               </li>#}
-{#               <li class="footer">#}
-{#                 <a href="#">View all tasks</a>#}
-{#               </li>#}
-{#             </ul>#}
-{#           </li>#}
+                  <!-- end task item -->
+                </ul>
+              </li>
+              <li class="footer">
+                <a href="#" onclick="$('#system-messages ul.menu').empty(); ajaxRequest.updateCounter(); return false;">Clear all system messages</a>
+              </li>
+            </ul>
+          </li>
 
           <!-- User Account Menu -->
           <li class="dropdown user user-menu">
@@ -296,6 +296,26 @@ desired effect
       <!-- Your Page Content Here -->
       {% block body %}{% endblock %}
 
+		<div class="modal fade" id="data-out-of-sync" tabindex="-1" role="dialog" aria-labelledby="myModalOutOfSync">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		        <h4 class="modal-title" id="myModalOutOfSync">
+							<strong>Out of sync</strong>	
+				</h4>
+		      </div>
+		      <div class="modal-body">
+				There is something wrong with this application. Please reload the page.
+			  </div>
+		      <div class="modal-footer">
+		      	<div class="btn-group">
+			        <button type="button" class="btn btn-primary" onclick="location.reload();"><i class="fa fa-refresh"></i> Reload</button>
+		      	</div>
+		      </div>
+		    </div>
+		  </div>
+		</div>	
     </section>
     <!-- /.content -->
   </div>
@@ -435,6 +455,8 @@ desired effect
 <script src="{{ asset('bower/bootstrap-timepicker/js/bootstrap-timepicker.js') }}"></script>
 <!-- helper functions -->
 <script src="{{ asset('js/helper.js') }}"></script>
+<!-- AjaxRequest -->
+<script src="{{ asset('js/AjaxRequest.js') }}"></script>
 <!-- This app -->
 <script src="{{ url('app.js') }}"></script>
 

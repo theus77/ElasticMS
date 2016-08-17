@@ -6,6 +6,8 @@ namespace AppBundle\Service;
 use AppBundle\Entity\Notification;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Monolog\Logger;
+use AppBundle\Entity\Template;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class NotificationService {
 	
@@ -19,14 +21,17 @@ class NotificationService {
 	protected $logger;
 	/**@var AuditService $auditService*/
 	protected $auditService;
+	/**@var Session $session*/
+	protected $session;
 	
-	public function __construct($index, Registry $doctrine, UserService $userService, Logger $logger, AuditService $auditService)
+	public function __construct($index, Registry $doctrine, UserService $userService, Logger $logger, AuditService $auditService, Session $session)
 	{
 		$this->index = $index;
 		$this->doctrine = $doctrine;
 		$this->userService = $userService;
 		$this->logger = $logger;
-		$this->auditService = $auditService;		
+		$this->auditService = $auditService;	
+		$this->session = $session;
 	} 
 	
 	
@@ -37,6 +42,7 @@ class NotificationService {
 	 * @param unknown $revision
 	 */
 	public function addNotification($templateId, $revision, $environment) {
+		$out = false;
 		try{
 			$notification =  new Notification();
 			
@@ -46,7 +52,7 @@ class NotificationService {
 			
 			/** @var RevisionRepository $repository */
 			$repository = $em->getRepository('AppBundle:Template');
-			/** @var Revision $revision */
+			/** @var Template $template */
 			$template = $repository->findOneById($templateId);
 			
 			if(!$template) {
@@ -65,10 +71,14 @@ class NotificationService {
 			
 			$em->persist($notification);
 			$em->flush();
+			$this->session->getFlashBag()->add('notice', '<i class="'.$template->getIcon().'"></i> '.$template->getName().' for '.$revision.' in '.$environment->getName());
+			$out = true;
 		}
 		catch(\Exception $e){
+			$this->session->getFlashBag()->add('error', '<i class="fa fa-ban"></i> An error occured while sending a notificationi');
 			$this->logger->err('An error occured: '.$e->getMessage());
 		}
+		return $out;
 	}
 	
 	/**

@@ -58,26 +58,6 @@
 		{{ form_end(form) }}
 		
 
-	<div class="modal fade" id="data-out-of-sync" tabindex="-1" role="dialog" aria-labelledby="myModalOutOfSync">
-	  <div class="modal-dialog" role="document">
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-	        <h4 class="modal-title" id="myModalOutOfSync">
-						<strong>Out of sync</strong>	
-			</h4>
-	      </div>
-	      <div class="modal-body">
-			There is something wrong with this object. Please reload the page.
-		  </div>
-	      <div class="modal-footer">
-	      	<div class="btn-group">
-		        <button type="button" class="btn btn-primary" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
-	      	</div>
-	      </div>
-	    </div>
-	  </div>
-	</div>	
 		
 		
 </div>
@@ -91,33 +71,43 @@
 
 <script type="text/javascript">
 
-var globalWaitingResponse = false;
+var waitingResponse = false;
+var synchAtTheEnd = true;
 
 function onFormChange(){
-		if(!globalWaitingResponse){
-			globalWaitingResponse = true;
-			
+		synch = false;
+		if(waitingResponse){
+			return;
+			//abort the request migth be an option, but it overload the server
+// 			waitingResponse.abort();
+		}
+
+		while(!synch) {
+			synch = true;
 			//update ckeditor's textareas
 			for (var i in CKEDITOR.instances) {
 		        CKEDITOR.instances[i].updateElement();
 			}
 			
-			$.post("{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}", $("form[name={{ form.vars.id }}]").serialize())
-			  .done(function(message) {
-				  var response = jQuery.parseJSON( message );
-	
+			waitingResponse = ajaxRequest.post("{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}", $("form[name={{ form.vars.id }}]").serialize())
+			  .success(function(response) {
 				  $('.has-error').removeClass('has-error');
+				  $('span.help-block').remove();
 				  
-				  $(response.errors).each(function(index, item){
+				  $(response.formErrors).each(function(index, item){
 					  $('#'+item.propertyPath).parent().addClass('has-error');
+					  if(item.message) {
+						  if($('#'+item.propertyPath+' span.help-block').length == 0){
+							  $('#'+item.propertyPath).append('<span class="help-block"><ul class="list-unstyled"></ul></span>');
+						  }
+						  $('#'+item.propertyPath+' span.help-block ul.list-unstyled').append('<li><span class="glyphicon glyphicon-exclamation-sign"></span> '+item.message+'</li>');
+					  }
+					  
+					  
 				  });
 			  })
-			  .fail(function() {
-				//alert( "The autosave returns an error! Please try to refresh the page." );
-				$('#data-out-of-sync').modal('show') ;
-			  })
 			  .always(function() {
-				globalWaitingResponse = false;
+				  waitingResponse = false;
 			});
 		}
 }

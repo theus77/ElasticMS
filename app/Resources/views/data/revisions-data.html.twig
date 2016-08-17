@@ -147,28 +147,4 @@
 	{% include 'app/menu.html.twig' with {
 		'item':  'data-index-' ~ revision.contentType.id
 	}%}
-
-<script type="text/javascript">
-
-	var globalWaitingResponse = false;
-
-	function requestNotification (element, templateId, envName, ctId, id){
-		if(!globalWaitingResponse){
-			globalWaitingResponse = true;
-				
-			$.post(element.getAttribute("data-url") , { templateId : templateId, environmentName : envName, contentTypeId : ctId, ouuid : id})
-			  .done(function(message) {
-				  var response = jQuery.parseJSON( message );
-			  })
-			  .fail(function() {
-				//alert( "The autosave returns an error! Please try to refresh the page." );
-				$('#data-out-of-sync').modal('show') ;
-			  })
-			  .always(function() {
-				globalWaitingResponse = false;
-			});
-		}
-	}
-
-</script>
 {% endblock %}	

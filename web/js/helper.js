@@ -56,3 +56,8 @@ function objectPickerListeners(objectPicker){
 	
 	objectPicker.select2(params);
 }
+
+function requestNotification (element, tId, envName, ctId, id){
+	var data = { templateId : tId, environmentName : envName, contentTypeId : ctId, ouuid : id};
+	ajaxRequest.post(element.getAttribute("data-url") , data);
+}

@@ -183,7 +183,6 @@ class EnvironmentController extends AppController {
 		}
 		
 		if($environment && $withEnvironment){
-			dump($page);
 			
 			/** @var EntityManager $em */
 			$em = $this->getDoctrine ()->getManager ();

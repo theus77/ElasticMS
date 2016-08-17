@@ -194,56 +194,19 @@ function formatRepoSelectionForTable (repo) {
 					  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
 					};
 	
-					  					
-				  	$.post( "{{ url('views.criteria.add') }}", data )
-			  	  		.done(function(data) {
-			  	          	var response = jQuery.parseJSON(data);
-				  	  		if(response.success) {
-					  	  		console.log('sucess');
-								optionElem.attr('data-status', 'added');
-				  	          	if(response.messages.length > 0) {
-					  	          	var msgs = '';
-									for(i=0; i < response.messages.length; ++i) {
-										msgs += '<div class="flash-notice">'+response.messages[i]+'</div>';
-									}
-					  	          	
-						  	  		$('#flashbags').append(
-								  	  		'<div class="alert alert-info alert-dismissible">'
-							                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
-							                +'<h4><i class="icon fa fa-info"></i> Info! </h4>'
-							                + msgs
-							                +'</div>');
-					  	        }
-					  	  	}
-				  	  		else {
 
-					  	  		console.log('fail');
-					  	  		optionElem.attr('data-status', 'removed');
-					  	  		var valuesArray = optionElem.parents("select").val();
-						  	  	valuesArray = jQuery.grep(valuesArray, function(value) {
-						  	  	  return value != optionElem.val();
-						  	  	});
-						  	  	optionElem.parents("select").val(valuesArray).trigger("change");
-						  	  	
-				  	          	if(response.messages.length > 0) {
-					  	          	var msgs = '';
-									for(i=0; i < response.messages.length; ++i) {
-										msgs += '<div class="flash-warning">'+response.messages[i]+'</div>';
-									}
-					  	          	
-						  	  		$('#flashbags').append(
-								  	  		'<div class="alert alert-warning alert-dismissible">'
-							                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
-							                +'<h4><i class="icon fa fa-info"></i> Warning! </h4>'
-							                + msgs
-							                +'</div>');
-					  	        }
-					  	  	}
-	
+					ajaxRequest.post( "{{ url('views.criteria.add') }}", data )
+			  	  		.success(function(response) {
+							optionElem.attr('data-status', 'added');
 				  	        
 						})
 					  	.fail(function( ) {
-				  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
+				  	  		optionElem.attr('data-status', 'removed');
+				  	  		var valuesArray = optionElem.parents("select").val();
+					  	  	valuesArray = jQuery.grep(valuesArray, function(value) {
+					  	  	  return value != optionElem.val();
+					  	  	});
+					  	  	optionElem.parents("select").val(valuesArray).trigger("change");
 				  		});
 				}
 	  		});
@@ -257,55 +220,22 @@ function formatRepoSelectionForTable (repo) {
 					  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
 					};
 	
-					  					
-				  	$.post( "{{ url('views.criteria.remove') }}", data )
-			  	  		.done(function(data) {
-			  	          	var response = jQuery.parseJSON(data);
-				  	  		if(response.success) {
-								optionElem.attr('data-status', 'removed');
-				  	          	if(response.messages.length > 0) {
-					  	          	var msgs = '';
-									for(i=0; i < response.messages.length; ++i) {
-										msgs += '<div class="flash-notice">'+response.messages[i]+'</div>';
-									}
-					  	          	
-						  	  		$('#flashbags').append(
-								  	  		'<div class="alert alert-info alert-dismissible">'
-							                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
-							                +'<h4><i class="icon fa fa-info"></i> Info! </h4>'
-							                + msgs
-							                +'</div>');
-					  	        }
-				  	  		}
-				  	  		else{
-					  	  		var valuesArray = optionElem.parents("select").val();
-					  	  		if(valuesArray == null){
-					  	  			valuesArray = [optionElem.val()];
-						  	  	}
-					  	  		else{
-						  	  		valuesArray.push(optionElem.val());
-					  	  		}
-					  	  		
-						  	  	optionElem.parents("select").val(valuesArray).trigger("change");
-						  	  	
-				  	          	if(response.messages.length > 0) {
-					  	          	var msgs = '';
-									for(i=0; i < response.messages.length; ++i) {
-										msgs += '<div class="flash-warning">'+response.messages[i]+'</div>';
-									}
-					  	          	
-						  	  		$('#flashbags').append(
-								  	  		'<div class="alert alert-warning alert-dismissible">'
-							                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
-							                +'<h4><i class="icon fa fa-info"></i> Warning! </h4>'
-							                + msgs
-							                +'</div>');
-					  	        }
-					  	  	}
+
+					ajaxRequest.post("{{ url('views.criteria.remove') }}", data)
+						.success(function(response){
+							optionElem.attr('data-status', 'removed');
 						})
-					  	.fail(function( ) {
-				  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
-				  		});
+						.fail(function(response){
+							var valuesArray = optionElem.parents("select").val();
+				  	  		if(valuesArray == null){
+				  	  			valuesArray = [optionElem.val()];
+					  	  	}
+				  	  		else{
+					  	  		valuesArray.push(optionElem.val());
+				  	  		}
+				  	  		
+					  	  	optionElem.parents("select").val(valuesArray).trigger("change");
+						});
 				}
 		  	});
 		});

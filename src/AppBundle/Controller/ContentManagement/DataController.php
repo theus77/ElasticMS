@@ -630,23 +630,24 @@ class DataController extends AppController
 		
 		$form = $this->createForm(RevisionType::class, $revision);
 		$form->handleRequest($request);
+				
+		/** @var Revision $revision */
+		$revision = $form->getData();
+		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
+		$revision->setAutoSave($objectArray);
+		$revision->setAutoSaveAt(new \DateTime());
+		$revision->setAutoSaveBy($this->getUser()->getUsername());
 		
-// 		if( $form->isValid() ){
-			/** @var Revision $revision */
-			$revision = $form->getData();
-			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
-			$revision->setAutoSave($objectArray);
-			$revision->setAutoSaveAt(new \DateTime());
-			$revision->setAutoSaveBy($this->getUser()->getUsername());
+		$em->persist($revision);
+		$em->flush();			
+
+		$this->get("ems.service.data")->isValid($form);
+		$formErrors = $form->getErrors(true, true);
 			
-			$em->persist($revision);
-			$em->flush();			
-// 		}
-		
 		return $this->render( 'data/ajax-revision.json.twig', [
-				'revision' =>  $revision,
-				'errors' => $form->getErrors(true, true),
-				'form' => $form->createView(),
+// 				'revision' =>  $revision,
+				'success' => true,
+				'formErrors' => $formErrors,
 		] );
 	}
 	
