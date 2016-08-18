@@ -140,12 +140,24 @@ class NotificationService {
 			
 		return $notifications;
 	}
+	
+	private function response(Notification $notification, TreatNotifications $treatNotifications, $status) {
+		$notification->setResponseText($treatNotifications->getResponse());
+		$notification->setResponseTimestamp(new \DateTime());
+		$notification->setResponseBy($this->userService->getCurrentUser()->getUsername());
+		$notification->setStatus($status);
+		$em = $this->doctrine->getManager();
+		$em->persist($notification);
+		$em->flush();
+		
+		$this->session->getFlashBag()->add('notice', '<i class="'.$notification->getTemplateId()->getIcon().'"></i> '.$notification->getTemplateId()->getName().' for '.$notification->getRevisionId().' has been '.$notification->getStatus());
+	}
 
 	public function accept(Notification $notification, TreatNotifications $treatNotifications) {
-	
+		$this->response($notification, $treatNotifications, 'accepted');
 	}
 
 	public function reject(Notification $notification, TreatNotifications $treatNotifications) {
-		
+		$this->response($notification, $treatNotifications, 'rejected');	
 	}
 }

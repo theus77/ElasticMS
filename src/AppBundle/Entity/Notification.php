@@ -78,6 +78,13 @@ class Notification
     private $responseTimestamp;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="response_by", type="string", length=100)
+     */
+    private $responseBy;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Revision")
      * @ORM\JoinColumn(name="revision_id", referencedColumnName="id")
      */
@@ -350,5 +357,29 @@ class Notification
     public function getEnvironmentId()
     {
         return $this->environmentId;
+    }
+
+    /**
+     * Set responseBy
+     *
+     * @param string $responseBy
+     *
+     * @return Notification
+     */
+    public function setResponseBy($responseBy)
+    {
+        $this->responseBy = $responseBy;
+
+        return $this;
+    }
+
+    /**
+     * Get responseBy
+     *
+     * @return string
+     */
+    public function getResponseBy()
+    {
+        return $this->responseBy;
     }
 }

@@ -218,11 +218,11 @@ class PublishService
 					'index' => $environment->getAlias(),
 					'type' => $revision->getContentType()->getName(),
 			]);
-			$this->session->getFlashBag()->add('notice', 'The object has been unpublished from environment '.$environment->getName());
+			$this->session->getFlashBag()->add('notice', 'The object '.$revision.' has been unpublished from environment '.$environment->getName());
 		}
-		catch(Missing404Exception $e){
+		catch(\Exception $e){
 			if(!$revision->getDeleted()) {
-				$this->session->getFlashBag()->add('warning', 'The object was already unpublished from environment '.$environment->getName());
+				$this->session->getFlashBag()->add('warning', 'The object '.$revision.' was already unpublished from environment '.$environment->getName());
 			}
 		}
 
