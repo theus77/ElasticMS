@@ -320,13 +320,20 @@ function addEventListeners(target){
 		         advCSSClasses['default'] = "table table-bordered";
   		         
   		     }
-  		     if (dialogName == 'creatediv')
-  		   	 {
-  		    	var infoTab = dialogDefinition.getContents( 'info' );
-  		    	var classes = infoTab.get( 'class' );
-  		    	classes['default'] = "table-responsive";
-  		     }
+//   		     if (dialogName == 'creatediv')
+//   		   	 {
+//   		    	var infoTab = dialogDefinition.getContents( 'info' );
+//   		    	var classes = infoTab.get( 'class' );
+//   		    	classes['default'] = "table-responsive";
+//   		     }
   		   });
+		
+		//Add custom div styles (e.g for responsive tables)
+		CKEDITOR.stylesSet.add( 
+				'bootstrap', 
+				[
+				 { name: 'Bordered Table', element: 'div', attributes: { 'class': 'table-responsive' } },
+		        ]);
 		
 	});
 	
