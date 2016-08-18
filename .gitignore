@@ -29,3 +29,4 @@
 #OS X files
 .DS_Store
 /.bash_history
+/migrate.sh

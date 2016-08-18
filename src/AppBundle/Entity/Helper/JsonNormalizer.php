@@ -82,12 +82,14 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 	 					$value = $this->normalize($value, $format, $context);
 	 				}
 					if($property == "views") {
+ 						$arrayValues = [];
 						foreach ($value as $index => $view) {
 							$arrayValues[$index] = $this->normalize($view, $format, $context);//Recursive
 						}
 	 					$value = $arrayValues;
 					}
  					if($property == "templates") {
+ 						$arrayValues = [];
 						foreach ($value as $index => $template) {
 							$arrayValues[$index] = $this->normalize($template, $format, $context);//Recursive
 						}
@@ -98,6 +100,7 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 	 					continue;
 	 				}
 					if($property == "validChildren") {
+ 						$arrayValues = [];
 						foreach ($value as $index => $subElement) {//subElement is always FieldType
 							if(!$subElement->getDeleted()) {
 								$arrayValues[$index] = $this->normalize($subElement, $format, $context);//Recursive

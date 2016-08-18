@@ -33,8 +33,6 @@ class DataService
 	protected $authorizationChecker;
 	/**@var TokenStorageInterface $tokenStorage*/
 	protected $tokenStorage;
-	/**@var AppExtension $twigExtension*/
-	protected $twigExtension;
 	protected $lockTime;
 	/**@Client $client*/
 	protected $client;
@@ -47,20 +45,20 @@ class DataService
 	protected $session;
 	/**@var Session $session*/
 	protected $formFactory;
+	protected $container;
 	
 	public function __construct(
 			Registry $doctrine, 
 			AuthorizationCheckerInterface $authorizationChecker, 
 			TokenStorageInterface $tokenStorage, 
-			AppExtension $twigExtension, 
 			$lockTime, 
 			Client $client, 
 			Mapping $mapping, 
 			$instanceId,
 			Session $session,
-			$formFactory)
+			$formFactory,
+			$container)
 	{
-		$this->twigExtension = $twigExtension;
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
 		$this->tokenStorage = $tokenStorage;
@@ -72,6 +70,7 @@ class DataService
 		$this->revRepository = $this->em->getRepository('AppBundle:Revision');
 		$this->session = $session;
 		$this->formFactory = $formFactory;
+		$this->container = $container;
 	}
 	
 	
@@ -91,7 +90,7 @@ class DataService
 			throw new LockedException($revision);
 		}
 		
-		if(!$username && !$this->twigExtension->one_granted($revision->getContentType()->getFieldType()->getFieldsRoles(), $super)) {
+		if(!$username && !$this->container->get('app.twig_extension')->one_granted($revision->getContentType()->getFieldType()->getFieldsRoles(), $super)) {
 			throw new PrivilegeException($revision);
 		}
 		//TODO: test circles
@@ -118,6 +117,10 @@ class DataService
 			throw new \Exception("Can not finalized a deleted revision");
 		}
 		if(null == $form) {
+			if( $revision->getDatafield() == NULL){
+				$this->loadDataStructure($revision);
+			}
+			
 			//Get the form from Factory
 			$builder = $this->formFactory->createBuilder(RevisionType::class, $revision);
 			$form = $builder->getForm();
@@ -174,7 +177,8 @@ class DataService
 			$em->flush();
 		
 		} else {
-			$form->addError(new FormError("This Form is not valid!"));
+ 			$form->addError(new FormError("This Form is not valid!"));
+			$this->session->getFlashBag()->add('notice', 'The revision '.$revision.' can be finalized');
 		}
 		return $revision;
 	}
@@ -204,6 +208,7 @@ class DataService
 				'ouuid' => $ouuid,
 				'endTime' => null,
 				'contentType' => $contentType,
+				'deleted' => false,
 		]);
 	
 		if(count($revisions) != 1 || null != $revisions[0]->getEndTime()) {
@@ -293,10 +298,13 @@ class DataService
 			/** @var QueryBuilder $qb */
 			$qb = $repository->createQueryBuilder('t')
 			->where('t.ouuid = :ouuid')
-			->setParameter('ouuid', $revision->getOuuid())
 			->andWhere('t.id <> :id')
-			->setParameter('id', $revision->getId())
+			->andWhere('t.deleted =  false')
+			->andWhere('t.contentType =  :contentType')
 			->orderBy('t.startTime', 'desc')
+			->setParameter('ouuid', $revision->getOuuid())
+			->setParameter('contentType', $revision->getContentType())
+			->setParameter('id', $revision->getId())
 			->setMaxResults(1);
 			$query = $qb->getQuery();
 	

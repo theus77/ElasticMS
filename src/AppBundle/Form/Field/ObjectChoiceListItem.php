@@ -8,13 +8,15 @@ class ObjectChoiceListItem {
 	private $label;
 	private $value;
 	private $group;
+	private $color;
 	
 	
 	public function __construct(array &$object, ContentType $contentType){
 		$this->value = $object['_type'].':'.$object['_id'];
 		
-		
+
 		$this->group = null;
+		$this->color = null;
 		if( null !== $contentType && $contentType->getCategoryField() && isset($object['_source'][$contentType->getCategoryField()] )) {
 			$this->group = $object['_source'][$contentType->getCategoryField()];
 		}
@@ -28,7 +30,13 @@ class ObjectChoiceListItem {
 			else {
 				$this->label .= $this->value;				
 			}
+			
+
+			if(null !== $contentType->getColorField() && isset($object['_source'][$contentType->getColorField()])){
+				$this->color = $object['_source'][$contentType->getColorField()];
+			}
 		}
+		
 	}	
 	
 	
@@ -43,6 +51,10 @@ class ObjectChoiceListItem {
 	
 	public function getGroup(){
 		return $this->group;
+	}	
+	
+	public function getColor(){
+		return $this->color;
 	}	
 
 	public function __toString()

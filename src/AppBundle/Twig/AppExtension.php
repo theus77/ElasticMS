@@ -9,6 +9,8 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Service\ContentTypeService;
 use Elasticsearch\Client;
 use Symfony\Component\Routing\Router;
+use AppBundle\Form\Factory\ObjectChoiceListFactory;
+use Symfony\Component\Form\FormError;
 
 class AppExtension extends \Twig_Extension
 {
@@ -23,8 +25,10 @@ class AppExtension extends \Twig_Extension
 	private $router;
 	/**@var \Twig_Environment $twig*/
 	private $twig;
+	/**@var ObjectChoiceListFactory $objectChoiceListFactory*/
+	private $objectChoiceListFactory;
 	
-	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router, $twig)
+	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router, $twig, ObjectChoiceListFactory $objectChoiceListFactory)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
@@ -33,6 +37,9 @@ class AppExtension extends \Twig_Extension
 		$this->client = $client;
 		$this->router = $router;
 		$this->twig = $twig;
+		$this->objectChoiceListFactory = $objectChoiceListFactory;
+		
+		$this->twig->getExtension('core')->setEscaper('csv', array($this, 'csvEscaper'));
 	}
 	
 	public function getFilters()
@@ -56,8 +63,9 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('data_link', array($this, 'dataLink')),
 				new \Twig_SimpleFilter('get_content_type', array($this, 'getContentType')),
 				new \Twig_SimpleFilter('generate_from_template', array($this, 'generateFromTemplate')),
-				new \Twig_SimpleFilter('data', array($this, 'data')),
-				
+				new \Twig_SimpleFilter('objectChoiceLoader', array($this, 'objectChoiceLoader')),
+				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),		
+				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),				
 		);
 	}
 	
@@ -102,6 +110,21 @@ class AppExtension extends \Twig_Extension
 		return false;
 	}
 	
+	function objectChoiceLoader($contentTypeName) {
+		return $this->objectChoiceListFactory->createLoader($contentTypeName, true)->loadAll();
+	}
+	
+	function groupedObjectLoader($contentTypeName) {
+		$choices = $this->objectChoiceListFactory->createLoader($contentTypeName, true)->loadAll();
+		$out = [];
+		foreach ($choices as $choice){
+			if(!isset($out[$choice->getGroup()])){
+				$out[$choice->getGroup()] = [];
+			}
+			$out[$choice->getGroup()][] = $choice;
+		}
+		return $out;
+	}
 	
 	function generateFromTemplate($template, array $params){
 		
@@ -117,7 +140,7 @@ class AppExtension extends \Twig_Extension
 	function dataLink($key){
 		$out = $key;
 		$splitted = explode(':', $key);
-		if($splitted && count($splitted) == 2){
+		if($splitted && count($splitted) == 2 && strlen($splitted[0]) > 0 && strlen($splitted[1]) > 0 ){
 			$type = $splitted[0];
 			$ouuid =  $splitted[1];
 			
@@ -134,26 +157,31 @@ class AppExtension extends \Twig_Extension
 					$icon = '<i class="fa fa-book"></i>&nbsp;';
 				}
 				
-				$result = $this->client->get([
-						'id' => $ouuid,
-						'index' => $contentType->getEnvironment()->getAlias(),
-						'type' => $type,
-				]);
-				
-				if($contentType->getLabelField()){
-					$label = $result['_source'][$contentType->getLabelField()];
-					if($label && strlen($label) > 0){
-						$out = $label;
-					}
-				}
-				$out = $icon.$out;
-				
-				if($contentType->getColorField() && $result['_source'][$contentType->getColorField()]){
-					$color = $result['_source'][$contentType->getColorField()];
-					$contrasted = $this->contrastratio($color, '#000000') > $this->contrastratio($color, '#ffffff')?'#000000':'#ffffff';
+				try {
+					$result = $this->client->get([
+							'id' => $ouuid,
+							'index' => $contentType->getEnvironment()->getAlias(),
+							'type' => $type,
+					]);
 					
-					$out = '<span class="" style="color:'.$contrasted.';">'.$out.'</span>';
-					$addAttribute = ' style="background-color: '.$result['_source'][$contentType->getColorField()].';border-color: '.$result['_source'][$contentType->getColorField()].';"';
+					if($contentType->getLabelField()){
+						$label = $result['_source'][$contentType->getLabelField()];
+						if($label && strlen($label) > 0){
+							$out = $label;
+						}
+					}
+					$out = $icon.$out;
+					
+					if($contentType->getColorField() && $result['_source'][$contentType->getColorField()]){
+						$color = $result['_source'][$contentType->getColorField()];
+						$contrasted = $this->contrastratio($color, '#000000') > $this->contrastratio($color, '#ffffff')?'#000000':'#ffffff';
+						
+						$out = '<span class="" style="color:'.$contrasted.';">'.$out.'</span>';
+						$addAttribute = ' style="background-color: '.$result['_source'][$contentType->getColorField()].';border-color: '.$result['_source'][$contentType->getColorField()].';"';
+						
+					}					
+				}
+				catch(\Exception $e) {
 					
 				}
 				
@@ -162,6 +190,19 @@ class AppExtension extends \Twig_Extension
 					'type' =>$type,
 					'ouuid' => $ouuid,
 			]).'" '.$addAttribute.' >'.$out.'</a>';
+		}
+		return $out;
+	}
+	
+	function propertyPath(FormError $error) {
+		$parent = $error->getOrigin();
+		$out = '';
+		while($parent) {
+			$out = $parent->getPropertyPath().$out;
+			$parent = $parent->getParent();
+			if($parent) {
+				$out = '_'.$out;
+			}
 		}
 		return $out;
 	}
@@ -326,6 +367,10 @@ class AppExtension extends \Twig_Extension
 		
 		return $response;
 		
+	}
+	
+	public function csvEscaper($twig, $name, $charset) {
+		return $name;
 	}
 
 	public function getName()

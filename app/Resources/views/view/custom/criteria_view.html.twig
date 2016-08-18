@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ view.name }} of {{view.contentType.name|humanize}}{% endblock %}
-{% block pagetitle %}{{ view.name }} of {{view.contentType.name|humanize}}{% endblock %} 
+{% block title %}{{ view.name }} for {{view.contentType.pluralName|humanize}}{% endblock %}
+{% block pagetitle %}{{ view.name }} for {{view.contentType.pluralName|humanize}}{% endblock %} 
 {# {% block subtitle %}<!-- TODO -->{% endblock %} #}
 
 
@@ -15,57 +15,35 @@
 				<h3 class="box-title">Configuration</h3>
 			</div>
 			<!-- /.box-header -->
+			
 			<!-- form start -->
-			<form action="{{ url('views.criteria.table') }}" method="get" name="criteriaconfig">
-				<input type="hidden" name="contentTypeId" value="{{ contentType.id }}">
-				<input type="hidden" name="viewId" value="{{ view.id }}">
+			{{ form_start(form) }}
+				
 				<div class="box-body">
-					{% for criteria in criterionList.validChildren %}
-						<div class="form-group col-md-3">
-							<label for="criterion_{{ loop.index }}">
-								{% if loop.index == criterionList.validChildren|length %}
-									Column
-								{% elseif (loop.index+1) == criterionList.validChildren|length  %}
-									Row
-								{% else %}
-									Criterion {{ loop.index }} (field)
-								{% endif %}
-							</label>
-							<select data-filter="criterion_filter_{{ loop.index }}"  class="form-control select2 select2FieldTarget" id="criterion_{{ loop.index }}" name="criterion[{{ loop.index-1 }}][field]" style="width: 100%;">
-								{% set currentCirterion = loop.index %}
-								{% for option in criterionList.validChildren %}
-		                    		<option value="{{ option.id }}" {% if currentCirterion == loop.index %}selected{% endif %}>{{ option.name|humanize }}</option>
-		                    	{% endfor %}
-			                </select>
-						</div>
-							<div class="form-group col-md-3">
-								<label for="criterion_filter_{{ loop.index }}">
-									{% if loop.index == criterionList.validChildren|length %}
-										Column
-									{% elseif (loop.index+1) == criterionList.validChildren|length  %}
-										Row
-									{% else %}
-										Criterion {{ loop.index }}
-									{% endif %}
-									(filter)
-								</label>
-								<select 
-									{% if loop.index >= (criterionList.validChildren|length - 1)  %}
-										multiple="multiple" 
-									{% else %}
-										required="true"
-									{% endif %}									
-									data-field-target="criterion_{{ loop.index }}" class="form-control select2Filter" id="criterion_filter_{{ loop.index }}" name="criterion[{{ loop.index-1 }}][filters][]" style="width: 100%;">
-				                </select>
-							</div>
-					{% endfor %}
+						<table class="table table-bordered">
+                <tbody><tr>
+                  <td>&nbsp;</td>
+                  <td width="66%">{{ form_row(form.columnCriteria) }}</td>
+                </tr>
+                <tr>
+                  <td>{{ form_row(form.rowCriteria) }}</td>
+                  <td>
+                  	{% if form.category %}
+							{{ form_row(form.category) }}
+					{% endif %}
+				</td>
+                </tr>
+              </tbody></table>
+					<div class="row" id="criterion">
+						{{ form_widget(form.criterion) }}
+					</div>
 				</div>
 				<!-- /.box-body -->
-	
 				<div class="box-footer">
-					<button type="submit" class="btn btn-primary" id="applyConfig">Apply</button>
+							{{ form_row(form.manage) }}
+{# 					<button type="submit" class="btn btn-primary" id="applyConfig">Apply</button>#}
 				</div>
-			</form>
+				{{ form_end(form) }}
 		</div>
 	</div>
 </div>
@@ -100,123 +78,89 @@ function formatRepoSelection (repo) {
 	return repo.text;
 }
 
-
-function formatRepoSelectionForTable (repo) {
-	var color = $(repo.element).data('color');
-	if(!color) {
-		color = repo.color;
-	}
-	
-	var url = "{{ url('data.revisions', {type: '__type__' , ouuid: '__ouuid__' }) }}";
-	url = url.replace('__type__:__ouuid__', repo.id);
-
-	var complementary;
-	if(color){
-		//var colorIntValue = parseInt(color.replace("#", "0x"));
-		//complementary = '#'+('000000' + (('0xffffff' ^ colorIntValue).toString(16))).slice(-6);
-
-		complementary = (luma(color.replace("#", "")) >= 165) ? '#000000' : '#ffffff';
-	}
-
-	var html = $("<a href=\""+url+"\" style=\"color: "+complementary+";background-color: "+color+"; padding: 2px;\">"+repo.text+"</a>");
-	return html;
-}
-
 $(window).load(function() {
 
-	$('#applyConfig').click(function(event){
+
+
+	$('.criteria-filter-columnrow').change(function(event){
+
+		if($('#criteria_filter_columnCriteria option:selected').val() == $('#criteria_filter_rowCriteria  option:selected').val()){
+			if($(this).attr('id') == 'criteria_filter_columnCriteria'){
+// 				console.log('row');
+// 				console.log($('#criteria_filter_rowCriteria option:not(:selected)').first().val());
+				$('#criteria_filter_rowCriteria').val($('#criteria_filter_rowCriteria option:not(:selected)').first().val());
+
+			}
+			else {
+// 				console.log('col');
+// 				console.log($('#criteria_filter_columnCriteria option:not(:selected)').first().val());
+				$('#criteria_filter_columnCriteria').val($('#criteria_filter_columnCriteria option:not(:selected)').first().val());
+
+			}
+		
+		}
+
+		$('div#criterion select').each(function(index){
+			var criterionName = $( this ).closest('div[data-name]').data('name');
+			var colCriteria = $('#criteria_filter_columnCriteria').val();
+			var rowCriteria = $('#criteria_filter_rowCriteria').val();
+
+			var attr = $(this).attr('multiple');
+
+			// For some browsers, `attr` is undefined; for others,
+			// `attr` is false.  Check for both.
+			if (typeof attr !== typeof undefined && attr !== false) {
+				if(criterionName != colCriteria && criterionName != rowCriteria) {
+					$(this).val('');
+					$(this).removeAttr('multiple');
+					objectPickerListeners($( this ));
+				}
+			}
+			else {
+
+				if(criterionName == colCriteria || criterionName == rowCriteria) {
+					$(this).val('');
+					$(this).attr('multiple', true);
+					objectPickerListeners($( this ));
+				}
+			}
+
+	 	});
+	});
+
+	$('#applyConfig55555').click(function(event){
 		event.preventDefault();
-		var formContent = $("form[name=criteriaconfig").serialize();
+
+		$('#waitingModal').modal('show');
+		
+		var formContent = $("form[name=criteria_filter]").serialize();
 
 		$('#table_container').empty();
 		
-		$.get("{{ url('views.criteria.table') }}", formContent)
+		$.get("{{ url('views.criteria.table', {view: view.id}) }}", formContent)
 		  .done(function(message) {
 
 			  $('#table_container').append(message);
 
-			  $('#table_container select').select2({
-				  ajax: {
-					    url: '{{ url("elasticsearch.api.search") }}',
-					    dataType: 'json',
-					    delay: 250,
-					    data: function (params) {
-					      return {
-					        q: params.term, // search term
-					        environment: {{ contentType.environment.name|json_encode|raw }},
-					        type: {{ contentType.name|json_encode|raw }},
-					        page: params.page
-					      };
-					    },
-					    processResults: function (data, params) {
-					      // parse the results into the format expected by Select2
-					      // since we are using custom formatting functions we do not need to
-					      // alter the remote JSON data, except to indicate that infinite
-					      // scrolling can be used
-					      params.page = params.page || 1;
-					
-					      return {
-					        results: data.items,
-					        pagination: {
-					          more: (params.page * 30) < data.total_count
-					        }
-					      };
-					    },
-					    cache: true
-					  },
-					  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-					  minimumInputLength: 1,
-					  templateResult: formatRepo, // omitted for brevity, see the source of this page
-					  templateSelection: formatRepoSelectionForTable // omitted for brevity, see the source of this page
-				});
 
-			  	$('#table_container select').change(function(){
-					var filters = $.merge( $(this).closest('td').data('filters'), $(this).closest('table').data('filters') )
-				  	$(this).children("option:selected").each(function() {
-					  	var data = { 
-					  			filters: filters, 
-							  	target: $(this).val(), 
-							  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
-						};
-						
-					  	$.post( "{{ url('views.criteria.add') }}", data)
-				  	  		.fail(function( ) {
-					  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
-					  	});
-
-// 					  	color = $(this).data('color');
-// 					  	console.log(color);
-// 					  	console.log($(this));
-// 					  	if(color){
-// 						  	$(this).closest('td').find('li[title="'+$(this).html()+'"]').each(function (){
-// 								console.log($(this));
-// 							  	$(this).attr('style', 'background-color: red; border-color: red;');
-// 							});
-// 						}
-					  	
-				  	});
-				  	
-				  	$(this).children("option:not(:selected)").each(function() {
-					  	var data = { 
-					  			filters: filters, 
-							  	target: $(this).val(), 
-							  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
-						};
-						
-					  	$.post( "{{ url('views.criteria.remove') }}", data)
-				  	  		.fail(function( ) {
-					  	    	alert("It was impossible to save the last change! Please reload the page and retry.");
-					  		});
-				  	});
-				});
 			  
 		  })
 		  .fail(function() {
-			alert( "Unable to retrieve the criteria table." );
+			  $('#table_container').append('<div class="alert alert-danger alert-dismissible">'+
+		                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+
+		                '<h4><i class="icon fa fa-ban"></i> Alert!</h4>'+
+		                'It was impossible to retrieve the criteria table.'+
+		                '</div>');
+// 			alert( "It was impossible to retrieve the criteria table." );
 		  })
 		  .always(function() {
+			$('#waitingModal').modal('hide');
 // 			globalWaitingResponse = false;
 		});
+	});
+
+	$(".objectpicker").each(function(index){
+		objectPickerListeners($( this ));
 	});
 
 	$(".select2Filter").each(function(){
@@ -259,6 +203,8 @@ $(window).load(function() {
 			});
 		
 	});
+
+	$('.criteria-filter-columnrow').trigger('change');
 	
 });
 

@@ -17,6 +17,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use AppBundle\Service\DataService;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class MigrateCommand extends ContainerAwareCommand
 {
@@ -26,14 +28,15 @@ class MigrateCommand extends ContainerAwareCommand
 	protected $doctrine;
 	protected $logger;
 	protected $container;
+	protected $dataService;
 	
-	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, $container)
+	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, DataService $dataService)
 	{
 		$this->doctrine = $doctrine;
 		$this->logger = $logger;
 		$this->client = $client;
 		$this->mapping = $mapping;
-		$this->container = $container;
+		$this->dataService = $dataService;
 		parent::__construct();
 	}
 	
@@ -83,12 +86,12 @@ class MigrateCommand extends ContainerAwareCommand
     	} else {
     		$mode = "earse";
     	}
-    	$output->writeln("Start migration");
 		
 		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
 		/** @var \AppBundle\Entity\ContentType $contentTypeTo */
 		$contentTypeTo = $contentTypeRepository->findOneBy(array("name" => $contentTypeNameTo, 'deleted' => false));
+    	$output->writeln("Start migration of ".$contentTypeTo->getPluralName());
 		
 		if(!$contentTypeTo) {
 			$output->writeln("<error>Content type not found</error>");
@@ -118,15 +121,21 @@ class MigrateCommand extends ContainerAwareCommand
 		]);
 		
 		$total = $arrayElasticsearchIndex["hits"]["total"];
+		// create a new progress bar
+		$progress = new ProgressBar($output, $total);
+		// start and displays the progress bar
+		$progress->start();
+		
 		
 		for($from = 0; $from < $total; $from = $from + 10) {
 			$arrayElasticsearchIndex = $this->client->search([
 					'index' => $elasticsearchIndex,
 					'type' => $contentTypeNameFrom,
 					'size' => 10,
-					'from' => $from
+					'from' => $from,
+					'preference' => '_primary', //http://stackoverflow.com/questions/10836142/elasticsearch-duplicate-results-with-paging
 			]);
-			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
+// 			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
 
 			/** @var RevisionRepository $repository */
 			$repository = $em->getRepository( 'AppBundle:Revision' );
@@ -152,11 +161,11 @@ class MigrateCommand extends ContainerAwareCommand
 						//So we load the datas from the current revision into the next revision
 						$newRevision->setRawData($currentRevision->getRawData());
 						//We build the new revision object
-						$this->container->get('ems.service.data')->loadDataStructure($newRevision);
+						$this->dataService->loadDataStructure($newRevision);
 						//We update the new revision object with the new datas. Here, the protected fields are not overridden.
 						$newRevision->getDataField()->updateDataValue($value['_source'], true);//isMigrate=true
 						//We serialize the new object
-						$objectArray = $this->container->get('ems.service.mapping')->dataFieldToArray($newRevision->getDataField());
+						$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
 						$newRevision->setRawData($objectArray);
 					}	
 					else{
@@ -172,20 +181,23 @@ class MigrateCommand extends ContainerAwareCommand
 					]);
 					//TODO: Test if client->index OK
 					$em->persist($newRevision);
-					//TODO: Improvement : http://symfony.com/doc/current/components/console/helpers/progressbar.html
 					$output->write(".");
 					$em->flush();
  					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
-					$repository->publishRevision($newRevision);
-
 					//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
+					$repository->publishRevision($newRevision);
 				}
 				catch(NotLockedException $e){
 					$output->writeln("<error>'.$e.'</error>");
 				}
+
+				// advance the progress bar 1 unit
+				$progress->advance();
 			}
 			$repository->clear();
 		}
+		// ensure that the progress bar is at 100%
+		$progress->finish();
 		$output->writeln("");
 		$output->writeln("Migration done");
     }

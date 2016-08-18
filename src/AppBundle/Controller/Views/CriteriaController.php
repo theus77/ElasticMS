@@ -2,12 +2,20 @@
 namespace AppBundle\Controller\Views;
 
 use AppBundle;
-use AppBundle\Controller\ContentManagement\DataController;
+use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
+use AppBundle\Entity\DataField;
+use AppBundle\Entity\FieldType;
+use AppBundle\Entity\Form\CriteriaUpdateConfig;
+use AppBundle\Entity\Revision;
 use AppBundle\Entity\View;
+use AppBundle\Form\DataField\DataFieldType;
+use AppBundle\Form\Factory\ObjectChoiceListFactory;
+use AppBundle\Form\Field\ObjectChoiceListItem;
+use AppBundle\Form\View\Criteria\CriteriaFilterType;
 use AppBundle\Repository\ContentTypeRepository;
-use AppBundle\Repository\FieldTypeRepository;
-use AppBundle\Repository\ViewRepository;
+use AppBundle\Repository\RevisionRepository;
+use AppBundle\Service\DataService;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -15,135 +23,134 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use AppBundle\Repository\RevisionRepository;
-use AppBundle\Entity\DataField;
-use AppBundle\Form\DataField\CollectionItemFieldType;
+use Symfony\Component\HttpFoundation\Session\Session;
+use AppBundle\Exception\LockedException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 
-class CriteriaController extends DataController
+class CriteriaController extends AppController
 {
 	/**
 	 *
-	 * @Route("/views/criteria/table", name="views.criteria.table"))
+	 * @Route("/views/criteria/table/{view}", name="views.criteria.table"))
 	 */
-	public function generateCriteriaTableAction(Request $request)
+	public function generateCriteriaTableAction(View $view, Request $request)
 	{
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine ()->getManager ();
-		/** @var ContentTypeRepository $repository */
-		$repository = $em->getRepository ( 'AppBundle:ContentType' );
-		
-		/** @var ContentType $contentType */
-		$contentType = $repository->find ( $request->query->get('contentTypeId'));
-		
 
-		/** @var ViewRepository $viewRepository */
-		$viewRepository = $em->getRepository ( 'AppBundle:View' );
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		/** @var RevisionRepository $revisionRep */
+		$revisionRep = $em->getRepository('AppBundle:Revision');
+		$counters = $revisionRep->draftCounterGroupedByContentType();
 		
-		/** @var View $view */
-		$view = $viewRepository->find ( $request->query->get('viewId'));
+		foreach ($counters as $counter){
+			if($counter['content_type_id'] == $view->getContentType()->getId()) {
+				$this->addFlash('warning', 'There is '.$counter['counter'].' drafts, you wont be able to update them from here.');
+			}
+		}
+		
+		
+		$criteriaUpdateConfig = new CriteriaUpdateConfig($view);
+		
+		$form = $this->createForm(CriteriaFilterType::class, $criteriaUpdateConfig, [
+				'view' => $view,
+				'method' => 'GET',
+		]);
+		
+		$criteriaUpdateConfig = $form->getData();
+		
+		$form->handleRequest($request);
+		
+		
+		
+		/** @var CriteriaUpdateConfig $criteriaUpdateConfig */
+		$criteriaUpdateConfig = $form->getData();
 		
 		/** @var Client $client */
 		$client = $this->getElasticsearch();
 		
+		$contentType = $view->getContentType();
+		$criteriaFieldName = $view->getOptions()['criteriaField'];
+		$criteriaField = $contentType->getFieldType()->__get('ems_'.$criteriaFieldName);
 		
-		$criteriaField = $view->getOptions()['criteriaField'];
+		/**@var AuthorizationChecker $security*/
+		$security = $this->get('security.authorization_checker');
+		
+		$authorized = $security->isGranted($criteriaField->getMinimumRole());
+		if($authorized) {
+			foreach ($criteriaField->getChildren() as $child){
+				$authorized = $security->isGranted($criteriaField->getMinimumRole());
+				if(!$authorized){
+					break;
+				}
+			}
+		}
+		
 		
 		$body = [
-			'query' => [
-				'nested' => [
-						'path' => $criteriaField,
-						'query' => [
-							'and' => [
-									
-							]
-						]
-						
-				]
-			] 
-		];
-
-		/** @var FieldTypeRepository $fieldTypeRepository */
-		$fieldTypeRepository = $em->getRepository ( 'AppBundle:FieldType' );
-		$criteriaFilters = [];
-		
-		$criterionRequest = $request->query->get('criterion', []);
-		
-		foreach ($criterionRequest as $criteria){
-			/** @var \AppBundle\Entity\FieldType $fieldType */
-			$fieldType = $fieldTypeRepository->find($criteria['field']);
-			
-			$criteriaFilters[] = [
-					'id' => $fieldType->getId(),
-					'name' => $fieldType->getName(),
-					'value' => isset($criteria['filters'])?$criteria['filters'][0]:null,
-			];
-			
-			if(isset($criteria['filters'])){
-				if(count($criteria['filters']) > 1){
-					$subquery = [
-						"or" => []	
-					];
-					foreach ($criteria['filters'] as $filter){
-						$subquery['or'][] = [
-							'term' => [
-								$view->getOptions()['criteriaField'].'.'.$fieldType->getName() => [
-									'value' => $filter
+				'query' => [
+						'bool' => [	
+								'must' => [
 								]
-							]
-						];
-					}
-				}
-				else {
-					$subquery = [
-						'term' => [
-							$view->getOptions()['criteriaField'].'.'.$fieldType->getName() => [
-								'value' => $criteria['filters'][0]
-							]
 						]
-					];
-				}
-				
-				$body['query']['nested']['query']['and'][] = $subquery;	
-				
+				]
+		];			
+		
+		$categoryChoiceList = false;
+		if($criteriaUpdateConfig->getCategory()){
+			$dataField = $criteriaUpdateConfig->getCategory();
+			if($dataField->getRawData() && strlen($dataField->getRawData()) > 0){
+				$categoryFieldTypeName = $dataField->getFieldType()->getType();
+				/**@var DataFieldType $categoryFieldType */
+				$categoryFieldType = $this->get('form.registry')->getType($categoryFieldTypeName)->getInnerType();
+			
+				$body['query']['bool']['must'][] = $categoryFieldType->getElasticsearchQuery($dataField);
+				$categoryChoiceList  = $categoryFieldType->getChoiceList($dataField->getFieldType(), [$dataField->getRawData()]);				
 			}
+			
+		}
+		
+		
+		$criteriaFilters = [];
+		$criteriaChoiceLists = [];
+		/** @var DataField $criteria */
+		foreach ($criteriaUpdateConfig->getCriterion() as $idxName => $criteria){
+			$fieldTypeName = $criteria->getFieldType()->getType();
+			//TODO: the 2 next lignes should replace all new $typeName everywhere!!!!!
+			/**@var DataFieldType $dataFieldType */
+			$dataFieldType = $this->get('form.registry')->getType($fieldTypeName)->getInnerType();
+			if(count($criteria->getRawData()) > 0) {
+				$criteriaFilters[] = $dataFieldType->getElasticsearchQuery($criteria, ['nested' => $criteriaFieldName]);				
+			}
+			$choicesList = $dataFieldType->getChoiceList($criteria->getFieldType(), $criteria->getRawData());
+			$criteriaChoiceLists[$criteria->getFieldType()->getName()] = $choicesList;
 		}
 		
 
-		$column = end($criterionRequest);
-		$row = prev($criterionRequest);
+		$body['query']['bool']['must'][] = [
+			'nested' => [
+				'path' => $criteriaFieldName,
+				'query' => [
+						'bool' => ['must' => $criteriaFilters] 
+				]
+			]				
+		];
 		
 		/** @var \AppBundle\Entity\FieldType $columnField */
-		$columnField = $fieldTypeRepository->find($column['field']);
-		if( !isset($column['filters']) || count($column['filters']) == 0 ){
-			
-			$columns = $columnField->getDisplayOptions()['choices'];
-			$columns = explode("\n", str_replace("\r", "", $columns));
-		}
-		else{
-			$columns = $column['filters'];
-		}
+		$columnField = $criteriaField->__get('ems_'.$criteriaUpdateConfig->getColumnCriteria());
+		
 
 		/** @var \AppBundle\Entity\FieldType $rowField */
-		$rowField = $fieldTypeRepository->find($row['field']);			
-		if( !isset($row['filters']) || count($row['filters']) == 0 ){
-			
-			$rows = $rowField->getDisplayOptions()['choices'];
-			$rows = explode("\n", str_replace("\r", "", $rows));
-		}
-		else{
-			$rows = $row['filters'];
-		}
-		
-		
-		
+		$rowField = $criteriaField->__get('ems_'.$criteriaUpdateConfig->getRowCriteria());
+				
 		$table = [];
-		foreach($rows as $rowItem){
-			$table[$rowItem] = [];
-			foreach ($columns as $columnItem){
-				$table[$rowItem][$columnItem] = null;
+		/**@var ObjectChoiceListItem $rowItem*/
+		foreach($criteriaChoiceLists[$criteriaUpdateConfig->getRowCriteria()] as $rowItem){
+			$table[$rowItem->getValue()] = [];
+			/**@var ObjectChoiceListItem $columnItem*/
+			foreach ($criteriaChoiceLists[$criteriaUpdateConfig->getColumnCriteria()] as $columnItem){
+				$table[$rowItem->getValue()][$columnItem->getValue()] = null;
 			}
 		}
-		
 		
 		$result = $client->search([
 			'index' => $contentType->getEnvironment()->getAlias(),
@@ -151,59 +158,31 @@ class CriteriaController extends DataController
 			'body' => $body
 		]);
 
+		/**@var ObjectChoiceListFactory $objectChoiceListFactory*/
+		$objectChoiceListFactory = $this->get('ems.form.factories.objectChoiceListFactory');
+		$loader = $objectChoiceListFactory->createLoader($view->getContentType()->getName(), false);
+		
 		foreach ($result['hits']['hits'] as $item){
-			foreach ($item['_source'][$criteriaField] as $criterion){
-				$relevant = true;
-				foreach ($criterionRequest as $filter){
-					if(isset($filter['filters']) && count($filter['filters']) > 0){
-						$criterionName = $fieldTypeRepository->find($filter['field'])->getName();
-						if( ! in_array($criterion[$criterionName], $filter['filters'])){
-							//dump($criterion[$criterionName]." not in so not relevant");
-							$relevant = false;
-							break;						
-						}
-					}
-				}
-				if($relevant){
-					$rowIdx = $criterion[$rowField->getName()];
-					$columnIdx = $criterion[$columnField->getName()];
-					if(! isset($table[$rowIdx][$columnIdx])){
-						$table[$rowIdx][$columnIdx]= [];
-					}
-					$value = $item['_type'].':'.$item['_id'];
-					if( $contentType->getLabelField() && $item['_source'][$contentType->getLabelField()]){
-						$label = $item['_source'][$contentType->getLabelField()];
-					}
-					else {
-						$label = $value;
-					}
-					
-					$color;
-					if($contentType->getColorField() && $item['_source'][$contentType->getColorField()]){
-						$color = $item['_source'][$contentType->getColorField()];
-					}
-					
-					$table[$rowIdx][$columnIdx][] = [
-						'label' => $label,
-						'value' => $value,
-						'color' => $color,
-					];
-					
-				}
+			$value = $item['_type'].':'.$item['_id'];
+			$choice = $loader->loadChoiceList()->loadChoices([$value])[$value];
+			
+			foreach ($item['_source'][$criteriaFieldName] as $criterion){
+				$this->addToTable($choice, $table, $criterion, array_keys($criteriaChoiceLists), $criteriaChoiceLists, $criteriaUpdateConfig);
 			}
 			
 		}
-
-		//remove the row and the column not needed in the twig as they are specific to each cell
-		array_pop($criteriaFilters);
-		array_pop($criteriaFilters);
 		
 		return $this->render( 'view/custom/criteria_table.html.twig',[
 			'table' => $table,
-			'criterion' => $request->query->get('criterion', []),
 			'rowFieldType' => $rowField,
 			'columnFieldType' => $columnField,
-			'criteriaFilters' => $criteriaFilters
+			'config' => $criteriaUpdateConfig,
+			'columns' => $criteriaChoiceLists[$criteriaUpdateConfig->getColumnCriteria()],
+			'rows' => $criteriaChoiceLists[$criteriaUpdateConfig->getRowCriteria()],
+			'criteriaChoiceLists' => $criteriaChoiceLists,
+			'view' => $view,
+			'categoryChoiceList' => $categoryChoiceList,
+			'authorized' => $authorized,
 		]);
 	}
 	
@@ -219,46 +198,95 @@ class CriteriaController extends DataController
 		$target = $request->request->get('target');
 		$criteriaField = $request->request->get('criteriaField');
 		
+		//TODO securtity test
+		
+		/**@var DataService $dataService*/
+		$dataService = $this->get('ems.service.data');
+		
 		$structuredTarget = explode(":", $target);
 		
 		$type = $structuredTarget[0];
 		$ouuid = $structuredTarget[1];
 		
-		$revision = $this->initNewDraft($type, $ouuid);
+		/**@var Session $session */
+		$session = $this->get('session');
+		
+		/**@var Revision $revision*/
+		$revision = $dataService->getNewestRevision($type, $ouuid);	
+		
+		if($revision->getDraft()) {
+			$this->addFlash('warning', 'Impossible to update '.$revision. ' has there is a draft in progress');
+			return $this->render( 'ajax/notification.json.twig', [
+					'success' => false,
+			] );
+		}
+		
+		$rawData = $revision->getRawData();
+		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine ()->getManager ();
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
 		
-		$criteriaField = $revision->getDataField()->__get('ems_'.$criteriaField);	
-		if(! $this->findCriterion($criteriaField, $filters)){
-			$filedType = clone $criteriaField->getFieldType();
-			$filedType->setType(CollectionItemFieldType::class);
-			$newDataField = new DataField();
-			$newDataField->setRevisionId($revision->getId());
-			$newDataField->setOrderKey($criteriaField->getChildren()->count());
-			$newDataField->setParent($criteriaField);
-			$newDataField->setFieldType($filedType);
-			$criteriaField->addChild($newDataField);
-				
-			$newDataField->updateDataStructure($filedType);
+		try {
+			if(!isset($rawData[$criteriaField])) {
+				$rawData[$criteriaField] = [];
+			}
+			$multipleField = $this->getMultipleField($revision->getContentType()->getFieldType()->__get('ems_'.$criteriaField));
 			
-			foreach ($filters as $filter){
-				$newDataField->__get('ems_'.$filter['name'])->setTextValue($filter['value']);
+			$found = false;
+			foreach ($rawData[$criteriaField] as &$criteriaSet) {
+				$found = true;
+				foreach ($filters as $criterion => $value) {
+					if($criterion != $multipleField && $value != $criteriaSet[$criterion] ){
+						$found = false;
+						break;
+					}
+				}
+				if($found){
+					
+					if($multipleField && FALSE === array_search($filters[$multipleField], $criteriaSet[$multipleField]) ){
+						$criteriaSet[$multipleField][] = $filters[$multipleField];
+						$revision->setRawData($rawData);
+						$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+						$dataService->finalizeDraft($revision);
+						$this->addFlash('notice', '<b>Added</b> '.$multipleField.' with value '.$filters[$multipleField].' to '.$revision);
+					}
+					else{
+						$this->addFlash('notice', 'Criteria already existing for '.$revision);
+	// 					$this->discardDraft($revision);
+					}
+					break;
+				}
 			}
 			
-			$newDataField->setFieldType(null);
-			
-			$this->finalizeDraft($revision);
-			
+			if(!$found){
+				$newCriterion = [];
+				foreach ($filters as $criterion => $value) {
+					if($criterion == $multipleField){
+						$newCriterion[$criterion] = [$value];
+					}
+					else {
+						$newCriterion[$criterion] = $value;
+					}
+				}
+				$rawData[$criteriaField][] = $newCriterion;
+				$revision->setRawData($rawData);
+				$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+				$dataService->finalizeDraft($revision);
+				$this->addFlash('notice', '<b>Added</b> to '.$revision);
+			}
+
+		} catch (LockedException $e) {
+			$this->addFlash('warning', 'Impossible to update '.$revision. ' has the revision is locked by '.$revision->getLockBy());
+			return $this->render( 'ajax/notification.json.twig', [
+					'success' => false,
+			] );
 		}
-		else{
-			$this->discardDraft($revision);
-		}
-		
-		
-		return new Response(json_encode([]));
+		return $this->render( 'ajax/notification.json.twig', [
+				'success' => true,
+		] );
 	}
 	
 	
@@ -273,29 +301,133 @@ class CriteriaController extends DataController
 		$target = $request->request->get('target');
 		$criteriaField = $request->request->get('criteriaField');
 		
+		//TODO securtity test
+		
+		/**@var DataService $dataService*/
+		$dataService = $this->get('ems.service.data');
+		
 		$structuredTarget = explode(":", $target);
 		
 		$type = $structuredTarget[0];
 		$ouuid = $structuredTarget[1];
-		
-		$revision = $this->initNewDraft($type, $ouuid);
 
+		/**@var Session $session */
+		$session = $this->get('session');
+		
+		/**@var Revision $revision*/
+		$revision = $dataService->getNewestRevision($type, $ouuid);		
+		
+		if($revision->getDraft()) {
+			$this->addFlash('warning', 'Impossible to update '.$revision. ' has there is a draft in progress');
+			return $this->render( 'ajax/notification.json.twig', [
+					'success' => false,
+			] );
+		}
+		
+		$rawData = $revision->getRawData();
+		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine ()->getManager ();
 		
 		/** @var RevisionRepository $repository */
 		$repository = $em->getRepository('AppBundle:Revision');
 		
-		$criteriaField = $revision->getDataField()->__get('ems_'.$criteriaField);
-		
-		while($child = $this->findCriterion($criteriaField, $filters)){
-			$criteriaField->removeChild($child);		
-		}
+		try {
+			if(!isset($rawData[$criteriaField])) {
+				$rawData[$criteriaField] = [];
+			}
+			$multipleField = $this->getMultipleField($revision->getContentType()->getFieldType()->__get('ems_'.$criteriaField));
+			
+			$found = false;
+			foreach ($rawData[$criteriaField] as $index => $criteriaSet) {
+				$found = true;
+				foreach ($filters as $criterion => $value) {
+					if($criterion != $multipleField && $value != $criteriaSet[$criterion] ){
+						$found = false;
+						break;
+					}
+				}
+				if($found){
+					
+					if($multipleField){
+						$indexKey = array_search($filters[$multipleField], $criteriaSet[$multipleField]);
+						if($indexKey === FALSE){
+							$this->addFlash('notice', 'Criteria not found in multiple key');
+						}
+						else {
+							unset($rawData[$criteriaField][$index][$multipleField][$indexKey]);
+							$rawData[$criteriaField][$index][$multipleField] = array_values($rawData[$criteriaField][$index][$multipleField]);
+							if(count($rawData[$criteriaField][$index][$multipleField]) == 0){
+								unset($rawData[$criteriaField][$index]);
+								$rawData[$criteriaField] = array_values($rawData[$criteriaField]);
+							}
+							$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+							$revision->setRawData($rawData);
+							$dataService->finalizeDraft($revision);
+							$this->addFlash('notice', '<b>Remove</b> '.$multipleField.' with value '.$filters[$multipleField].' from '.$revision);	
+						}
+					}
+					else{
+						unset($rawData[$criteriaField][$index]);
+						$rawData[$criteriaField][$index] = array_values($rawData[$criteriaField][$index]);
+						$revision = $dataService->initNewDraft($type, $ouuid, $revision);
+						$revision->setRawData($rawData);
+						$dataService->finalizeDraft($revision);
+						$this->addFlash('notice', '<b>Remove</b> from '.$revision);	
+					}
+					break;
+				}
+			}
+			
+			if(!$found){
+				$this->addFlash('notice', 'Criteria not found for '.$revision);
+			}
 
-		$this->finalizeDraft($revision);
-		
-		return new Response(json_encode([]));
+		} catch (LockedException $e) {
+			$this->addFlash('warning', 'Impossible to update '.$revision. ' has the revision is locked by '.$revision->getLockBy());
+			return $this->render( 'ajax/notification.json.twig', [
+					'success' => false,
+			] );
+		}
+		return $this->render( 'ajax/notification.json.twig', [
+			'success' => true,
+		] );
 	}
+	
+	private function addToTable(ObjectChoiceListItem &$choice, array &$table, array &$criterion, array $criteriaNames, array &$criteriaChoiceLists, CriteriaUpdateConfig &$config, array $context = []){
+		$criteriaName = array_pop($criteriaNames);
+		$criterionList = $criterion[$criteriaName];
+		if(! is_array($criterionList)){
+			$criterionList = [$criterionList];
+		}
+		foreach ($criterionList as $value) {
+			if(isset($criteriaChoiceLists[$criteriaName][$value])){
+				$context[$criteriaName] = $value;
+				if(count($criteriaNames) > 0){
+					//let see (recursively) if the other criterion applies to find a matching context
+					$this->addToTable($choice, $table, $criterion, $criteriaNames, $criteriaChoiceLists, $config, $context);
+				}
+				else{
+					//all criterion apply the current choice can be added to the table depending the context
+					if(!isset($table[$context[$config->getRowCriteria()]][$context[$config->getColumnCriteria()]])) {
+						$table[$context[$config->getRowCriteria()]][$context[$config->getColumnCriteria()]] = [];
+					}
+					$table[$context[$config->getRowCriteria()]][$context[$config->getColumnCriteria()]][] = $choice;
+				}
+			}
+		}
+		
+	}
+	
+	private function getMultipleField(FieldType $criteriaFieldType){
+		foreach ($criteriaFieldType->getChildren() as $criteria){
+			if(isset($criteria->getDisplayOptions()['multiple']) && $criteria->getDisplayOptions()['multiple']){
+				return $criteria->getName();
+			}
+		}
+		return false;
+	}
+	
 	
 	private function findCriterion(DataField $criteriaField, $filters){
 		/** @var DataField $child */

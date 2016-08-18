@@ -6,7 +6,7 @@ parameters:
 services:
     app.twig_extension:
         class: AppBundle\Twig\AppExtension
-        arguments: ['@doctrine', '@security.authorization_checker', '@ems.service.user', '@ems.service.contenttype', '@app.elasticsearch', '@router', '@twig' ]
+        arguments: ['@doctrine', '@security.authorization_checker', '@ems.service.user', '@ems.service.contenttype', '@app.elasticsearch', '@router', '@twig', '@ems.form.factories.objectChoiceListFactory' ]
         #public: false
         tags:
             - { name: twig.extension, priority: -2000 }
@@ -74,6 +74,7 @@ services:
         calls:
             - [setAuthorizationChecker, ['@security.authorization_checker']]
             - [setClient, ['@app.elasticsearch']]
+            - [setRegistry, ['@form.registry']]
         tags:
             - { name: ems.form.datafieldtype, alias: datalink }
             - { name: form.type }
@@ -154,6 +155,13 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: number }
             - { name: form.type }
+    ems.fieldtype.integer:
+        class: AppBundle\Form\DataField\IntegerFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: integer }
+            - { name: form.type }
     ems.fieldtype.date:
         class: AppBundle\Form\DataField\DateFieldType
         #arguments: ['%date_format%']
@@ -195,9 +203,15 @@ services:
             - { name: form.type }
     ems.view.criteria:
         class: AppBundle\Form\View\CriteriaViewType
-        arguments: ['@twig', '@app.elasticsearch']
+        arguments: ['@twig', '@app.elasticsearch', '@router']
         tags:
             - { name: ems.form.viewtype, alias: criteria }
+            - { name: form.type }
+    ems.view.report:
+        class: AppBundle\Form\View\ReportViewType
+        arguments: ['@twig', '@app.elasticsearch']
+        tags:
+            - { name: ems.form.viewtype, alias: report }
             - { name: form.type }
 #### End list available ems views ###
     ems.form.factories.objectChoiceListFactory:
@@ -247,7 +261,7 @@ services:
         arguments: ['@ems.form.fieldtype.fieldtypetype']
     ems.service.data:
         class: AppBundle\Service\DataService
-        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory']
+        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory', '@service_container']
     ems.service.environment:
         class: AppBundle\Service\EnvironmentService
         arguments: ['@doctrine', '@session']
@@ -268,7 +282,7 @@ services:
         arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@ems.service.contenttype', '@ems.service.environment', '@ems.service.data']
     ems.service.notification:
         class: AppBundle\Service\NotificationService
-        arguments: ['%audit_index%', '@doctrine', '@ems.service.user', '@logger', '@ems.service.audit']
+        arguments: ['%audit_index%', '@doctrine', '@ems.service.user', '@logger', '@ems.service.audit', '@session']
 
 ### Storage services ###
     ems.storage.filesystem:
@@ -279,7 +293,7 @@ services:
 ### command services ###
     ems.contenttype.migrate:
         class: AppBundle\Command\MigrateCommand
-        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@ems.service.data']
         tags:
             -  { name: console.command }
     ems.environment.rebuild:
@@ -287,12 +301,17 @@ services:
         arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
         tags:
             -  { name: console.command }
+    ems.environment.align:
+        class: AppBundle\Command\AlignCommand
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.data']
+        tags:
+            -  { name: console.command }
     ems.environment.reindex:
         class: AppBundle\Command\ReindexCommand
         arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
         tags:
             -  { name: console.command }
-    ems.environment.delete:
+    ems.contenttype.delete:
         class: AppBundle\Command\DeleteCommand
         arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
         tags:

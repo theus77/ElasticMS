@@ -17,11 +17,16 @@
 		
 			<div class="box ">
 				<div class="box-header with-border">
-					<h3>
+					<h3 class="box-title">
 						<a class="toggle-button collapsed" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="false" aria-controls="searchFormBoxBody">
 							<i class="fa fa-search"></i> Search form
 						</a>
 					</h3>
+					<div class="box-tools">
+						{% if form.exportResults is defined %}
+						    {{ form_widget(form.exportResults) }}
+						{% endif %}
+					</div>
 				</div>
 				<div id="searchFormBoxBody" class="collapse">
 					<div class="box-body" >
@@ -87,9 +92,7 @@
 										'class': 'btn'
 									}%}
 								{% endif %}
-								{% if form.exportResults is defined %}
-									{{ form_widget(form.exportResults) }}
-								{% endif %}
+								
 								{% if form.save is defined %}
 									{{ form_widget(form.save) }}
 								{% endif %}
@@ -284,25 +287,6 @@
 
 //-->
 
-var globalWaitingResponse = false;
-
-function requestNotification (element, tId, envName, ctId, id){
-	if(!globalWaitingResponse){
-		globalWaitingResponse = true;
-			
-		$.post(element.getAttribute("data-url") , { templateId : tId, environmentName : envName, contentTypeId : ctId, ouuid : id})
-		  .done(function(message) {
-			  var response = jQuery.parseJSON( message );
-		  })
-		  .fail(function() {
-			//alert( "The autosave returns an error! Please try to refresh the page." );
-			$('#data-out-of-sync').modal('show') ;
-		  })
-		  .always(function() {
-			globalWaitingResponse = false;
-		});
-	}
-}
 
 $(window).ready(function() {
 	$('#add-search-filter-button').on('click', function(e) {

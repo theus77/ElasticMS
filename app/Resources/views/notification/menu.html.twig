@@ -4,10 +4,10 @@
    <!-- Menu toggle button -->
    <a href="{{ url('notifications.list') }}">
      <i class="fa fa-envelope-o"></i>
-     {% if counter < 1 %}
-     	<span class="label label-primary">{{ counter }}</span>
-     {% else %}
+     {% if counter > 0 %}
      	<span class="label label-warning">{{ counter }}</span>
+     {% else %}
+{#      	<span class="label label-primary">{{ counter }}</span>#}
      {% endif %}
    </a>
 {#   <ul class="dropdown-menu">#}

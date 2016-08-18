@@ -6,6 +6,7 @@ use Symfony\Component\Form\ChoiceList\Loader\ChoiceLoaderInterface;
 
 class ObjectChoiceLoader implements ChoiceLoaderInterface {
 	
+	/**@var ObjectChoiceList $objectChoiceList*/
 	private $objectChoiceList;
 	
 	public function __construct(
@@ -20,6 +21,14 @@ class ObjectChoiceLoader implements ChoiceLoaderInterface {
      */
     public function loadChoiceList($value = null){
 		return $this->objectChoiceList;
+	}
+
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function loadAll(){
+		return $this->objectChoiceList->loadAll($this->objectChoiceList->getTypes());
 	}
 
 	/**

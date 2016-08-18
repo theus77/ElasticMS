@@ -43,7 +43,9 @@ class EnvironmentController extends AppController {
 		
 		$data = [];
 		
-		$form = $this->createForm(CompareEnvironmentFormType::class, $data);
+		$form = $this->createForm(CompareEnvironmentFormType::class, $data, [
+				
+		]);
 		
 		$form->handleRequest($request);	
 		
@@ -181,6 +183,7 @@ class EnvironmentController extends AppController {
 		}
 		
 		if($environment && $withEnvironment){
+			
 			/** @var EntityManager $em */
 			$em = $this->getDoctrine ()->getManager ();
 			/**@var RevisionRepository $repository*/
@@ -192,16 +195,19 @@ class EnvironmentController extends AppController {
 			$withEnv = $withEnvi->getId();
 
 			$total = $repository->countDifferencesBetweenEnvironment($env->getId(), $withEnvi->getId());
-			$lastPage = ceil($total/$paging_size);
-			if($page > $lastPage){
-				$page = $lastPage;
+			if($total){
+				$lastPage = ceil($total/$paging_size);
+				if($page > $lastPage){
+					$page = $lastPage;
+				}
+	
+				$results = $repository->compareEnvironment($env->getId(), $withEnvi->getId(), ($page-1)*$paging_size, $paging_size);				
 			}
-
-			$results = $repository->compareEnvironment($env->getId(), $withEnvi->getId(), ($page-1)*$paging_size, $paging_size);
-
-			if(count($results) == 0){
+			else {
+				$page = $lastPage = 1;
 				$this->addFlash('notice', 'Those environments are aligned');
 				$total = 0;
+				$results = [];
 			}
 
 

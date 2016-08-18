@@ -93,9 +93,9 @@ class ViewController extends AppController
 	}
 	
 	/**
-	 * @Route("/view/edit/{id}", name="view.edit")
+	 * @Route("/view/edit/{id}.{_format}", name="view.edit", defaults={"_format": "html"})
 	 */
-	public function editAction($id, Request $request)
+	public function editAction($id, $_format, Request $request)
 	{
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
@@ -130,14 +130,14 @@ class ViewController extends AppController
 			$em->persist($view);
 			$em->flush();
 
-			$this->addFlash('notice', 'A view has been updated');
+// 			$this->addFlash('notice', 'A view has been updated');
 			
-			return $this->redirectToRoute('view.index', [
-					'type' => $view->getContentType()->getName()
-			]);
+// 			return $this->redirectToRoute('view.index', [
+// 					'type' => $view->getContentType()->getName()
+// 			]);
 		}
 		
-		return $this->render( 'view/edit.html.twig', [
+		return $this->render( 'view/edit.'.$_format.'.twig', [
 				'form' => $form->createView(),
 				'view' => $view
 		]);

@@ -16,7 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use AppBundle\Form\Field\EnvironmentPickerType;
+
 
 class TemplateType extends AbstractType {
 	
@@ -79,7 +79,7 @@ class TemplateType extends AbstractType {
 		->add( 'renderOption', RenderOptionType::class, [
 				'required' => true,
 		])
-		->add( 'downloadResultUrl', CheckboxType::class, [
+		->add( 'accumulateInOneFile', CheckboxType::class, [
 				'required' => false,
 		])
 		->add( 'mimeType', TextType::class, [
@@ -107,8 +107,11 @@ class TemplateType extends AbstractType {
 				'type' => $this->circleType,
 				'multiple' => true,
 		])
-		->add( 'responseTemplate', TextType::class, [
-				'required' => false,
+		->add( 'responseTemplate', TextareaType::class, [
+			'required' => false,
+			'attr' => [
+				'class' => $template->getEditWithWysiwyg()?'ckeditor':''
+			]
 		])
 		->add ( 'save', SubmitEmsType::class, [ 
 				'attr' => [ 

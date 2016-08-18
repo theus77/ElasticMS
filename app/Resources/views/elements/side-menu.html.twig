@@ -66,7 +66,7 @@
         <li class="header">Content Management</li>
         <!-- Optionally, you can add icons to the links -->
         {% for contentType in contentTypes %}
-        	{% if contentType.active %}
+        	{% if contentType.active and (not contentType.createRole or is_granted(contentType.createRole) or contentType.rootContentType ) %}
 	          <li class="">
 	          	<a href="{{ path('data.root', {name: contentType.name}) }}" class="text-{{ contentType.color }}">
 	          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName|humanize }}</span>
@@ -85,7 +85,13 @@
 					} %}
 					{% if contentType.labelField %}
 		            	{% set searchForm = searchForm|merge({ 
-		            		'search_form[sortBy]': '_uid',
+		            		'search_form[sortBy]': contentType.labelField,
+		            		'search_form[sortOrder]': 'asc'
+						}) %}
+					{% endif %}
+					{% if contentType.sortBy %}
+		            	{% set searchForm = searchForm|merge({ 
+		            		'search_form[sortBy]': contentType.sortBy,
 		            		'search_form[sortOrder]': 'asc'
 						}) %}
 					{% endif %}
@@ -122,6 +128,10 @@
 	          			<li class=""><a id="menu-data-draft-{{ contentType.id }}" href="{{ path('data.draft_in_progress', { contentTypeId: contentType.id } ) }}"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span></a></li>
 	            	{% endif %}
 	            	{% if contentType.environment.managed %}
+	            	
+	            	{% if contentType.orderField and (contentType.fieldType.__get('ems_'~contentType.orderField).options.restrictionOptions.minimum_role is not defined or is_granted(contentType.fieldType.__get('ems_'~contentType.orderField).options.restrictionOptions.minimum_role)) %}
+	          			<li class=""><a id="menu-data-reorder-{{ contentType.id }}" href="{{ path('nature.reorder', { contentType: contentType.id } ) }}"><span>Reorder</span></a></li>
+	            	{% endif %}
 	            	
 	            	{% if not contentType.createRole or is_granted(contentType.createRole) %}
 						<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>

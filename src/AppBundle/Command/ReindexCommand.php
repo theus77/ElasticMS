@@ -90,7 +90,7 @@ class ReindexCommand extends ContainerAwareCommand
 							'body' => $revision->getRawData()
 					]);
 					if($status["_shards"]["failed"] == 1) {
-						dump($status);
+						//dump($status);
 						$error++;
 					} else {
 						$count++;				

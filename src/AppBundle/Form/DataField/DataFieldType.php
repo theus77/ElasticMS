@@ -4,12 +4,14 @@ namespace AppBundle\Form\DataField;
 
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
+use AppBundle\Exception\ContentTypeStructureException;
 use AppBundle\Form\DataField\Options\OptionsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -20,6 +22,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 abstract class DataFieldType extends AbstractType {
 	
 	protected $authorizationChecker;
+	
 	public function setAuthorizationChecker($authorizationChecker){
 		$this->authorizationChecker = $authorizationChecker;
 	}
@@ -32,6 +35,16 @@ abstract class DataFieldType extends AbstractType {
 	abstract public function getLabel();	
 
 
+	/**
+	 * Get Elasticsearch subquery
+	 *
+	 * @return array
+	 */
+	public function getElasticsearchQuery(DataField $dataField, array $options = [])
+	{
+		throw new \Exception('virtual method should be implemented by child class : '.get_class($this));
+	}
+	
 	/**
 	 * get the data value(s), as string, for the symfony form) in the context of this field
 	 *
@@ -47,6 +60,15 @@ abstract class DataFieldType extends AbstractType {
 	public function setDataValue($input, DataField &$dataValues, array $options){
 		//TODO: should be abstract ??
 		throw new \Exception('This function should never be called');
+	}
+	
+	/**
+	 * get the list of all possible values (if it means something) filter by the values array if not empty
+	 *
+	 */
+	public function getChoiceList(FieldType $fieldType, array $choices){
+		//TODO: should be abstract ??
+		throw new ContentTypeStructureException('The field '.$fieldType->getName().' of the content type '.$fieldType->getContentType()->getName().' does not have a limited list of values!');
 	}
 	
 	/**
@@ -149,7 +171,7 @@ abstract class DataFieldType extends AbstractType {
 	public function isValid(DataField &$dataField){
 		$isValid = TRUE;
 		//Madatory Validation
-		$isValid = $isValid && $this->isValidMadatory($dataField);
+		$isValid = $isValid && $this->isMandatory($dataField);
 		//Add here an other validation
 		//$isValid = isValid && isValidYourValidation();
 		return $isValid;
@@ -160,7 +182,7 @@ abstract class DataFieldType extends AbstractType {
 	 *
 	 * @return boolean
 	 */
-	public function isValidMadatory(DataField &$dataField){
+	public function isMandatory(DataField &$dataField){
 		$isValidMadatory = TRUE;
 		//Get FieldType mandatory option
 		$restrictionOptions = $dataField->getFieldType()->getRestrictionOptions();
@@ -188,6 +210,7 @@ abstract class DataFieldType extends AbstractType {
 		$builder->add ( 'options', OptionsType::class, [
 		] );
 	}
+	
 	
 
 	public static function getJsonName(FieldType $current){

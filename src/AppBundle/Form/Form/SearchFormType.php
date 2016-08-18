@@ -56,7 +56,7 @@ class SearchFormType extends AbstractType {
 				'icon' => 'fa fa-search'
 		])->add('exportResults', SubmitEmsType::class, [
 				'attr' => [
-						'class' => 'btn-primary btn-md'
+						'class' => 'btn-primary btn-sm'
 				],
 				'icon' => 'glyphicon glyphicon-export',
 		]);

@@ -26,6 +26,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
+use AppBundle\Service\ContentTypeService;
 class ElasticsearchController extends AppController
 {
 	/**
@@ -162,6 +163,7 @@ class ElasticsearchController extends AppController
 		$pattern = $request->query->get('q');
 		$environment = $request->query->get('environment');
 		$type = $request->query->get('type');
+		$category = $request->query->get('category', false);
 		// Added for ckeditor adv_link plugin.
 		$assetName = $request->query->get('asset_name');
 		
@@ -233,6 +235,38 @@ class ElasticsearchController extends AppController
 						'_all' => $patterns[$i].'*'
 				]
 		];
+		
+		/**@var ContentTypeService $contentTypeService*/ 
+		$contentTypeService = $this->get('ems.service.contenttype');
+		$contentType = $contentTypeService->getByName($type);
+		if($contentType && $contentType->getOrderField()) {
+			$params['body']['sort'] = [
+				$contentType->getOrderField() => [
+						'order' => 'asc',
+						'missing' => '_last',
+				]
+			];
+		}
+		else if($contentType && $contentType->getLabelField()) {
+			$params['body']['sort'] = [
+				$contentType->getLabelField() => [
+						'order' => 'asc',
+						'missing' => '_last',
+				]
+			];
+		}
+		
+		if($category && $contentType && $contentType->getCategoryField()) {
+			$params['body']['query']['and'][] = [
+					'term' => [
+							$contentType->getCategoryField() => [
+									'value' => $category
+							]
+					]
+			];
+		}
+		
+		//dump($params);
 		
 
 		/** @var \Elasticsearch\Client $client */
@@ -570,7 +604,7 @@ class ElasticsearchController extends AppController
 					}
 				}
 				
-				//Create the xml of each result and accumulate in a zip stream
+				//Create the file for each result and accumulate in a zip stream
 				$extime = ini_get('max_execution_time');
 				ini_set('max_execution_time', 0);
 				
@@ -579,7 +613,28 @@ class ElasticsearchController extends AppController
 				
 				$exportMapping = new ExportMapping();
 				$exportMapping->addTemplates($results);
+
+				$resultsSize = count($results['hits']['hits']);
+				$loop = [];
+				$accumulatedContent = "";
 				foreach ($results['hits']['hits'] as $result){
+					if (array_key_exists('first', $loop)){
+						$loop['first'] = false;
+					} else {
+						$loop['first'] = true;
+					}
+					if (array_key_exists('index0', $loop)) {
+						$loop['index0'] = $loop['index0']+1;
+					} else {
+						$loop['index0'] = 0;
+					}
+					if (array_key_exists('index1', $loop)) {
+						$loop['index1'] = $loop['index1']+1;
+					} else {
+						$loop['index1'] = 1;
+					}
+					$loop['last'] =  $resultsSize == $loop['index1'];
+					
 					$name = $result['_type'];
 					$formFieldName = $exportMapping->getCombinedName($name);
 					$template = $templateMapping[$formFieldName];
@@ -596,6 +651,7 @@ class ElasticsearchController extends AppController
 							continue;
 						}
 						$filename = $filename->render([
+								'loop' => $loop,
 								'contentType' => $template->getContentType(),
 								'object' => $result,
 								'source' => $result['_source'],
@@ -608,6 +664,7 @@ class ElasticsearchController extends AppController
 					
 					try {
 						$content = $body->render([
+									'loop' => $loop,
 									'contentType' => $template->getContentType(),
 									'object' => $result,
 									'source' => $result['_source'],
@@ -619,7 +676,16 @@ class ElasticsearchController extends AppController
 						$errorList[] = "Error in templateBody->render() for: ".$filename;
 						continue;
 					}
-					$zip->addFile($filename, $content);
+					
+					if ($template->getAccumulateInOneFile()){
+						$accumulatedContent = $accumulatedContent.$content;
+						if ($loop['last']){
+							$zip->addFile($template->getName().'.'.$template->getExtension(), $accumulatedContent);
+						}
+					} else {
+						$zip->addFile($filename, $content);
+					}
+					
 				}
 				
 				if (!empty($errorList))

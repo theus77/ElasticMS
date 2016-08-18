@@ -187,6 +187,7 @@ class DataController extends AppController
 			$revision = $repository->findOneBy([
 					'endTime' => null,
 					'ouuid' => $ouuid,
+					'deleted' => false,
 					'contentType' => $contentType,
 			]);			
 		}
@@ -249,6 +250,13 @@ class DataController extends AppController
 		return $this->get("ems.service.data")->getNewestRevision($type, $ouuid);
 	}
 	
+	/**
+	 * 
+	 * @param unknown $type
+	 * @param unknown $ouuid
+	 * @param unknown $fromRev
+	 * @return Revision
+	 */
 	public function initNewDraft($type, $ouuid, $fromRev = null){
 		return $this->get("ems.service.data")->initNewDraft($type, $ouuid, $fromRev);
 	}
@@ -441,6 +449,7 @@ class DataController extends AppController
 			$this->get('ems.service.data')->loadDataStructure($revision);
 			
 			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
+// 			dump($objectArray);
 			/** @var \AppBundle\Entity\Environment $environment */
 			foreach ($revision->getEnvironments() as $environment ){
 				$status = $client->index([
@@ -484,7 +493,7 @@ class DataController extends AppController
 		/** @var \AppBundle\Form\View\ViewType $viewType */
  		$viewType = $this->get($view->getType());
 		
-		return $this->render( 'view/custom/'.$viewType->getBlockPrefix().'.html.twig', $viewType->getParameters($view));		
+		return $this->render( 'view/custom/'.$viewType->getBlockPrefix().'.html.twig', $viewType->getParameters($view, $this->container->get('form.factory')));		
 	}
 
 	/**
@@ -574,23 +583,7 @@ class DataController extends AppController
 						'object' => $object,
 						'source' => $object['_source'],
 				]);
-			if (null != $template->getDownloadResultUrl()){
-				$ch = curl_init($output);
-				curl_setopt($ch, CURLOPT_NOBODY, true);
-				curl_setopt($ch, CURLOPT_HEADER, true);
-				curl_exec($ch);
-				$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-				curl_close($ch);
-				
-				if ($code == 200) {
-					echo file_get_contents($output);
-				} else {
-					echo "Error ".$code." while downloading file: ".$output;
-				}
-				
-			} else {
-				echo $output;
-			}
+			echo $output;
 			
 			exit;
 		}
@@ -637,23 +630,24 @@ class DataController extends AppController
 		
 		$form = $this->createForm(RevisionType::class, $revision);
 		$form->handleRequest($request);
+				
+		/** @var Revision $revision */
+		$revision = $form->getData();
+		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
+		$revision->setAutoSave($objectArray);
+		$revision->setAutoSaveAt(new \DateTime());
+		$revision->setAutoSaveBy($this->getUser()->getUsername());
 		
-// 		if( $form->isValid() ){
-			/** @var Revision $revision */
-			$revision = $form->getData();
-			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
-			$revision->setAutoSave($objectArray);
-			$revision->setAutoSaveAt(new \DateTime());
-			$revision->setAutoSaveBy($this->getUser()->getUsername());
+		$em->persist($revision);
+		$em->flush();			
+
+		$this->get("ems.service.data")->isValid($form);
+		$formErrors = $form->getErrors(true, true);
 			
-			$em->persist($revision);
-			$em->flush();			
-// 		}
-		
 		return $this->render( 'data/ajax-revision.json.twig', [
-				'revision' =>  $revision,
-				'errors' => $form->getErrors(true, true),
-				'form' => $form->createView(),
+// 				'revision' =>  $revision,
+				'success' => true,
+				'formErrors' => $formErrors,
 		] );
 	}
 	

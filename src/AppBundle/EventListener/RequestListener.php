@@ -83,7 +83,7 @@ class RequestListener
     	$repository = $this->doctrine->getRepository('AppBundle:ContentType');
     	$contentTypes = $repository->findBy([
     			'deleted' => false,
-    			'rootContentType' => true,
+//     			'rootContentType' => true,
     	],[
     			'orderKey' => 'ASC'
     	]);

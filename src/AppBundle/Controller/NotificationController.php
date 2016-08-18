@@ -16,6 +16,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use AppBundle\Form\Form\NotificationFormType;
 use AppBundle\Entity\Notification;
 use AppBundle\Entity\Form\NotificationFilter;
+use AppBundle\Service\NotificationService;
 
 class NotificationController extends AppController
 {
@@ -60,11 +61,12 @@ class NotificationController extends AppController
 			throw new NotFoundHttpException('Unknown revision');
 		}
 		
-		
-		$this->get("ems.service.notification")->addNotification($templateId, reset($revision), $env);
+		/**@var NotificationService $notificationService*/
+		$notificationService = $this->get("ems.service.notification");
+		$success = $notificationService->addNotification($templateId, reset($revision), $env);
 
-		return $this->render( 'data/ajax-notification.json.twig', [
-				'message' => true,
+		return $this->render( 'ajax/notification.json.twig', [
+				'success' => $success,
 		] );
 	}
 	
