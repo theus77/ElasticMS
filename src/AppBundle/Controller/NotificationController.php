@@ -2,21 +2,23 @@
 
 namespace AppBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use AppBundle\Controller\AppController;
 use AppBundle;
-use Symfony\Component\HttpFoundation\Request;
 use AppBundle\Entity\ContentType;
+use AppBundle\Entity\Environment;
+use AppBundle\Entity\Form\NotificationFilter;
+use AppBundle\Entity\Form\TreatNotifications;
+use AppBundle\Entity\Notification;
+use AppBundle\Form\Form\NotificationFormType;
+use AppBundle\Form\Form\TreatNotificationsType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
-use AppBundle\Entity\Environment;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use AppBundle\Form\Form\NotificationFormType;
-use AppBundle\Entity\Notification;
-use AppBundle\Entity\Form\NotificationFilter;
 use AppBundle\Service\NotificationService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class NotificationController extends AppController
 {
@@ -72,6 +74,43 @@ class NotificationController extends AppController
 	
 	
 	/**
+	 * @Route("/notification/treat", name="notification.treat"))
+     * @Method({"POST"})
+	 */
+	public function treatNotificationsAction(Request $request)
+	{
+		$treatNotification = new TreatNotifications();
+		$form = $this->createForm(TreatNotificationsType::class, $treatNotification, [
+		]);
+		$form->handleRequest ( $request );
+		/**@var TreatNotifications $treatNotification*/
+		$treatNotification = $form->getNormData();
+		$treatNotification->setAccept($form->get('accept')->isClicked());
+		$treatNotification->setReject($form->get('reject')->isClicked());
+
+
+		/**dump in flash all info, should be replace by a call to a service's fucniton*/
+		foreach( $treatNotification->getNotifications() as $notification => $true ){
+			$this->addFlash('notice', 'Should treat notice #'.$notification);
+		}
+
+		$this->addFlash('notice', 'Should publish them in '.$treatNotification->getPublishTo());
+		$this->addFlash('notice', 'Should unpublish them from '.$treatNotification->getUnpublishfrom());
+		
+		if($treatNotification->getAccept()){
+			$this->addFlash('notice', 'Those notices are accepted');
+		}
+		else {
+			$this->addFlash('notice', 'Those notices are rejected');
+		}	
+		/** end dump **/
+		
+		
+		return $this->redirectToRoute('notifications.list');
+	}
+	
+	
+	/**
 	 * @Route("/notification/menu", name="notification.menu"))
 	 */
 	public function menuNotificationAction()
@@ -110,7 +149,8 @@ class NotificationController extends AppController
  			$notificationFilter = $form->getData();
  		}
  		
-		
+
+ 		
 		//TODO: use a servce to pass authorization_checker to repositoryNotification.
 		$em = $this->getDoctrine()->getManager();
 		$repositoryNotification = $em->getRepository('AppBundle:Notification');
@@ -130,6 +170,20 @@ class NotificationController extends AppController
 		
 		$notifications = $this->get('ems.service.notification')->listNotifications(($page-1)*$paging_size, $paging_size, $filters);
 
+ 		$treatNotification = new TreatNotifications();
+//  		$forForm = [];
+//  		foreach ($notifications as $notification){
+//  			$forForm[$notification->getId()] = false;
+//  		}
+//  		$treatNotification->setNotifications($forForm);
+ 		
+ 		/**@var \Symfony\Component\Routing\RouterInterface $router*/
+ 		$router = $this->get('router');
+ 		$treatform = $this->createForm(TreatNotificationsType::class, $treatNotification, [
+ 				'action' => $router->generate('notification.treat'),
+ 				'notifications' => $notifications,
+ 		]);
+		
 		return $this->render('notification/list.html.twig', array(
 				'counter' => $count,
 				'notifications' => $notifications,
@@ -137,6 +191,7 @@ class NotificationController extends AppController
 				'paginationPath' => 'notifications.list',
 				'page' => $page,
 				'form' => $form->createView(),
+				'treatform' => $treatform->createView(),
 				'currentFilters' => $request->query
 		));
 	}

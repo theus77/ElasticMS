@@ -157,6 +157,15 @@ class Revision
     	}
     }
     
+    
+    public function buildObject(){
+    	return [
+    		'_id' => $this->ouuid,
+    		'_type' => $this->contentType->getName(),
+    		'_source' => $this->rawData
+    	];
+    }
+    
     function __construct()
     {
     	$this->deleted = false;

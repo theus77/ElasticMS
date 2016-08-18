@@ -4,20 +4,29 @@ namespace AppBundle\Service;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class EnvironmentService {
 	/**@var Registry $doctrine */
-	protected $doctrine;
+	private $doctrine;
 	/**@var Session $session*/
-	protected $session;
+	private $session;
 	
-	protected $environments;
+	private $environments;
+	
+	/**@var UserService $userService*/
+	private $userService;
+	
+	/** @var AuthorizationCheckerInterface $authorizationChecker*/
+	private $authorizationChecker;
 	
 	
-	public function __construct(Registry $doctrine, Session $session)
+	public function __construct(Registry $doctrine, Session $session, UserService $userService, AuthorizationCheckerInterface $authorizationChecker)
 	{
 		$this->doctrine = $doctrine;
 		$this->session = $session;
+		$this->userService = $userService;
+		$this->authorizationChecker = $authorizationChecker;
 		$this->environments = false;
 		$this->byId = false;
 	}
@@ -55,6 +64,20 @@ class EnvironmentService {
 	public function getAll(){
 		$this->loadEnvironment();
 		return $this->environments;
+	}
+	
+	public function getAllInMyCircle() {
+		$this->loadEnvironment();
+		$out = [];
+		$user = $this->userService->getCurrentUser();
+		$isAdmin = $this->authorizationChecker->isGranted('ROLE_ADMIN');
+		/**@var \AppBundle\Entity\Environment $environment*/
+		foreach ($this->environments as $index => $environment){
+			if( empty($environment->getCircles()) || $isAdmin || !empty(array_intersect($user->getCircles(), $environment->getCircles()))) {
+				$out[$index] = $environment;
+			}
+		}
+		return $out;
 	}
 	
 	

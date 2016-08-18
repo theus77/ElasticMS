@@ -264,7 +264,7 @@ services:
         arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory', '@service_container']
     ems.service.environment:
         class: AppBundle\Service\EnvironmentService
-        arguments: ['@doctrine', '@session']
+        arguments: ['@doctrine', '@session', '@ems.service.user', '@security.authorization_checker']
     ems.service.contenttype:
         class: AppBundle\Service\ContentTypeService
         arguments: ['@doctrine', '@session']

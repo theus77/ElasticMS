@@ -9,6 +9,7 @@
 		<ul class="dropdown-menu" role="menu">
 	{# 		{% if recursiveView is not defined or not recursiveView  %}#}
 				{% for template in contentType.templates %}
+					{%  if currentTemplate is not defined or template != currentTemplate %}
 					{%if template.role == "not-defined" or is_granted(template.role) and (template.environments is empty or environment in template.environments or template.isEnvironmentExist(environment.name)) %}
 					<li>
 						{% if template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::EXTERNALLINK') %}
@@ -39,6 +40,7 @@
 							
 					</li>
 				</li>
+					{% endif %}	
 					{% endif %}					
 				{% endfor %}
 				<li>

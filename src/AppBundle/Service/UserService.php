@@ -5,6 +5,7 @@ namespace AppBundle\Service;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use AppBundle\Entity\User;
 
 class UserService {
 	/**@var Registry $doctrine */
@@ -39,6 +40,9 @@ class UserService {
 		return $user;
 	}
 	
+	/**
+	 * @return User
+	 */
 	public function getCurrentUser() {
 		if(!$this->currentUser){
 			$username = $this->tokenStorage->getToken()->getUsername();
