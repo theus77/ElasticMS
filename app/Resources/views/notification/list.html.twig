@@ -64,9 +64,9 @@
 					<tbody>
 						<tr>
 							<th class="" style="">
-			                  	<a href="#" onclick="javascript: $('.item-to-align').prop('checked', 'checked'); return false;"><i class="fa fa-check-square-o"></i></a> 
-			                  	<a href="#" onclick="javascript: $('.item-to-align').prop('checked', false); return false;"><i class="fa fa-square-o"></i></a>
-			                  	Notification
+			                  	<a href="#" onclick="javascript: $('.item-to-treat').prop('checked', 'checked'); return false;"><i class="fa fa-check-square-o"></i></a> 
+			                  	<a href="#" onclick="javascript: $('.item-to-treat').prop('checked', false); return false;"><i class="fa fa-square-o"></i></a>
+			                  	&nbsp;Notification
 							</th>
 							<th>Create by</th>
 							<th>Date</th>
@@ -79,8 +79,8 @@
 						<tr>
 							<td class="">
 								<label id="treat_notifications_notifications_{{ notification.id }}_label">
-									<input type="checkbox" id="treat_notifications_notifications_{{ notification.id }}" name="treat_notifications[notifications][{{ notification.id }}]" label="treat_notifications_notifications_{{ notification.id }}_label" value="{{ notification.id }}">
-									&nbsp;&nbsp;<i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}
+									&nbsp;&nbsp;&nbsp;<input class="item-to-treat" type="checkbox" id="treat_notifications_notifications_{{ notification.id }}" name="treat_notifications[notifications][{{ notification.id }}]" label="treat_notifications_notifications_{{ notification.id }}_label" value="{{ notification.id }}">
+									&nbsp;&nbsp;&nbsp;<i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}
 								</label>
 							
 							
