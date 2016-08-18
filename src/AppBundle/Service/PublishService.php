@@ -158,13 +158,19 @@ class PublishService
 
 		$em = $this->doctrine->getManager();
 		
+		$already = false;
 		/** @var Revision $item */
 		foreach ($result as $item){
-			$item->removeEnvironment($environment);
-			$em->persist($item);
+			if($item == $revision){
+				$already = true;
+				$this->session->getFlashBag()->add('warning', 'The revision '.$revision.' is already specified as published in '.$environment);
+			}
+			else {
+				$item->removeEnvironment($environment);
+				$em->persist($item);				
+			}
 		}
 		
-		$revision->addEnvironment($environment);
 
 		$status = $this->client->index([
 				'id' => $revision->getOuuid(),
@@ -173,10 +179,13 @@ class PublishService
 				'body' => $revision->getRawData()
 		]);
 		
-		$em->persist($revision);
-		$em->flush();
+		if(!$already) {
+			$revision->addEnvironment($environment);
+			$em->persist($revision);
+			$em->flush();			
+			$this->session->getFlashBag()->add('notice', 'Revision '.$revision.' has been published in '.$environment);
+		}
 		
-		$this->session->getFlashBag()->add('notice', 'Revision '.$revision.' has been published in '.$environment);
 		$this->auditService->auditLog('PublishService:publish', $revision->getRawData(), $environment->getName());
 		
 	}

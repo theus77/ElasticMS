@@ -8,6 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Monolog\Logger;
 use AppBundle\Entity\Template;
 use Symfony\Component\HttpFoundation\Session\Session;
+use AppBundle\Entity\Form\TreatNotifications;
 
 class NotificationService {
 	
@@ -138,5 +139,13 @@ class NotificationService {
 		$notifications = $repository->findByPendingAndUserRoleAndCircle($this->userService->getCurrentUser(), $from, $limit, $contentTypes, $environments, $templates);
 			
 		return $notifications;
+	}
+
+	public function accept(Notification $notification, TreatNotifications $treatNotifications) {
+	
+	}
+
+	public function reject(Notification $notification, TreatNotifications $treatNotifications) {
+		
 	}
 }

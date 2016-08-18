@@ -89,21 +89,41 @@ class NotificationController extends AppController
 		$treatNotification->setReject($form->get('reject')->isClicked());
 
 
-		/**dump in flash all info, should be replace by a call to a service's fucniton*/
-		foreach( $treatNotification->getNotifications() as $notification => $true ){
-			$this->addFlash('notice', 'Should treat notice #'.$notification);
-		}
-
-		$this->addFlash('notice', 'Should publish them in '.$treatNotification->getPublishTo());
-		$this->addFlash('notice', 'Should unpublish them from '.$treatNotification->getUnpublishfrom());
+		$em = $this->getDoctrine()->getManager();
+		$repositoryNotification = $em->getRepository('AppBundle:Notification');
 		
-		if($treatNotification->getAccept()){
-			$this->addFlash('notice', 'Those notices are accepted');
+		$publishIn = $this->get('ems.service.environment')->getAliasByName($treatNotification->getPublishTo());
+		$unpublishFrom  = $this->get('ems.service.environment')->getAliasByName($treatNotification->getUnpublishfrom());
+		
+		if(!empty($publishIn) && !empty($unpublishFrom) && $publishIn == $unpublishFrom) {
+			$this->addFlash('error', 'You can\'t publish in and unpublish from the same environment '.$unpublishFrom.' !');
 		}
 		else {
-			$this->addFlash('notice', 'Those notices are rejected');
-		}	
-		/** end dump **/
+			foreach( $treatNotification->getNotifications() as $notificationId => $true ){
+				/**@var Notification $notification*/
+				$notification = $repositoryNotification->find($notificationId);
+				if(empty($notification)) {
+					$this->addFlash('error', 'Notification #'.$notification.' not found');
+					continue;
+				}
+				
+				if(!empty($publishIn)) {
+					$this->get("ems.service.publish")->publish($notification->getRevisionId(), $publishIn);
+				}
+				
+				if(!empty($unpublishFrom)) {
+					$this->get("ems.service.publish")->unpublish($notification->getRevisionId(), $unpublishFrom);
+				}
+				
+				if($treatNotification->getAccept()){
+					$this->get('ems.service.notification')->accept($notification, $treatNotification);
+				}
+				
+				if($treatNotification->getReject()){
+					$this->get('ems.service.notification')->reject($notification, $treatNotification);
+				}
+			}
+		}
 		
 		
 		return $this->redirectToRoute('notifications.list');
