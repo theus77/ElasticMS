@@ -318,6 +318,13 @@ class ContentType
      	$this->setAskForOuuid( true );
     }
 
+
+
+    public function __toString()
+    {
+    	return $this->name;
+    }
+    
     public static function getIndexAnalysisConfiguration(){
     	return '{
 		   "index" : {

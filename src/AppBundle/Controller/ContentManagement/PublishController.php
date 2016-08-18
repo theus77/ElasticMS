@@ -4,139 +4,39 @@ namespace AppBundle\Controller\ContentManagement;
 
 use AppBundle\Controller\AppController;
 use AppBundle;
+use AppBundle\Entity\Environment;
+use AppBundle\Entity\Revision;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Repository\RevisionRepository;
-use Doctrine\ORM\EntityManager;
-use AppBundle\Entity\Revision;
-use AppBundle\Entity\Environment;
-use Elasticsearch\Client;
 
 class PublishController extends AppController
 {
 	/**
 	 * @Route("/publish/to/{revisionId}/{envId}", name="revision.publish_to"))
 	 */
-	public function publishToAction($revisionId, $envId, Request $request)
+	public function publishToAction(Revision $revisionId, Environment $envId, Request $request)
 	{
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine()->getManager();
-		
-		/** @var RevisionRepository $revisionRepo */
-		$revisionRepo = $em->getRepository('AppBundle:Revision');
-		
-		/** @var Revision $revision */
-		$revision = $revisionRepo->find($revisionId);
-		
-		if(!$revision) {
-			throw $this->createNotFoundException('Revision not found');
-		}
-		
-
-		$this->get("ems.service.data")->lockRevision($revision);
-		
-
-		/** @var RevisionRepository $revisionRepo */
-		$environmentRepo = $em->getRepository('AppBundle:Environment');
-		
-		/** @var Environment $environment */
-		$environment = $environmentRepo->find($envId);
-		
-		if(!$environment) {
-			throw $this->createNotFoundException('Environment not found');
-		}
-		
-		$result = $revisionRepo->findByOuuidContentTypeAndEnvironnement($revision, $environment);	
-		
-		/** @var Revision $item */
-		foreach ($result as $item){
-			$item->removeEnvironment($environment);
-			$em->persist($item);
-		}
-		
-		$revision->addEnvironment($environment);
-
-		/** @var Client $client */
-		$client = $this->get('app.elasticsearch');
-		
-		
-		$status = $client->index([
-				'id' => $revision->getOuuid(),
-				'index' => $environment->getAlias(),
-				'type' => $revision->getContentType()->getName(),
-				'body' => $revision->getRawData()
-		]);
-		
-		$em->persist($revision);
-		$em->flush();
-		
-		// Call Audit service for log
-		$this->get("ems.service.audit")->auditLog('PublishController:publishTo', $revision->getRawData(), $environment->getName());
+		$this->get("ems.service.publish")->publish($revisionId, $envId);
 		
 		return $this->redirectToRoute('data.revisions', [
-				'ouuid' => $revision->getOuuid(),
-				'type'=> $revision->getContentType()->getName()
+				'ouuid' => $revisionId->getOuuid(),
+				'type'=> $revisionId->getContentType()->getName(),
+				'revisionId' => $revisionId->getId(),
 		]);
-		
 	}
+	
 	/**
 	 * @Route("/revision/unpublish/{revisionId}/{envId}", name="revision.unpublish"))
 	 */
-	public function unpublishAction($revisionId, $envId, Request $request)
+	public function unpublishAction(Revision $revisionId, Environment $envId, Request $request)
 	{
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine()->getManager();
-		
-		/** @var RevisionRepository $revisionRepo */
-		$revisionRepo = $em->getRepository('AppBundle:Revision');
-		
-		/** @var Revision $revision */
-		$revision = $revisionRepo->find($revisionId);
-		
-		if(!$revision) {
-			throw $this->createNotFoundException('Revision not found');
-		}
-
-		$this->get("ems.service.data")->lockRevision($revision);
-
-		/** @var RevisionRepository $revisionRepo */
-		$environmentRepo = $em->getRepository('AppBundle:Environment');
-		
-		/** @var Environment $environment */
-		$environment = $environmentRepo->find($envId);
-		
-		if(!$environment) {
-			throw $this->createNotFoundException('Environment not found');
-		}
-		
-		$revision->removeEnvironment($environment);
-		
-
-		/** @var Client $client */
-		$client = $this->get('app.elasticsearch');
-		
-		try {
-			$status = $client->delete([
-					'id' => $revision->getOuuid(),
-					'index' => $environment->getAlias(),
-					'type' => $revision->getContentType()->getName(),
-			]);
-			$this->addFlash('notice', 'The object has been unpublished from environment '.$environment->getName());
-		}
-		catch(Missing404Exception $e){
-			if(!$revision->getDeleted()) {
-				$this->addFlash('warning', 'The object was already unpublished from environment '.$environment->getName());
-			}
-		}
-		
-		$em->persist($revision);
-		$em->flush();
+		$this->get("ems.service.publish")->unpublish($revisionId, $envId);
 		
 		return $this->redirectToRoute('data.revisions', [
-				'ouuid' => $revision->getOuuid(),
-				'type'=> $revision->getContentType()->getName()
-		]);
-		
+				'ouuid' => $revisionId->getOuuid(),
+				'type'=> $revisionId->getContentType()->getName(),
+				'revisionId' => $revisionId->getId(),
+		]);		
 	}
 }
