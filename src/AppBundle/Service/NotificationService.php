@@ -312,9 +312,11 @@ class NotificationService {
 			$notification->setResponseEmailed(new \DateTime());
 		}
 		
-		$em = $this->doctrine->getManager();
-		$em->persist($notification);
-		$em->flush();
-		$this->container->get('mailer')->send($message);
+		if($this->dryRun) {
+			$em = $this->doctrine->getManager();
+			$em->persist($notification);
+			$em->flush();
+			$this->container->get('mailer')->send($message);			
+		}
 	}
 }
