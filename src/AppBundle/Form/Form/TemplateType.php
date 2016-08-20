@@ -85,6 +85,10 @@ class TemplateType extends AbstractType {
 		->add( 'mimeType', TextType::class, [
 				'required' => false,
 		])
+		->add( 'emailContentType', TextType::class, [
+				'required' => false,
+				'label' => 'Content type (ie: text/html)',
+		])
 		->add( 'filename', TextareaType::class, [
 				'required' => false,
 				'attr' => [

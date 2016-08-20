@@ -121,4 +121,27 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	 	}
 	 	return $templateIds;
 	 }
+	 
+	 public function findReminders(\DateTime $date){
+	 	$query = $this->createQueryBuilder('n')
+			->select('n')
+			->where('n.status = :status')
+			->andwhere('n.emailed <= :date')
+	 		->setParameters([
+	 				'status' => 'pending',
+	 				'date' => $date,
+	 		]);
+	 	return $query->getQuery()->getResult();
+	 }
+	 
+	 public function findResponses(){
+	 	$query = $this->createQueryBuilder('n')
+			->select('n')
+			->where('n.status <> :status')
+			->andwhere('n.responseEmailed is NULL')
+	 		->setParameters([
+	 				'status' => 'pending',
+	 		]);
+	 	return $query->getQuery()->getResult();
+	 }
 }

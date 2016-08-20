@@ -199,6 +199,7 @@ class Revision
     	}
     	if($this->contentType) {
     		$out = $this->contentType->getName().':'.$out;
+    		if(!empty($this->id)) $out .=  '#'.$this->id;
     	}
     	
     	

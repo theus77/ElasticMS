@@ -14,6 +14,8 @@ parameters:
     mailer_host:       127.0.0.1
     mailer_user:       ~
     mailer_password:   ~
+    mailer_port:       25
+    mailer_sender:     { noreply@example.com: 'elasticMS' }
 
     # A secret key that's used to generate certain security-related tokens
     secret:            ThisTokenIsNotSoSecretChangeIt
@@ -34,3 +36,4 @@ parameters:
         - ems.storage.filesystem
     audit_index:
     date_time_format: "j/m/Y \\a\\t G:i"
+    notification_pending_timeout: "P15D"

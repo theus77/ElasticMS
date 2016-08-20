@@ -282,7 +282,7 @@ services:
         arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '@app.twig_extension', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@ems.service.contenttype', '@ems.service.environment', '@ems.service.data', '@ems.service.audit', '@ems.service.user']
     ems.service.notification:
         class: AppBundle\Service\NotificationService
-        arguments: ['%audit_index%', '@doctrine', '@ems.service.user', '@logger', '@ems.service.audit', '@session']
+        arguments: ['%audit_index%', '@doctrine', '@ems.service.user', '@logger', '@ems.service.audit', '@session', '@service_container', '@ems.service.data', '%mailer_sender%', '@twig']
 
 ### Storage services ###
     ems.storage.filesystem:
@@ -314,5 +314,10 @@ services:
     ems.contenttype.delete:
         class: AppBundle\Command\DeleteCommand
         arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        tags:
+            -  { name: console.command }
+    ems.notification.send:
+        class: AppBundle\Command\SendNotificationsCommand
+        arguments: ['@doctrine', '@logger', '@ems.service.user', '@ems.service.notification', '%notification_pending_timeout%']
         tags:
             -  { name: console.command }

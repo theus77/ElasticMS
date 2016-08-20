@@ -121,6 +121,9 @@ class UserController extends Controller
 				'translation_domain' => 'FOSUserBundle',
 				'disabled' => true
 		))
+		->add('displayName', null, array(
+				'label' => 'Display name',
+		))
 		->add('circles', ObjectPickerType::class, [
 				'multiple' => TRUE,
 				'type' => $this->container->getParameter('circles_object'),

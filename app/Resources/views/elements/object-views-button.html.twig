@@ -24,10 +24,12 @@
 								<i class="fa fa-external-link pull-right"></i>
 							</a>
 						{% elseif template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::NOTIFICATION') %}
-							<a href='#' class="request_notification" onclick="requestNotification(this, {{template.id}}, '{{environment.name}}', '{{contentType.id}}' , '{{ouuid}}'); return false;" href="#" data-url="{{ url('notification.ajaxnotification', {'objectId' : ouuid}) }}">
-								<i class="{{ template.icon|raw }}"></i>
-								{{ template.name }}
-							</a>
+							{% if attribute(object._source, contentType.circlesField)|in_my_circles %}
+								<a href='#' class="request_notification" onclick="requestNotification(this, {{template.id}}, '{{environment.name}}', '{{contentType.id}}' , '{{ouuid}}'); return false;" href="#" data-url="{{ url('notification.ajaxnotification', {'objectId' : ouuid}) }}">
+									<i class="{{ template.icon|raw }}"></i>
+									{{ template.name }}
+								</a>
+							{% endif %}
 						{% else %}{#  #}
 							<a href="{{ path('data.customview', {
 										environmentName: environment.name,

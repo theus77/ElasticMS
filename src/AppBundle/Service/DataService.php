@@ -10,18 +10,17 @@ use AppBundle\Exception\PrivilegeException;
 use AppBundle\Form\Form\RevisionType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\RevisionRepository;
-use AppBundle\Twig\AppExtension;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Form\FormError;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class DataService
 {
@@ -109,6 +108,22 @@ class DataService
 		$revision->setStartTime($now);
 		
 		$em->flush();
+	}
+	
+	public function getDataCircles(Revision $revision) {
+		$out = [];
+		if($revision->getContentType()->getCirclesField()) {
+			$fieldValue = $revision->getRawData()[$revision->getContentType()->getCirclesField()];
+			if(!empty($fieldValue)) {
+				if(is_array($fieldValue)) {
+					return $fieldValue;
+				}
+				else {
+					$out[] = $fieldValue;
+				}
+			}
+		}
+		return $out;
 	}
 	
 	

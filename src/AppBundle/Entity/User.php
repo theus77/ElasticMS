@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity
  * @ORM\Table(name="`user`")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\UserRepository")
  * @ORM\HasLifecycleCallbacks()
  */
 class User extends BaseUser
@@ -40,6 +41,13 @@ class User extends BaseUser
      * @ORM\Column(name="circles", type="json_array", nullable=true)
      */
     private $circles;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="display_name", type="string", length=255, nullable=true)
+     */
+    private $displayName;
 
     
     public function __construct()
@@ -140,5 +148,31 @@ class User extends BaseUser
     	$this->circles = $circles;
     
     	return $this;
+    }
+
+    /**
+     * Set displayName
+     *
+     * @param string $displayName
+     *
+     * @return User
+     */
+    public function setDisplayName($displayName)
+    {
+        $this->displayName = $displayName;
+
+        return $this;
+    }
+
+    /**
+     * Get displayName
+     *
+     * @return string
+     */
+    public function getDisplayName()
+    {
+    	if(empty($this->displayName))
+    		return $this->getUsername();
+        return $this->displayName;
     }
 }
