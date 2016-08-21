@@ -33,6 +33,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Service\ContentTypeService;
 
 class DataController extends AppController
 {
@@ -957,42 +958,49 @@ class DataController extends AppController
 		}
 		
 		if(null != $ouuid && null != $type) {
+			/** @var EntityManager $em */
+			$em = $this->getDoctrine ()->getManager ();
+			
+			/** @var RevisionRepository $repository */
+			$repository = $em->getRepository ( 'AppBundle:Revision' );
+			
+			/**@var ContentTypeService $ctService*/
+			$ctService = $this->get('ems.service.contenttype');
+			
+			
+			$contentType = $ctService->getByName($type);
+
+			if(empty($contentType)){
+				throw new NotFoundHttpException('Content type '.$type.'not found' );				
+			}
+
+			/**@var Revision $revision */
+			$revision = $repository->findByOuuidAndContentTypeAndEnvironnement($contentType, $ouuid, $contentType->getEnvironment());
+			
+			if(empty($revision)){
+				throw new NotFoundHttpException('Impossible to find this item : ' . $ouuid);
+			}
+						
+			
+			
+			
 			// For each type, we must perform a different redirect.
 			if($category == 'object'){
 				return $this->redirectToRoute('data.revisions', [
 						'type' => $type,
 						'ouuid'=> $ouuid,
 				]);
-			} else { 
-
-				/** @var EntityManager $em */
-				$em = $this->getDoctrine ()->getManager ();
-				
-				/** @var UploadedAssetRepository $repository */
-				$repository = $em->getRepository ( 'AppBundle:Revision' );
-
-				/**@var Revision $revision */			
-				$revision = $repository->findOneBy([
-					'ouuid' => $ouuid,
-				]);
-				
-				if(!$revision){
-					throw new NotFoundHttpException('Impossible to find this item : ' . $ouuid);
-				}
+			} else if ($category == 'asset') { 
 								
-				$attachedFile = $revision->getRawData();			
-
-				foreach ($attachedFile as $file) {
-						$sha1 = $file['sha1'];
-						$type = $file['mimetype'];
-						$name = $file['filename'];
+				if(empty($contentType->getAssetField()) && empty($revision->getRawData()[$contentType->getAssetField()])) {
+					throw new NotFoundHttpException('Asset field not found for '. $revision);
 				}
-				
 				return $this->redirectToRoute('file.download', [
-						'sha1' => $sha1,
-						'type' => $type, 
-						'name' => $name
+						'sha1' => $revision[0]->getRawData()[$contentType->getAssetField()]['sha1'],
+						'type' => $revision[0]->getRawData()[$contentType->getAssetField()]['mimetype'],
+						'name' => $revision[0]->getRawData()[$contentType->getAssetField()]['filename'],
 				]);
+				
 			}
 		} else {
 			throw new NotFoundHttpException('Impossible to find this item : ' . $key);

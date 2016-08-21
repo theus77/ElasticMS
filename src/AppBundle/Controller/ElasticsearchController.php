@@ -27,6 +27,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
 use AppBundle\Service\ContentTypeService;
+use AppBundle\Service\EnvironmentService;
 class ElasticsearchController extends AppController
 {
 	/**
@@ -161,11 +162,11 @@ class ElasticsearchController extends AppController
 	public function searchApiAction(Request $request)
 	{
 		$pattern = $request->query->get('q');
-		$environment = $request->query->get('environment');
-		$type = $request->query->get('type');
+		$environments = $request->query->get('environment');
+		$types = $request->query->get('type');
 		$category = $request->query->get('category', false);
 		// Added for ckeditor adv_link plugin.
-		$assetName = $request->query->get('asset_name');
+		$assetName = $request->query->get('asset_name', false);
 		
 		
 		/** @var EntityManager $em */
@@ -174,40 +175,52 @@ class ElasticsearchController extends AppController
 		/** @var ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository ( 'AppBundle:ContentType' );
 		
-		$types = $contentTypeRepository->findAllAsAssociativeArray();
-				
-		/** @var EnvironmentRepository $environmentRepository */
-		$environmentRepository = $em->getRepository ( 'AppBundle:Environment' );
-			
-		$environments = $environmentRepository->findAllAsAssociativeArray('alias');
-		
+		$allTypes = $contentTypeRepository->findAllAsAssociativeArray();
 	
-		if (!$type) {	
+		if (empty($types)) {	
+			$types = [];
 			// For search only in contentType with Asset field == $assetName.
 			if ($assetName) {
-				foreach ($types as $key => $value) {
-					if ($value->getAssetField() === $assetName) {
-						$type[] = $key;
+				foreach ($allTypes as $key => $value) {
+					if (!empty($value->getAssetField())) {
+						$types[] = $key;
 					}
 				}	
 			} else {
-				$type = array_keys($types);
+				$types = array_keys($allTypes);
 			}
 		}
+		else {
+			$types = explode(',', $types);
+		}
 		
-		$alias = array_keys($environments);
-		if($environment){
-			foreach ($environments as $item){
-				if(strcmp($environment, $item['name']) == 0){
-					$alias = $item['alias'];
+		$aliases = [];
+		$service = $this->get('ems.service.environment');
+		if(empty($environments)){
+			/**@var EnvironmentService $service*/
+			foreach ($types as $type){
+				/**@var \AppBundle\Entity\ContentType $ct*/
+				$ct = $contentTypeRepository->findByName($type);
+				$alias = $service->getAliasByName($ct[0]->getEnvironment()->getName());
+				if($alias){
+					$aliases[] =  $alias->getAlias();
 				}
 			}			
+		}
+		else {
+			$environments = explode(',', $environments);
+			foreach ($environments as $environment) {
+				$alias = $service->getAliasByName($environment);
+				if($alias){
+					$aliases[] =  $alias->getAlias();
+				}
+			}
 		}
 			
 		
 		$params = [
-				'index' => $alias,
-				'type' => $type,
+				'index' => array_unique($aliases),
+				'type' => array_unique($types),
 				'size' => $this->container->getParameter('paging_size'),
 				'body' => [
 						'query' => [
@@ -236,37 +249,39 @@ class ElasticsearchController extends AppController
 				]
 		];
 		
-		/**@var ContentTypeService $contentTypeService*/ 
-		$contentTypeService = $this->get('ems.service.contenttype');
-		$contentType = $contentTypeService->getByName($type);
-		if($contentType && $contentType->getOrderField()) {
-			$params['body']['sort'] = [
-				$contentType->getOrderField() => [
-						'order' => 'asc',
-						'missing' => '_last',
-				]
-			];
-		}
-		else if($contentType && $contentType->getLabelField()) {
-			$params['body']['sort'] = [
-				$contentType->getLabelField() => [
-						'order' => 'asc',
-						'missing' => '_last',
-				]
-			];
-		}
-		
-		if($category && $contentType && $contentType->getCategoryField()) {
-			$params['body']['query']['and'][] = [
-					'term' => [
-							$contentType->getCategoryField() => [
-									'value' => $category
-							]
+		if(count($types) == 1){
+			/**@var ContentTypeService $contentTypeService*/ 
+			$contentTypeService = $this->get('ems.service.contenttype');
+			$contentType = $contentTypeService->getByName($types[0]);
+			if($contentType && $contentType->getOrderField()) {
+				$params['body']['sort'] = [
+					$contentType->getOrderField() => [
+							'order' => 'asc',
+							'missing' => '_last',
 					]
-			];
+				];
+			}
+			else if($contentType && $contentType->getLabelField()) {
+				$params['body']['sort'] = [
+					$contentType->getLabelField() => [
+							'order' => 'asc',
+							'missing' => '_last',
+					]
+				];
+			}
+			
+			if($category && $contentType && $contentType->getCategoryField()) {
+				$params['body']['query']['and'][] = [
+						'term' => [
+								$contentType->getCategoryField() => [
+										'value' => $category
+								]
+						]
+				];
+			}			
 		}
 		
-		//dump($params);
+// 		dump($params);
 		
 
 		/** @var \Elasticsearch\Client $client */
@@ -276,7 +291,7 @@ class ElasticsearchController extends AppController
 		
 		return $this->render( 'elasticsearch/search.json.twig', [
 				'results' => $results,
-				'types' => $types,
+				'types' => $allTypes,
 		] );
 		
 	}
