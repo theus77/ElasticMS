@@ -50,6 +50,10 @@ security:
                 target: /login
     access_control:
         - { path: ^/login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/go-to-login$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/status.json$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/status$, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/documentation$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/content-type, roles: ROLE_ADMIN }
         - { path: ^/environment, roles: ROLE_ADMIN }

@@ -51,6 +51,7 @@ twig:
         datepicker_format : "%datepicker_format%"
         datepicker_weekstart : "%datepicker_weekstart%"
         datepicker_daysofweek_highlighted: "%datepicker_daysofweek_highlighted%"
+        allow_user_registration: "%allow_user_registration%"
     form_themes:
         - "form/fields.html.twig"
 
@@ -88,3 +89,9 @@ fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
     user_class: AppBundle\Entity\User
+    from_email: "%from_email%"
+    service:
+        mailer: fos_user.mailer.default
+    resetting:
+        email:
+            template: email/password_resetting.email.twig

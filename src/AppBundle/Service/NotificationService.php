@@ -288,7 +288,7 @@ class NotificationService {
 			}
 			
 			$message->setSubject($notification->getTemplateId().' for '.$notification->getRevisionId())
-				->setFrom($this->sender)
+				->setFrom($this->sender['address'], $this->sender['sender_name'])
 				->setTo($toUsers)
 				->setCc(array_unique(array_merge($ccUsers, $fromUser)))
 				->setBody($body, empty($notification->getTemplateId()->getEmailContentType())?'text/html':$notification->getTemplateId()->getEmailContentType());
@@ -305,14 +305,14 @@ class NotificationService {
 			
 			//it's a reminder
 			$message->setSubject($notification->getTemplateId().' for '.$notification->getRevisionId().' has been '.$notification->getStatus())
-				->setFrom($this->sender)
+				->setFrom($this->sender['address'], $this->sender['sender_name'])
 				->setTo($fromUser)
 				->setCc(array_unique(array_merge($ccUsers, $toUsers)))
 				->setBody($body, 'text/html');
 			$notification->setResponseEmailed(new \DateTime());
 		}
 		
-		if($this->dryRun) {
+		if(!$this->dryRun) {
 			$em = $this->doctrine->getManager();
 			$em->persist($notification);
 			$em->flush();
