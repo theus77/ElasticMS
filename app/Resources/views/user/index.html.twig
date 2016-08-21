@@ -40,14 +40,14 @@
 								<td>{{ user.email }}</td>
 								<td>
 									{% for circle in user.circles %}
-										{% if not loop.first %}
-											{% if loop.last %}
-											&amp;
-											{% else %}
-											,
-											{% endif %}
-										{% endif %}
-										{{ circle|trans }}
+{# 										{% if not loop.first %}#}
+{# 											{% if loop.last %}#}
+{# 											&amp;#}
+{# 											{% else %}#}
+{# 											,#}
+{# 											{% endif %}#}
+{# 										{% endif %}#}
+										{{ circle|data_link|raw }}
 									{% endfor %}
 								</td>
 								<td>
