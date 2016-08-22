@@ -145,7 +145,7 @@ class CriteriaController extends AppController
 			$this->dataService->finalizeDraft($revision);
 		}
 
-		
+		sleep(2);
 		return $this->redirect($request->request->all()['source_url']);
 	}
 	
@@ -415,10 +415,10 @@ class CriteriaController extends AppController
 				
 				if($multipleField && FALSE === array_search($filters[$multipleField], $criteriaSet[$multipleField]) ){
 					$criteriaSet[$multipleField][] = $filters[$multipleField];
-					$revision->setRawData($rawData);
 					if(!$revision->getDraft()){
 						$revision = $this->dataService->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
 					}
+					$revision->setRawData($rawData);
 					$this->addFlash('notice', '<b>Added</b> '.$multipleField.' with value '.$filters[$multipleField].' to '.$revision);
 					return $revision;
 				}
@@ -440,10 +440,10 @@ class CriteriaController extends AppController
 				}
 			}
 			$rawData[$criteriaField][] = $newCriterion;
-			$revision->setRawData($rawData);
 			if(!$revision->getDraft()){
 				$revision = $this->dataService->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
 			}
+			$revision->setRawData($rawData);
 			
 			$this->addFlash('notice', '<b>Added</b> to '.$revision);
 			return $revision;
@@ -539,11 +539,10 @@ class CriteriaController extends AppController
 							$rawData[$criteriaField] = array_values($rawData[$criteriaField]);
 						}
 
-						$revision->setRawData($rawData);
 						if(!$revision->getDraft()){
-							$revision = $this->dataService->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
-							
+							$revision = $this->dataService->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);							
 						}
+						$revision->setRawData($rawData);
 						$this->addFlash('notice', '<b>Remove</b> '.$multipleField.' with value '.$filters[$multipleField].' from '.$revision);
 						return $revision;
 					}
