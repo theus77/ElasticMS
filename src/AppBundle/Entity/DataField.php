@@ -656,6 +656,30 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      ****************************
      */
 
+
+    /**
+     * JSON decode the input string and save it has array in rawdata
+     *
+     * @param string $text
+     *
+     * @return DataField
+     */
+    public function setEncodedText($text)
+    {
+    	$this->rawData = json_decode($text, true);
+    	return $this;
+    }
+    
+    /**
+     * Get the rawdata in a text encoded form
+     *
+     * @return string
+     */
+    public function getEncodedText()
+    {
+    	return json_encode($this->rawData);
+    }
+
     /**
      * Set orderKey
      *
