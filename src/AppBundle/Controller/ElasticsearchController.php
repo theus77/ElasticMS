@@ -245,7 +245,7 @@ class ElasticsearchController extends AppController
 		
 		$params['body']['query']['and'][] = [
 				'wildcard' => [
-						'_all' => $patterns[$i].'*'
+						'_all' => '*'.$patterns[$i].'*'
 				]
 		];
 		
