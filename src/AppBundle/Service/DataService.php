@@ -396,6 +396,10 @@ class DataService
 					$isValid = $isValid && $tempIsValid;
 				}
 			}
+			if(!$isValid) {
+				$form->addError(new FormError("At least one child is not valid!"));				
+			}
+
 		}
 //   		$isValid = $isValid && $dataFieldType->isValid($dataField);
 		if(isset($dataFieldType) && !$dataFieldType->isValid($dataField)) {
