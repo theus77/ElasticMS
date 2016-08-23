@@ -157,7 +157,7 @@
 				  		</div>
 			  		</div>
 			  	{% endif %}
-			  	{% if attribute(types, result._type) is defined %}
+			  	{% if attribute(types, result._type) is defined and attribute(types, result._type).indexTwig %}
 			  		<div class="panel-body">
 					  	<div class="col-xs-12">
 					  		{{ 

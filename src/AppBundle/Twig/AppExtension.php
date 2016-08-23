@@ -127,7 +127,9 @@ class AppExtension extends \Twig_Extension
 	}
 	
 	function generateFromTemplate($template, array $params){
-		
+		if(empty($template)){
+			return NULL;
+		}
 		try {
 			$out = $this->twig->createTemplate($template)->render($params);
 		}
