@@ -82,48 +82,48 @@ function onFormChange(){
 // 			waitingResponse.abort();
 		}
 
-		while(!synch) {
-			synch = true;
-			//update ckeditor's textareas
-			for (var i in CKEDITOR.instances) {
-		        CKEDITOR.instances[i].updateElement();
-			}
-			
-			waitingResponse = ajaxRequest.post("{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}", $("form[name={{ form.vars.id }}]").serialize())
-			  .success(function(response) {
-				  $('.has-error').removeClass('has-error');
-				  $('span.help-block').remove();
-				  
-				  $(response.formErrors).each(function(index, item){
-
-					  if($('#'+item.propertyPath+'__label').length) {
-
-						  $('#'+item.propertyPath+'__label').addClass('has-error');
-						  if(item.message && $('#'+item.propertyPath+'__error').length > 0) {
-							  $('#'+item.propertyPath+'__error').addClass('has-error');
-							  if($('#'+item.propertyPath+'__error span.help-block').length == 0){
-								  $('#'+item.propertyPath+'__error').append('<span class="help-block"><ul class="list-unstyled"></ul></span>');
-							  }
-							  $('#'+item.propertyPath+'__error'+' span.help-block ul.list-unstyled').append('<li><span class="glyphicon glyphicon-exclamation-sign"></span> '+item.message+'</li>');
-						  }
-					  }
-					  else {
-						  $('#'+item.propertyPath).parent('.form-group').addClass('has-error');
-						  if(item.message) {
-							  if($('#'+item.propertyPath+' span.help-block').length == 0){
-								  $('#'+item.propertyPath).append('<span class="help-block"><ul class="list-unstyled"></ul></span>');
-							  }
-							  $('#'+item.propertyPath+' span.help-block ul.list-unstyled').append('<li><span class="glyphicon glyphicon-exclamation-sign"></span> '+item.message+'</li>');
-						  }
-					  }
-					  
-				  });
-			  })
-			  .always(function() {
-				  waitingResponse = false;
-				  onFormChange();
-			});
+		synch = true;
+		//update ckeditor's textareas
+		for (var i in CKEDITOR.instances) {
+	        CKEDITOR.instances[i].updateElement();
 		}
+		
+		waitingResponse = ajaxRequest.post("{{ url('revision.ajaxupdate', { revisionId: revision.id }) }}", $("form[name={{ form.vars.id }}]").serialize())
+		  .success(function(response) {
+			  $('.has-error').removeClass('has-error');
+			  $('span.help-block').remove();
+			  
+			  $(response.formErrors).each(function(index, item){
+
+				  if($('#'+item.propertyPath+'__label').length) {
+
+					  $('#'+item.propertyPath+'__label').addClass('has-error');
+					  if(item.message && $('#'+item.propertyPath+'__error').length > 0) {
+						  $('#'+item.propertyPath+'__error').addClass('has-error');
+						  if($('#'+item.propertyPath+'__error span.help-block').length == 0){
+							  $('#'+item.propertyPath+'__error').append('<span class="help-block"><ul class="list-unstyled"></ul></span>');
+						  }
+						  $('#'+item.propertyPath+'__error'+' span.help-block ul.list-unstyled').append('<li><span class="glyphicon glyphicon-exclamation-sign"></span> '+item.message+'</li>');
+					  }
+				  }
+				  else {
+					  $('#'+item.propertyPath).parent('.form-group').addClass('has-error');
+					  if(item.message) {
+						  if($('#'+item.propertyPath+' span.help-block').length == 0){
+							  $('#'+item.propertyPath).append('<span class="help-block"><ul class="list-unstyled"></ul></span>');
+						  }
+						  $('#'+item.propertyPath+' span.help-block ul.list-unstyled').append('<li><span class="glyphicon glyphicon-exclamation-sign"></span> '+item.message+'</li>');
+					  }
+				  }
+				  
+			  });
+		  })
+		  .always(function() {
+			  waitingResponse = false;
+			  if(!synch){
+				  onFormChange();
+			  }
+		});
 }
 
 function attachObjectPicker(domId) {
