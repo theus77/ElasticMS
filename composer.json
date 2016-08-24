@@ -1,7 +1,7 @@
 {
     "name": "theus/elastic-ms",
     "license": "proprietary",
-    "type": "project",
+    "type": "symfony-bundle",
     "autoload": {
         "psr-4": {
             "": "src/"
@@ -65,6 +65,9 @@
         "symfony-assets-install": "relative",
         "incenteev-parameters": {
             "file": "app/config/parameters.yml"
+        },
+        "branch-alias": {
+            "dev-master": "0.2"
         }
     }
 }
