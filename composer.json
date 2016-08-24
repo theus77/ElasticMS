@@ -2,6 +2,7 @@
     "name": "theus77/ElasticMS",
     "license": "proprietary",
     "type": "symfony-bundle",
+    "version": "0.5",
     "autoload": {
         "psr-4": {
             "": "src/"
