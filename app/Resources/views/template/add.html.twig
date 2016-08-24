@@ -35,8 +35,9 @@
 					{{ form_row(form.extension) }}
 					</div>
 					<div id="notification">					
-					{{ form_row(form.roleCc) }}
 					{{ form_row(form.roleTo) }}
+					{{ form_row(form.roleCc) }}
+					{{ form_row(form.emailContentType) }}
 					{{ form_row(form.circlesTo) }}
                     {{ form_row(form.responseTemplate) }}
 					</div>
@@ -60,9 +61,11 @@
 		'item':  'contenttype-index'
 	}%}
 	
+		
 <script type="text/javascript">
 $(window).ready(function() {  
-	
+
+
 	// Jira - ELASTICMS-41
 	$('#export').hide();
 	$('#notification').hide();
@@ -85,7 +88,7 @@ $(window).ready(function() {
 	    $('#notification').hide();
 	  }
 	});
-
+	
     var type = $( '#template_circlesTo' ).data('type'); 
     var dynamicLoading = $( '#template_circlesTo' ).data('dynamic-loading'); 
 
@@ -119,7 +122,7 @@ $(window).ready(function() {
         },
         cache: true
       },
-      //escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+      escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
       //templateResult: formatRepo, // omitted for brevity, see the source of this page
       //templateSelection: formatRepoSelection, // omitted for brevity, see the source of this page
       minimumInputLength: 1

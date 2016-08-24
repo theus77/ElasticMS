@@ -3,18 +3,17 @@
 namespace AppBundle\Service;
 
 
-use AppBundle\Entity\Notification;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Monolog\Logger;
-use AppBundle\Entity\Template;
-use Symfony\Component\HttpFoundation\Session\Session;
 use AppBundle\Entity\Form\TreatNotifications;
+use AppBundle\Entity\Notification;
+use AppBundle\Entity\Template;
 use AppBundle\Entity\User;
-use Symfony\Component\Console\Output\OutputInterface;
 use AppBundle\Repository\NotificationRepository;
-use AppBundle\Repository\TemplateRepository;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use FOS\UserBundle\Mailer\Mailer;
+use Monolog\Logger;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 class NotificationService {
 	
