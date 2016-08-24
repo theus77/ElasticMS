@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use AppBundle\Form\DataField\ComputedFieldType;
 
 class DataService
 {
@@ -70,6 +71,7 @@ class DataService
 		$this->session = $session;
 		$this->formFactory = $formFactory;
 		$this->container = $container;
+		$this->twig = $container->get('twig');
 	}
 	
 	
@@ -126,6 +128,36 @@ class DataService
 		return $out;
 	}
 	
+	public function propagateDataToComputedField(DataField $dataField, array $objectArray, $type, $ouuid){
+		$found = false;
+		if(null !== $dataField->getFieldType()){
+			if(strcmp($dataField->getFieldType()->getType(),ComputedFieldType::class) == 0) {
+				$template = $dataField->getFieldType()->getDisplayOptions()['valueTemplate'];
+				if(empty($template)){
+					$out = NULL;
+				}
+				else {
+					try {
+						$out = $this->twig->createTemplate($template)->render([
+							'_source' => $objectArray,
+							'_type' => $type,
+							'_id' => $ouuid
+						]);
+					}
+					catch (\Exception $e) {
+						$out = "Error in template: ".$e->getMessage();
+					}					
+				}
+				$dataField->setRawData($out);
+				$found = true;
+			}
+		}
+		
+		foreach ($dataField->getChildren() as $child){
+			$found = $found || $this->propagateDataToComputedField($child, $objectArray, $type, $ouuid);
+		}
+		return $found;
+	}
 	
 	public function finalizeDraft(Revision $revision, \Symfony\Component\Form\Form &$form=null, $username=null){
 		if($revision->getDeleted()){
@@ -152,6 +184,11 @@ class DataService
 		//TODO: test if draft and last version publish in
 			
 		$objectArray = $revision->getRawData();
+		
+		if($this->propagateDataToComputedField($revision->getDataField(), $objectArray, $revision->getContentType()->getName(), $revision->getOuuid())) {
+			$objectArray = $this->mapping->dataFieldToArray($revision->getDataField());
+			$revision->setRawData($objectArray);
+		}
 		
 		//Validation
 //    	if(!$form->isValid()){//Trying to work with validators

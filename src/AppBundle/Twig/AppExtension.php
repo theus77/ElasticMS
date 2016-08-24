@@ -49,6 +49,7 @@ class AppExtension extends \Twig_Extension
 		return array(
 				new \Twig_SimpleFilter('searches', array($this, 'searchesList')),
 				new \Twig_SimpleFilter('dump', array($this, 'dump')),
+				new \Twig_SimpleFilter('data', array($this, 'data')),
 				new \Twig_SimpleFilter('inArray', array($this, 'inArray')),
 				new \Twig_SimpleFilter('firstInArray', array($this, 'firstInArray')),
 				new \Twig_SimpleFilter('md5', array($this, 'md5')),

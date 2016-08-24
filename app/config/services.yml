@@ -69,6 +69,13 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: ouuid }
             - { name: form.type }
+    ems.fieldtype.computed:
+        class: AppBundle\Form\DataField\ComputedFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: computed }
+            - { name: form.type }
     ems.fieldtype.dataLink:
         class: AppBundle\Form\DataField\DataLinkFieldType
         calls:
