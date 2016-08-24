@@ -175,7 +175,7 @@ class MigrateCommand extends ContainerAwareCommand
 						$newRevision->setRawData($objectArray);
 					}	
 					else if($input->getOption('strip')){
-						$newRevision->setRawData($value['_source']);
+						$newRevision->setRawData([]);
 						$this->dataService->loadDataStructure($newRevision);
 						$newRevision->getDataField()->updateDataValue($value['_source'], true);
 						//We serialize the new object
