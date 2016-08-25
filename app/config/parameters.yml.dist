@@ -43,3 +43,4 @@ parameters:
     theme_color: "blue" #blue black purple yellow red green also with -light i.e. yellow-light
     ems_name: "<b>elastic</b>MS"
     ems_shortname: "<b>e</b>MS"
+    template_options:

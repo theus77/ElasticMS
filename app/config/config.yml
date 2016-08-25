@@ -52,6 +52,7 @@ twig:
         datepicker_weekstart : "%datepicker_weekstart%"
         datepicker_daysofweek_highlighted: "%datepicker_daysofweek_highlighted%"
         allow_user_registration: "%allow_user_registration%"
+        template_options: "%template_options%"
     form_themes:
         - "form/fields.html.twig"
 
