@@ -79,10 +79,15 @@ class DataService
 	
 	public function lockRevision(Revision $revision, $publishEnv=false, $super=false, $username=null){
 		
-		if($publishEnv && !$this->authorizationChecker->isGranted('ROLE_PUBLISHER')){
+		
+		
+		if(!empty($publishEnv) && !$this->authorizationChecker->isGranted('ROLE_PUBLISHER') ){
 			throw new PrivilegeException($revision);
 		}
-		else if(!empty($revision->getContentType()->getCirclesField()) && !empty($revision->getRawData()[$revision->getContentType()->getCirclesField()])) {
+		else if( !empty($publishEnv->getCircles()) && !$this->authorizationChecker->isGranted('ROLE_ADMIN') && !$this->appTwig->inMyCircles($publishEnv->getCircles()) ) {
+			throw new PrivilegeException($revision);
+		}
+		else if(empty($publishEnv) && !empty($revision->getContentType()->getCirclesField()) && !empty($revision->getRawData()[$revision->getContentType()->getCirclesField()])) {
 			if(!$this->appTwig->inMyCircles($revision->getRawData()[$revision->getContentType()->getCirclesField()])) {
 				throw new PrivilegeException($revision);
 			}

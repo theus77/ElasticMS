@@ -142,7 +142,7 @@ class PublishService
 		}
 
 		$user = $this->userService->getCurrentUser();
-		if( !empty($environment->getCircles() && !$this->authorizationChecker->isGranted('ROLE_ADMIN') && empty(array_intersect($environment->getCircles(), $user->getCircles())) )) {
+		if( !empty($environment->getCircles()) && !$this->authorizationChecker->isGranted('ROLE_ADMIN') && empty(array_intersect($environment->getCircles(), $user->getCircles()) )) {
 			$this->session->getFlashBag()->add('warning', 'You are not allowed to publish in the environment '.$environment);
 			return;
 		}
@@ -152,7 +152,7 @@ class PublishService
 			return;
 		}
 
-		$this->dataService->lockRevision($revision);
+		$this->dataService->lockRevision($revision, $environment);
 
 		$result = $this->revRepository->findByOuuidContentTypeAndEnvironnement($revision, $environment);
 
@@ -208,7 +208,7 @@ class PublishService
 			return;
 		}
 
-		$this->dataService->lockRevision($revision);
+		$this->dataService->lockRevision($revision, $environment);
 		
 		$revision->removeEnvironment($environment);
 		
