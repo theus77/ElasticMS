@@ -66,7 +66,8 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('generate_from_template', array($this, 'generateFromTemplate')),
 				new \Twig_SimpleFilter('objectChoiceLoader', array($this, 'objectChoiceLoader')),
 				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),		
-				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),				
+				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),			
+				new \Twig_SimpleFilter('is_super', array($this, 'is_super')),				
 		);
 	}
 	
@@ -75,6 +76,15 @@ class AppExtension extends \Twig_Extension
 			return $role;
 		}
 		return str_replace('ROLE_', 'ROLE_SUPER_', $role);
+	}
+	
+	function is_super($empty) {
+		foreach($this->userService->getCurrentUser()->getRoles() as $role){
+			if(strpos($role, '_SUPER_')){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	function all_granted($roles, $super=false){
