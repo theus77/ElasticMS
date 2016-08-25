@@ -40,3 +40,6 @@ parameters:
     date_time_format: "j/m/Y \\a\\t G:i"
     notification_pending_timeout: "P15D"
     allow_user_registration: false
+    theme_color: "blue" #blue black purple yellow red green also with -light i.e. yellow-light
+    ems_name: "<b>elastic</b>MS"
+    ems_shortname: "<b>e</b>MS"

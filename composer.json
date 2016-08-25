@@ -1,8 +1,7 @@
 {
     "name": "theus77/elasticms",
     "license": "MIT",
-    "type": "symfony-bundle",
-    "version": "0.5",
+    "type": "project",
     "autoload": {
         "psr-4": {
             "": "src/"
@@ -57,7 +56,6 @@
             "Sensio\\Bundle\\DistributionBundle\\Composer\\ScriptHandler::prepareDeploymentTarget"
         ]
     },
-    "minimum-stability": "dev",
     "extra": {
         "symfony-app-dir": "app",
         "symfony-bin-dir": "bin",
@@ -67,9 +65,6 @@
         "symfony-assets-install": "relative",
         "incenteev-parameters": {
             "file": "app/config/parameters.yml"
-        },
-        "branch-alias": {
-            "dev-master": "0.5-dev"
         }
     }
 }
