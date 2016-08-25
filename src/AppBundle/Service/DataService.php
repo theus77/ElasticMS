@@ -46,6 +46,7 @@ class DataService
 	/**@var Session $session*/
 	protected $formFactory;
 	protected $container;
+	protected $appTwig;
 	
 	public function __construct(
 			Registry $doctrine, 
@@ -72,13 +73,21 @@ class DataService
 		$this->formFactory = $formFactory;
 		$this->container = $container;
 		$this->twig = $container->get('twig');
+		$this->appTwig = $container->get('app.twig_extension');
 	}
 	
 	
 	public function lockRevision(Revision $revision, $publishEnv=false, $super=false, $username=null){
+		
 		if($publishEnv && !$this->authorizationChecker->isGranted('ROLE_PUBLISHER')){
 			throw new PrivilegeException($revision);
 		}
+		else if(!empty($revision->getContentType()->getCirclesField()) && !empty($revision->getRawData()[$revision->getContentType()->getCirclesField()])) {
+			if(!$this->appTwig->inMyCircles($revision->getRawData()[$revision->getContentType()->getCirclesField()])) {
+				throw new PrivilegeException($revision);
+			}
+		}
+		
 		
 		$em = $this->doctrine->getManager();
 		if($username === NULL){
@@ -326,7 +335,6 @@ class DataService
 		return $revision;
 	
 	}
-	
 
 	public function discardDraft(Revision $revision){
 		$this->lockRevision($revision);
