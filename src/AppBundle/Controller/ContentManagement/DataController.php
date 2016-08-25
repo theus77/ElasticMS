@@ -226,7 +226,7 @@ class DataController extends AppController
 					'body'=> [
 						'query' => [
 							'term'	=> [
-									'_all' => [
+									empty($revision->getContentType()->getRefererFieldName())?'_all':$revision->getContentType()->getRefererFieldName() => [
 											'value' => $type.':'.$ouuid
 									]
 							]	

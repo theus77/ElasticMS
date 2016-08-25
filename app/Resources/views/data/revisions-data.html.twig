@@ -132,7 +132,7 @@
 	            		'search_form[boolean]': 'and',
 	            		'search_form[sortBy]': '_uid',
 	            		'search_form[sortOrder]': 'asc',
-	            		'search_form[filters][0][field]' : '',
+	            		'search_form[filters][0][field]' : revision.contentType.refererFieldName,
 	            		'search_form[filters][0][operator]' : 'term',
 	            		'search_form[filters][0][pattern]' : (revision.contentType.name~':'~revision.ouuid)
 						} ) }}" class="btn btn-primary"><i class="fa fa-search"></i> All referrers</a>

@@ -515,7 +515,6 @@ class ElasticsearchController extends AppController
 			
 			$params['body'] = $body;
 			
-			//dump(json_encode($body));
 			try {
 				$results = $client->search($params);
 				$lastPage = ceil($results['hits']['total']/$this->container->getParameter('paging_size'));
