@@ -28,29 +28,42 @@
 			</div>
 			<div class="box-body">
 				{%  if template.body and template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::EMBED') %}
-					{% include template_from_string(template.body) with {
+					{{ template.body|generate_from_template({
 										environment: environment,
 										contentType: contentType,
 										object: object,
 										source: object._source
-									} %}
+									}) }}
+{# 					{% include template_from_string(template.body) with {#}
+{# 										environment: environment,#}
+{# 										contentType: contentType,#}
+{# 										object: object,#}
+{# 										source: object._source#}
+{# 									} %}#}
 				{% else %}
-					{% include template_from_string(template.body) with {
-										environment: environment,
-										contentType: contentType,
-										object: object,
-										source: object._source
-									} %}
+					Template is missing
+{# 					{% include template_from_string(template.body) with {#}
+{# 										environment: environment,#}
+{# 										contentType: contentType,#}
+{# 										object: object,#}
+{# 										source: object._source#}
+{# 									} %}#}
 				{% endif %}
 				
 				{% if template.filename and template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::EXPORT') %}
 					<br/><br/>
-					{% include template_from_string(template.filename) with {
+					{{ template.filename|generate_from_template({
 											environment: environment,
 											contentType: contentType,
 											object: object,
 											source: object._source
-										} %}
+										}) }}
+{# 					{% include template_from_string(template.filename) with {#}
+{# 											environment: environment,#}
+{# 											contentType: contentType,#}
+{# 											object: object,#}
+{# 											source: object._source#}
+{# 										} %}#}
 				{% endif %}
 			</div>
 			<!-- /.box-body -->

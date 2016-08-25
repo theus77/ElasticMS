@@ -13,18 +13,18 @@
 					{%if template.role == "not-defined" or is_granted(template.role) and (template.environments is empty or environment in template.environments or template.isEnvironmentExist(environment.name)) %}
 					<li>
 						{% if template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::EXTERNALLINK') %}
-							<a href="{% include template_from_string(template.body) with {
+							<a href="{{ template.body|generate_from_template({
 										environment: environment,
 										contentType: contentType,
 										object: object,
 										source: object._source
-									} %}" target="_blank">
+									}) }}" target="_blank">
 								<i class="{{ template.icon|raw }}"></i>
 								{{ template.name}}
 								<i class="fa fa-external-link pull-right"></i>
 							</a>
 						{% elseif template.renderOption is constant('AppBundle\\Form\\Field\\RenderOptionType::NOTIFICATION') %}
-							{% if ( is_granted(template.role) and (attribute(object._source, contentType.circlesField)|in_my_circles or environment.circles|in_my_circles ) ) %}
+							{% if ( is_granted(template.role) and (object._source or attribute(object._source, contentType.circlesField)|in_my_circles or environment.circles|in_my_circles ) ) %}
 								<a href='#' class="request_notification" onclick="requestNotification(this, {{template.id}}, '{{environment.name}}', '{{contentType.id}}' , '{{ouuid}}'); return false;" href="#" data-url="{{ url('notification.ajaxnotification', {'objectId' : ouuid}) }}">
 									<i class="{{ template.icon|raw }}"></i>
 									{{ template.name }}

@@ -410,6 +410,12 @@ class DataService
 	public function isValid(\Symfony\Component\Form\Form &$form) {
 		
 		$viewData = $form->getViewData();
+		
+		//pour le champ hidden allFieldsAreThere de Revision
+		if(!is_object($viewData) && 'allFieldsAreThere' == $form->getName()){
+			return true;
+		}
+		
 		if($viewData instanceof Revision) {
 			/** @var DataField $dataField */
 			$dataField = $viewData->getDatafield();
