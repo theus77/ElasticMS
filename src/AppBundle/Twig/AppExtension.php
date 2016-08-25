@@ -311,9 +311,10 @@ class AppExtension extends \Twig_Extension
     	return $searches;
 	}
 
-	public function dump($object)
-	{
-    	dump($object);
+	public function dump($object) {
+		if(function_exists('dump')){
+    		dump($object);
+		}
 	}
 
 	public function convertJavaDateFormat($format)
