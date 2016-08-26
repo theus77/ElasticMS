@@ -109,9 +109,16 @@
 										{% endif %}
 										{% if not contentType.active %}
 											{% include 'elements/post-button.html.twig' with {
-												'url':  path('contenttype.activate', {'id': contentType.id}),
+												'url':  path('contenttype.activate', {'contentType': contentType.id}),
 												'message': 'Are you ready to activate ' ~ contentType.name|humanize ~ ' ?',
 												'label': 'Activate',
+												'icon': 'warning'
+											}%}
+										{% else %}
+											{% include 'elements/post-button.html.twig' with {
+												'url':  path('contenttype.desactivate', {'contentType': contentType.id}),
+												'message': 'Are you ready to desactivate ' ~ contentType.name|humanize ~ ' ?',
+												'label': 'Desactivate',
 												'icon': 'warning'
 											}%}
 										{% endif %}

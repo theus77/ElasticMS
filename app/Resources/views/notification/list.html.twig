@@ -5,100 +5,185 @@
 
 {% block body %}
 
-{{ form_start(form) }}
 <div class="row">
+
+	{% if counter %}
+		<div class="col-md-12">
+			{{ form_start(form) }}
+			<div class="box box-primary">
+	            <div class="box-header with-border">
+	              <h3 class="box-title">Select and filter</h3>
+	            </div>
+	            <!-- /.box-header -->
+	            <!-- form start -->
+	              <div class="box-body">
+	              	<div class="col-md-4">
+	              	{{ form_row(form.template) }}
+	              	</div>
+	              	<div class="col-md-4">
+	              	{{ form_row(form.environment) }}
+	              	</div>
+	              	<div class="col-md-4">
+	              	{{ form_row(form.contentType) }}
+	              	</div>
+		              {{ form_errors(form) }}
+	              </div>
+	              <!-- /.box-body -->
+	
+	              <div class="box-footer">
+	              	{{ form_row(form.filter) }}
+	              </div>
+	        </div>
+			{{ form_end(form) }}
+		</div>
+		<div class="col-md-12">
+			{{ form_start(treatform) }}
+			<div class="box ">
+				<div class="box-header with-border">
+					<i class="fa fa-file-text-o"></i>
+					<h3 class="box-title">Notifications in pending</h3>
+					
+					{% include 'elements/pagination.html.twig' with {
+						'lastPage': lastPage,
+						'currentPage': page,
+						'currentFilters': app.request.query,
+						'paginationPath': paginationPath,
+						'showAlwaysFirstAndLast': false
+					} %}
+				</div>
+				<!-- /.box-header -->
+				<div class="box-body">
+					<!-- Notifications Menu -->
+					<span>
+					{% trans %}You have {% endtrans %} {{ counter }}
+					{% transchoice counter %}
+						{0} notifications|{1} notification|]1,Inf[ notifications
+					{% endtranschoice %}
+					</span>
+	
+					<table class="table table-condensed table-striped">
+						<tbody>
+							<tr>
+								<th class="" style="">
+				                  	<a href="#" onclick="javascript: $('.item-to-treat').prop('checked', 'checked'); return false;"><i class="fa fa-check-square-o"></i></a> 
+				                  	<a href="#" onclick="javascript: $('.item-to-treat').prop('checked', false); return false;"><i class="fa fa-square-o"></i></a>
+				                  	&nbsp;Notification
+								</th>
+								<th>Create by</th>
+								<th>Date</th>
+								<th>Environment</th>
+								<th>Revision</th>
+								<th>Actions</th>
+							</tr>
+						</tbody>
+						{% for notification in notifications %}
+							<tr>
+								<td class="">
+									<label id="treat_notifications_notifications_{{ notification.id }}_label">
+										&nbsp;&nbsp;&nbsp;<input class="item-to-treat" type="checkbox" id="treat_notifications_notifications_{{ notification.id }}" name="treat_notifications[notifications][{{ notification.id }}]" label="treat_notifications_notifications_{{ notification.id }}_label" value="{{ notification.id }}">
+										&nbsp;&nbsp;&nbsp;<i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}
+									</label>
+								
+								
+	{# 								{{ form_widget(attribute(treatform.notifications, notification.id)) }}#}
+								</td>
+	{# 							<td><i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}</td>#}
+								<td>{{ notification.username|humanize }}</td>
+								<td>{{ notification.created|date|date(date_time_format) }}</td>
+								<td>
+									<span class="badge bg-{{ notification.environmentId.color|raw }}">{{ notification.environmentId.name }}</span>
+								</td>
+								<td>
+								<a class="btn btn-sm btn-default text-{{ notification.revisionId.contentType.color }}" href="{{ path('data.revisions', {'type': notification.revisionId.contentType.name, 'ouuid':  notification.revisionId.ouuid, 'revisionId':  notification.revisionId.id} ) }}">
+									<i class="{{ notification.revisionId.contentType.icon }}"></i>
+									{{ notification.revisionId.ouuid }}
+								</a>
+			
+								<td>
+									<div class="btn-group">
+										<button onclick="javascript: $('.item-to-treat').prop('checked', false); $('#treat_notifications_notifications_{{ notification.id }}').prop('checked', 'checked'); return false;" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#treatNotificationsModal">
+										  <i class="fa fa-gear"></i> Treat
+										</button>
+										{% include 'elements/object-views-button.html.twig' with { 
+											'object':  notification.revisionId.buildObject,
+											'contentType': notification.revisionId.contentType,
+											'environment': notification.environmentId,
+											'ouuid': notification.revisionId,
+											'currentTemplate': notification.templateId
+										}%}
+				                    </div>
+				         
+								</td>
+							</tr>
+						{% endfor %}
+					</table>
+				</div>
+				<div class="box-footer with-border">
+					<div class="btn-group">					
+						<button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#treatNotificationsModal">
+						  <i class="fa fa-gear"></i> Treat selection
+						</button>
+					</div>
+					
+					{% include 'elements/pagination.html.twig' with {
+						'lastPage': lastPage,
+						'currentPage': page,
+						'currentFilters': app.request.query,
+						'paginationPath': paginationPath,
+						'showAlwaysFirstAndLast': false
+					} %}
+				</div>
+			</div>
+			
+			
+			<!-- Modal -->
+			<div class="modal fade" id="treatNotificationsModal" tabindex="-1" role="dialog" aria-labelledby="treatNotificationsModalLabel">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			        <h4 class="modal-title" id="treatNotificationsModalLabel">Treat selected notifications</h4>
+			      </div>
+			      <div class="modal-body">
+			      		{{ form_row(treatform.response) }}
+			      		{{ form_row(treatform.unpublishFrom) }}
+			      		{{ form_row(treatform.publishTo) }}
+			      </div>
+			      <div class="modal-footer">
+			      
+					<div class="btn-group">
+		              	{{ form_widget(treatform.accept) }}		
+		              	{{ form_widget(treatform.reject) }}
+					</div>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+				
+		      {{ form_widget(treatform.notifications) }}
+			{{ form_end(treatform) }}
+		</div>
+	{% else %}
 	<div class="col-md-12">
-		<div class="box box-primary">
+          <div class="box box-default">
             <div class="box-header with-border">
-              <h3 class="box-title">Select and filter</h3>
+              <i class="fa fa-check"></i>
+
+              <h3 class="box-title">All treated</h3>
             </div>
             <!-- /.box-header -->
-            <!-- form start -->
-              <div class="box-body">
-              	<div class="col-md-3">
-              	{{ form_row(form.template) }}
-              	</div>
-              	<div class="col-md-3">
-              	{{ form_row(form.environment) }}
-              	</div>
-              	<div class="col-md-3">
-              	{{ form_row(form.contentType) }}
-              	</div>
-	              {{ form_errors(form) }}
-              </div>
-              <!-- /.box-body -->
+            <div class="box-body">
 
-              <div class="box-footer">
-              	{{ form_row(form.filter) }}
+              <div class="callout callout-success">
+                <h4>Nothing to treat</h4>
+
+                <p>You are up to date.</p>
               </div>
+            </div>
+            <!-- /.box-body -->
           </div>
-	</div>
-
-	<div class="col-md-12">
-		<div class="box ">
-			<div class="box-header with-border">
-				<i class="fa fa-file-text-o"></i>
-				<h3 class="box-title">Notifications in pending</h3>
-			</div>
-			<!-- /.box-header -->
-			<div class="box-body">
-				<!-- Notifications Menu -->
-				<span>
-				{% trans %}You have {% endtrans %} {{ counter }}
-				{% transchoice counter %}
-					{0} notifications|{1} notification|]1,Inf[ notifications
-				{% endtranschoice %}
-				</span>
-
-				<table class="table table-condensed table-striped">
-					<tbody>
-						<tr>
-							<th class="text-center" style="width: 10px">#</th>
-							<th>Type of notification</th>
-							<th>Create by</th>
-							<th>Date</th>
-							<th>Environment</th>
-							<th>Type</th>
-							<th>Node</th>
-							<th>Actions</th>
-						</tr>
-					</tbody>
-					{% for notification in notifications %}
-						<tr>
-							<td class="text-center">{{ loop.index }}.</td>
-							<td><i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}</td>
-							<td>{{ notification.username|humanize }}</td>
-							<td>{{ notification.created|date|date(date_time_format) }}</td>
-							<td>
-								<span class="badge bg-{{ notification.environmentId.color|raw }}">{{ notification.environmentId.name|humanize }}</span>
-							</td>
-							<td class="text-{{ notification.revisionId.contentType.color }}"><i class="{{ notification.revisionId.contentType.icon }}"></i>{{ notification.revisionId.contentType.name }}</td>
-							<td>
-							<a href="{{ path('data.revisions', {'type': notification.revisionId.contentType.name, 'ouuid':  notification.revisionId.ouuid, 'revisionId':  notification.revisionId.id} ) }}">
-								<i class="fa fa-eye"></i>
-								{{ notification.revisionId.ouuid }}
-							</a>
-		
-							<td>
-								<div class="btn-group">
-									mark as treated 
-			                    </div>
-							</td>
-						</tr>
-					{% endfor %}
-				</table>
-			</div>
-			<div class="box-footer with-border">
-				{% include 'elements/pagination.html.twig' with {
-					'lastPage': lastPage,
-					'currentPage': page,
-					'currentFilters': app.request.query,
-					'paginationPath': paginationPath,
-					'showAlwaysFirstAndLast': false
-				} %}
-			</div>
-		</div>
-	</div>
+          <!-- /.box -->
+        </div>
+	{% endif %}
 </div>
-{{ form_end(form) }}
 {% endblock %} 

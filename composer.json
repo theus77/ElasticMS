@@ -1,6 +1,6 @@
 {
-    "name": "theus/elastic-ms",
-    "license": "proprietary",
+    "name": "theus77/elasticms",
+    "license": "MIT",
     "type": "project",
     "autoload": {
         "psr-4": {

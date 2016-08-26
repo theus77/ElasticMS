@@ -4,6 +4,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'adv_link', 'fr', {
 	localPages:'Pages locales',
+	asset:'Asset',
 	selectPageLabel:'Sélectionnez une page',
 	selectPageTitle:'Sélectionnez la page que vous désirez lier au contenu',
 	acccessKey: 'Touche d\'accessibilité',

@@ -83,7 +83,7 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 			->join('r.environments', 'e')
 			->where('e.id in (?1, ?2)')
 			->andWhere('r.deleted = 0')
-			->groupBy('c.name', 'c.icon', 'r.ouuid', 'c.orderKey')
+			->groupBy('c.id', 'c.name', 'c.icon', 'r.ouuid', 'c.orderKey')
 			->orHaving('count(r.id) = 1')
 			->orHaving('max(r.id) <> min(r.id)')
 			->addOrderBy('c.orderKey')

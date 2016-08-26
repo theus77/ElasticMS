@@ -4,6 +4,7 @@ For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'link', 'nl', {
 	localPages:'Link naar bestaande pagina',
+	asset:'Asset',
 	selectPageLabel:'Selecteer een pagina',
 	selectPageTitle:'Selecteer de pagina waar je naar wilt verwijzen',
 	acccessKey: 'Toegangstoets',

@@ -15,6 +15,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use AppBundle\Repository\RevisionRepository;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
+use AppBundle\Repository\NotificationRepository;
 
 class DeleteCommand extends ContainerAwareCommand
 {
@@ -67,6 +68,9 @@ class DeleteCommand extends ContainerAwareCommand
 			/** @var RevisionRepository $revRepo */
 			$revRepo = $em->getRepository('AppBundle:Revision');
 			
+			/** @var NotificationRepository $notRepo */
+			$notRepo = $em->getRepository('AppBundle:Notification');
+			
 			$counter = 0;
 			if($revRepo->countByContentType($contentType) == 0) {
 				$output->writeln("Content type \"".$name."\" already empty");
@@ -88,11 +92,18 @@ class DeleteCommand extends ContainerAwareCommand
 							$revision->removeEnvironment($environment);
 						}
 						++$counter;
+						$notifications = $notRepo->findBy([
+							'revisionId' => $revision,
+						]);
+						foreach ($notifications as $notification){
+							$em->remove($notification);
+						}
+						
 						$em->remove($revision);
 							
 						$output->write('.');
-						$em->flush($revision);
-						$em->clear($revision);
+						$em->flush();
+// 						$em->clear($revision);
 					}
 					
 					unset($revisions);

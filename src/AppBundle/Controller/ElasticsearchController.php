@@ -2,7 +2,6 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Controller\AppController;
-use AppBundle\Entity\ExportMapping;
 use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\Form\SearchFilter;
 use AppBundle\Entity\Template;
@@ -27,6 +26,8 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use ZipStream\ZipStream;
 use AppBundle\Service\ContentTypeService;
+use AppBundle\Service\EnvironmentService;
+use AppBundle\Entity\ContentType;
 class ElasticsearchController extends AppController
 {
 	/**
@@ -161,11 +162,11 @@ class ElasticsearchController extends AppController
 	public function searchApiAction(Request $request)
 	{
 		$pattern = $request->query->get('q');
-		$environment = $request->query->get('environment');
-		$type = $request->query->get('type');
+		$environments = $request->query->get('environment');
+		$types = $request->query->get('type');
 		$category = $request->query->get('category', false);
 		// Added for ckeditor adv_link plugin.
-		$assetName = $request->query->get('asset_name');
+		$assetName = $request->query->get('asset_name', false);
 		
 		
 		/** @var EntityManager $em */
@@ -174,40 +175,52 @@ class ElasticsearchController extends AppController
 		/** @var ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository ( 'AppBundle:ContentType' );
 		
-		$types = $contentTypeRepository->findAllAsAssociativeArray();
-				
-		/** @var EnvironmentRepository $environmentRepository */
-		$environmentRepository = $em->getRepository ( 'AppBundle:Environment' );
-			
-		$environments = $environmentRepository->findAllAsAssociativeArray('alias');
-		
+		$allTypes = $contentTypeRepository->findAllAsAssociativeArray();
 	
-		if (!$type) {	
+		if (empty($types)) {	
+			$types = [];
 			// For search only in contentType with Asset field == $assetName.
 			if ($assetName) {
-				foreach ($types as $key => $value) {
-					if ($value->getAssetField() === $assetName) {
-						$type[] = $key;
+				foreach ($allTypes as $key => $value) {
+					if (!empty($value->getAssetField())) {
+						$types[] = $key;
 					}
 				}	
 			} else {
-				$type = array_keys($types);
+				$types = array_keys($allTypes);
 			}
 		}
+		else {
+			$types = explode(',', $types);
+		}
 		
-		$alias = array_keys($environments);
-		if($environment){
-			foreach ($environments as $item){
-				if(strcmp($environment, $item['name']) == 0){
-					$alias = $item['alias'];
+		$aliases = [];
+		$service = $this->get('ems.service.environment');
+		if(empty($environments)){
+			/**@var EnvironmentService $service*/
+			foreach ($types as $type){
+				/**@var \AppBundle\Entity\ContentType $ct*/
+				$ct = $contentTypeRepository->findByName($type);
+				$alias = $service->getAliasByName($ct[0]->getEnvironment()->getName());
+				if($alias){
+					$aliases[] =  $alias->getAlias();
 				}
 			}			
+		}
+		else {
+			$environments = explode(',', $environments);
+			foreach ($environments as $environment) {
+				$alias = $service->getAliasByName($environment);
+				if($alias){
+					$aliases[] =  $alias->getAlias();
+				}
+			}
 		}
 			
 		
 		$params = [
-				'index' => $alias,
-				'type' => $type,
+				'index' => array_unique($aliases),
+				'type' => array_unique($types),
 				'size' => $this->container->getParameter('paging_size'),
 				'body' => [
 						'query' => [
@@ -232,41 +245,43 @@ class ElasticsearchController extends AppController
 		
 		$params['body']['query']['and'][] = [
 				'wildcard' => [
-						'_all' => $patterns[$i].'*'
+						'_all' => '*'.$patterns[$i].'*'
 				]
 		];
 		
-		/**@var ContentTypeService $contentTypeService*/ 
-		$contentTypeService = $this->get('ems.service.contenttype');
-		$contentType = $contentTypeService->getByName($type);
-		if($contentType && $contentType->getOrderField()) {
-			$params['body']['sort'] = [
-				$contentType->getOrderField() => [
-						'order' => 'asc',
-						'missing' => '_last',
-				]
-			];
-		}
-		else if($contentType && $contentType->getLabelField()) {
-			$params['body']['sort'] = [
-				$contentType->getLabelField() => [
-						'order' => 'asc',
-						'missing' => '_last',
-				]
-			];
-		}
-		
-		if($category && $contentType && $contentType->getCategoryField()) {
-			$params['body']['query']['and'][] = [
-					'term' => [
-							$contentType->getCategoryField() => [
-									'value' => $category
-							]
+		if(count($types) == 1){
+			/**@var ContentTypeService $contentTypeService*/ 
+			$contentTypeService = $this->get('ems.service.contenttype');
+			$contentType = $contentTypeService->getByName($types[0]);
+			if($contentType && $contentType->getOrderField()) {
+				$params['body']['sort'] = [
+					$contentType->getOrderField() => [
+							'order' => 'asc',
+							'missing' => '_last',
 					]
-			];
+				];
+			}
+			else if($contentType && $contentType->getLabelField()) {
+				$params['body']['sort'] = [
+					$contentType->getLabelField() => [
+							'order' => 'asc',
+							'missing' => '_last',
+					]
+				];
+			}
+			
+			if($category && $contentType && $contentType->getCategoryField()) {
+				$params['body']['query']['and'][] = [
+						'term' => [
+								$contentType->getCategoryField() => [
+										'value' => $category
+								]
+						]
+				];
+			}			
 		}
 		
-		//dump($params);
+// 		dump($params);
 		
 
 		/** @var \Elasticsearch\Client $client */
@@ -276,9 +291,18 @@ class ElasticsearchController extends AppController
 		
 		return $this->render( 'elasticsearch/search.json.twig', [
 				'results' => $results,
-				'types' => $types,
+				'types' => $allTypes,
 		] );
 		
+	}
+	
+	
+	private function getAllContentType($results) {
+		$out = [];
+		foreach ($results['aggregations']['types']['buckets'] as $type) {
+			$out[] = $type['key'];
+		}
+		return $out;
 	}
 	
 	/**
@@ -491,7 +515,6 @@ class ElasticsearchController extends AppController
 			
 			$params['body'] = $body;
 			
-			//dump(json_encode($body));
 			try {
 				$results = $client->search($params);
 				$lastPage = ceil($results['hits']['total']/$this->container->getParameter('paging_size'));
@@ -509,18 +532,22 @@ class ElasticsearchController extends AppController
 			//Form treatement after the "Export results" button has been pressed (= ask for a "content type" <-> "template" mapping)
 			if($form->isValid() && $request->query->get('search_form') && array_key_exists('exportResults', $request->query->get('search_form'))) {
 				//Store all the content types present in the current resultset
-				$exportMapping = new ExportMapping();
-				$exportMapping->addTemplates($results);
+				$contentTypes = $this->getAllContentType($results);
+
+				/**@var ContentTypeService $contenttypeService*/
+				$contenttypeService = $this->get('ems.service.contenttype');
+				/**@var EnvironmentService $environmentService*/
+				$environmentService = $this->get('ems.service.environment');
 				
 				//Check for each content type that an export template is available. 
 				//If no export template is defined, ignore the content type.
 				//If one or more export templates are defined, allow choice of the template to be dynamic
 				$form = null;
-				foreach ($exportMapping->getContentTypeNames() as $name){
+				foreach ($contentTypes as $name){
 					/** @var ContentType $contentType */
 					$contentType = $types[$name];
 				
-					$templateChoices = [];
+					$templateChoices = ['JSON export' => 0];
 					/** @var Template $template */
 					foreach ($contentType->getTemplates() as $template){
 						if (RenderOptionType::EXPORT == $template->getRenderOption() && $template->getBody()){
@@ -541,9 +568,8 @@ class ElasticsearchController extends AppController
 					 					'data' => $jsonSearch,
 					 			));
 					 	}
-					 	$combinedName = $exportMapping->getCombinedName($name); 
-					 	$form->add($combinedName, ChoiceType::class, array (
-					 			'label' => 'Export template for '.$combinedName.' type: ',
+					 	$form->add($name, ChoiceType::class, array (
+					 			'label' => 'Export template for '.$contenttypeService->getByName($name)->getPluralName(),
 					 			'choices' => $templateChoices,
 					 	));
 					}
@@ -601,6 +627,11 @@ class ElasticsearchController extends AppController
 							
 							$templateBodyMapping[$contentName] = $body;
 						}
+						else{
+							//Default JSON export
+							$templateMapping[$contentName] = NULL;
+							$templateBodyMapping[$contentName] = NULL;
+						}
 					}
 				}
 				
@@ -611,8 +642,7 @@ class ElasticsearchController extends AppController
 				$fileTime = date("D, d M Y H:i:s T");
 				$zip = new ZipStream("eMSExport.zip");
 				
-				$exportMapping = new ExportMapping();
-				$exportMapping->addTemplates($results);
+				$contentTypes = $this->getAllContentType($results);
 
 				$resultsSize = count($results['hits']['hits']);
 				$loop = [];
@@ -636,54 +666,62 @@ class ElasticsearchController extends AppController
 					$loop['last'] =  $resultsSize == $loop['index1'];
 					
 					$name = $result['_type'];
-					$formFieldName = $exportMapping->getCombinedName($name);
-					$template = $templateMapping[$formFieldName];
-					$body = $templateBodyMapping[$formFieldName];
 					
-					$filename = $result['_id'];
-					if (null != $template->getFilename()){
-						try {
-							$filename = $twig->createTemplate($template->getFilename());
-						} catch (\Twig_Error $e) {
-							$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
-							$filename = $result['_id'];
-							$errorList[] = "Error in template->getFilename() for: ".$filename;
-							continue;
-						}
-						$filename = $filename->render([
-								'loop' => $loop,
-								'contentType' => $template->getContentType(),
-								'object' => $result,
-								'source' => $result['_source'],
-						]);
-						$filename = preg_replace('~[\r\n]+~', '', $filename);
-					}
-					if(null!= $template->getExtension()){
-						$filename = $filename.'.'.$template->getExtension();
-					}
+					$template = $templateMapping[$name];
+					$body = $templateBodyMapping[$name];
 					
-					try {
-						$content = $body->render([
+					
+					if($template) {
+						$filename = $result['_id'];
+						if (null != $template->getFilename()){
+							try {
+								$filename = $twig->createTemplate($template->getFilename());
+							} catch (\Twig_Error $e) {
+								$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
+								$filename = $result['_id'];
+								$errorList[] = "Error in template->getFilename() for: ".$filename;
+								continue;
+							}
+							$filename = $filename->render([
 									'loop' => $loop,
 									'contentType' => $template->getContentType(),
 									'object' => $result,
 									'source' => $result['_source'],
 							]);
-					}catch (\Twig_Error $e)
-					{
-						$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
-						$content = "There was an error rendering the content";
-						$errorList[] = "Error in templateBody->render() for: ".$filename;
-						continue;
-					}
-					
-					if ($template->getAccumulateInOneFile()){
-						$accumulatedContent = $accumulatedContent.$content;
-						if ($loop['last']){
-							$zip->addFile($template->getName().'.'.$template->getExtension(), $accumulatedContent);
+							$filename = preg_replace('~[\r\n]+~', '', $filename);
 						}
-					} else {
-						$zip->addFile($filename, $content);
+						if(null!= $template->getExtension()){
+							$filename = $filename.'.'.$template->getExtension();
+						}
+						
+						try {
+							$content = $body->render([
+										'loop' => $loop,
+										'contentType' => $template->getContentType(),
+										'object' => $result,
+										'source' => $result['_source'],
+								]);
+						}catch (\Twig_Error $e)
+						{
+							$this->addFlash('error', 'There is something wrong with the template filename field '.$template->getName());
+							$content = "There was an error rendering the content";
+							$errorList[] = "Error in templateBody->render() for: ".$filename;
+							continue;
+						}
+						
+						if ($template->getAccumulateInOneFile()){
+							$accumulatedContent = $accumulatedContent.$content;
+							if ($loop['last']){
+								$zip->addFile($template->getName().'.'.$template->getExtension(), $accumulatedContent);
+							}
+						} else {
+							$zip->addFile($filename, $content);
+						}
+					}
+					else {
+						//JSON export
+
+						$zip->addFile($result['_type'].' '.$result['_id'].'.json', json_encode($result['_source']));
 					}
 					
 				}

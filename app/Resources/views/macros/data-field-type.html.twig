@@ -263,6 +263,26 @@
 	{{ _self.messages(dataField) }}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_ComputedFieldType(dataField) %}
+	<dl>
+		{% if dataField.fieldType.displayOptions.label is defined %}
+			<dt>{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})</dt>
+		{% else %}
+			<dt>{{ dataField.fieldType.name }}</dt>
+		{% endif %}
+		<dd>
+			{% if dataField.fieldType.displayOptions.displayTemplate %}
+				{{ dataField.fieldType.displayOptions.displayTemplate|generate_from_template({data: dataField.rawData})|raw }}
+			{% elseif dataField.rawData is iterable %}
+				Complex structure []
+			{% else %}
+				{{ dataField.rawData }}
+			{% endif %}
+		</dd>
+	</dl>
+	{{ _self.messages(dataField) }}
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_TextStringFieldType(dataField) %}
 	<dl>
 		{% if dataField.fieldType.displayOptions.label is defined %}

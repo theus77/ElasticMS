@@ -78,6 +78,13 @@ class Notification
     private $responseTimestamp;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="response_by", type="string", length=100, nullable=true)
+     */
+    private $responseBy;
+
+    /**
      * @ORM\ManyToOne(targetEntity="Revision")
      * @ORM\JoinColumn(name="revision_id", referencedColumnName="id")
      */
@@ -88,6 +95,24 @@ class Notification
      * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
      */
     private $environmentId;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="emailed", type="datetime", nullable=true)
+     */
+    private $emailed;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="response_emailed", type="datetime", nullable=true)
+     */
+    private $responseEmailed;
+
+    public function __toString() {
+    	return $this->getTemplateId()->getName().'#'.$this->id;
+    }
     
     /**
      * @ORM\PrePersist
@@ -350,5 +375,77 @@ class Notification
     public function getEnvironmentId()
     {
         return $this->environmentId;
+    }
+
+    /**
+     * Set responseBy
+     *
+     * @param string $responseBy
+     *
+     * @return Notification
+     */
+    public function setResponseBy($responseBy)
+    {
+        $this->responseBy = $responseBy;
+
+        return $this;
+    }
+
+    /**
+     * Get responseBy
+     *
+     * @return string
+     */
+    public function getResponseBy()
+    {
+        return $this->responseBy;
+    }
+
+    /**
+     * Set emailed
+     *
+     * @param \DateTime $emailed
+     *
+     * @return Notification
+     */
+    public function setEmailed($emailed)
+    {
+        $this->emailed = $emailed;
+
+        return $this;
+    }
+
+    /**
+     * Get emailed
+     *
+     * @return \DateTime
+     */
+    public function getEmailed()
+    {
+        return $this->emailed;
+    }
+
+    /**
+     * Set responseEmailed
+     *
+     * @param \DateTime $responseEmailed
+     *
+     * @return Notification
+     */
+    public function setResponseEmailed($responseEmailed)
+    {
+        $this->responseEmailed = $responseEmailed;
+
+        return $this;
+    }
+
+    /**
+     * Get responseEmailed
+     *
+     * @return \DateTime
+     */
+    public function getResponseEmailed()
+    {
+        return $this->responseEmailed;
     }
 }

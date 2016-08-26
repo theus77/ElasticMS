@@ -73,7 +73,9 @@ class RequestListener
 			}
 		}
 		catch(\Exception $e){
-			dump($e);
+			if(function_exists('dump')){
+				dump($e);				
+			}
 		}
 	}
 	

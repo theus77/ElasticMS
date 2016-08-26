@@ -187,6 +187,13 @@ class ContentType
     /**
      * @var string
      *
+     * @ORM\Column(name="referer_field_name", type="string", length=100, nullable=true)
+     */
+    private $refererFieldName;
+    
+    /**
+     * @var string
+     *
      * @ORM\Column(name="category_field", type="string", length=100, nullable=true)
      */
     private $categoryField;
@@ -318,6 +325,13 @@ class ContentType
      	$this->setAskForOuuid( true );
     }
 
+
+
+    public function __toString()
+    {
+    	return $this->name;
+    }
+    
     public static function getIndexAnalysisConfiguration(){
     	return '{
 		   "index" : {
@@ -1349,5 +1363,29 @@ class ContentType
     public function getSortBy()
     {
         return $this->sortBy;
+    }
+
+    /**
+     * Set refererFieldName
+     *
+     * @param string $refererFieldName
+     *
+     * @return ContentType
+     */
+    public function setRefererFieldName($refererFieldName)
+    {
+        $this->refererFieldName = $refererFieldName;
+
+        return $this;
+    }
+
+    /**
+     * Get refererFieldName
+     *
+     * @return string
+     */
+    public function getRefererFieldName()
+    {
+        return $this->refererFieldName;
     }
 }

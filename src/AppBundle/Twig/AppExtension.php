@@ -49,6 +49,7 @@ class AppExtension extends \Twig_Extension
 		return array(
 				new \Twig_SimpleFilter('searches', array($this, 'searchesList')),
 				new \Twig_SimpleFilter('dump', array($this, 'dump')),
+				new \Twig_SimpleFilter('data', array($this, 'data')),
 				new \Twig_SimpleFilter('inArray', array($this, 'inArray')),
 				new \Twig_SimpleFilter('firstInArray', array($this, 'firstInArray')),
 				new \Twig_SimpleFilter('md5', array($this, 'md5')),
@@ -65,7 +66,8 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('generate_from_template', array($this, 'generateFromTemplate')),
 				new \Twig_SimpleFilter('objectChoiceLoader', array($this, 'objectChoiceLoader')),
 				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),		
-				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),				
+				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),			
+				new \Twig_SimpleFilter('is_super', array($this, 'is_super')),				
 		);
 	}
 	
@@ -74,6 +76,15 @@ class AppExtension extends \Twig_Extension
 			return $role;
 		}
 		return str_replace('ROLE_', 'ROLE_SUPER_', $role);
+	}
+	
+	function is_super($empty) {
+		foreach($this->userService->getCurrentUser()->getRoles() as $role){
+			if(strpos($role, '_SUPER_')){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	function all_granted($roles, $super=false){
@@ -127,7 +138,9 @@ class AppExtension extends \Twig_Extension
 	}
 	
 	function generateFromTemplate($template, array $params){
-		
+		if(empty($template)){
+			return NULL;
+		}
 		try {
 			$out = $this->twig->createTemplate($template)->render($params);
 		}
@@ -308,9 +321,10 @@ class AppExtension extends \Twig_Extension
     	return $searches;
 	}
 
-	public function dump($object)
-	{
-    	dump($object);
+	public function dump($object) {
+		if(function_exists('dump')){
+    		dump($object);
+		}
 	}
 
 	public function convertJavaDateFormat($format)

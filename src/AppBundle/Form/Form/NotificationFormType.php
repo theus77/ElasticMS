@@ -12,6 +12,7 @@ use AppBundle\Entity\Template;
 use Doctrine\ORM\EntityRepository;
 use AppBundle\Service\EnvironmentService;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use AppBundle\Form\Field\SelectPickerType;
 
 class NotificationFormType extends AbstractType {
 	
@@ -77,17 +78,19 @@ class NotificationFormType extends AbstractType {
 		->add('contentType', EntityType::class, [
 				'class' => 'AppBundle:ContentType',
 				'query_builder' => function (EntityRepository $er) {
-				return $er->createQueryBuilder('ct')
-				->where("ct.deleted = false");
+					return $er->createQueryBuilder('ct')
+					->where("ct.deleted = false");
 				},
-				'choice_label' => 'name',
+				'choice_label' => function ($value, $key, $index) {
+					return '<i class="'.$value->getIcon().' text-'.$value->getColor().'"></i>&nbsp;&nbsp;'.SelectPickerType::humanize($value->getName());
+				},
 				'multiple' => true,
 				'required' => false,
 				'choice_value' => function ($value) {
-				if($value != null){
-					return $value->getId();
-				}
-				return $value;
+					if($value != null){
+						return $value->getId();
+					}
+					return $value;
 				},
 				'attr' => [
 						'class' => 'select2'

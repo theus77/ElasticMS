@@ -136,7 +136,7 @@ class Environment
 	 * ToString
 	 */
     public function __toString() {
-    	return $this->id;
+    	return $this->name;
     }
     
     /**

@@ -30,6 +30,16 @@ class UserController extends Controller
 				'users' => $users
 		] );
 	}
+
+	/**
+	 *
+	 * @Route("/go-to-login", name="user.login")
+	 */
+	public function loginAction(Request $request)
+	{	
+		return $this->redirectToRoute('fos_user_security_login');
+	}
+	
 	
 	/**
 	 *
@@ -120,6 +130,9 @@ class UserController extends Controller
 				'label' => 'form.username', 
 				'translation_domain' => 'FOSUserBundle',
 				'disabled' => true
+		))
+		->add('displayName', null, array(
+				'label' => 'Display name',
 		))
 		->add('circles', ObjectPickerType::class, [
 				'multiple' => TRUE,

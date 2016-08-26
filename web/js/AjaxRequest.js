@@ -97,8 +97,8 @@ var ajaxRequest = new function() {
             response = JSON.parse(data);
             if(response.success){
             	this.private_add_messages(response.notice, 'text-aqua');
-            	this.private_add_messages(response.warning, 'text-yellow');
-            	this.private_add_messages(response.error, 'text-red');
+            	this.private_add_alerts(response.warning, 'warning', 'warning', 'Warning!');
+            	this.private_add_alerts(response.error, 'danger', 'ban', 'Error!');
             	this.updateCounter();            	
             }
             else{

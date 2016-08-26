@@ -50,7 +50,19 @@
 											{% if loop.index is divisible by(10) and loop.revindex >= 5 %}		
 												<th>&nbsp;</th>
 											{% endif %}
-											<th rowspan="1" colspan="1" nowrap>{{ attribute(columns, columnIdx).label|raw }}</th>	
+											<th rowspan="1" colspan="1" nowrap>
+												{% if authorized %}
+													{% include 'elements/post-button.html.twig' with { 
+														'url': app.request.requestUri,
+														'destinationFormName': 'hiddenFilterForm',
+														'name': 'alignOn',
+														'value': 'col:'~columnIdx,
+														'rawlabel': attribute(columns, columnIdx).label,
+														'message': 'Align table based on this column?' }%}
+												{% else %}
+													{{ attribute(columns, columnIdx).label|raw }}
+												{% endif %}
+											</th>	
 										{% endfor %}
 										<th rowspan="1" colspan="1">&nbsp;</th>
 									</tr>
@@ -71,7 +83,20 @@
 										{% endif %}
 										
 										<tr role="row">
-											<th nowrap>{{ attribute(rows, rowIdx).label|raw }}</th>
+											<th nowrap>
+											{% if authorized %}
+												{% include 'elements/post-button.html.twig' with { 
+													'url': app.request.requestUri, 
+													'rawlabel': attribute(rows, rowIdx).label|raw,
+													'destinationFormName': 'hiddenFilterForm',
+													'name': 'alignOn',
+													'value': 'row:'~rowIdx,
+													'message': 'Align table based on this line?' }%}
+											{% else %}
+												{{ attribute(rows, rowIdx).label|raw }}
+											{% endif %}
+											
+											</th>
 											{% for col in attribute(table, rowIdx) %}
 												{% if loop.index is divisible by(10) and loop.revindex >= 5 %}		
 													<th nowrap>{{ attribute(rows, rowIdx).label|raw }}</th>
@@ -84,7 +109,19 @@
 								                  </select>
 												</td>
 											{% endfor %}
-											<th nowrap>{{ attribute(rows, rowIdx).label|raw }}</th>
+											<th nowrap>
+												{% if authorized %}
+													{% include 'elements/post-button.html.twig' with { 
+														'url': app.request.requestUri, 
+														'rawlabel': attribute(rows, rowIdx).label|raw,
+														'destinationFormName': 'hiddenFilterForm',
+														'name': 'alignOn',
+														'value': 'row:'~rowIdx,
+														'message': 'Align table based on this line?' }%}
+												{% else %}
+													{{ attribute(rows, rowIdx).label|raw }}
+												{% endif %}
+											</th>
 										</tr>
 									{% endfor %}
 								</tbody>
@@ -95,7 +132,19 @@
 											{% if loop.index is divisible by(10) and loop.revindex >= 5 %}		
 												<th>&nbsp;</th>
 											{% endif %}
-											<th rowspan="1" colspan="1" nowrap>{{ attribute(columns, columnIdx).label|raw }}</th>	
+											<th rowspan="1" colspan="1" nowrap>
+												{% if authorized %}
+													{% include 'elements/post-button.html.twig' with { 
+														'url': app.request.requestUri,
+														'destinationFormName': 'hiddenFilterForm',
+														'name': 'alignOn',
+														'value': 'col:'~columnIdx,
+														'rawlabel': attribute(columns, columnIdx).label,
+														'message': 'Align table based on this column?' }%}
+												{% else %}
+													{{ attribute(columns, columnIdx).label|raw }}
+												{% endif %}
+											</th>	
 										{% endfor %}
 										<th rowspan="1" colspan="1">&nbsp;</th>
 									</tr>
@@ -108,6 +157,9 @@
 			<!-- /.box-body -->
 		</div>
 	</form>
+	
+				{{ form_start(hiddenForm) }}
+				{{ form_end(hiddenForm) }}
 {% endblock %} 
 
 

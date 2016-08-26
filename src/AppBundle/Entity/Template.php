@@ -167,6 +167,12 @@ class Template
    	 */
    	private $responseTemplate;
     
+    /** @var string
+     * 
+     * @ORM\Column(name="email_content_type", type="string", nullable=true)
+     */
+    private $emailContentType;
+    
     /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
@@ -682,6 +688,14 @@ class Template
         $this->environments = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
+
+    /**
+     * ToString
+     */
+    public function __toString() {
+    	return $this->name;
+    }
+    
     /**
      * Add environment
      *
@@ -731,5 +745,29 @@ class Template
     		}
     	}
     	return false;
+    }
+
+    /**
+     * Set emailContentType
+     *
+     * @param string $emailContentType
+     *
+     * @return Template
+     */
+    public function setEmailContentType($emailContentType)
+    {
+        $this->emailContentType = $emailContentType;
+
+        return $this;
+    }
+
+    /**
+     * Get emailContentType
+     *
+     * @return string
+     */
+    public function getEmailContentType()
+    {
+        return $this->emailContentType;
     }
 }

@@ -138,6 +138,9 @@ class Revision
      */
     private $autoSave;
     
+    /**not persisted field to ensure that they are all there after a submit */
+    private $allFieldsAreThere;
+    
     /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
@@ -157,9 +160,19 @@ class Revision
     	}
     }
     
+    
+    public function buildObject(){
+    	return [
+    		'_id' => $this->ouuid,
+    		'_type' => $this->contentType->getName(),
+    		'_source' => $this->rawData
+    	];
+    }
+    
     function __construct()
     {
     	$this->deleted = false;
+    	$this->allFieldsAreThere = false;
     	//TODO? 
     	//$this->setStartTime(new \DateTime());
 		//$this->setDraft(false);
@@ -173,6 +186,7 @@ class Revision
     			$ancestor = $a[0];
     			$this->deleted = $ancestor->deleted;
     			$this->draft = true;
+    			$this->allFieldsAreThere = $ancestor->allFieldsAreThere;
     			$this->ouuid = $ancestor->ouuid;
     			$this->contentType = $ancestor->contentType;
     			$this->rawData =  $ancestor->rawData;
@@ -190,6 +204,7 @@ class Revision
     	}
     	if($this->contentType) {
     		$out = $this->contentType->getName().':'.$out;
+    		if(!empty($this->id)) $out .=  '#'.$this->id;
     	}
     	
     	
@@ -210,6 +225,26 @@ class Revision
     	return $object;
     }
 
+    /**
+     * Get allFieldAreThere
+     *
+     * @return bool
+     */
+    public function getAllFieldsAreThere()
+    {
+        return $this->allFieldsAreThere;
+    }
+
+
+    /**
+     * 
+     */
+    public function setAllFieldsAreThere($allFieldsAreThere)
+    {
+    	$this->allFieldsAreThere = !empty($allFieldsAreThere);
+    	return $this;
+    }
+    
     /**
      * Get id
      *

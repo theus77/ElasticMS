@@ -17,12 +17,10 @@
 		
 			<div class="box ">
 				<div class="box-header with-border">
-					<h3 class="box-title">
-						<a class="toggle-button collapsed" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="false" aria-controls="searchFormBoxBody">
+					<div class="btn-group">
+						<a class="toggle-button collapsed btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="false" aria-controls="searchFormBoxBody">
 							<i class="fa fa-search"></i> Search form
 						</a>
-					</h3>
-					<div class="box-tools">
 						{% if form.exportResults is defined %}
 						    {{ form_widget(form.exportResults) }}
 						{% endif %}
@@ -159,7 +157,7 @@
 				  		</div>
 			  		</div>
 			  	{% endif %}
-			  	{% if attribute(types, result._type) is defined %}
+			  	{% if attribute(types, result._type) is defined and attribute(types, result._type).indexTwig %}
 			  		<div class="panel-body">
 					  	<div class="col-xs-12">
 					  		{{ 

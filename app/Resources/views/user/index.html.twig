@@ -22,6 +22,7 @@
 						<tr>
 							<th class="text-center" style="width: 10px">#</th>
 							<th>Username</th>
+							<th>Display name</th>
 							<th>email</th>
 							<th>Circles</th>
 							<th>Enabled</th>
@@ -35,17 +36,18 @@
 							<tr>
 								<td class="text-center" style="width: 10px">{{ loop.index }}</td>
 								<td>{{ user.username }}</td>
+								<td>{{ user.displayName }}</td>
 								<td>{{ user.email }}</td>
 								<td>
 									{% for circle in user.circles %}
-										{% if not loop.first %}
-											{% if loop.last %}
-											&amp;
-											{% else %}
-											,
-											{% endif %}
-										{% endif %}
-										{{ circle|trans }}
+{# 										{% if not loop.first %}#}
+{# 											{% if loop.last %}#}
+{# 											&amp;#}
+{# 											{% else %}#}
+{# 											,#}
+{# 											{% endif %}#}
+{# 										{% endif %}#}
+										{{ circle|data_link|raw }}
 									{% endfor %}
 								</td>
 								<td>

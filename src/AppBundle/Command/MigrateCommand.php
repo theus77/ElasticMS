@@ -71,6 +71,12 @@ class MigrateCommand extends ContainerAwareCommand
                 InputOption::VALUE_NONE,
                 'Allow to import from the default environment'
             )
+            ->addOption(
+                'strip',
+                null,
+                InputOption::VALUE_NONE,
+                'Strip unknowed fields'
+            )
         ;
     }
 
@@ -86,17 +92,17 @@ class MigrateCommand extends ContainerAwareCommand
     	} else {
     		$mode = "earse";
     	}
-		
+    	
 		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
 		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
 		/** @var \AppBundle\Entity\ContentType $contentTypeTo */
 		$contentTypeTo = $contentTypeRepository->findOneBy(array("name" => $contentTypeNameTo, 'deleted' => false));
-    	$output->writeln("Start migration of ".$contentTypeTo->getPluralName());
-		
 		if(!$contentTypeTo) {
-			$output->writeln("<error>Content type not found</error>");
+			$output->writeln("<error>Content type ".$contentTypeNameTo." not found</error>");
 			exit;
 		}
+    	$output->writeln("Start migration of ".$contentTypeTo->getPluralName());
+		
     	if($contentTypeTo->getDirty()) {
 			$output->writeln("<error>Content type \"".$contentTypeNameTo."\" is dirty. Please clean it first</error>");
 			exit;
@@ -168,6 +174,14 @@ class MigrateCommand extends ContainerAwareCommand
 						$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
 						$newRevision->setRawData($objectArray);
 					}	
+					else if($input->getOption('strip')){
+						$newRevision->setRawData([]);
+						$this->dataService->loadDataStructure($newRevision);
+						$newRevision->getDataField()->updateDataValue($value['_source'], true);
+						//We serialize the new object
+						$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
+						$newRevision->setRawData($objectArray);
+					}
 					else{
 						$newRevision->setRawData($value['_source']);
 						$objectArray = $value['_source'];

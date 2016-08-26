@@ -10,18 +10,18 @@ use AppBundle\Exception\PrivilegeException;
 use AppBundle\Form\Form\RevisionType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\RevisionRepository;
-use AppBundle\Twig\AppExtension;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactory;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Form\FormError;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use AppBundle\Form\DataField\ComputedFieldType;
 
 class DataService
 {
@@ -46,6 +46,7 @@ class DataService
 	/**@var Session $session*/
 	protected $formFactory;
 	protected $container;
+	protected $appTwig;
 	
 	public function __construct(
 			Registry $doctrine, 
@@ -71,13 +72,27 @@ class DataService
 		$this->session = $session;
 		$this->formFactory = $formFactory;
 		$this->container = $container;
+		$this->twig = $container->get('twig');
+		$this->appTwig = $container->get('app.twig_extension');
 	}
 	
 	
 	public function lockRevision(Revision $revision, $publishEnv=false, $super=false, $username=null){
-		if($publishEnv && !$this->authorizationChecker->isGranted('ROLE_PUBLISHER')){
+		
+		
+		
+		if(!empty($publishEnv) && !$this->authorizationChecker->isGranted('ROLE_PUBLISHER') ){
 			throw new PrivilegeException($revision);
 		}
+		else if( !empty($publishEnv) && is_object($publishEnv) && !empty($publishEnv->getCircles()) && !$this->authorizationChecker->isGranted('ROLE_ADMIN') && !$this->appTwig->inMyCircles($publishEnv->getCircles()) ) {
+			throw new PrivilegeException($revision);
+		}
+		else if(empty($publishEnv) && !empty($revision->getContentType()->getCirclesField()) && !empty($revision->getRawData()[$revision->getContentType()->getCirclesField()])) {
+			if(!$this->appTwig->inMyCircles($revision->getRawData()[$revision->getContentType()->getCirclesField()])) {
+				throw new PrivilegeException($revision);
+			}
+		}
+		
 		
 		$em = $this->doctrine->getManager();
 		if($username === NULL){
@@ -111,6 +126,52 @@ class DataService
 		$em->flush();
 	}
 	
+	public function getDataCircles(Revision $revision) {
+		$out = [];
+		if($revision->getContentType()->getCirclesField()) {
+			$fieldValue = $revision->getRawData()[$revision->getContentType()->getCirclesField()];
+			if(!empty($fieldValue)) {
+				if(is_array($fieldValue)) {
+					return $fieldValue;
+				}
+				else {
+					$out[] = $fieldValue;
+				}
+			}
+		}
+		return $out;
+	}
+	
+	public function propagateDataToComputedField(DataField $dataField, array $objectArray, $type, $ouuid){
+		$found = false;
+		if(null !== $dataField->getFieldType()){
+			if(strcmp($dataField->getFieldType()->getType(),ComputedFieldType::class) == 0) {
+				$template = $dataField->getFieldType()->getDisplayOptions()['valueTemplate'];
+				if(empty($template)){
+					$out = NULL;
+				}
+				else {
+					try {
+						$out = $this->twig->createTemplate($template)->render([
+							'_source' => $objectArray,
+							'_type' => $type,
+							'_id' => $ouuid
+						]);
+					}
+					catch (\Exception $e) {
+						$out = "Error in template: ".$e->getMessage();
+					}					
+				}
+				$dataField->setRawData($out);
+				$found = true;
+			}
+		}
+		
+		foreach ($dataField->getChildren() as $child){
+			$found = $found || $this->propagateDataToComputedField($child, $objectArray, $type, $ouuid);
+		}
+		return $found;
+	}
 	
 	public function finalizeDraft(Revision $revision, \Symfony\Component\Form\Form &$form=null, $username=null){
 		if($revision->getDeleted()){
@@ -137,6 +198,11 @@ class DataService
 		//TODO: test if draft and last version publish in
 			
 		$objectArray = $revision->getRawData();
+		
+		if($this->propagateDataToComputedField($revision->getDataField(), $objectArray, $revision->getContentType()->getName(), $revision->getOuuid())) {
+			$objectArray = $this->mapping->dataFieldToArray($revision->getDataField());
+			$revision->setRawData($objectArray);
+		}
 		
 		//Validation
 //    	if(!$form->isValid()){//Trying to work with validators
@@ -274,7 +340,6 @@ class DataService
 		return $revision;
 	
 	}
-	
 
 	public function discardDraft(Revision $revision){
 		$this->lockRevision($revision);
@@ -358,6 +423,12 @@ class DataService
 	public function isValid(\Symfony\Component\Form\Form &$form) {
 		
 		$viewData = $form->getViewData();
+		
+		//pour le champ hidden allFieldsAreThere de Revision
+		if(!is_object($viewData) && 'allFieldsAreThere' == $form->getName()){
+			return true;
+		}
+		
 		if($viewData instanceof Revision) {
 			/** @var DataField $dataField */
 			$dataField = $viewData->getDatafield();
@@ -381,6 +452,10 @@ class DataService
 					$isValid = $isValid && $tempIsValid;
 				}
 			}
+			if(!$isValid) {
+				$form->addError(new FormError("At least one child is not valid!"));				
+			}
+
 		}
 //   		$isValid = $isValid && $dataFieldType->isValid($dataField);
 		if(isset($dataFieldType) && !$dataFieldType->isValid($dataField)) {

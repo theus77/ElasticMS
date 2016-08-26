@@ -203,19 +203,23 @@
 		<div class="nav-tabs-custom{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}">
             <ul class="nav nav-tabs">
               {% for tab in  form.iterator %}
-	              <li class="{% if loop.index == 1%}active{% endif %}"><a href="#{{ tab.vars.id}}__tab" data-toggle="tab" aria-expanded="false">{{- form_label(tab) -}}</a></li>
+	              <li id="{{ tab.vars.id}}__label" class="form-group{% if tab.vars.errors|length %} has-error{% endif %} {% if loop.index == 1%} active{% endif %}">
+	              	<a href="#{{ tab.vars.id}}__tab" data-toggle="tab" aria-expanded="false">{{- form_label(tab) -}}</a>
+	              </li>
               {% endfor %}
             </ul>
             <div class="tab-content">
               {% for tab in  form.iterator %}
 	              <div class="tab-pane{% if loop.index == 1%} active{% endif %}" id="{{ tab.vars.id}}__tab">
+	              	<div class="form-group has-error"  id="{{ tab.vars.id}}__error">
+		              {{ form_errors(tab) }}
+	              	</div>
 	              	<fieldset>
 					{% if loop.index == 1%}
 	               		{{- form_widget(tab) -}}
 	               	{% else %}
 	               		{{- form_widget(tab) -}}
 	               	{% endif %}
-	                {{- form_errors(tab) -}}
 	              	</fieldset>
 	              </div>
               {% endfor %}

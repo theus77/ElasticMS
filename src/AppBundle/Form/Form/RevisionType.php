@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Form\Field\SubmitEmsType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class RevisionType extends AbstractType {
 	/**
@@ -37,6 +38,9 @@ class RevisionType extends AbstractType {
 				'label' => 'Finalize draft'
 			] );
 		}
+		$builder->add ( 'allFieldsAreThere', HiddenType::class, [
+				 'data' => true,
+		] );
 	}
 	
 	/**

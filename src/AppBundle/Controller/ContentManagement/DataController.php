@@ -33,6 +33,7 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use AppBundle\Service\ContentTypeService;
 
 class DataController extends AppController
 {
@@ -225,7 +226,7 @@ class DataController extends AppController
 					'body'=> [
 						'query' => [
 							'term'	=> [
-									'_all' => [
+									empty($revision->getContentType()->getRefererFieldName())?'_all':$revision->getContentType()->getRefererFieldName() => [
 											'value' => $type.':'.$ouuid
 									]
 							]	
@@ -612,6 +613,7 @@ class DataController extends AppController
 	 */
 	public function ajaxUpdateAction($revisionId, Request $request)
 	{
+		
 		$em = $this->getDoctrine()->getManager();
 		
 		/** @var RevisionRepository $repository */
@@ -619,6 +621,10 @@ class DataController extends AppController
 		/** @var Revision $revision */
 		$revision = $repository->find($revisionId);
 		
+		if( empty($request->request->get('revision')) || empty($request->request->get('revision')['allFieldsAreThere']) || !$request->request->get('revision')['allFieldsAreThere']) {
+			$this->addFlash('error', 'Incomplete request, some fields of the request are missing, please verifiy your server configuration. (i.e.: max_input_vars in php.ini)');
+			$this->addFlash('error', 'Your modification are not saved!');
+		}
 
 		$this->lockRevision($revision);
 		
@@ -732,7 +738,18 @@ class DataController extends AppController
 
 		$logger->debug('Revision request form handled');
 		
+		
 		if ($form->isSubmitted()) {//Save, Finalize or Discard
+			
+			if( empty($request->request->get('revision')) || empty($request->request->get('revision')['allFieldsAreThere']) || !$request->request->get('revision')['allFieldsAreThere']) {
+				$this->addFlash('error', 'Incomplete request, some fields of the request are missing, please verifiy your server configuration. (i.e.: max_input_vars in php.ini)');
+				return $this->redirectToRoute('data.revisions', [
+						'ouuid' => $revision->getOuuid(),
+						'type' => $revision->getContentType()->getName(),
+						'revisionId' => $revision->getId(),
+				]);
+			}
+			
 			$revision->setAutoSave(null);
 			if(!array_key_exists('discard', $request->request->get('revision'))) {//Save or Finalize
 				//Save anyway
@@ -957,42 +974,49 @@ class DataController extends AppController
 		}
 		
 		if(null != $ouuid && null != $type) {
+			/** @var EntityManager $em */
+			$em = $this->getDoctrine ()->getManager ();
+			
+			/** @var RevisionRepository $repository */
+			$repository = $em->getRepository ( 'AppBundle:Revision' );
+			
+			/**@var ContentTypeService $ctService*/
+			$ctService = $this->get('ems.service.contenttype');
+			
+			
+			$contentType = $ctService->getByName($type);
+
+			if(empty($contentType)){
+				throw new NotFoundHttpException('Content type '.$type.'not found' );				
+			}
+
+			/**@var Revision $revision */
+			$revision = $repository->findByOuuidAndContentTypeAndEnvironnement($contentType, $ouuid, $contentType->getEnvironment());
+			
+			if(empty($revision)){
+				throw new NotFoundHttpException('Impossible to find this item : ' . $ouuid);
+			}
+						
+			
+			
+			
 			// For each type, we must perform a different redirect.
 			if($category == 'object'){
 				return $this->redirectToRoute('data.revisions', [
 						'type' => $type,
 						'ouuid'=> $ouuid,
 				]);
-			} else { 
-
-				/** @var EntityManager $em */
-				$em = $this->getDoctrine ()->getManager ();
-				
-				/** @var UploadedAssetRepository $repository */
-				$repository = $em->getRepository ( 'AppBundle:Revision' );
-
-				/**@var Revision $revision */			
-				$revision = $repository->findOneBy([
-					'ouuid' => $ouuid,
-				]);
-				
-				if(!$revision){
-					throw new NotFoundHttpException('Impossible to find this item : ' . $ouuid);
-				}
+			} else if ($category == 'asset') { 
 								
-				$attachedFile = $revision->getRawData();			
-
-				foreach ($attachedFile as $file) {
-						$sha1 = $file['sha1'];
-						$type = $file['mimetype'];
-						$name = $file['filename'];
+				if(empty($contentType->getAssetField()) && empty($revision->getRawData()[$contentType->getAssetField()])) {
+					throw new NotFoundHttpException('Asset field not found for '. $revision);
 				}
-				
 				return $this->redirectToRoute('file.download', [
-						'sha1' => $sha1,
-						'type' => $type, 
-						'name' => $name
+						'sha1' => $revision[0]->getRawData()[$contentType->getAssetField()]['sha1'],
+						'type' => $revision[0]->getRawData()[$contentType->getAssetField()]['mimetype'],
+						'name' => $revision[0]->getRawData()[$contentType->getAssetField()]['filename'],
 				]);
+				
 			}
 		} else {
 			throw new NotFoundHttpException('Impossible to find this item : ' . $key);

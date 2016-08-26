@@ -100,22 +100,19 @@
 						'icon': 'undo' }%}
 				{% endif %}
 				
-				</div>
-				<div class="btn-group">
 				
-				{% if environments|length %}
+			{% endif %}
+		{% endif %}
+			
+			</div>
+			<div class="btn-group">
+		  {% if is_granted('ROLE_PUBLISHER') and hasEnv  %}
+		  		{% if environments|length and ''|is_super %}
 					{% include 'elements/post-button.html.twig' with { 
 						'url': path('revision.reindex', {'revisionId': revisionId}), 
 						'label': 'Re-index', 
 						'icon': 'recycle'}%}
 				{% endif %}
-			
-			{% endif %}
-		{% endif %}
-			
-		
-		  {% if is_granted('ROLE_PUBLISHER') and hasEnv  %}
-		  	<div class="btn-group">
 			  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 			    	<span class="glyphicon glyphicon-open"></span>&nbsp;
 					Publish to
@@ -132,11 +129,9 @@
 				   		{% endif %}
 			   		{% endfor %}
 			   </ul>
-			</div>
 		  {% endif %}
 		
 		  {% if is_granted('ROLE_PUBLISHER') and ((environments|length > 0 and not current) or (environments|length > 1 and current)) %}
-		  	<div class="btn-group">
 			  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 			    	<span class="fa fa-close"></span>&nbsp;
 					Unpublish from
@@ -151,7 +146,6 @@
 				   		{% endif %}
 			   		{% endfor %}
 			   </ul>
-			</div>
 		  {% endif %}
 		  
 	{% endif %}

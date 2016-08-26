@@ -24,7 +24,7 @@ class SelectPickerType extends ChoiceType {
 	}
 	
 
-	protected function humanize($str) {
+	public static function humanize($str) {
 	
 		$str = trim(strtolower($str));
 		$str = preg_replace('/\_/', ' ', $str);

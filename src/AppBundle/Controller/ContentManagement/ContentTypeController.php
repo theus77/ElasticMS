@@ -92,23 +92,13 @@ class ContentTypeController extends AppController {
 	 * @param integer $id        	
 	 * @param Request $request
 	 * 
-	 * @Route("/content-type/activate/{id}", name="contenttype.activate"))
+	 * @Route("/content-type/activate/{contentType}", name="contenttype.activate"))
      * @Method({"POST"})
 	 */
-	public function activateAction($id, Request $request) {
+	public function activateAction(ContentType $contentType, Request $request) {
 		
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine ()->getManager ();
-		/** @var ContentTypeRepository $repository */
-		$repository = $em->getRepository ( 'AppBundle:ContentType' );
-		
-		/** @var ContentType $contentType */
-		$contentType = $repository->find ( $id );
-		
-		if (! $contentType || count ( $contentType ) != 1) {
-			$this->addFlash ( 'warning', 'Content type not found!' );
-			return $this->redirectToRoute ( 'contenttype.index' );
-		}
 		
 		if ($contentType->getDirty ()) {
 			$this->addFlash ( 'warning', 'Content type "' . $contentType->getName () . '" is dirty (its mapping migth be out-of date).
@@ -123,6 +113,26 @@ class ContentTypeController extends AppController {
 	}
 	
 	/**
+	 * Desctivate (make it unavailable for authors) a content type.
+	 *
+	 * @param integer $id        	
+	 * @param Request $request
+	 * 
+	 * @Route("/content-type/desactivate/{contentType}", name="contenttype.desactivate"))
+     * @Method({"POST"})
+	 */
+	public function desactivateAction(ContentType $contentType, Request $request) {
+		
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine ()->getManager ();
+		
+		$contentType->setActive ( false );
+		$em->persist ( $contentType );
+		$em->flush ();
+		return $this->redirectToRoute ( 'contenttype.index' );
+	}
+	
+/**
 	 * Try to update the Elasticsearch mapping for a specific content type
 	 *
 	 * @param integer $id        	

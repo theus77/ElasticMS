@@ -42,15 +42,17 @@ twig:
     strict_variables: "%kernel.debug%"
     globals:
         date_time_format: "%date_time_format%"
-        theme_color: blue
+        theme_color: "%theme_color%"
         #blue black purple yellow red green 
-        ems_name: <b>elastic</b>MS
-        ems_shortname: <b>e</b>MS
+        ems_name: "%ems_name%"
+        ems_shortname: "%ems_shortname%"
         circles_object: "%circles_object%"
         #date picker
         datepicker_format : "%datepicker_format%"
         datepicker_weekstart : "%datepicker_weekstart%"
         datepicker_daysofweek_highlighted: "%datepicker_daysofweek_highlighted%"
+        allow_user_registration: "%allow_user_registration%"
+        template_options: "%template_options%"
     form_themes:
         - "form/fields.html.twig"
 
@@ -82,8 +84,15 @@ swiftmailer:
     host:      "%mailer_host%"
     username:  "%mailer_user%"
     password:  "%mailer_password%"
-    spool:     { type: memory }
+    port:      "%mailer_port%"
+    #spool:     { type: memory }
 fos_user:
     db_driver: orm # other valid values are 'mongodb', 'couchdb' and 'propel'
     firewall_name: main
     user_class: AppBundle\Entity\User
+    from_email: "%from_email%"
+    service:
+        mailer: fos_user.mailer.default
+    resetting:
+        email:
+            template: email/password_resetting.email.twig
