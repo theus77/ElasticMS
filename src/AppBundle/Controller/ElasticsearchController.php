@@ -488,13 +488,12 @@ class ElasticsearchController extends AppController
 			}
 		
 			
-			
+			// 			   "highlight": {
+			// 			      "fields": {
+			// 			         "_all": {}
+			// 			      }
+			// 			   },			
 			$body = array_merge($body, json_decode('{
-			   "highlight": {
-			      "fields": {
-			         "_all": {}
-			      }
-			   },
 			   "aggs": {
 			      "types": {
 			         "terms": {
@@ -746,6 +745,7 @@ class ElasticsearchController extends AppController
 					'page' => $page,
 					'searchId' => $searchId,
 					'currentFilters' => $request->query,
+					'body' => $body
 			] );
 		}
 		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){

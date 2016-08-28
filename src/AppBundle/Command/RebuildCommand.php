@@ -90,6 +90,7 @@ class RebuildCommand extends ContainerAwareCommand
 			/** @var ContentType $contentType */
 			foreach ($contentTypes as $contentType){
 				if($contentType->getEnvironment()->getManaged() && !$contentType->getDeleted()){
+
 					try {
 						$out = $client->indices ()->putMapping ( [
 								'index' => $indexName,
@@ -98,7 +99,7 @@ class RebuildCommand extends ContainerAwareCommand
 						] );
 						$output->writeln('A new mapping for '.$contentType->getName ().' has been defined');					
 					}
-					catch (BadRequest400Exception $e){
+					catch (\Exception $e){
 						$output->writeln('ERROR: Error on putting mapping for '.$contentType->getName ().'!  Message: '.$e->getMessage());
 						$output->writeln('ERROR: '. print_r($this->mapping->generateMapping ($contentType), true));
 					}
