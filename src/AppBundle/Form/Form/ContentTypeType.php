@@ -83,6 +83,12 @@ class ContentTypeType extends AbstractType {
 						'class' => $options['twigWithWysiwyg']?'ckeditor':''
 				]
 		] );
+		$builder->add ( 'other', TextareaType::class, [
+				'required' => false,
+				'attr' => [
+						'class' => $options['twigWithWysiwyg']?'ckeditor':''
+				]
+		] );
 		
 		
 		$builder->add ( 'save', SubmitEmsType::class, [ 

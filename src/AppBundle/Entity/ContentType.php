@@ -64,8 +64,6 @@ class ContentType
      */
     private $description;
     
-
-
     /**
      * @var string
      *
@@ -74,6 +72,13 @@ class ContentType
     private $indexTwig;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(name="other", type="text", nullable=true)
+     */
+    private $other;
+
+	/**
      * @var string
      *
      * @ORM\Column(name="lockBy", type="string", length=100, nullable=true)
@@ -935,6 +940,30 @@ class ContentType
     public function getIndexTwig()
     {
         return $this->indexTwig;
+    }
+
+    /**
+     * Set other
+     *
+     * @param string $other
+     *
+     * @return ContentType
+     */
+    public function setOther($other)
+    {
+        $this->other = $other;
+
+        return $this;
+    }
+
+    /**
+     * Get other
+     *
+     * @return string
+     */
+    public function getOther()
+    {
+        return $this->other;
     }
 
     /**
