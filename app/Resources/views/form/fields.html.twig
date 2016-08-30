@@ -82,6 +82,12 @@
       </div>
     {% endif %}
     <!-- /.tab-pane -->
+    {% if form.otherOptions is defined %}
+      <div class="tab-pane" id="tab_other_{{ seed }}">
+        {{- form_widget(form.otherOptions) -}}
+      </div>
+    {% endif %}
+    <!-- /.tab-pane -->
 	</div>
 	<!-- /.tab-content -->
 
@@ -453,6 +459,9 @@
                 {%  endif %}
                 {% if form.options.migrationOptions is defined %}
                   <li class=""><a href="#tab_migration_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Migration</a></li>
+                {%  endif %}
+                {% if form.options.otherOptions is defined %}
+                  <li class=""><a href="#tab_other_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Other</a></li>
                 {%  endif %}
 							</ul>
 							{{- form_widget(form.options, {'seed': form.vars.id} ) -}}

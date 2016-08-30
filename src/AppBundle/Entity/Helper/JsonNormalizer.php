@@ -31,7 +31,8 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 					   				   "mappingOptions", 
 					   				   "restrictionOptions",
 					   				   "migrationOptions",
-					   				   "fieldRoles"
+					   				   "otherOptions",
+					                   "fieldRoles"
 					   				  ],
 					   "Template" => ["id",
 					   				  "created",

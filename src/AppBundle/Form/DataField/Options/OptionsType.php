@@ -29,6 +29,7 @@ class OptionsType extends AbstractType
 	    $builder->add ( 'mappingOptions',     MappingOptionsType::class); 
 	    $builder->add ( 'restrictionOptions', RestrictionOptionsType::class); 
 	    $builder->add ( 'migrationOptions',	  MigrationOptionsType::class); 
+	    $builder->add ( 'otherOptions',	      OtherOptionsType::class); 
     }   
 	
 	/**
@@ -43,6 +44,10 @@ class OptionsType extends AbstractType
 	}
 	
 	public function hasMigrationOptions() {
+		return true;
+	}
+	
+	public function hasOtherOptions() {
 		return true;
 	}
 	

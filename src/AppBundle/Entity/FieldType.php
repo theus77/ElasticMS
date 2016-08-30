@@ -379,6 +379,14 @@ class FieldType
     	return [];
     }
 
+    public function getOtherOptions(){
+    	$options = $this->getOptions();
+    	if(isset($options['otherOptions'])){
+    		return $options['otherOptions'];
+    	}
+    	return [];
+    }
+    
     public function getMinimumRole(){
     	$options = $this->getOptions();
     	if(isset($options['restrictionOptions']) && isset($options['restrictionOptions']['minimum_role'])){
