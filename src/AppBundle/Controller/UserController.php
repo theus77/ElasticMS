@@ -3,14 +3,16 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
 use AppBundle\Form\Field\ObjectPickerType;
+use AppBundle\Form\Field\SubmitEmsType;
 use Doctrine\ORM\EntityRepository;
 use FOS\UserBundle\Util\LegacyFormHelper;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Form\Field\SubmitEmsType;
+use Doctrine\ORM\EntityManager;
 
 class UserController extends Controller
 {
@@ -282,6 +284,26 @@ class UserController extends Controller
 	}
 	
 	/**
+	 *
+	 * @Route("/user/{user}/apikey", name="user.apikey")
+     * @Method({"POST"})
+	 */
+	public function apiKeyAction(User $user, Request $request)
+	{
+		$random = bin2hex(random_bytes(30));
+		$user->setApiKey($random);
+
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		$em->persist($user);
+		$em->flush();
+		
+		$this->addFlash('notice', 'Here is a new API key for user '.$user->getUsername().' '.$random);
+		
+		return $this->redirectToRoute('user.index');
+	}
+	
+	/**
 	 * Test if email or username exist return on add or edit Form
 	 */
 	private function userExist ($user, $action, $form) {
@@ -308,12 +330,13 @@ class UserController extends Controller
 	{
 	    $roleHierarchy = $this->container->getParameter('security.role_hierarchy.roles');
 	    $roles = array_keys($roleHierarchy);
-	    
+
 	    $theRoles['ROLE_USER'] = 'ROLE_USER';
 	    
 	    foreach ($roles as $role) {
 	        $theRoles[$role] = $role;
 	    }
+	    $theRoles['ROLE_API'] = 'ROLE_API';
 	    return $theRoles;
 	}
 }

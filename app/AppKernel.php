@@ -20,7 +20,7 @@ class AppKernel extends Kernel
             new AppBundle\AppBundle(),
         ];
 
-        if (in_array($this->getEnvironment(), ['dev', 'test', 'c2blb'], true)) {
+        if (in_array($this->getEnvironment(), ['dev', 'test', 'c2blb', 'global'], true)) {
             $bundles[] = new Symfony\Bundle\DebugBundle\DebugBundle();
             $bundles[] = new Symfony\Bundle\WebProfilerBundle\WebProfilerBundle();
             $bundles[] = new Sensio\Bundle\DistributionBundle\SensioDistributionBundle();

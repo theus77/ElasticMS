@@ -49,6 +49,16 @@ class User extends BaseUser
      */
     private $displayName;
 
+    /**
+     * API authentication key
+     *
+     * @var string
+     * 
+     * @ORM\Column(name="api_key", type="string", length=60, nullable=true)
+     */
+    private $apiKey;
+    
+
     
     public function __construct()
     {
@@ -174,5 +184,29 @@ class User extends BaseUser
     	if(empty($this->displayName))
     		return $this->getUsername();
         return $this->displayName;
+    }
+
+    /**
+     * Set apiKey
+     *
+     * @param string $apiKey
+     *
+     * @return User
+     */
+    public function setApiKey($apiKey)
+    {
+        $this->apiKey = $apiKey;
+
+        return $this;
+    }
+
+    /**
+     * Get apiKey
+     *
+     * @return string
+     */
+    public function getApiKey()
+    {
+        return $this->apiKey;
     }
 }
