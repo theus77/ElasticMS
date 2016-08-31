@@ -7,10 +7,10 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 /**
- * It's a coumpound field for field specific other option.
+ * It's a coumpound field for field specific extra option.
  *
  */
-class OtherOptionsType extends AbstractType {
+class ExtraOptionsType extends AbstractType {
 	
 	/**
 	 *
@@ -18,7 +18,7 @@ class OtherOptionsType extends AbstractType {
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder->add ( 'other', TextareaType::class, [ 
+		$builder->add ( 'extra', TextareaType::class, [ 
 				'required' => false
 		] );
 	}

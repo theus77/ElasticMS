@@ -115,7 +115,7 @@ class LoadContentTypeData extends AbstractFixture implements OrderedFixtureInter
 	}
 	
 	
-	private function createContentType($name, $pluralName, $icon, $description, $indexTwig, $other, $color, $orderKey, $rootContentType, $active, $environment, $labelField, $locationField)
+	private function createContentType($name, $pluralName, $icon, $description, $indexTwig, $extra, $color, $orderKey, $rootContentType, $active, $environment, $labelField, $locationField)
 	{
 		$contentType = new ContentType();
 		$contentType->setName($name);
@@ -123,7 +123,7 @@ class LoadContentTypeData extends AbstractFixture implements OrderedFixtureInter
 		$contentType->setIcon($icon);
 		$contentType->setDescription($description);
 		$contentType->setIndexTwig($indexTwig);
-		$contentType->setOther($other);
+		$contentType->setExtra($extra);
 		$contentType->setColor($color);
 		$contentType->setOrderKey($orderKey);
 		$contentType->setRootContentType($rootContentType);

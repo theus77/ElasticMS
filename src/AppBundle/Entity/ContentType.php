@@ -74,9 +74,9 @@ class ContentType
     /**
      * @var string
      *
-     * @ORM\Column(name="other", type="text", nullable=true)
+     * @ORM\Column(name="extra", type="text", nullable=true)
      */
-    private $other;
+    private $extra;
 
 	/**
      * @var string
@@ -943,27 +943,27 @@ class ContentType
     }
 
     /**
-     * Set other
+     * Set extra
      *
-     * @param string $other
+     * @param string $extra
      *
      * @return ContentType
      */
-    public function setOther($other)
+    public function setExtra($extra)
     {
-        $this->other = $other;
+        $this->extra = $extra;
 
         return $this;
     }
 
     /**
-     * Get other
+     * Get extra
      *
      * @return string
      */
-    public function getOther()
+    public function getExtra()
     {
-        return $this->other;
+        return $this->extra;
     }
 
     /**

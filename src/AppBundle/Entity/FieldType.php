@@ -379,10 +379,10 @@ class FieldType
     	return [];
     }
 
-    public function getOtherOptions(){
+    public function getExtraOptions(){
     	$options = $this->getOptions();
-    	if(isset($options['otherOptions'])){
-    		return $options['otherOptions'];
+    	if(isset($options['extraOptions'])){
+    		return $options['extraOptions'];
     	}
     	return [];
     }
