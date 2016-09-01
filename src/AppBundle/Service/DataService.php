@@ -175,10 +175,10 @@ class DataService
 		return $found;
 	}
 	
-	public function createData($ouuid, array $rawdata, ContentType $contentType){
+	public function createData($ouuid, array $rawdata, ContentType $contentType, $byARealUser=true){
 
 		$now = new \DateTime();
-		$until = $now->add(new \DateInterval("PT5M"));//+5 minutes
+		$until = $now->add(new \DateInterval($byARealUser?"PT5M":"PT1M"));//+5 minutes
 		$newRevision = new Revision();
 		$newRevision->setContentType($contentType);
 		$newRevision->setOuuid($ouuid);

@@ -530,6 +530,43 @@ class ContentTypeController extends AppController {
 		}
 		return false;
 	}
+	
+	/**
+	 * Try to find (recursively) if there is a field to duplicate
+	 * 
+	 * @param array $formArray        	
+	 * @param FieldType $fieldType        	
+	 */
+	private function duplicateField(array $formArray, FieldType $fieldType) {
+		if (array_key_exists ( 'duplicate', $formArray )) {
+			if(isset($formArray ['ems:internal:add:subfield:target_name']) 
+					&& strcmp($formArray ['ems:internal:add:subfield:target_name'], '') !== 0) {
+				if($this->isValidName($formArray ['ems:internal:add:subfield:target_name'])) {
+					$new = clone $fieldType;
+					$new->setName ( $formArray ['ems:internal:add:subfield:target_name'] );
+					$new->getParent()->addChild($new);
+// 					dump($new);
+					
+					$this->addFlash('notice', 'The field '.$fieldType->getName().' has been added');
+				}
+				else {
+					$this->addFlash('error', 'The field\'s name is not valid (format: [a-z][a-z0-9_-]*)');
+				}
+			}
+			else{
+				$this->addFlash('notice', 'The field\'s name is mandatory');
+			}
+			return true;
+		} else {
+			/** @var FieldType $child */
+			foreach ( $fieldType->getChildren () as $child ) {
+				if (! $child->getDeleted () && $this->duplicateField ( $formArray ['ems_'.$child->getName ()], $child )) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * Try to find (recursively) if there is a field to remove from the content type
@@ -762,6 +799,15 @@ class ContentTypeController extends AppController {
 				}
 				
 				else if ($this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+					$contentType->getFieldType ()->updateOrderKeys ();
+					$em->persist ( $contentType );
+					$em->flush ();
+					return $this->redirectToRoute ( 'contenttype.structure', [ 
+							'id' => $id 
+					] );
+				}
+				
+				else if ($this->duplicateField( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					$em->persist ( $contentType );
 					$em->flush ();

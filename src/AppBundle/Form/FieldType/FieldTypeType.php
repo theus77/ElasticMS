@@ -65,19 +65,33 @@ class FieldTypeType extends AbstractType
 
     	}
     	else if(strcmp(SubfieldType::class, $fieldType->getType()) !=0 ) {
+
+    		$builder->add ( 'ems:internal:add:subfield:name', TextType::class, [
+    				'label' => 'Subfield\'s name',
+    				'mapped' => false,
+    				'required' => false,
+    		]);
     		
-	    	$builder->add ( 'ems:internal:add:subfield:name', TextType::class, [
-	    			'label' => 'Subfield\'s name',
-	    			'mapped' => false,
-	    			'required' => false,
-	    	]);
-	    	
-	    	$builder->add ( 'subfield', SubmitEmsType::class, [
-	    			'label' => 'Add',
+    		$builder->add ( 'subfield', SubmitEmsType::class, [
+    				'label' => 'Add',
     				'attr' => [
     						'class' => 'btn-primary '
     				],
     				'icon' => 'fa fa-plus'
+    		] );
+    		
+	    	$builder->add ( 'ems:internal:add:subfield:target_name', TextType::class, [
+	    			'label' => 'New field\'s machine name',
+	    			'mapped' => false,
+	    			'required' => false,
+	    	]);
+	    	
+	    	$builder->add ( 'duplicate', SubmitEmsType::class, [
+	    			'label' => 'Duplicate',
+    				'attr' => [
+    						'class' => 'btn-primary '
+    				],
+    				'icon' => 'fa fa-paste'
     		] );    		
     	}
     	if(null != $fieldType->getParent()){
