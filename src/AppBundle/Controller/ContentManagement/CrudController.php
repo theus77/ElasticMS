@@ -26,7 +26,7 @@ class CrudController extends AppController
 	
 	/**
 	 * @Route("/api/{name}/create/{ouuid}", defaults={"ouuid": null, "_format": "json"})
-     * @ParamConverter("contentType", options={"mapping": {"name": "name", "deleted": 0, "active": 0}})
+     * @ParamConverter("contentType", options={"mapping": {"name": "name", "deleted": 0, "active": 1}})
      * @Method({"POST"})
 	 */
 	public function createAction($ouuid, ContentType $contentType, Request $request) {
