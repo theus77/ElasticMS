@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>I18n list</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Created</th>
+                <th>Modified</th>
+                <th>Key</th>
+                <th>Locale</th>
+                <th>Content</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for i18n in i18ns %}
+            <tr>
+                <td><a href="{{ path('i18n_show', { 'id': i18n.id }) }}">{{ i18n.id }}</a></td>
+                <td>{% if i18n.created %}{{ i18n.created|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{% if i18n.modified %}{{ i18n.modified|date('Y-m-d H:i:s') }}{% endif %}</td>
+                <td>{{ i18n.identifier }}</td>
+                <td>{{ i18n.locale }}</td>
+                <td>{{ i18n.content }}</td>
+                <td>
+                    <ul>
+                        <li>
+                            <a href="{{ path('i18n_show', { 'id': i18n.id }) }}">show</a>
+                        </li>
+                        <li>
+                            <a href="{{ path('i18n_edit', { 'id': i18n.id }) }}">edit</a>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('i18n_new') }}">Create a new entry</a>
+        </li>
+    </ul>
+{% endblock %}

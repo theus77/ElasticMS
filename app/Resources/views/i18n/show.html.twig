@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>I18n</h1>
+
+    <table>
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ i18n.id }}</td>
+            </tr>
+            <tr>
+                <th>Created</th>
+                <td>{% if i18n.created %}{{ i18n.created|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Modified</th>
+                <td>{% if i18n.modified %}{{ i18n.modified|date('Y-m-d H:i:s') }}{% endif %}</td>
+            </tr>
+            <tr>
+                <th>Key</th>
+                <td>{{ i18n.identifier }}</td>
+            </tr>
+            <tr>
+                <th>Locale</th>
+                <td>{{ i18n.locale }}</td>
+            </tr>
+            <tr>
+                <th>Content</th>
+                <td>{{ i18n.content }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <ul>
+        <li>
+            <a href="{{ path('i18n_index') }}">Back to the list</a>
+        </li>
+        <li>
+            <a href="{{ path('i18n_edit', { 'id': i18n.id }) }}">Edit</a>
+        </li>
+        <li>
+            {{ form_start(delete_form) }}
+                <input type="submit" value="Delete">
+            {{ form_end(delete_form) }}
+        </li>
+    </ul>
+{% endblock %}
