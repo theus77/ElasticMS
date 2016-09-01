@@ -475,23 +475,22 @@ class FieldType
 		
     }
 	
-	/**
-	 * Constructor
-	 */
-	public function __clone() 
-	{
-		$this->children = new \Doctrine\Common\Collections\ArrayCollection ();
-		$this->deleted = $this->deleted;
-		$this->orderKey = $this->orderKey;
-		$this->created = null;
-		$this->modified = null;
-		$this->description = $this->description;
-		$this->id = 0;
-		$this->name = $this->name ;
-		$this->options = $this->options;
-		$this->type = $this->type;
-		
-    }
+// 	/**
+// 	 * Cette focntion clone casse le CollectionFieldType => impossible d'ajouter un record
+// 	 */
+// 	public function __clone() 
+// 	{
+// 		$this->children = new \Doctrine\Common\Collections\ArrayCollection ();
+// 		$this->deleted = $this->deleted;
+// 		$this->orderKey = $this->orderKey;
+// 		$this->created = null;
+// 		$this->modified = null;
+// 		$this->description = $this->description;
+// 		$this->id = 0;
+// 		$this->name = $this->name ;
+// 		$this->options = $this->options;
+// 		$this->type = $this->type;	
+//     }
 
     /**
      * get a child
