@@ -15,7 +15,7 @@
 !var/SymfonyRequirements.php
 /web/bundles/
 /web/bower/
-/web/Migration/
+/src/EmsImportBundle/
 
 # eclipse files
 /.settings/
