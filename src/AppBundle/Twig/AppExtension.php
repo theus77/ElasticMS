@@ -11,6 +11,8 @@ use Elasticsearch\Client;
 use Symfony\Component\Routing\Router;
 use AppBundle\Form\Factory\ObjectChoiceListFactory;
 use Symfony\Component\Form\FormError;
+use AppBundle\Repository\I18nRepository;
+use AppBundle\Entity\I18n;
 
 class AppExtension extends \Twig_Extension
 {
@@ -67,8 +69,26 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('objectChoiceLoader', array($this, 'objectChoiceLoader')),
 				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),		
 				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),			
-				new \Twig_SimpleFilter('is_super', array($this, 'is_super')),				
+				new \Twig_SimpleFilter('is_super', array($this, 'is_super')),					
+				new \Twig_SimpleFilter('i18n', array($this, 'i18n')),				
 		);
+	}
+	
+	function i18n($key, $locale=null){
+		if(empty($locale)) {
+			$locale = $this->router->getContext()->getParameter('_locale');
+		}
+		/**@var I18nRepository $repo */
+		$repo = $this->doctrine->getManager()->getRepository('AppBundle:I18n');
+		/**@var I18n $result*/
+		$result = $repo->findOneBy([
+				'identifier' => $key,
+				'locale' => $locale,
+		]);
+		if(empty($result)){
+			return $key;
+		}
+		return $result->getContent();
 	}
 	
 	private function superizer($role){
