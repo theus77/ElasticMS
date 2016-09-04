@@ -34,7 +34,8 @@ class SubmitEmsType extends SubmitType {
 	public function configureOptions(OptionsResolver $resolver) {
 		$resolver->setDefaults ( array (
 				'compound' => false,
-				'icon' => null 
+				'icon' => null,
+				'message' => null,
 		) );
 	}
 	
@@ -45,5 +46,6 @@ class SubmitEmsType extends SubmitType {
 	 */
 	public function buildView(FormView $view, FormInterface $form, array $options) {
 		$view->vars ['icon'] = $options ['icon'];
+		$view->vars ['message'] = $options ['message'];
 	}
 }

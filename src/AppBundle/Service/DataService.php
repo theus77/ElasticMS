@@ -206,8 +206,7 @@ class DataService
 		
 		$em->persist($newRevision);
 		$em->flush();
-		
-		$this->finalizeDraft($newRevision);
+		return $newRevision;
 		
 	}
 	
