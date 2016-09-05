@@ -58,14 +58,16 @@ class UserController extends Controller
 				'options' => array('translation_domain' => 'FOSUserBundle'),
 				'first_options' => array('label' => 'form.password'),
 				'second_options' => array('label' => 'form.password_confirmation'),
-				'invalid_message' => 'fos_user.password.mismatch',))
-		->add('circles', ObjectPickerType::class, [
+				'invalid_message' => 'fos_user.password.mismatch',));
+		if ($circleObject = $this->container->getParameter('circles_object')) {
+			$form->add('circles', ObjectPickerType::class, [
 				'multiple' => TRUE,
-				'type' => $this->container->getParameter('circles_object'),
+				'type' => $circleObject,
 				'dynamicLoading' => false
 				
-		])
-		->add('expiresAt', DateType::class, array(
+			]);
+		}
+		$form = $form->add('expiresAt', DateType::class, array(
 				'required' => FALSE,
    				'widget' => 'single_text',
 				'format' => 'd/M/y',
