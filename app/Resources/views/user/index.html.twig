@@ -120,6 +120,12 @@
 													'label': 'Lock',
 													'icon': 'lock'
 											}%}
+											{% include 'elements/post-button.html.twig' with {
+													'url': path('user.apikey', {'user': user.id}),
+													'message': 'Generate API key for ' ~ user.username|humanize ~ ' ?',
+													'label': 'API key',
+													'icon': 'key'
+											}%}
 										{% endif %}
 				                    </div>
 								</td>

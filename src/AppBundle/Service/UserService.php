@@ -28,7 +28,24 @@ class UserService {
 		$this->securityRoles = $securityRoles;
 	}
 	
-	public function getUser($username) {
+	
+	public function findUsernameByApikey($apiKey){
+		$em = $this->doctrine->getManager();
+		/**@var \Doctrine\ORM\EntityRepository */
+		$repository = $em->getRepository('AppBundle:User');
+		
+		/**@var User $user*/
+		$user = $repository->findOneBy([
+				'apiKey' => $apiKey
+		]);
+		if(empty($user)){
+			return null;
+		}
+		return $user->getUsername();
+		
+	}
+	
+	public function getUser($username, $detachIt = true) {
 		$em = $this->doctrine->getManager();
 		/**@var \Doctrine\ORM\EntityRepository */
 		$repository = $em->getRepository('AppBundle:User');
@@ -36,7 +53,9 @@ class UserService {
 				'usernameCanonical' => $username
 		]);
 		
-		$em->detach($user);
+		if($detachIt) {
+			$em->detach($user);			
+		}
 		
 		return $user;
 	}

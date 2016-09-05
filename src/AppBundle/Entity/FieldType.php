@@ -379,6 +379,14 @@ class FieldType
     	return [];
     }
 
+    public function getExtraOptions(){
+    	$options = $this->getOptions();
+    	if(isset($options['extraOptions'])){
+    		return $options['extraOptions'];
+    	}
+    	return [];
+    }
+    
     public function getMinimumRole(){
     	$options = $this->getOptions();
     	if(isset($options['restrictionOptions']) && isset($options['restrictionOptions']['minimum_role'])){
@@ -466,6 +474,23 @@ class FieldType
 		$this->orderKey = 0;
 		
     }
+	
+// 	/**
+// 	 * Cette focntion clone casse le CollectionFieldType => impossible d'ajouter un record
+// 	 */
+// 	public function __clone() 
+// 	{
+// 		$this->children = new \Doctrine\Common\Collections\ArrayCollection ();
+// 		$this->deleted = $this->deleted;
+// 		$this->orderKey = $this->orderKey;
+// 		$this->created = null;
+// 		$this->modified = null;
+// 		$this->description = $this->description;
+// 		$this->id = 0;
+// 		$this->name = $this->name ;
+// 		$this->options = $this->options;
+// 		$this->type = $this->type;	
+//     }
 
     /**
      * get a child

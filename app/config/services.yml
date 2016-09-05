@@ -328,3 +328,10 @@ services:
         arguments: ['@doctrine', '@logger', '@ems.service.user', '@ems.service.notification', '%notification_pending_timeout%']
         tags:
             -  { name: console.command }
+#### security services
+    api_key_user_provider:
+        class: AppBundle\Security\ApiKeyUserProvider
+        arguments: ['@ems.service.user']
+    apikey_authenticator:
+        class:  AppBundle\Security\ApiKeyAuthenticator
+        public: false

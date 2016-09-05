@@ -53,6 +53,7 @@ class RolePickerType extends SelectPickerType {
 		foreach ($roles as $role) {
 			$theRoles[$role] = $role;
 		}
+		$theRoles['ROLE_API'] = 'ROLE_API';
 		return $theRoles;
 	}
 }

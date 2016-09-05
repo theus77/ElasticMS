@@ -16,16 +16,6 @@
 		{{ form_start(form) }}
 		
 			<div class="box ">
-				<div class="box-header with-border">
-					<div class="btn-group">
-						<a class="toggle-button collapsed btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="false" aria-controls="searchFormBoxBody">
-							<i class="fa fa-search"></i> Search form
-						</a>
-						{% if form.exportResults is defined %}
-						    {{ form_widget(form.exportResults) }}
-						{% endif %}
-					</div>
-				</div>
 				<div id="searchFormBoxBody" class="collapse">
 					<div class="box-body" >
 						<div class="row">
@@ -96,6 +86,30 @@
 								{% endif %}
 							</div>
 						</div>
+					</div>
+				</div>
+				<div id="queryElasticsearchBoxBody" class="collapse">
+					<div class="box-body" >
+						<div class="row">
+							<div class=" col-md-12">
+								{{ body|json_encode }}
+						    </div>
+						</div>
+					</div>
+				</div>
+				<div class="box-footer with-border">
+					<div class="btn-group">
+						<a class="toggle-button collapsed btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="false" aria-controls="searchFormBoxBody">
+							<i class="fa fa-search"></i> Search form
+						</a>
+						{% if is_granted('ROLE_ADMIN') %}
+							<a class="toggle-button collapsed btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#queryElasticsearchBoxBody" aria-expanded="false" aria-controls="queryElasticsearchBoxBody">
+								<i class="fa fa-eye"></i> Query
+							</a>
+						{% endif %}
+						{% if form.exportResults is defined %}
+						    {{ form_widget(form.exportResults) }}
+						{% endif %}
 					</div>
 				</div>
 			</div>

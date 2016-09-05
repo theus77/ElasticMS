@@ -22,6 +22,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Form\DataField\ComputedFieldType;
+use AppBundle\Entity\ContentType;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
 class DataService
 {
@@ -171,6 +173,41 @@ class DataService
 			$found = $found || $this->propagateDataToComputedField($child, $objectArray, $type, $ouuid);
 		}
 		return $found;
+	}
+	
+	public function createData($ouuid, array $rawdata, ContentType $contentType, $byARealUser=true){
+
+		$now = new \DateTime();
+		$until = $now->add(new \DateInterval($byARealUser?"PT5M":"PT1M"));//+5 minutes
+		$newRevision = new Revision();
+		$newRevision->setContentType($contentType);
+		$newRevision->setOuuid($ouuid);
+		$newRevision->setStartTime($now);
+		$newRevision->setEndTime(null);
+		$newRevision->setDeleted(0);
+		$newRevision->setDraft(1);
+		$newRevision->setLockBy($this->tokenStorage->getToken()->getUsername());
+		$newRevision->setLockUntil($until);
+		$newRevision->setRawData($rawdata);
+		
+		$em = $this->doctrine->getManager();
+		if(!empty($ouuid)){
+			$revisionRepository = $em->getRepository('AppBundle:Revision');
+			$anotherObject = $revisionRepository->findOneBy([
+					'contentType' => $contentType,
+					'ouuid' => $newRevision->getOuuid(),
+					'endTime' => null
+			]);
+			
+			if(!empty($anotherObject)) {
+				throw new ConflictHttpException('Duplicate OUUID '.$ouuid.' for this content type');
+			}			
+		}
+		
+		$em->persist($newRevision);
+		$em->flush();
+		return $newRevision;
+		
 	}
 	
 	public function finalizeDraft(Revision $revision, \Symfony\Component\Form\Form &$form=null, $username=null){
