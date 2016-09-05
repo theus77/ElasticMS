@@ -30,7 +30,7 @@ class EditEnvironmentType extends AbstractType {
 		->add ( 'color', ColorPickerType::class, [
 				'required' => false,
 		]);
-		if (array_key_exists('type', $options)) {
+		if (array_key_exists('type', $options) && $options['type']) {
 			$builder->add ( 'circles', ObjectPickerType::class, [
 					'required' => false,
 					'type' => $options['type'],
