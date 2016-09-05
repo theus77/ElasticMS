@@ -64,6 +64,7 @@ security:
         - { path: ^/status$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/documentation$, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/resetting, role: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/data/custom-view, role: IS_AUTHENTICATED_ANONYMOUSLY }
         - { path: ^/api, roles: ROLE_API }
         - { path: ^/content-type, roles: ROLE_ADMIN }
         - { path: ^/environment, roles: ROLE_ADMIN }
