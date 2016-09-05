@@ -101,7 +101,14 @@ class TemplateType extends AbstractType {
 		->add ( 'body', TextareaType::class, [
 			'required' => false,
 			'attr' => [
-				'class' => $template->getEditWithWysiwyg()?'ckeditor':''
+				'class' => $template->getEditWithWysiwyg()?'ckeditor':'',
+				'rows' => '20',
+			]
+		])
+		->add ( 'header', TextareaType::class, [
+			'required' => false,
+			'attr' => [
+				'rows' => '10',
 			]
 		])
  		->add('roleCc', RolePickerType::class)

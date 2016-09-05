@@ -18,6 +18,20 @@
 
 {% block subtitle %}{% endblock %} 
 
+
+{% block extraheader %}
+{% if template.header is defined and template.body %}
+		{{ template.header|generate_from_template({
+				environment: environment,
+				contentType: contentType,
+				object: object,
+				source: object._source
+			})|raw }}
+{% endif %}
+{% endblock %} 
+
+
+
 {% block body %}
 {% import "macros/data-field-type.html.twig" as macros %}
 <div class="row">

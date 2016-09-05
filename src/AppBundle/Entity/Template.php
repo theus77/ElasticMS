@@ -59,6 +59,13 @@ class Template
     private $body;
     
     /**
+     * @var string
+     *
+     * @ORM\Column(name="header", type="text", nullable=true)
+     */
+    private $header;
+    
+    /**
      * @var bool
      *
      * @ORM\Column(name="edit_with_wysiwyg", type="boolean")
@@ -769,5 +776,29 @@ class Template
     public function getEmailContentType()
     {
         return $this->emailContentType;
+    }
+
+    /**
+     * Set header
+     *
+     * @param string $header
+     *
+     * @return Template
+     */
+    public function setHeader($header)
+    {
+        $this->header = $header;
+
+        return $this;
+    }
+
+    /**
+     * Get header
+     *
+     * @return string
+     */
+    public function getHeader()
+    {
+        return $this->header;
     }
 }
