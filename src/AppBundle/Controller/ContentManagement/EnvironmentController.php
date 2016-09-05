@@ -467,9 +467,11 @@ class EnvironmentController extends AppController {
 			throw new NotFoundHttpException('Unknow environment');
 		}
 	
-		$options= [
-				'type' => $this->getParameter("circles_object")
-		];
+		$options= [];
+		if ($this->getParameter("circles_object")){
+			$options['type'] = $this->getParameter("circles_object");
+		}
+		
 		$form = $this->createForm(EditEnvironmentType::class, $environment, $options);
 	
 		$form->handleRequest($request);

@@ -29,13 +29,15 @@ class EditEnvironmentType extends AbstractType {
 		] )
 		->add ( 'color', ColorPickerType::class, [
 				'required' => false,
-		])
-		->add ( 'circles', ObjectPickerType::class, [
-				'required' => false,
-				'type' => $options['type'],
-				'multiple' => true,
-		])
-		->add ( 'baseUrl', TextType::class, [
+		]);
+		if (array_key_exists('type', $options)) {
+			$builder->add ( 'circles', ObjectPickerType::class, [
+					'required' => false,
+					'type' => $options['type'],
+					'multiple' => true,
+			]);
+		}
+		$builder->add ( 'baseUrl', TextType::class, [
 				'required' => false,
 		])
 		->add ( 'save', SubmitEmsType::class, [ 
