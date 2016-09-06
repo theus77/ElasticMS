@@ -288,15 +288,20 @@ function addEventListeners(target){
 
 	target.find(".ckeditor_ems").each(function(index){
 
+		var height = $( this ).attr('data-height');
+		if(!height){
+			height = 400;
+		}
+		console.log(height);
 		if (!CKEDITOR.instances[$( this ).attr('id')]) {
 			CKEDITOR.replace(this, {
 				//uiColor: 'pink',
 				removePlugins: 'link',
 				extraPlugins: 'adv_link,dialogadvtab,div',
 				div_wrapTable: 'true',
-				//TODO: include the eMS plugin
+				height: height
 			}).on('key', onFormChange );
-			console.log('ck not found');
+// 			console.log('ck not found');
 		}
 		else {
 			var editor = CKEDITOR.replace( $( this ).attr('id'), {
@@ -304,7 +309,6 @@ function addEventListeners(target){
 				removePlugins: 'link',
 				extraPlugins: 'adv_link,dialogadvtab,div',
 				div_wrapTable: 'true',
-				//TODO: include the eMS plugin
 			});
 		}
 		
@@ -339,13 +343,7 @@ function addEventListeners(target){
   		         
   		     }
   		   });
-		
-		//Add custom div styles (e.g for responsive tables)
-		CKEDITOR.stylesSet.add( 
-				'bootstrap', 
-				[
-				 { name: 'Bordered Table', element: 'div', attributes: { 'class': 'table-responsive' } },
-		        ]);
+
 		
 	});
 	
@@ -449,6 +447,13 @@ function addEventListeners(target){
 
 
 $(window).ready(function() {	
+	
+	//Add custom div styles (e.g for responsive tables)
+	CKEDITOR.stylesSet.add( 
+			'bootstrap', 
+			[
+			 { name: 'Bordered Table', element: 'div', attributes: { 'class': 'table-responsive' } },
+	        ]);
 	CKEDITOR.plugins.addExternal('adv_link', '{{ asset("bundles/app/adv_link/plugin.js") }}', '' );
 	CKEDITOR.plugins.addExternal('div', '{{ asset("bundles/app/div/plugin.js") }}', '' );
 	addEventListeners($('form[name={{ form.vars.id }}]'));

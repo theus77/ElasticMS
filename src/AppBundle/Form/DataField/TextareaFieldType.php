@@ -9,7 +9,8 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-	
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+		
 /**
  * Defined a Container content type.
  * It's used to logically groups subfields together. However a Container is invisible in Elastic search.
@@ -43,6 +44,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
 		$builder->add ( 'text_value', TextareaType::class, [
+				'attr' => [ 
+						'rows' => $options['rows'],
+				],
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'required' => false,
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
@@ -67,6 +71,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 		/*set the default option value for this kind of compound field*/
 		parent::configureOptions($resolver);
 		$resolver->setDefault('icon', null);
+		$resolver->setDefault('rows', null);
 	}
 	
 	/**
@@ -80,5 +85,8 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 		
 		// String specific mapping options
 		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);
+		$optionsForm->get ( 'displayOptions' )->add ( 'rows', IntegerType::class, [
+				'required' => false,
+		]);
 	}
 }

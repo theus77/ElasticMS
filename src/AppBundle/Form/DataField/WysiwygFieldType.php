@@ -9,6 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 
 class WysiwygFieldType extends DataFieldType {
 	/**
@@ -39,7 +40,8 @@ class WysiwygFieldType extends DataFieldType {
 		$fieldType = $builder->getOptions () ['metadata'];
 		$builder->add ( 'text_value', TextareaSymfonyType::class, [ 
 				'attr' => [ 
-						'class' => 'ckeditor_ems' 
+						'class' => 'ckeditor_ems',
+						'data-height' => $options['height'],
 				],
 				'label' => $options['label'],
 				'required' => false,
@@ -64,6 +66,7 @@ class WysiwygFieldType extends DataFieldType {
 		/*set the default option value for this kind of compound field*/
 		parent::configureOptions($resolver);
 		$resolver->setDefault('icon', null);
+		$resolver->setDefault('height', 400);
 	}
 	
 	/**
@@ -77,5 +80,8 @@ class WysiwygFieldType extends DataFieldType {
 		
 		// String specific mapping options
 		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);
+		$optionsForm->get ( 'displayOptions' )->add ( 'height', IntegerType::class, [
+				'required' => false,
+		]);
 	}
 }
