@@ -4,17 +4,16 @@ namespace AppBundle\Form\Form;
 
 use AppBundle\Entity\ContentType;
 use AppBundle\Form\Field\ColorPickerType;
+use AppBundle\Form\Field\ContentTypeFieldPickerType;
 use AppBundle\Form\Field\IconPickerType;
+use AppBundle\Form\Field\RolePickerType;
 use AppBundle\Form\Field\SubmitEmsType;
-use AppBundle\Form\FieldType\FieldTypeType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Form\Field\RolePickerType;
 
 class ContentTypeType extends AbstractType {
 	/**
@@ -23,29 +22,84 @@ class ContentTypeType extends AbstractType {
 	 * @param array $options        	
 	 */
     public function buildForm(FormBuilderInterface $builder, array $options) {
-    	
-    	
-		/** @var ContentType $contentType */
-		$contentType = $builder->getData ();
 
-		$builder->add ( 'labelField');
-		$builder->add ( 'colorField');
+    	/** @var ContentType $contentType */
+		$contentType = $builder->getData ();
+    	
+    	if(!empty($options['mapping'])) {
+	    	$mapping = array_values($options['mapping'])[0]['mappings'][$options['data']->getName()]['properties'];
+			$builder->add ( 'labelField', ContentTypeFieldPickerType::class, [
+				'required' => false,
+				'firstLevelOnly' => true,
+				'mapping' => $mapping,
+				'types' => [
+						'string',
+						'integer'
+			]]);
+    		
+			$builder->add ( 'colorField', ContentTypeFieldPickerType::class, [
+				'required' => false,
+				'firstLevelOnly' => true,
+				'mapping' => $mapping,
+				'types' => [
+						'string',
+			]]);
+			$builder->add ( 'circlesField', ContentTypeFieldPickerType::class, [
+				'required' => false,
+				'firstLevelOnly' => true,
+				'mapping' => $mapping,
+				'types' => [
+						'string',
+			]]);
+			$builder->add ( 'emailField', ContentTypeFieldPickerType::class, [
+				'required' => false,
+				'firstLevelOnly' => true,
+				'mapping' => $mapping,
+				'types' => [
+						'string',
+			]]);
+			$builder->add ( 'categoryField', ContentTypeFieldPickerType::class, [
+				'required' => false,
+				'firstLevelOnly' => true,
+				'mapping' => $mapping,
+				'types' => [
+						'string',
+			]]);
+			$builder->add ( 'imageField', ContentTypeFieldPickerType::class, [
+				'required' => false,
+				'firstLevelOnly' => true,
+				'mapping' => $mapping,
+				'types' => [
+						'string',
+			]]);
+			$builder->add ( 'assetField', ContentTypeFieldPickerType::class, [
+				'required' => false,
+				'firstLevelOnly' => true,
+				'mapping' => $mapping,
+				'types' => [
+						'string',
+			]]);
+			$builder->add ( 'sortBy', ContentTypeFieldPickerType::class, [
+				'required' => false,
+				'firstLevelOnly' => true,
+				'mapping' => $mapping,
+				'types' => [
+						'string',
+						'integer'
+			]]);
+    	}
+    	
+		
+
 // 		$builder->add ( 'parentField');
 // 		$builder->add ( 'userField');
 // 		$builder->add ( 'dateField');
 // 		$builder->add ( 'startDateField');
-		$builder->add ( 'circlesField');
-		$builder->add ( 'emailField');
 		$builder->add ( 'refererFieldName');
-		$builder->add ( 'categoryField');
 		$builder->add ( 'editTwigWithWysiwyg', CheckboxType::class, [
 			'label' => 'Edit the Twig template with a WYSIWYG editor',
 			'required' => false,
 		]);
-		$builder->add ( 'imageField');
-		$builder->add ( 'assetField');
-		$builder->add ( 'orderField');
-		$builder->add ( 'sortBy');
 		$builder->add ( 'pluralName', TextType::class);
 		$builder->add ( 'icon', IconPickerType::class, [
 			'required' => false,
@@ -97,6 +151,7 @@ class ContentTypeType extends AbstractType {
 			]);
 			$builder->add ( 'createRole', RolePickerType::class);
 			$builder->add ( 'editRole', RolePickerType::class);
+			$builder->add ( 'orderField');
 			$builder->add ( 'saveAndEditStructure', SubmitEmsType::class, [ 
 					'attr' => [ 
 							'class' => 'btn-primary btn-sm ' 
@@ -116,6 +171,7 @@ class ContentTypeType extends AbstractType {
 	 */
 	public function configureOptions(OptionsResolver $resolver) {
 		$resolver->setDefault ( 'twigWithWysiwyg', true );
+		$resolver->setDefault ( 'mapping', null );
 	}
 	
 }

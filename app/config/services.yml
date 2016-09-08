@@ -224,9 +224,17 @@ services:
     ems.form.factories.objectChoiceListFactory:
         class: AppBundle\Form\Factory\ObjectChoiceListFactory
         arguments: ['@ems.service.contenttype', '@ems.service.objectchoicecache']
+    ems.form.factories.contentTypeFieldChoiceListFactory:
+        class: AppBundle\Form\Factory\ContentTypeFieldChoiceListFactory
+        arguments: ['@ems.service.contenttype']
     ems.form.field.objectpickertype:
         class: AppBundle\Form\Field\ObjectPickerType
         arguments: ['@ems.form.factories.objectChoiceListFactory', '@ems.service.contenttype']
+        tags:
+            - { name: form.type }
+    ems.form.field.contenttypefieldpickertype:
+        class: AppBundle\Form\Field\ContentTypeFieldPickerType
+        arguments: ['@ems.form.factories.contentTypeFieldChoiceListFactory']
         tags:
             - { name: form.type }
     ems.form.field.viewtypepickertype:

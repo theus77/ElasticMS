@@ -38,23 +38,27 @@
 						{{ form_row(form.icon) }}
 						{{ form_row(form.color) }}
 						{{ form_row(form.refererFieldName) }}
-						{{ form_row(form.circlesField) }}
-						{{ form_row(form.labelField) }}
-						{{ form_row(form.colorField) }}
-						{{ form_row(form.emailField) }}
-						{{ form_row(form.categoryField) }}
-						{{ form_row(form.orderField) }}
-						{{ form_row(form.sortBy) }}
-{# 						{{ form_row(form.categoryField) }}#}
-{# 						{{ form_row(form.userField) }}#}
-{# 						{{ form_row(form.dateField) }}#}
-{# 						{{ form_row(form.startDateField) }}#}
-{# 						{{ form_row(form.endDateField) }}#}
-{# 						{{ form_row(form.locationField) }}#}
-{# 						{{ form_row(form.ouuidField) }}#}
-						{{ form_row(form.imageField) }}
-						{{ form_row(form.assetField) }}
-{# 						{{ form_row(form.videoField) }}#}
+						{% if form.labelField is defined  %}
+							{{ form_row(form.circlesField) }}
+							{{ form_row(form.labelField) }}
+							{{ form_row(form.colorField) }}
+							{{ form_row(form.emailField) }}
+							{{ form_row(form.categoryField) }}
+							{{ form_row(form.sortBy) }}
+							{% if contentType.environment.managed %}
+								{{ form_row(form.orderField) }}
+							{% endif %}
+	{# 						{{ form_row(form.categoryField) }}#}
+	{# 						{{ form_row(form.userField) }}#}
+	{# 						{{ form_row(form.dateField) }}#}
+	{# 						{{ form_row(form.startDateField) }}#}
+	{# 						{{ form_row(form.endDateField) }}#}
+	{# 						{{ form_row(form.locationField) }}#}
+	{# 						{{ form_row(form.ouuidField) }}#}
+							{{ form_row(form.imageField) }}
+							{{ form_row(form.assetField) }}
+	{# 						{{ form_row(form.videoField) }}#}
+						{% endif %}
 					</div>
 					
 					<div class="col-md-8">

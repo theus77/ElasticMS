@@ -644,8 +644,17 @@ class ContentTypeController extends AppController {
 		
 		$inputContentType = $request->request->get ( 'content_type' );
 		
+		/** @var  Client $client */
+		$client = $this->get ( 'app.elasticsearch' );
+		
+		$mapping = $client->indices ()->getMapping ( [
+				'index' => $contentType->getEnvironment ()->getAlias (),
+				'type' => $contentType->getName ()
+		] );
+		
 		$form = $this->createForm ( ContentTypeType::class, $contentType, [
-			'twigWithWysiwyg' => $contentType->getEditTwigWithWysiwyg()
+			'twigWithWysiwyg' => $contentType->getEditTwigWithWysiwyg(),
+			'mapping' => $mapping,
 		] );
 		
 		$form->handleRequest ( $request );
@@ -718,13 +727,7 @@ class ContentTypeController extends AppController {
 			}
 		}
 		
-		/** @var  Client $client */
-		$client = $this->get ( 'app.elasticsearch' );
-		
-		$mapping = $client->indices ()->getMapping ( [ 
-				'index' => $contentType->getEnvironment ()->getAlias (),
-				'type' => $contentType->getName () 
-		] );
+
 		
 		if($contentType->getDirty()){
 			$this->addFlash('warning', $contentType->getName().' is dirty. Consider to update its mapping.');
