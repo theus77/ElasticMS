@@ -4,6 +4,7 @@ namespace AppBundle\Form\Field;
 
 use AppBundle\Service\EnvironmentService;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Entity\Environment;
 
 class EnvironmentPickerType extends SelectPickerType {
 	
@@ -22,15 +23,19 @@ class EnvironmentPickerType extends SelectPickerType {
 	public function configureOptions(OptionsResolver $resolver)
 	{
 		
-		$this->choices = $this->service->getAllInMyCircle();
 		
+		$this->choices = [];
 		$keys = [];
-		foreach ($this->choices as $choice){
-			$keys[] = $choice->getId();
+		/**@var Environment $choice*/
+		foreach ($this->service->getAllInMyCircle() as $choice){
+			if($choice->getManaged()){
+				$keys[] = $choice->getId();	
+				$this->choices[$choice->getId()] = $choice;
+			}
 		}
 		
 		$resolver->setDefaults(array(
-			'choices' => array_keys($this->choices),
+			'choices' => $keys,
 			'attr' => [
 					'data-live-search' => false
 			],
