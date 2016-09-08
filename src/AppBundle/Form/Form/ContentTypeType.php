@@ -26,7 +26,7 @@ class ContentTypeType extends AbstractType {
     	/** @var ContentType $contentType */
 		$contentType = $builder->getData ();
     	
-    	if(!empty($options['mapping'])) {
+    	if(!empty($options['mapping']) && !empty(array_values($options['mapping'])[0]['mappings'][$options['data']->getName()]['properties'])) {
 	    	$mapping = array_values($options['mapping'])[0]['mappings'][$options['data']->getName()]['properties'];
 			$builder->add ( 'labelField', ContentTypeFieldPickerType::class, [
 				'required' => false,
