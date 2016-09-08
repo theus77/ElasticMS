@@ -25,14 +25,16 @@
 				<div class="box-body">
 					<div class="col-md-4">
 {# 						{{ form_row(form.active) }}#}
+						{{ form_row(form.rootContentType) }}
 						{% if contentType.environment.managed %}
-							{{ form_row(form.rootContentType) }}
 							{{ form_row(form.askForOuuid) }}
 						{% endif %}
 						{{ form_row(form.editTwigWithWysiwyg) }}
 						{{ form_row(form.pluralName) }}
-						{{ form_row(form.createRole) }}
-						{{ form_row(form.editRole) }}
+						{% if contentType.environment.managed %}
+							{{ form_row(form.createRole) }}
+							{{ form_row(form.editRole) }}
+						{% endif %}
 						{{ form_row(form.icon) }}
 						{{ form_row(form.color) }}
 						{{ form_row(form.refererFieldName) }}
@@ -57,8 +59,8 @@
 					
 					<div class="col-md-8">
 						{{ form_row(form.description) }}
-            {{ form_row(form.indexTwig) }}
-            {{ form_row(form.extra) }}
+			            {{ form_row(form.indexTwig) }}
+			            {{ form_row(form.extra) }}
 					</div>
 
 
@@ -86,7 +88,9 @@
 					<div class="btn-group">
 						{{ form_widget(form.save) }}
 						{{ form_widget(form.saveAndClose) }}
-						{{ form_widget(form.saveAndEditStructure) }}
+						{% if contentType.environment.managed %}
+							{{ form_widget(form.saveAndEditStructure) }}
+						{% endif %}
 					</div>
 				</div>
 			</div>

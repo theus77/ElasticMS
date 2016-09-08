@@ -28,7 +28,6 @@ class ContentTypeType extends AbstractType {
 		/** @var ContentType $contentType */
 		$contentType = $builder->getData ();
 
-// 		$builder->add ( 'active');
 		$builder->add ( 'labelField');
 		$builder->add ( 'colorField');
 // 		$builder->add ( 'parentField');
@@ -43,32 +42,17 @@ class ContentTypeType extends AbstractType {
 			'label' => 'Edit the Twig template with a WYSIWYG editor',
 			'required' => false,
 		]);
-		$builder->add ( 'askForOuuid', CheckboxType::class, [
-			'label' => 'Ask for OUUID',
-			'required' => false,
-		]);
-// 		$builder->add ( 'ouuidField');
 		$builder->add ( 'imageField');
 		$builder->add ( 'assetField');
 		$builder->add ( 'orderField');
 		$builder->add ( 'sortBy');
 		$builder->add ( 'pluralName', TextType::class);
-		$builder->add ( 'createRole', RolePickerType::class);
-		$builder->add ( 'editRole', RolePickerType::class);
 		$builder->add ( 'icon', IconPickerType::class, [
 			'required' => false,
 		]);
-// 		$builder->add ( 'orderKey', IntegerType::class);
 		$builder->add ( 'color', ColorPickerType::class, [
 			'required' => false,
 		]);
-
-		if($contentType->getEnvironment()->getManaged()){
-// 			$builder->add ( 'fieldType', FieldTypeType::class, [
-// 				'data' => $contentType->getFieldType()
-// 			]);			
-			$builder->add ( 'rootContentType');
-		}
 		
 		
 		$builder->add ( 'description', TextareaType::class, [
@@ -85,6 +69,9 @@ class ContentTypeType extends AbstractType {
 		] );
 		$builder->add ( 'extra', TextareaType::class, [
 				'required' => false,
+				'attr' => [
+						'rows' => 8,
+				]
 		] );
 		
 		
@@ -100,12 +87,23 @@ class ContentTypeType extends AbstractType {
 				],
 				'icon' => 'fa fa-save'
 		] );		
-		$builder->add ( 'saveAndEditStructure', SubmitEmsType::class, [ 
-				'attr' => [ 
-						'class' => 'btn-primary btn-sm ' 
-				],
-				'icon' => 'fa fa-save'
-		] );
+
+		$builder->add ( 'rootContentType');
+		
+		if($contentType->getEnvironment()->getManaged()){
+			$builder->add ( 'askForOuuid', CheckboxType::class, [
+				'label' => 'Ask for OUUID',
+				'required' => false,
+			]);
+			$builder->add ( 'createRole', RolePickerType::class);
+			$builder->add ( 'editRole', RolePickerType::class);
+			$builder->add ( 'saveAndEditStructure', SubmitEmsType::class, [ 
+					'attr' => [ 
+							'class' => 'btn-primary btn-sm ' 
+					],
+					'icon' => 'fa fa-save'
+			] );
+		}
 		
 		return parent::buildForm($builder, $options);
 		 
