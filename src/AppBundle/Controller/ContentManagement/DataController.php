@@ -663,9 +663,18 @@ class DataController extends AppController
 	 */
 	public function finalizeDraftAction(Revision $revision){
 
+		
 		$this->get('ems.service.data')->loadDataStructure($revision);
 		try{
 			$form = $this->createForm(RevisionType::class, $revision);
+			if(!empty($revision->getAutoSave())){
+				$this->addFlash("error", "This draft (".$revision->getContentType()->getName().":".$revision->getOuuid().") can't be finlized, as an autosave is pending.");
+				return $this->render( 'data/edit-revision.html.twig', [
+						'revision' =>  $revision,
+						'form' => $form->createView(),
+				] );
+			}
+			
 			$revision = $this->get("ems.service.data")->finalizeDraft($revision, $form);
 			if(count($form->getErrors()) !== 0) {
 				$this->addFlash("error", "This draft (".$revision->getContentType()->getName().":".$revision->getOuuid().") can't be finlized.");

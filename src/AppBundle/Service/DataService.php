@@ -24,6 +24,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Form\DataField\ComputedFieldType;
 use AppBundle\Entity\ContentType;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
+use AppBundle\Exception\DataStateException;
 
 class DataService
 {
@@ -233,6 +234,10 @@ class DataService
 		$repository = $em->getRepository('AppBundle:Revision');
 	
 		//TODO: test if draft and last version publish in
+		
+		if(!empty($revision->getAutoSave())){
+			throw new DataStateException('An auto save is pending, it can not be finalized.');
+		}
 			
 		$objectArray = $revision->getRawData();
 		
