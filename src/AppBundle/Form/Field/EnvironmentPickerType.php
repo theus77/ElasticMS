@@ -29,8 +29,8 @@ class EnvironmentPickerType extends SelectPickerType {
 		/**@var Environment $choice*/
 		foreach ($this->service->getAllInMyCircle() as $choice){
 			if($choice->getManaged()){
-				$keys[] = $choice->getId();	
-				$this->choices[$choice->getId()] = $choice;
+				$keys[] = $choice->getName();	
+				$this->choices[$choice->getName()] = $choice;
 			}
 		}
 		

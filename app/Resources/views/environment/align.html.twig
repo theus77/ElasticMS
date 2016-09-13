@@ -97,6 +97,7 @@
 	                  <td>{{ item.ouuid }}</td>
 	                  <td>{% if item.labelField and attribute(data, item.labelField) is defined %}{{ attribute(data, item.labelField) }}{% endif %}</td>
 	                  <td>
+	                  {% if defaultEnv %}
         				{% if minrev[0] == fromEnv %}
         					{% if fromEnv == defaultEnv.id %}
         						<i class="fa fa-lock" aria-hidden="true"></i>
@@ -114,6 +115,7 @@
         					{{ maxrev[2]|date(date_time_format) }}
         					({{ maxrev[1] }})
         				{% endif %}
+        			{% endif %}	
 	                  </td>
 	                  <td>
         				{% if minrev[0] == withEnv %}
@@ -141,7 +143,8 @@
 								'label': 'Revisions',
 								'icon': 'archive'
 							}%}
-							{%  if withEnv != defaultEnv.id %}
+							
+							{%  if defaultEnv and withEnv != defaultEnv.id %}
 								{% if minrev[0] == fromEnv %}
 		        					<button type="submit" id="{{ minrev[1] }}" name="compare_environment_form[alignWith]" value="{{ minrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-right"></span>&nbsp;Align {{ withEnvironment }} with {{ environment }}</button>
 		        				{% elseif maxrev[0] == fromEnv %}
@@ -149,7 +152,7 @@
 		        				{% endif %}
 		        			{% endif %}
 		        			
-							{%  if fromEnv != defaultEnv.id %}
+							{%  if defaultEnv and fromEnv != defaultEnv.id %}
 		        				{% if minrev[0] == withEnv %}
 		        					<button type="submit" id="{{ minrev[1] }}" name="compare_environment_form[alignWith]" value="{{ minrev[1] }}" class="btn-danger btn-sm btn"><span class="fa fa-chevron-left"></span>&nbsp;Align {{ environment }} with {{ withEnvironment }}</button>
 		        				{% elseif maxrev[0] == withEnv %}
