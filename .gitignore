@@ -23,6 +23,8 @@
 /.buildpath
 /.sass-cache/
 /npm-debug.log
+#phpstorm files
+.idea
 
 # composer files
 /vendor/
