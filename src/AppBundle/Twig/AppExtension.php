@@ -70,9 +70,21 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),		
 				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),			
 				new \Twig_SimpleFilter('is_super', array($this, 'is_super')),					
-				new \Twig_SimpleFilter('i18n', array($this, 'i18n')),				
+				new \Twig_SimpleFilter('i18n', array($this, 'i18n')),						
+				new \Twig_SimpleFilter('internal_links', array($this, 'internalLinks')),			
+				
+				
 		);
 	}
+
+	function internalLinks($input){
+		$url = $this->router->generate('data.link', ['key'=>'object:']);
+		$out = preg_replace('/ems:\/\/object:/i', $url, $input);
+		$url = $this->router->generate('data.link', ['key'=>'asset:']);
+		$out = preg_replace('/ems:\/\/asset:/i', $url, $out);
+		return $out;
+	}
+	
 	
 	function i18n($key, $locale=null){
 		if(empty($locale)) {
