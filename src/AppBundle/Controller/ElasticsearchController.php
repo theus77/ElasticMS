@@ -194,100 +194,124 @@ class ElasticsearchController extends AppController
 			$types = explode(',', $types);
 		}
 		
-		$aliases = [];
-		$service = $this->get('ems.service.environment');
-		if(empty($environments)){
-			/**@var EnvironmentService $service*/
-			foreach ($types as $type){
-				/**@var \AppBundle\Entity\ContentType $ct*/
-				$ct = $contentTypeRepository->findByName($type);
-				$alias = $service->getAliasByName($ct[0]->getEnvironment()->getName());
-				if($alias){
-					$aliases[] =  $alias->getAlias();
-				}
-			}			
-		}
-		else {
-			$environments = explode(',', $environments);
-			foreach ($environments as $environment) {
-				$alias = $service->getAliasByName($environment);
-				if($alias){
-					$aliases[] =  $alias->getAlias();
+			
+		if(!empty($types)){
+			$aliases = [];
+			$service = $this->get('ems.service.environment');
+			if(empty($environments)){
+				/**@var EnvironmentService $service*/
+				foreach ($types as $type){
+					/**@var \AppBundle\Entity\ContentType $ct*/
+					$ct = $contentTypeRepository->findByName($type);
+					$alias = $service->getAliasByName($ct[0]->getEnvironment()->getName());
+					if($alias){
+						$aliases[] =  $alias->getAlias();
+					}
+				}			
+			}
+			else {
+				$environments = explode(',', $environments);
+				foreach ($environments as $environment) {
+					$alias = $service->getAliasByName($environment);
+					if($alias){
+						$aliases[] =  $alias->getAlias();
+					}
 				}
 			}
-		}
+						
+			$params = [
+					'index' => array_unique($aliases),
+					'type' => array_unique($types),
+					'size' => $this->container->getParameter('paging_size'),
+					'body' => [
+							'query' => [
+									'and' => [
+											
+									]
+							]
+					]
 			
-		
-		$params = [
-				'index' => array_unique($aliases),
-				'type' => array_unique($types),
-				'size' => $this->container->getParameter('paging_size'),
-				'body' => [
-						'query' => [
-								'and' => [
-										
-								]
+			];
+			
+			
+			$matches = [];
+			if(preg_match('/^[a-z][a-z0-9\-_]*:/i', $pattern, $matches)){
+				$filterType =  substr($matches[0], 0, strlen($matches[0])-1);
+				if(in_array($filterType, $types, true)){
+					$pattern = substr($pattern, strlen($matches[0]));
+					if($pattern === false){
+						$pattern = '';
+					}
+					$params['type'] = $filterType;
+				}
+			}
+			
+			
+			$patterns = explode(' ', $pattern);
+			
+			for($i=0; $i < (count($patterns)-1); ++$i){
+				$params['body']['query']['and'][] = [
+						'match' => [
+								'_all' => $patterns[$i]
 						]
-				]
-		
-		];
-		
-		
-		$patterns = explode(' ', $pattern);
-		
-		for($i=0; $i < (count($patterns)-1); ++$i){
+				];
+			}
+			
 			$params['body']['query']['and'][] = [
-					'match' => [
-							'_all' => $patterns[$i]
+					'wildcard' => [
+							'_all' => '*'.$patterns[$i].'*'
 					]
 			];
-		}
-		
-		$params['body']['query']['and'][] = [
-				'wildcard' => [
-						'_all' => '*'.$patterns[$i].'*'
-				]
-		];
-		
-		if(count($types) == 1){
-			/**@var ContentTypeService $contentTypeService*/ 
-			$contentTypeService = $this->get('ems.service.contenttype');
-			$contentType = $contentTypeService->getByName($types[0]);
-			if($contentType && $contentType->getOrderField()) {
-				$params['body']['sort'] = [
-					$contentType->getOrderField() => [
-							'order' => 'asc',
-							'missing' => '_last',
-					]
-				];
-			}
-			else if($contentType && $contentType->getLabelField()) {
-				$params['body']['sort'] = [
-					$contentType->getLabelField() => [
-							'order' => 'asc',
-							'missing' => '_last',
-					]
-				];
+			
+			if(count($types) == 1){
+				/**@var ContentTypeService $contentTypeService*/ 
+				$contentTypeService = $this->get('ems.service.contenttype');
+				$contentType = $contentTypeService->getByName($types[0]);
+				if($contentType && $contentType->getOrderField()) {
+					$params['body']['sort'] = [
+						$contentType->getOrderField() => [
+								'order' => 'asc',
+								'missing' => '_last',
+						]
+					];
+				}
+				else if($contentType && $contentType->getLabelField()) {
+					$params['body']['sort'] = [
+						$contentType->getLabelField() => [
+								'order' => 'asc',
+								'missing' => '_last',
+						]
+					];
+				}
+				
+				if($category && $contentType && $contentType->getCategoryField()) {
+					$params['body']['query']['and'][] = [
+							'term' => [
+									$contentType->getCategoryField() => [
+											'value' => $category
+									]
+							]
+					];
+				}			
 			}
 			
-			if($category && $contentType && $contentType->getCategoryField()) {
-				$params['body']['query']['and'][] = [
-						'term' => [
-								$contentType->getCategoryField() => [
-										'value' => $category
-								]
-						]
-				];
-			}			
+	
+			/** @var \Elasticsearch\Client $client */
+			$client = $this->get('app.elasticsearch');
+			
+			$results = $client->search($params);
+		}
+		//ther is no type matching this request
+		else {
+			$results = [
+				'hits' => [
+						'total' => 0,
+						'hits' => [],
+				],
+			];
+			
 		}
 		
-// 		dump($params);
-		
-
-		/** @var \Elasticsearch\Client $client */
-		$client = $this->get('app.elasticsearch');
-		
-		$results = $client->search($params);
 		
 		return $this->render( 'elasticsearch/search.json.twig', [
 				'results' => $results,

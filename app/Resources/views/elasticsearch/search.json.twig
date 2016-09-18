@@ -8,7 +8,7 @@
 			"id": {{ (item._type~':'~item._id)|json_encode()|raw }},
 			"type": {{ item._type|json_encode()|raw }},
 			"ouuid": {{ item._id|json_encode()|raw }},
-			{% if attribute(types, item._type).colorField  %}
+			{% if attribute(types, item._type).colorField is defined %}
 				{% set colorField = attribute(types, item._type).colorField %}
 				{% if attribute(item._source, colorField) is defined %}
 					"color": {{ attribute(item._source, colorField)|json_encode()|raw }},

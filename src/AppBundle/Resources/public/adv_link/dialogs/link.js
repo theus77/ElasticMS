@@ -189,7 +189,8 @@
 							
 							if ( !data.localPage )
 								data.localPage = {};
-								data.localPage = data_link_url.replace(/__object_key__/g, 'object:' + this.getValue());
+//								data.localPage = data_link_url.replace(/__object_key__/g, 'object:' + this.getValue());
+								data.localPage = 'ems://object:' + this.getValue();
 	
 						}
 					}]						
@@ -246,7 +247,8 @@
 							
 							if ( !data.asset )
 								data.asset = {};
-								data.asset = data_link_url.replace(/__object_key__/g, 'asset:' + this.getValue());
+//								data.asset = data_link_url.replace(/__object_key__/g, 'asset:' + this.getValue());
+								data.asset = 'ems://asset:' + this.getValue();
 						}
 					}]						
 				},
