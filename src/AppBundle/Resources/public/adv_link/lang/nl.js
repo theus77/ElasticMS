@@ -2,7 +2,7 @@
 Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
-CKEDITOR.plugins.setLang( 'link', 'nl', {
+CKEDITOR.plugins.setLang( 'adv_link', 'nl', {
 	localPages:'Link naar bestaande pagina',
 	asset:'Asset',
 	selectPageLabel:'Selecteer een pagina',
