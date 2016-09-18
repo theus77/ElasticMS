@@ -79,7 +79,9 @@ class NotificationFormType extends AbstractType {
 				'class' => 'AppBundle:ContentType',
 				'query_builder' => function (EntityRepository $er) {
 					return $er->createQueryBuilder('ct')
-					->where("ct.deleted = false");
+					->where("ct.deleted = false")
+					->orderBy('ct.orderKey');
+					
 				},
 				'choice_label' => function ($value, $key, $index) {
 					return '<i class="'.$value->getIcon().' text-'.$value->getColor().'"></i>&nbsp;&nbsp;'.SelectPickerType::humanize($value->getName());
