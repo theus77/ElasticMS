@@ -6,6 +6,7 @@ use AppBundle\Entity\User;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Entity\Notification;
 use AppBundle\Repository\TemplateRepository;
+use AppBundle\Entity\ContentType;
 /**
  * NotificationRepository
  *
@@ -50,6 +51,28 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		$result = $query->getQuery()->getSingleScalarResult();
 		
 		return $result;
+	}
+	
+	
+	public function countNotificationByUuidAndContentType($ouuid, ContentType $contentType){
+		$qb = $this->createQueryBuilder('n')
+		->select('count(n)')
+		->leftJoin('AppBundle:Revision', 'r', 'WITH', 'n.revisionId = r.id')
+		->where('n.status = :status')
+		->andWhere('r.contentType = :contentType')
+		->andwhere('r.ouuid = :ouuid');
+		
+		$qb->setParameters([
+				'status' => "pending",
+				'contentType' => $contentType,
+				'ouuid' => $ouuid,
+		]);
+		
+		$query = $qb->getQuery();
+		
+		$results = $query->getResult();
+		
+		return $results[0][1];
 	}
 	
 	/**

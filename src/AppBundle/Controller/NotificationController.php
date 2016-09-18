@@ -189,6 +189,7 @@ class NotificationController extends AppController
 		}
 		
 		$notifications = $this->get('ems.service.notification')->listNotifications(($page-1)*$paging_size, $paging_size, $filters);
+		
 
  		$treatNotification = new TreatNotifications();
 //  		$forForm = [];

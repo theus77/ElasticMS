@@ -201,6 +201,14 @@ class NotificationService {
 		/** @var NotificationRepository $repository */
 		$repository = $em->getRepository('AppBundle:Notification');
 		$notifications = $repository->findByPendingAndUserRoleAndCircle($this->userService->getCurrentUser(), $from, $limit, $contentTypes, $environments, $templates);
+		
+
+		/**@var Notification $notification*/
+		foreach ($notifications as $notification) {
+			$result = $repository->countNotificationByUuidAndContentType($notification->getRevisionId()->getOuuid(), $notification->getRevisionId()->getContentType());
+			
+			$notification->setCounter($result);
+		}
 			
 		return $notifications;
 	}

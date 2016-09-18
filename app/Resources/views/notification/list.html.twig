@@ -72,6 +72,7 @@
 								<th>Create by</th>
 								<th>Date</th>
 								<th>Environment</th>
+								<th>Warnings</th>
 								<th>Revision</th>
 								<th>Actions</th>
 							</tr>
@@ -92,6 +93,24 @@
 								<td>{{ notification.created|date|date(date_time_format) }}</td>
 								<td>
 									<span class="badge bg-{{ notification.environmentId.color|raw }}">{{ notification.environmentId.name }}</span>
+								</td>
+								<td>
+								{% set found = false %}
+								{% for env in notification.revisionId.environments %}
+									{% if env == notification.environmentId %}
+										{% set found = true %}
+									{% endif %}
+								{% endfor %}
+								{% if found and notification.counter > 1 %}
+									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title=" This revision is not published in {{ notification.environmentId.name }} anymore and another notification exists"></i> This revision is not published in {{ notification.environmentId.name }} anymore and another notification exists
+								{% elseif found %}
+									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title="This revision is not published in {{ notification.environmentId.name }} anymore"></i> This revision is not published in {{ notification.environmentId.name }} anymore
+								{% elseif notification.counter > 1 %}
+									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title="At least another notification exists for this object"></i> At least another notification exists for this object
+								{% else %}
+									<i class="fa fa-thumbs-up  text-{{ notification.revisionId.contentType.color }}"></i>
+								{% endif %}
+								&nbsp;
 								</td>
 								<td>
 								<a class="btn btn-sm btn-default text-{{ notification.revisionId.contentType.color }}" href="{{ path('data.revisions', {'type': notification.revisionId.contentType.name, 'ouuid':  notification.revisionId.ouuid, 'revisionId':  notification.revisionId.id} ) }}">

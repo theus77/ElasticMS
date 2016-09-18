@@ -109,6 +109,9 @@ class Notification
      * @ORM\Column(name="response_emailed", type="datetime", nullable=true)
      */
     private $responseEmailed;
+    
+    
+    private $counter;
 
     public function __toString() {
     	return $this->getTemplateId()->getName().'#'.$this->id;
@@ -267,6 +270,30 @@ class Notification
     public function setSentTimestamp($sentTimestamp)
     {
         $this->sentTimestamp = $sentTimestamp;
+
+        return $this;
+    }
+
+    /**
+     * Get counter
+     *
+     * @return integer
+     */
+    public function getCounter()
+    {
+        return $this->counter;
+    }
+
+    /**
+     * Set counter
+     *
+     * @param integer $counter
+     *
+     * @return Notification
+     */
+    public function setCounter($counter)
+    {
+        $this->counter = $counter;
 
         return $this;
     }
