@@ -154,11 +154,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		
 		
 		/**@var ObjectChoiceLoader $loader */
-		$loader = $objectPickerType->getChoiceListFactory()->createLoader($fieldType->getDisplayOptions()['type'],  count($choices) == 0 || !$fieldType->getDisplayOptions()['dynamicLoading']);
+		$loader = $objectPickerType->getChoiceListFactory()->createLoader($fieldType->getDisplayOptions()['type'],  true /*count($choices) == 0 || !$fieldType->getDisplayOptions()['dynamicLoading']*/);
+		$all = $loader->loadAll();
 		if(count($choices) > 0){
-			return $loader->loadChoiceList()->loadChoices($choices);
+			foreach ($all as $key => $data){
+				if(! in_array($key, $choices)){
+					unset($all[$key]);
+				}
+			}
+// 			return $loader->loadChoiceList()->loadChoices($choices);
 		}
-		return $loader->loadAll();
+		return $all;
 		
 	}
 	
