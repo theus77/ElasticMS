@@ -207,7 +207,12 @@ class DataController extends AppController
 		
 		$revision->getDataField()->orderChildren();
 		
-		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid, $contentTypes[0]);
+		
+		$page = $request->query->get('page', 1);
+		
+		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid, $contentTypes[0], $page);
+		$lastPage = $repository->revisionsLastPage($ouuid, $contentTypes[0]);
+		$counter = $repository->countRevisions($ouuid, $contentTypes[0]);
 		
 		$availableEnv = $em->getRepository('AppBundle:Environment')->findAvailableEnvironements(
 				$revision->getContentType()->getEnvironment());
@@ -243,7 +248,10 @@ class DataController extends AppController
 				'revisionsSummary' => $revisionsSummary,
 				'availableEnv' => $availableEnv,
 				'object' => $revision->getObject($objectArray),
-				'referrers' => $client->search($refParams)
+				'referrers' => $client->search($refParams),
+				'page' => $page,
+				'lastPage' => $lastPage,
+				'counter' => $counter,
 		] );
 	}
 	

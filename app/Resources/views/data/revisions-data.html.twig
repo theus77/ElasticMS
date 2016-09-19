@@ -50,7 +50,7 @@
 	<div class="col-xs-12">
 		<div class="box">
 			<div class="box-header with-border">
-				<h3 class="box-title">Revisions</h3>
+				<h3 class="box-title">{{ revisionsSummary|length }} of {{ counter }} Revisions</h3>
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
@@ -102,6 +102,15 @@
 						{% endfor %}
 					</tbody>
 				</table>
+			</div>
+			<div class="box-footer">
+				{% include 'elements/pagination.html.twig' with {
+					'lastPage': lastPage,
+					'currentPage': page,
+					'currentFilters': app.request.query|merge({ type: revision.contentType.name , ouuid: revision.ouuid , revisionId: revision.id}),
+					'paginationPath': 'data.revisions',
+					'showAlwaysFirstAndLast': false
+				} %}
 			</div>
 		</div>
 	</div>

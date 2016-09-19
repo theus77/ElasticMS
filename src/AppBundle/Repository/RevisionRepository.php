@@ -127,15 +127,34 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		->getQuery()
 		->getSingleScalarResult();
 	}
+
+	public function countRevisions($ouuid, ContentType $contentType) {
+		$qb = $this->createQueryBuilder('r')
+			->select('COUNT(r)');
+		$qb->where($qb->expr()->eq('r.ouuid', ':ouuid'));
+		$qb->andWhere($qb->expr()->eq('r.contentType', ':contentType'));
+		$qb->setParameter('ouuid', $ouuid);
+		$qb->setParameter('contentType', $contentType);
+
+		return $qb->getQuery()->getSingleScalarResult();
+	}
 	
-	public function getAllRevisionsSummary($ouuid, ContentType $contentType) {
+	public function revisionsLastPage($ouuid, ContentType $contentType) {
+		return floor($this->countRevisions($ouuid, $contentType)/10.0)+1;
+	}
 	
+	
+	public function getAllRevisionsSummary($ouuid, ContentType $contentType, $page=1) {
+	
+		dump(($page-1)*5);
 		$qb = $this->createQueryBuilder('r');
 		$qb->select('r', 'e');
 		$qb->leftJoin('r.environments', 'e');
 		$qb->where($qb->expr()->eq('r.ouuid', ':ouuid'));
 		$qb->andWhere($qb->expr()->eq('r.contentType', ':contentType'));
-		$qb->orderBy('r.created', 'ASC');
+		$qb->setMaxResults(5);
+		$qb->setFirstResult(($page-1)*10);
+		$qb->orderBy('r.created', 'DESC');
 		$qb->setParameter('ouuid', $ouuid);
 		$qb->setParameter('contentType', $contentType);
 	
