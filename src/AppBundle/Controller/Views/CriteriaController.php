@@ -26,6 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use AppBundle\Exception\LockedException;
 use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Form\FormError;
 
 class CriteriaController extends AppController
 {
@@ -195,8 +196,35 @@ class CriteriaController extends AppController
 		$form->handleRequest($request);
 		/** @var CriteriaUpdateConfig $criteriaUpdateConfig */
 		$criteriaUpdateConfig = $form->getData();
-			
+		
 		$contentType = $view->getContentType();
+		$valid = true;
+		if( !empty($contentType->getCategoryField()) && empty($criteriaUpdateConfig->getCategory()->getTextValue())){
+			$valid = false;
+			$form->get('category')->addError(new FormError('Category is mandatory'));
+		}
+		
+		foreach ($form->get('criterion')->all() as $child){
+			if( $child->getConfig()->getName() !=  $criteriaUpdateConfig->getColumnCriteria() 
+					&& $child->getConfig()->getName() !=  $criteriaUpdateConfig->getRowCriteria() 
+					&& empty($child->getNormData()->getTextValue()))
+			{
+				$valid = false;
+				$child->addError(new FormError('Non-row/column criteria are mandatory'));
+			}
+		}
+			
+			
+			
+		if(!$valid){
+			return $this->render( 'view/custom/criteria_view.html.twig',[
+					'view' => $view,
+					'form' => $form->createView(),
+					'contentType' => $contentType,
+			]);
+		}
+		
+			
 		$criteriaFieldName = $view->getOptions()['criteriaField'];
 		$criteriaField = $contentType->getFieldType()->__get('ems_'.$criteriaFieldName);
 		/** @var \AppBundle\Entity\FieldType $columnField */
