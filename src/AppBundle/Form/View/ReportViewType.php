@@ -10,6 +10,7 @@ use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -81,7 +82,7 @@ class ReportViewType extends ViewType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function getParameters(View $view, FormFactoryInterface $formFactoty) {
+	public function getParameters(View $view, FormFactoryInterface $formFactoty, Request $request) {
 		
 		$searchQuery = [
 			'index' => $view->getContentType()->getEnvironment()->getAlias(),

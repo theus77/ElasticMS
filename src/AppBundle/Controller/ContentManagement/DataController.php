@@ -494,7 +494,7 @@ class DataController extends AppController
 		/** @var \AppBundle\Form\View\ViewType $viewType */
  		$viewType = $this->get($view->getType());
 		
-		return $this->render( 'view/custom/'.$viewType->getBlockPrefix().'.html.twig', $viewType->getParameters($view, $this->container->get('form.factory')));		
+		return $this->render( 'view/custom/'.$viewType->getBlockPrefix().'.html.twig', $viewType->getParameters($view, $this->container->get('form.factory'), $request));		
 	}
 
 	/**

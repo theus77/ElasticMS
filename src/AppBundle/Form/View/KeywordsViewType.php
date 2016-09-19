@@ -10,6 +10,7 @@ use Elasticsearch\Client;
 use AppBundle\Entity\View;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -81,7 +82,7 @@ class KeywordsViewType extends ViewType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function getParameters(View $view, FormFactoryInterface $formFactoty) {
+	public function getParameters(View $view, FormFactoryInterface $formFactoty, Request $request) {
 		
 		$searchQuery = [
 			'index' => $view->getContentType()->getEnvironment()->getAlias(),

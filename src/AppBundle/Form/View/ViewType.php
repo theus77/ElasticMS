@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Entity\View;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -35,7 +36,7 @@ abstract class ViewType extends AbstractType {
 	 * 
 	 * @return array
 	 */
-	abstract public function getParameters(View $view, FormFactoryInterface $formFactoty);
+	abstract public function getParameters(View $view, FormFactoryInterface $formFactoty, Request $request);
 
 	/**
 	 *

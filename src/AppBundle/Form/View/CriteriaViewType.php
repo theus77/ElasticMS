@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormFactoryInterface;
 use AppBundle\Form\View\Criteria\CriteriaFilterType;
 use AppBundle\Entity\Form\CriteriaUpdateConfig;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -83,7 +84,7 @@ class CriteriaViewType extends ViewType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function getParameters(View $view, FormFactoryInterface $formFactoty) {
+	public function getParameters(View $view, FormFactoryInterface $formFactoty, Request $request) {
 		
 		$criteriaUpdateConfig = new CriteriaUpdateConfig($view);
 		
@@ -96,6 +97,7 @@ class CriteriaViewType extends ViewType {
 				]),
 		]);
 		
+		$form->handleRequest($request);
 		
 		
 		$categoryField = false;

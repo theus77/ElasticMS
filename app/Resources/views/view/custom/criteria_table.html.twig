@@ -34,6 +34,11 @@
 					</strong>
 				{% endif %}
 				</h3>
+				
+				<div class="btn-group  pull-right">
+					<a class="btn btn-xs btn-primary" href="{{ url('data.customindexview', app.request.query.all|merge({viewId: view.id})) }}"><i class="fa fa-sliders"></i> Update filters</a>
+				</div>
+				
 			</div>
 			<!-- /.box-header -->
 			<div class="box-body">
