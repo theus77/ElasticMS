@@ -7,6 +7,7 @@ use AppBundle\Entity\Environment;
 use AppBundle\Entity\ContentType;
 use Doctrine\ORM\Mapping\OrderBy;
 use Doctrine\ORM\Query\ResultSetMapping;
+use AppBundle\Service\UserService;
 
 /**
  * RevisionRepository
@@ -17,8 +18,8 @@ use Doctrine\ORM\Query\ResultSetMapping;
 class RevisionRepository extends \Doctrine\ORM\EntityRepository
 {
 	
-	public function draftCounterGroupedByContentType() {
-
+	public function draftCounterGroupedByContentType($circles, $isAdmin) {
+		$parameters = [];
 		$qb = $this->createQueryBuilder('r');
 
 		$draftConditions = $qb->expr()->andX();
@@ -34,14 +35,25 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		$and = $qb->expr()->andX();
 		$and->add($qb->expr()->eq('r.deleted', 0));
 		$and->add($draftOrAutosave);
+		if(!$isAdmin){
+			$inCircles = $qb->expr()->orX();
+			$inCircles->add($qb->expr()->isNull('r.circles'));
+			foreach ($circles as $counter => $circle){				
+				$inCircles->add($qb->expr()->like('r.circles', ':circle'.$counter));
+				$parameters['circle'.$counter] = '%'.$circle.'%';
+			}
+			$and->add($inCircles);
+		}
 		$qb->where($and);
 		$qb->groupBy('c.id');
-		
+		$qb->setParameters($parameters);
 		return $qb->getQuery()->getResult();
 	}
 	
-	public function findInProgresByContentType($contentType) {
+	public function findInProgresByContentType($contentType, $circles, $isAdmin) {
 
+		$parameters = ['contentType' => $contentType];
+		
 		$qb = $this->createQueryBuilder('r');
 
 		$draftConditions = $qb->expr()->andX();
@@ -56,11 +68,21 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		$and->add($qb->expr()->eq('r.deleted', 0));
 		$and->add($draftOrAutosave);
 		
+		if(!$isAdmin){
+			$inCircles = $qb->expr()->orX();
+			$inCircles->add($qb->expr()->isNull('r.circles'));
+			foreach ($circles as $counter => $circle){				
+				$inCircles->add($qb->expr()->like('r.circles', ':circle'.$counter));
+				$parameters['circle'.$counter] = '%'.$circle.'%';
+			}
+			$and->add($inCircles);
+		}
+		
 
 		$qb->where($and)
-			->andWhere($qb->expr()->eq('r.contentType', ':contentType'))
-			->setParameter('contentType', $contentType);
-		
+			->andWhere($qb->expr()->eq('r.contentType', ':contentType'));
+
+		$qb->setParameters($parameters);
 		return $qb->getQuery()->getResult();
 	}
 	

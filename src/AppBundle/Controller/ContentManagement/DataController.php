@@ -92,7 +92,7 @@ class DataController extends AppController
 // 		]);
 		
 // 		dump($revisions);
-		$revisions= $revisionRep->findInProgresByContentType($contentType);
+		$revisions= $revisionRep->findInProgresByContentType($contentType, $this->get('ems.service.user')->getCurrentUser()->getCircles(), $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN'));
 		
 		
 		return $this->render( 'data/draft-in-progress.html.twig', [
@@ -759,8 +759,11 @@ class DataController extends AppController
 				]);
 			}
 			
+			
+			
 			$revision->setAutoSave(null);
 			if(!array_key_exists('discard', $request->request->get('revision'))) {//Save or Finalize
+				
 				//Save anyway
 				/** @var Revision $revision */
 				$revision = $form->getData();
@@ -768,6 +771,13 @@ class DataController extends AppController
 				
 				$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
 				$revision->setRawData($objectArray);
+				
+				if(!empty($revision->getContentType()->getCirclesField()) && isset($objectArray[$revision->getContentType()->getCirclesField()])  && !empty($objectArray[$revision->getContentType()->getCirclesField()]) ){
+					$revision->setCircles(is_array($objectArray[$revision->getContentType()->getCirclesField()])?$objectArray[$revision->getContentType()->getCirclesField()]:[$objectArray[$revision->getContentType()->getCirclesField()]]);
+				}
+				else {
+					$revision->setCircles(null);
+				}
 				
 				$logger->debug('Revision before persist');
 				$em->persist($revision);

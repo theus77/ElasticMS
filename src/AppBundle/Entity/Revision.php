@@ -137,6 +137,13 @@ class Revision
      * @ORM\Column(name="auto_save", type="json_array", nullable=true)
      */
     private $autoSave;
+
+    /**
+     * @var array
+     *
+     * @ORM\Column(name="circles", type="simple_array", nullable=true)
+     */
+    private $circles;
     
     /**not persisted field to ensure that they are all there after a submit */
     private $allFieldsAreThere;
@@ -190,6 +197,7 @@ class Revision
     			$this->ouuid = $ancestor->ouuid;
     			$this->contentType = $ancestor->contentType;
     			$this->rawData =  $ancestor->rawData;
+    			$this->circles =  $ancestor->circles;
     			$this->dataField = new DataField($ancestor->dataField);
     		}
     	}
@@ -672,5 +680,29 @@ class Revision
     public function getAutoSave()
     {
         return $this->autoSave;
+    }
+
+    /**
+     * Set circles
+     *
+     * @param array $circles
+     *
+     * @return Revision
+     */
+    public function setCircles($circles)
+    {
+        $this->circles = $circles;
+
+        return $this;
+    }
+
+    /**
+     * Get circles
+     *
+     * @return array
+     */
+    public function getCircles()
+    {
+        return $this->circles;
     }
 }

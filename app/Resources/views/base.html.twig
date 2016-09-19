@@ -239,9 +239,12 @@ desired effect
       </div>
     </nav>
   </header>
-	{% include 'elements/side-menu.html.twig' with {
-		'contentTypes': contentTypes
-	} %}
+  
+  {{ render(controller('AppBundle:TwigElements:sideMenu')) }}
+  
+{# 	{% include 'elements/side-menu.html.twig' with {#}
+{# 		'contentTypes': contentTypes#}
+{# 	} %}#}
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
