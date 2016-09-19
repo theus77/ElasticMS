@@ -107,22 +107,15 @@ $(window).load(function() {
 
 			var attr = $(this).attr('multiple');
 
-			// For some browsers, `attr` is undefined; for others,
-			// `attr` is false.  Check for both.
-			if (typeof attr !== typeof undefined && attr !== false) {
-				if(criterionName != colCriteria && criterionName != rowCriteria) {
-					$(this).val('');
-					$(this).removeAttr('multiple');
-					objectPickerListeners($( this ));
-				}
+			
+			if(criterionName == colCriteria || criterionName == rowCriteria) {
+				objectPickerListeners($( this ));
 			}
-			else {
-
-				if(criterionName == colCriteria || criterionName == rowCriteria) {
+			else{
+				if($(this).val().length > 1){
 					$(this).val('');
-					$(this).attr('multiple', true);
-					objectPickerListeners($( this ));
 				}
+				objectPickerListeners($( this ), 1);
 			}
 
 	 	});

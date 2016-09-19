@@ -35,15 +35,20 @@ var QueryString = function () {
 	  return query_string;
 	}();
 
-function objectPickerListeners(objectPicker){
+function objectPickerListeners(objectPicker, maximumSelectionLength){
 	var type = objectPicker.data('type'); 
 	var dynamicLoading = objectPicker.data('dynamic-loading'); 
 
+	
 	var params = {
 	  	escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
 	  	templateResult: formatRepo, // omitted for brevity, see the source of this page
 	  	templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
 	};
+	
+	if(maximumSelectionLength) {
+		params.maximumSelectionLength = maximumSelectionLength;
+	}
 
 
 	if(dynamicLoading){
