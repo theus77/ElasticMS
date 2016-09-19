@@ -176,7 +176,7 @@ class CriteriaController extends AppController
 		$em = $this->getDoctrine()->getManager();
 		/** @var RevisionRepository $revisionRep */
 		$revisionRep = $em->getRepository('AppBundle:Revision');
-		$counters = $revisionRep->draftCounterGroupedByContentType();
+		$counters = $revisionRep->draftCounterGroupedByContentType([], true);
 		
 		foreach ($counters as $counter){
 			if($counter['content_type_id'] == $view->getContentType()->getId()) {
