@@ -101,9 +101,9 @@
 										{% set found = true %}
 									{% endif %}
 								{% endfor %}
-								{% if found and notification.counter > 1 %}
+								{% if not found and notification.counter > 1 %}
 									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title=" This revision is not published in {{ notification.environmentId.name }} anymore and another notification exists"></i> This revision is not published in {{ notification.environmentId.name }} anymore and another notification exists
-								{% elseif found %}
+								{% elseif not found %}
 									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title="This revision is not published in {{ notification.environmentId.name }} anymore"></i> This revision is not published in {{ notification.environmentId.name }} anymore
 								{% elseif notification.counter > 1 %}
 									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title="At least another notification exists for this object"></i> At least another notification exists for this object
