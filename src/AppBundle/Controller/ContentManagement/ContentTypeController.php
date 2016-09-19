@@ -473,7 +473,8 @@ class ContentTypeController extends AppController {
 					$child->setType ( $formArray ['ems:internal:add:field:class'] );
 					$child->setParent ( $fieldType );
 					$fieldType->addChild ( $child );
-					$this->addFlash('notice', 'The field '.$child->getName().' has been prepared to be added');					
+					$this->addFlash('notice', 'The field '.$child->getName().' has been prepared to be added');
+					return '_ems_'.$child->getName().'_modal_options';
 				}
 				else {
 					$this->addFlash('error', 'The field\'s name is not valid (format: [a-z][a-z0-9_-]*)');
@@ -486,8 +487,11 @@ class ContentTypeController extends AppController {
 		} else {
 			/** @var FieldType $child */
 			foreach ( $fieldType->getChildren () as $child ) {
-				if (! $child->getDeleted () && $this->addNewField ( $formArray ['ems_'.$child->getName ()], $child )) {
-					return true;
+				if (! $child->getDeleted ()) {
+					$out = $this->addNewField ( $formArray ['ems_'.$child->getName ()], $child );
+					if ( $out !== false ) {
+						return '_ems_'.$child->getName ().$out;
+					}					
 				}
 			}
 		}
@@ -510,7 +514,9 @@ class ContentTypeController extends AppController {
 					$child->setType ( SubfieldType::class );
 					$child->setParent ( $fieldType );
 					$fieldType->addChild ( $child );
-					$this->addFlash('notice', 'The subfield '.$fieldType->getName().' has been prepared to be added');
+					$this->addFlash('notice', 'The subfield '.$child->getName().' has been prepared to be added');
+
+					return '_ems_'.$child->getName().'_modal_options';
 				}
 				else {
 					$this->addFlash('error', 'The subfield\'s name is not valid (format: [a-z][a-z0-9_-]*)');
@@ -523,8 +529,11 @@ class ContentTypeController extends AppController {
 		} else {
 			/** @var FieldType $child */
 			foreach ( $fieldType->getChildren () as $child ) {
-				if (! $child->getDeleted () && $this->addNewSubfield ( $formArray ['ems_'.$child->getName ()], $child )) {
-					return true;
+				if (! $child->getDeleted () ) {
+					$out = $this->addNewSubfield ( $formArray ['ems_'.$child->getName ()], $child );
+					if ( $out !== false ) {
+						return '_ems_'.$child->getName ().$out;
+					}
 				}
 			}
 		}
@@ -547,7 +556,8 @@ class ContentTypeController extends AppController {
 					$new->getParent()->addChild($new);
 // 					dump($new);
 					
-					$this->addFlash('notice', 'The field '.$fieldType->getName().' has been added');
+					$this->addFlash('notice', 'The field '.$new->getName().' has been initialized/duplicated');
+					return 'first_ems_'.$new->getName().'_modal_options';
 				}
 				else {
 					$this->addFlash('error', 'The field\'s name is not valid (format: [a-z][a-z0-9_-]*)');
@@ -560,8 +570,14 @@ class ContentTypeController extends AppController {
 		} else {
 			/** @var FieldType $child */
 			foreach ( $fieldType->getChildren () as $child ) {
-				if (! $child->getDeleted () && $this->duplicateField ( $formArray ['ems_'.$child->getName ()], $child )) {
-					return true;
+				if (! $child->getDeleted () ) {
+					$out = $this->duplicateField ( $formArray ['ems_'.$child->getName ()], $child );
+					if ( $out !== false ) {
+						if(substr($out, 0, 5) == 'first'){
+							return substr($out, 5);
+						}
+						return '_ems_'.$child->getName ().$out;
+					}
 				}
 			}
 		}
@@ -791,31 +807,34 @@ class ContentTypeController extends AppController {
 						'id' => $id
 				] );
 			} else {
-				if ($this->addNewField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				if ($out = $this->addNewField ( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					
 					$em->persist ( $contentType );
 					$em->flush ();
 					return $this->redirectToRoute ( 'contenttype.structure', [ 
-							'id' => $id 
+							'id' => $id,
+							'open' => $out,
 					] );
 				}
 				
-				else if ($this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				else if($out = $this->addNewSubfield( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					$em->persist ( $contentType );
 					$em->flush ();
 					return $this->redirectToRoute ( 'contenttype.structure', [ 
-							'id' => $id 
+							'id' => $id,
+							'open' => $out,
 					] );
 				}
 				
-				else if ($this->duplicateField( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
+				else if ($out = $this->duplicateField( $inputContentType ['fieldType'], $contentType->getFieldType () )) {
 					$contentType->getFieldType ()->updateOrderKeys ();
 					$em->persist ( $contentType );
 					$em->flush ();
 					return $this->redirectToRoute ( 'contenttype.structure', [ 
-							'id' => $id 
+							'id' => $id ,
+							'open' => $out,
 					] );
 				}
 				

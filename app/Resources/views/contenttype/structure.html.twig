@@ -59,6 +59,11 @@
 //-->
 	$(document).ready(function() {
 		$('ul.sortable').sortable();
+
+		if(QueryString.open){
+			$('#content_type_structure_fieldType'+QueryString.open).modal('show');
+		}
+		
 	});
 </script>
 	
