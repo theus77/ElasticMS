@@ -96,3 +96,6 @@ fos_user:
     resetting:
         email:
             template: email/password_resetting.email.twig
+    profile:
+        form:
+            type: AppBundle\Form\Form\UserProfileType
