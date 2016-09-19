@@ -38,7 +38,7 @@ parameters:
         - ems.storage.filesystem
     audit_index:
     date_time_format: "j/m/Y \\a\\t G:i"
-    notification_pending_timeout: "P15D"
+    notification_pending_timeout: "P0Y0M15DT0H0M0S"
     allow_user_registration: false
     theme_color: "blue" #blue black purple yellow red green also with -light i.e. yellow-light
     ems_name: "<b>elastic</b>MS"

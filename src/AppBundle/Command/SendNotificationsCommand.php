@@ -26,6 +26,8 @@ class SendNotificationsCommand extends ContainerAwareCommand
 	/**@var NotificationService $notificationService*/
 	private $notificationService;
 	
+	private $notificationPendingTimeout;
+	
 	public function __construct(Registry $doctrine, Logger $logger, UserService $userService, NotificationService $notificationService, $notificationPendingTimeout)
 	{
 		$this->doctrine = $doctrine;
@@ -33,8 +35,7 @@ class SendNotificationsCommand extends ContainerAwareCommand
 		$this->userService = $userService;
 		$this->notificationService = $notificationService;
 		
-		$date = new \DateTime();
-		$this->notificationPendingTimeout = $date->sub(new \DateInterval($notificationPendingTimeout));
+		$this->notificationPendingTimeout = $notificationPendingTimeout;
 		
 		parent::__construct();
 	}
@@ -99,7 +100,11 @@ class SendNotificationsCommand extends ContainerAwareCommand
     	}
     	
     	//Send all reminders
-    	$notifications = $notificationRepository->findReminders($this->notificationPendingTimeout);
+    	
+    	$date = new \DateTime();
+    	$date->sub(new \DateInterval($this->notificationPendingTimeout));
+    	$notifications = $notificationRepository->findReminders($date);
+    	
     	if(!empty($notifications)){
 	    	$output->writeln('Sending reminders');
 	    	$this->sendEmails($notifications, $output);

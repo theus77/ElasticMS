@@ -7,6 +7,7 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Entity\Notification;
 use AppBundle\Repository\TemplateRepository;
 use AppBundle\Entity\ContentType;
+use Doctrine\DBAL\Types\Type;
 /**
  * NotificationRepository
  *
@@ -146,14 +147,14 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	 }
 	 
 	 public function findReminders(\DateTime $date){
-	 	$query = $this->createQueryBuilder('n')
-			->select('n')
+	 	
+	 	$query = $this->createQueryBuilder('n');
+	 	
+		$query->select('n')
 			->where('n.status = :status')
-			->andwhere('n.emailed <= :date')
-	 		->setParameters([
-	 				'status' => 'pending',
-	 				'date' => $date,
-	 		]);
+			->andwhere($query->expr()->lte('n.emailed', ':datePivot'))
+	 		->setParameter('status','pending')
+	 		->setParameter('datePivot', $date);
 	 	return $query->getQuery()->getResult();
 	 }
 	 

@@ -321,12 +321,12 @@ class NotificationService {
 		
 		if(!$this->dryRun) {
 			$em = $this->doctrine->getManager();
-			
 			try{
 				/**@Swift_Mailer $mailer*/
 				$mailer = $this->container->get('mailer');
 				$mailer->send($message);				
 				$em->persist($notification);
+				$em->flush();
 			}
 			catch (\Swift_TransportException $e){
 			}
