@@ -6,6 +6,8 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use AppBundle\Service\DataService;
 use AppBundle\Service\PublishService;
+use AppBundle\Service\ContentTypeService;
+use AppBundle\Service\EnvironmentService;
 
 class AppController extends Controller
 {
@@ -103,6 +105,22 @@ class AppController extends Controller
 	 */
 	public function getPublishService(){
 		return $this->get('ems.service.publish');
+	}
+
+	/**
+	 *
+	 * @return ContentTypeService
+	 */
+	public function getContentTypeService(){
+		return $this->get('ems.service.contenttype');
+	}
+	
+	/**
+	 * 
+	 * @return EnvironmentService
+	 */
+	public function getEnvironmentService(){
+		return $this->get('ems.service.environment');
 	}
 	
 	

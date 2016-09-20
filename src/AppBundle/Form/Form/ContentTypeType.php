@@ -135,6 +135,12 @@ class ContentTypeType extends AbstractType {
 				],
 				'icon' => 'fa fa-save'
 		] );		
+		$builder->add ( 'saveAndUpdateMapping', SubmitEmsType::class, [ 
+				'attr' => [ 
+						'class' => 'btn-primary btn-sm ' 
+				],
+				'icon' => 'fa fa-save'
+		] );		
 		$builder->add ( 'saveAndClose', SubmitEmsType::class, [ 
 				'attr' => [ 
 						'class' => 'btn-primary btn-sm ' 

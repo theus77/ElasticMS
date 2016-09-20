@@ -91,6 +91,7 @@
 				<div class="box-footer">
 					<div class="btn-group">
 						{{ form_widget(form.save) }}
+						{{ form_widget(form.saveAndUpdateMapping) }}
 						{{ form_widget(form.saveAndClose) }}
 						{% if contentType.environment.managed %}
 							{{ form_widget(form.saveAndEditStructure) }}

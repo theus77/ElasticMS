@@ -286,7 +286,7 @@ services:
         arguments: ['@doctrine', '@session', '@ems.service.user', '@security.authorization_checker']
     ems.service.contenttype:
         class: AppBundle\Service\ContentTypeService
-        arguments: ['@doctrine', '@session']
+        arguments: ['@doctrine', '@session', '@ems.service.mapping', '@app.elasticsearch', '@ems.service.environment']
     ems.service.user:
         class: AppBundle\Service\UserService
         arguments: ['@doctrine', '@session', '@security.token_storage', '%security.role_hierarchy.roles%']

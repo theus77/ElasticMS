@@ -5,6 +5,7 @@ namespace AppBundle\Service;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use AppBundle\Entity\Environment;
 
 class EnvironmentService {
 	/**@var Registry $doctrine */
@@ -60,6 +61,18 @@ class EnvironmentService {
 		return false;
 	}
 
+	public function getManagedEnvironement(){
+		$this->loadEnvironment();
+		$out = [];
+		
+		/**@var Environment $environment*/
+		foreach ($this->environments as $index => $environment){
+			if( $environment->getManaged() ) {
+				$out[$index] = $environment;
+			}
+		}
+		return $out;
+	}
 
 	public function getAll(){
 		$this->loadEnvironment();

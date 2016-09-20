@@ -135,67 +135,15 @@ class ContentTypeController extends AppController {
 /**
 	 * Try to update the Elasticsearch mapping for a specific content type
 	 *
-	 * @param integer $id        	
+	 * @param ContentType $id        	
 	 * @param Request $request        	
 	 * @throws BadRequestHttpException @Route("/content-type/refresh-mapping/{id}", name="contenttype.refreshmapping"))
 	 * 
      * @Method({"POST"})
 	 */
-	public function refreshMappingAction($id, Request $request) {
-		
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine ()->getManager ();
-		/** @var ContentTypeRepository $repository */
-		$repository = $em->getRepository ( 'AppBundle:ContentType' );
-		
-		/** @var ContentType $contentType */
-		$contentType = $repository->find ( $id );
-		
-		if (! $contentType || count ( $contentType ) != 1) {
-			$this->addFlash ( 'warning', 'Content type not found!' );
-			return $this->redirectToRoute ( 'contenttype.index' );
-		}
-		
-		/** @var EnvironmentRepository $envRep */
-		$envRep = $em->getRepository ( 'AppBundle:Environment' );
-		
-		$envs = array_reduce ( $envRep->findManagedIndexes (), function ($envs, $item) {
-			if (isset ( $envs )) {
-				$envs .= ',' . $item ['alias'];
-			} else {
-				$envs = $item ['alias'];
-			}
-			return $envs;
-		} );
-		
-		try {
-			/** @var  Client $client */
-			$client = $this->get ( 'app.elasticsearch' );
-			
-			
-			$out = $client->indices ()->putMapping ( [ 
-					'index' => $envs,
-					'type' => $contentType->getName (),
-					'body' => $this->get('ems.service.mapping')->generateMapping ($contentType)
-			] );
-			
-			if (isset ( $out ['acknowledged'] ) && $out ['acknowledged']) {
-				$contentType->setDirty ( false );
-				$this->addFlash ( 'notice', 'Mappings successfully updated' );
-			} else {
-				$contentType->setDirty ( true );
-				$this->addFlash ( 'warning', '<p><strong>Something went wrong. Try again</strong></p>
-						<p>Message from Elasticsearch: ' . print_r ( $out, true ) . '</p>' );
-			}
-			
-		} catch ( BadRequest400Exception $e ) {
-			$contentType->setDirty ( true );
-			$message = json_decode($e->getPrevious()->getMessage(), true);
-			$this->addFlash ( 'error', '<p><strong>You should try to rebuild the indexes</strong></p>
-					<p>Message from Elasticsearch: <b>' . $message['error']['type']. '</b>'.$message['error']['reason'] . '</p>' );
-		}
-		$em->persist ( $contentType );
-		$em->flush ();		
+	public function refreshMappingAction(ContentType $id, Request $request) {
+		$this->getContentTypeService()->updateMapping($id);
+		$this->getContentTypeService()->persist($id);
 		return $this->redirectToRoute ( 'contenttype.index' );
 	}
 	
@@ -678,11 +626,14 @@ class ContentTypeController extends AppController {
 		if ($form->isSubmitted () && $form->isValid ()) {
 			$contentType->getFieldType()->setName('source');
 			
-			if (array_key_exists ( 'save', $inputContentType ) || array_key_exists ( 'saveAndClose', $inputContentType ) || array_key_exists ( 'saveAndEditStructure', $inputContentType )) {
+			if (array_key_exists ( 'save', $inputContentType ) || array_key_exists ( 'saveAndUpdateMapping', $inputContentType ) || array_key_exists ( 'saveAndClose', $inputContentType ) || array_key_exists ( 'saveAndEditStructure', $inputContentType )) {
 // 				$contentType->getFieldType ()->updateOrderKeys ();
 // 				$contentType->setDirty ( $contentType->getEnvironment ()->getManaged () );
 
 
+				if (array_key_exists ( 'saveAndUpdateMapping', $inputContentType )){
+					$this->getContentTypeService()->updateMapping($contentType);
+				}
 // 				exit;
 				$em->persist ( $contentType );
 				$em->flush ();
