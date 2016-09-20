@@ -645,10 +645,19 @@ class DataController extends AppController
 		$this->get('ems.service.data')->loadDataStructure($revision);
 		
 		$form = $this->createForm(RevisionType::class, $revision);
+		
+		
+		/**little trick to reorder collection*/
+		$requestRevision = $request->request->get('revision');
+		$this->reorderCollection($requestRevision);
+		$request->request->set('revision', $requestRevision);
+		/**end little trick to reorder collection*/
+		
 		$form->handleRequest($request);
 				
 		/** @var Revision $revision */
 		$revision = $form->getData();
+		
 		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
 		$revision->setAutoSave($objectArray);
 		$revision->setAutoSaveAt(new \DateTime());
@@ -720,6 +729,17 @@ class DataController extends AppController
 		return $this->get("ems.service.data")->finalizeDraft($revision, $form, $username);
 	}
 	
+	private function reorderCollection(&$input){
+		if(is_array($input) && !empty($input)){
+			if(is_int(array_keys($input)[0])){
+				$input = array_values($input);
+			}
+			foreach($input as &$elem){
+				$this->reorderCollection($elem);
+			}
+		}
+	}
+	
 	/**
 	 * @Route("/data/draft/edit/{revisionId}", name="revision.edit"))
 	 */
@@ -752,6 +772,15 @@ class DataController extends AppController
 		$form = $this->createForm(RevisionType::class, $revision);
 
 		$logger->debug('Revision\'s form created');
+		
+
+		
+		/**little trick to reorder collection*/
+		$requestRevision = $request->request->get('revision');
+		$this->reorderCollection($requestRevision);
+		$request->request->set('revision', $requestRevision);
+		/**end little trick to reorder collection*/
+		
 		
 		$form->handleRequest($request);
 

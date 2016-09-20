@@ -260,7 +260,7 @@
 			</div>
 	  	</div>
 	  <div 
-	  	class="panel-body{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %} collapse{% endif %}" 
+	  	class="panel-body{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %} collapse{% endif %}{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.sortable is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.sortable %} ems-sortable{% endif %}" 
 	  	id="{{ tempId }}">
 	    {{- form_widget(attribute(form, form.vars.name)) -}}
 	  </div>
@@ -272,7 +272,7 @@
 {% block collectionitemtype_row -%}
 <div class="form-group collection-item-panel{% if form.parent.parent.vars.itemBootstrapClass %} {{ form.parent.parent.vars.itemBootstrapClass }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
 	<div class="panel panel-default">
-		<div class="panel-heading">
+		<div class="panel-heading ems-handle">
 			{{ form_label(form) }}
 	  		<div class="btn-group pull-right">
 	  			{{- form_widget(form.remove_collection_item) -}}

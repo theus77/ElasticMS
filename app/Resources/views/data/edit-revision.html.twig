@@ -286,6 +286,10 @@ function addEventListeners(target){
         
 	});
 
+	target.find('.ems-sortable > div').sortable({
+		handle: ".ems-handle"
+	});
+
 	target.find(".ckeditor_ems").each(function(index){
 
 		var height = $( this ).attr('data-height');

@@ -121,6 +121,7 @@ class CollectionFieldType extends DataFieldType {
 		$view->vars ['icon'] = $options ['icon'];
 		$view->vars ['singularLabel'] = $options ['singularLabel'];
 		$view->vars ['itemBootstrapClass'] = $options ['itemBootstrapClass'];
+		$view->vars ['sortable'] = $options ['sortable'];
 	}
 	
 	/**
@@ -135,6 +136,7 @@ class CollectionFieldType extends DataFieldType {
 		$resolver->setDefault ( 'icon', null );
 		$resolver->setDefault ( 'singularLabel', null );
 		$resolver->setDefault ( 'collapsible', false );
+		$resolver->setDefault ( 'sortable', false );
 		$resolver->setDefault ( 'itemBootstrapClass', null );
 	}
 	
@@ -176,6 +178,8 @@ class CollectionFieldType extends DataFieldType {
 		] )->add ( 'icon', IconPickerType::class, [ 
 				'required' => false 
 		] )->add ( 'collapsible', CheckboxType::class, [ 
+				'required' => false 
+		] )->add ( 'sortable', CheckboxType::class, [ 
 				'required' => false 
 		] );
 	}
