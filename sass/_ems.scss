@@ -2,3 +2,8 @@
 table#CriteriaUpdateCustomViewTable > tbody > tr > td {
 	min-width: 150px;	
 }
+
+
+div.ems-sortable > div > div > div > div.ems-handle {
+    cursor: move;
+}

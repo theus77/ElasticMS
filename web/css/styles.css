@@ -9424,3 +9424,8 @@ span.select2-container {
 table#CriteriaUpdateCustomViewTable > tbody > tr > td {
   min-width: 150px;
 }
+
+/* line 7, ../../sass/_ems.scss */
+div.ems-sortable > div > div > div > div.ems-handle {
+  cursor: move;
+}

@@ -150,8 +150,6 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 	
 	
 	public function getAllRevisionsSummary($ouuid, ContentType $contentType, $page=1) {
-	
-		dump(($page-1)*5);
 		$qb = $this->createQueryBuilder('r');
 		$qb->select('r', 'e');
 		$qb->leftJoin('r.environments', 'e');
