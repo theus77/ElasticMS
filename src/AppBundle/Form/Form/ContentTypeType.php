@@ -70,14 +70,14 @@ class ContentTypeType extends AbstractType {
 				'firstLevelOnly' => true,
 				'mapping' => $mapping,
 				'types' => [
-						'string',
+						'nested',
 			]]);
 			$builder->add ( 'assetField', ContentTypeFieldPickerType::class, [
 				'required' => false,
 				'firstLevelOnly' => true,
 				'mapping' => $mapping,
 				'types' => [
-						'string',
+						'nested',
 			]]);
 			$builder->add ( 'sortBy', ContentTypeFieldPickerType::class, [
 				'required' => false,
