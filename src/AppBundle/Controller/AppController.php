@@ -4,6 +4,7 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\Job;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use AppBundle\Service\DataService;
 
 class AppController extends Controller
 {
@@ -84,6 +85,15 @@ class AppController extends Controller
 		.substr($charid,16, 4).$hyphen
 		.substr($charid,20,12);
 		return $uuid;
+	}
+	
+	
+	/**
+	 * 
+	 * @return DataService
+	 */
+	public function getDataService(){
+		return $this->get('ems.service.data');
 	}
 	
 	

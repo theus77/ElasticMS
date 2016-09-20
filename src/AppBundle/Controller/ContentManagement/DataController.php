@@ -780,12 +780,8 @@ class DataController extends AppController
 				$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
 				$revision->setRawData($objectArray);
 				
-				if(!empty($revision->getContentType()->getCirclesField()) && isset($objectArray[$revision->getContentType()->getCirclesField()])  && !empty($objectArray[$revision->getContentType()->getCirclesField()]) ){
-					$revision->setCircles(is_array($objectArray[$revision->getContentType()->getCirclesField()])?$objectArray[$revision->getContentType()->getCirclesField()]:[$objectArray[$revision->getContentType()->getCirclesField()]]);
-				}
-				else {
-					$revision->setCircles(null);
-				}
+				
+				$this->getDataService()->setCircles($revision);
 				
 				$logger->debug('Revision before persist');
 				$em->persist($revision);

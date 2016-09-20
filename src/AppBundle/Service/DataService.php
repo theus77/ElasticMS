@@ -328,6 +328,16 @@ class DataService
 	}
 	
 
+	public function setCircles(Revision $revision){
+		$objectArray = $revision->getRawData();
+		if(!empty($revision->getContentType()->getCirclesField()) && isset($objectArray[$revision->getContentType()->getCirclesField()])  && !empty($objectArray[$revision->getContentType()->getCirclesField()]) ){
+			$revision->setCircles(is_array($objectArray[$revision->getContentType()->getCirclesField()])?$objectArray[$revision->getContentType()->getCirclesField()]:[$objectArray[$revision->getContentType()->getCirclesField()]]);
+		}
+		else {
+			$revision->setCircles(null);
+		}
+	}
+	
 	public function initNewDraft($type, $ouuid, $fromRev = null, $username = NULL){
 	
 		/** @var EntityManager $em */
@@ -358,7 +368,12 @@ class DataService
 			$revision->setContentType($contentType);
 		}
 		
+		
+		$this->setCircles($revision);
+		
 		$this->lockRevision($revision, false, false, $username);
+		
+		
 	
 		if(! $revision->getDraft()){
 			$now = new \DateTime();
