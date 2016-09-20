@@ -4,7 +4,6 @@ namespace AppBundle\Form\Form;
 
 use AppBundle\Form\Field\EnvironmentPickerType;
 use AppBundle\Form\Field\SubmitEmsType;
-use AppBundle\Service\EnvironmentService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
