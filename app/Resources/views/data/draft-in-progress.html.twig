@@ -69,7 +69,7 @@
 													'label': 'Revisions', 
 													'icon': 'eye' }%}
 										{% endif %}
-										{% if not revision.contentType.circlesField or attribute(revision.rawData, revision.contentType.circlesField)|in_my_circles %}
+										{% if not revision.contentType.circlesField or attribute(revision.rawData, revision.contentType.circlesField) is not defined or attribute(revision.rawData, revision.contentType.circlesField)|in_my_circles %}
 											{% include 'elements/get-button.html.twig' with {
 												'url':  path('revision.edit', {'revisionId': revision.id}),
 												'label': 'Edit',
