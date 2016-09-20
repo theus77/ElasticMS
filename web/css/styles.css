@@ -9426,6 +9426,6 @@ table#CriteriaUpdateCustomViewTable > tbody > tr > td {
 }
 
 /* line 7, ../../sass/_ems.scss */
-div.ems-sortable > div > div > div > div.ems-handle {
+.ui-sortable-handle {
   cursor: move;
 }

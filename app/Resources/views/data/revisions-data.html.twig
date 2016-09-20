@@ -11,6 +11,23 @@
 {% block body %}
 {% import "macros/data-field-type.html.twig" as macros %}
 <div class="row">
+	<div class="col-md-12">
+
+		<div class="box box-primary">            <!-- /.box-body -->
+			<div class="box-footer">
+				{% include 'elements/revision-toolbar.html.twig' with {
+								'revisionId' : revision.id,
+								'environments': revision.environments,
+								'draft': revision.draft,
+								'current': not revision.endTime,
+								'autoSave': revision.autoSave,
+								'instance': revision,
+								'withView': false,
+								'vertical': false,
+				}%}
+					
+			</div>
+          </div>
 	<div class="col-md-3">
 
 		<div class="box box-primary">
@@ -107,7 +124,8 @@
 								'draft': revision.draft,
 								'current': not revision.endTime,
 								'autoSave': revision.autoSave,
-								'instance': revision
+								'instance': revision,
+								'withView': false,
 				}%}
 					
 			</div>
