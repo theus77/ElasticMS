@@ -13,6 +13,7 @@ use AppBundle\Form\Factory\ObjectChoiceListFactory;
 use Symfony\Component\Form\FormError;
 use AppBundle\Repository\I18nRepository;
 use AppBundle\Entity\I18n;
+use AppBundle\Entity\User;
 
 class AppExtension extends \Twig_Extension
 {
@@ -71,10 +72,25 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('propertyPath', array($this, 'propertyPath')),			
 				new \Twig_SimpleFilter('is_super', array($this, 'is_super')),					
 				new \Twig_SimpleFilter('i18n', array($this, 'i18n')),						
-				new \Twig_SimpleFilter('internal_links', array($this, 'internalLinks')),			
+				new \Twig_SimpleFilter('internal_links', array($this, 'internalLinks')),		
+				new \Twig_SimpleFilter('get_user', array($this, 'getUser')),			
+				new \Twig_SimpleFilter('displayname', array($this, 'displayname')),			
 				
 				
 		);
+	}
+
+	function getUser($username){
+		return $this->userService->getUser($username);
+	}
+	
+	function displayname($username){
+		/**@var User $user*/
+		$user = $this->userService->getUser($username);
+		if(!empty($user)){
+			return $user->getDisplayName();
+		}
+		return $username;
 	}
 
 	function internalLinks($input){

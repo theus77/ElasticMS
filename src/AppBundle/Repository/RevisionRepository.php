@@ -140,8 +140,13 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 	}
 	
 	public function revisionsLastPage($ouuid, ContentType $contentType) {
-		return floor($this->countRevisions($ouuid, $contentType)/10.0)+1;
+		return floor($this->countRevisions($ouuid, $contentType)/5.0)+1;
 	}
+	
+	public function firstElemOfPage($page) {
+		return ($page-1)*5;
+	}
+	
 	
 	
 	public function getAllRevisionsSummary($ouuid, ContentType $contentType, $page=1) {
@@ -153,7 +158,7 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		$qb->where($qb->expr()->eq('r.ouuid', ':ouuid'));
 		$qb->andWhere($qb->expr()->eq('r.contentType', ':contentType'));
 		$qb->setMaxResults(5);
-		$qb->setFirstResult(($page-1)*10);
+		$qb->setFirstResult(($page-1)*5);
 		$qb->orderBy('r.created', 'DESC');
 		$qb->setParameter('ouuid', $ouuid);
 		$qb->setParameter('contentType', $contentType);

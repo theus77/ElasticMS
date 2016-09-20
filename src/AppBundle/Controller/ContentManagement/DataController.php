@@ -213,6 +213,7 @@ class DataController extends AppController
 		$revisionsSummary = $repository->getAllRevisionsSummary($ouuid, $contentTypes[0], $page);
 		$lastPage = $repository->revisionsLastPage($ouuid, $contentTypes[0]);
 		$counter = $repository->countRevisions($ouuid, $contentTypes[0]);
+		$firstElemOfPage = $repository->firstElemOfPage($page);
 		
 		$availableEnv = $em->getRepository('AppBundle:Environment')->findAvailableEnvironements(
 				$revision->getContentType()->getEnvironment());
@@ -252,6 +253,7 @@ class DataController extends AppController
 				'page' => $page,
 				'lastPage' => $lastPage,
 				'counter' => $counter,
+				'firstElemOfPage' => $firstElemOfPage,
 		] );
 	}
 	

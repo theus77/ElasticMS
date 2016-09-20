@@ -125,6 +125,12 @@ class Revision
     private $environments;
 
     /**
+     * @ORM\OneToMany(targetEntity="Notification", mappedBy="revisionId", cascade={"persist", "remove"})
+     * @ORM\OrderBy({"created" = "ASC"})
+     */
+    private $notifications;
+
+    /**
      * @var array
      *
      * @ORM\Column(name="raw_data", type="json_array", nullable=true)
@@ -184,6 +190,7 @@ class Revision
     	//$this->setStartTime(new \DateTime());
 		//$this->setDraft(false);
     	$this->environments = new \Doctrine\Common\Collections\ArrayCollection();
+    	$this->notifications = new \Doctrine\Common\Collections\ArrayCollection();
     	
     	$a = func_get_args();
     	$i = func_num_args();
@@ -704,5 +711,39 @@ class Revision
     public function getCircles()
     {
         return $this->circles;
+    }
+
+    /**
+     * Add notification
+     *
+     * @param \AppBundle\Entity\Notification $notification
+     *
+     * @return Revision
+     */
+    public function addNotification(\AppBundle\Entity\Notification $notification)
+    {
+        $this->notifications[] = $notification;
+
+        return $this;
+    }
+
+    /**
+     * Remove notification
+     *
+     * @param \AppBundle\Entity\Notification $notification
+     */
+    public function removeNotification(\AppBundle\Entity\Notification $notification)
+    {
+        $this->notifications->removeElement($notification);
+    }
+
+    /**
+     * Get notifications
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getNotifications()
+    {
+        return $this->notifications;
     }
 }
