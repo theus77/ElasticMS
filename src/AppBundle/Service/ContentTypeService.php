@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\Session\Session;
 use AppBundle\Entity\ContentType;
 use Elasticsearch\Client;
+use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 
 class ContentTypeService {
 	/**@var Registry $doctrine */

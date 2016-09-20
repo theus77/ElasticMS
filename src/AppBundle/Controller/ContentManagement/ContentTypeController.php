@@ -743,9 +743,13 @@ class ContentTypeController extends AppController {
 			if (array_key_exists ( 'save', $inputContentType ) || array_key_exists ( 'saveAndClose', $inputContentType )) {
 				$contentType->getFieldType ()->updateOrderKeys ();
 				$contentType->setDirty ( $contentType->getEnvironment ()->getManaged () );
+				
+				if(array_key_exists ( 'saveAndClose', $inputContentType ) && $contentType->getDirty()){
+					$this->getContentTypeService()->updateMapping($contentType);					
+				}
+				
+				$this->getContentTypeService()->persist($contentType);
 
-				$em->persist ( $contentType );
-				$em->flush ();
 				if($contentType->getDirty()){
 					$this->addFlash ( 'warning', 'Content type has beend saved. Please consider to update the Elasticsearch mapping.' );					
 				}
