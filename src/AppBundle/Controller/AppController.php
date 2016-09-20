@@ -5,6 +5,7 @@ use AppBundle\Entity\Job;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use AppBundle\Service\DataService;
+use AppBundle\Service\PublishService;
 
 class AppController extends Controller
 {
@@ -86,14 +87,22 @@ class AppController extends Controller
 		.substr($charid,20,12);
 		return $uuid;
 	}
-	
-	
+
+
 	/**
-	 * 
+	 *
 	 * @return DataService
 	 */
 	public function getDataService(){
 		return $this->get('ems.service.data');
+	}
+	
+	/**
+	 * 
+	 * @return PublishService
+	 */
+	public function getPublishService(){
+		return $this->get('ems.service.publish');
 	}
 	
 	

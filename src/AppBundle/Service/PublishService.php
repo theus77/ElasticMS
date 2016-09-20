@@ -155,6 +155,7 @@ class PublishService
 		$this->dataService->lockRevision($revision, $environment);
 
 		$result = $this->revRepository->findByOuuidContentTypeAndEnvironnement($revision, $environment);
+		
 
 		$em = $this->doctrine->getManager();
 		
@@ -166,6 +167,7 @@ class PublishService
 				$this->session->getFlashBag()->add('warning', 'The revision '.$revision.' is already specified as published in '.$environment);
 			}
 			else {
+				$this->dataService->lockRevision($item);
 				$item->removeEnvironment($environment);
 				$em->persist($item);				
 			}

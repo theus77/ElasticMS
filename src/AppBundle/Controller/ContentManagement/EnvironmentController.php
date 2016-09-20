@@ -91,12 +91,12 @@ class EnvironmentController extends AppController {
 						}						
 					}
 					if($continue) {
-						$this->get("ems.service.data")->lockRevision($revision);
+						$this->getDataService()->lockRevision($revision);
 						foreach ($alignTo as $env){
 							$result = $repository->findByOuuidContentTypeAndEnvironnement($revision, $this->get('ems.service.environment')->getAliasByName($env));
 							/** @var Revision $item */
 							foreach ($result as $item){
-								$this->get("ems.service.data")->lockRevision($item);
+								$this->getDataService()->lockRevision($item);
 								$item->removeEnvironment($this->get('ems.service.environment')->getAliasByName($env));
 								$em->persist($item);
 							}

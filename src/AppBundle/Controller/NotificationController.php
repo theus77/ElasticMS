@@ -108,11 +108,11 @@ class NotificationController extends AppController
 				}
 				
 				if(!empty($publishIn)) {
-					$this->get("ems.service.publish")->publish($notification->getRevisionId(), $publishIn);
+					$this->getPublishService()->publish($notification->getRevisionId(), $publishIn);
 				}
 				
 				if(!empty($unpublishFrom)) {
-					$this->get("ems.service.publish")->unpublish($notification->getRevisionId(), $unpublishFrom);
+					$this->getPublishService()->unpublish($notification->getRevisionId(), $unpublishFrom);
 				}
 				
 				if($treatNotification->getAccept()){
