@@ -257,6 +257,9 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     					$child->setOrderKey($field->getOrderKey());
     					$child->setParent($this);
     					$this->addChild($child);
+    					if(isset($field->getDisplayOptions()['defaultValue'])){
+    						$child->setEncodedText($field->getDisplayOptions()['defaultValue']);
+    					}
     				}
     				if( strcmp($field->getType(), CollectionFieldType::class) != 0 ) {
     					$child->updateDataStructure($field);

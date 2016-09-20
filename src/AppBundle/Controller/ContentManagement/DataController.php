@@ -745,7 +745,7 @@ class DataController extends AppController
 			$this->loadAutoSavedVersion($revision);
 		}
 		
-		$this->get('ems.service.data')->loadDataStructure($revision);
+		$this->getDataService()->loadDataStructure($revision);
 
 		$logger->debug('DataField structure generated');
 		

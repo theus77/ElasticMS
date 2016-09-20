@@ -138,6 +138,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		$resolver->setDefault ( 'multiple', false );
 		$resolver->setDefault ( 'type', null );
 		$resolver->setDefault ( 'environment', null );
+		$resolver->setDefault ( 'defaultValue', null );
 		$resolver->setDefault ( 'required', false );
 		$resolver->setDefault ( 'dynamicLoading', true );
 	}
@@ -185,6 +186,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		] )->add ( 'dynamicLoading', CheckboxType::class, [ 
 				'required' => false,
 		] )->add ( 'type', TextType::class, [ 
+				'required' => false,
+		] )->add ( 'defaultValue', TextType::class, [ 
 				'required' => false,
 		] );
 		
