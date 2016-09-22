@@ -374,6 +374,22 @@
 	{{ _self.messages(dataField) }}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_IconFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
+		<dd>
+			<i class="{{ dataField.textValue|raw }}"></i> {{ dataField.textValue|raw }}
+		</dd>
+	</dl>
+	{{ _self.messages(dataField) }}
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_ColorPickerFieldType(dataField) %}
 	<dl>
 		<dt>

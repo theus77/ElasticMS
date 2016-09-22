@@ -127,6 +127,13 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: email }
             - { name: form.type }
+    ems.fieldtype.icon:
+        class: AppBundle\Form\DataField\IconFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: icon }
+            - { name: form.type }
     ems.fieldtype.asset:
         class: AppBundle\Form\DataField\AssetFieldType
         calls:
