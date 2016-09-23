@@ -72,11 +72,14 @@ $(window).ready(function() {
 	// Jira - ELASTICMS-41
 	$('#export').hide();
 	$('#notification').hide();
+	$('#embed').hide();
 	
 	if ($('#template_renderOption').val() == 'notification'){ 
 		$('#notification').show();
 	} else if ($('#template_renderOption').val() == 'export') {
 		 $('#export').show();
+	} else if ($('#template_renderOption').val() == 'embed') {
+		 $('#embed').show();
 	}
 
 	$('#template_renderOption').change(function(e){

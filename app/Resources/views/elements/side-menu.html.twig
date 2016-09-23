@@ -66,7 +66,7 @@
         <li class="header">Content Management</li>
         <!-- Optionally, you can add icons to the links -->
         {% for contentType in contentTypes %}
-        	{% if contentType.active and (not contentType.createRole or is_granted(contentType.createRole) or contentType.rootContentType ) %}
+        	{% if contentType.active and (not contentType.viewRole or is_granted(contentType.viewRole) or contentType.rootContentType ) %}
 	          <li class="">
 	          	<a href="{{ path('data.root', {name: contentType.name}) }}" class="text-{{ contentType.color }}">
 	          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName|humanize }}</span>

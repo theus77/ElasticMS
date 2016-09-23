@@ -267,6 +267,13 @@ class ContentType
     private $editRole;
     
     /**
+     * @var string
+     *
+     * @ORM\Column(name="view_role", type="string", length=100, nullable=true)
+     */
+    private $viewRole;
+    
+    /**
      * @var int
      *
      * @ORM\Column(name="orderKey", type="integer")
@@ -1416,5 +1423,29 @@ class ContentType
     public function getRefererFieldName()
     {
         return $this->refererFieldName;
+    }
+
+    /**
+     * Set viewRole
+     *
+     * @param string $viewRole
+     *
+     * @return ContentType
+     */
+    public function setViewRole($viewRole)
+    {
+        $this->viewRole = $viewRole;
+
+        return $this;
+    }
+
+    /**
+     * Get viewRole
+     *
+     * @return string
+     */
+    public function getViewRole()
+    {
+        return $this->viewRole;
     }
 }
