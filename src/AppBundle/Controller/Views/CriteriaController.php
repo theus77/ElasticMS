@@ -233,19 +233,22 @@ class CriteriaController extends AppController
 		$rowField = $criteriaField->__get('ems_'.$criteriaUpdateConfig->getRowCriteria());
 		
 		$authorized = $this->isAuthorized($criteriaField);
-		if($authorized) {
-			$hiddenform = $this->createForm(CriteriaFilterType::class, $criteriaUpdateConfig, [
-					'view' => $view,
-					'hidden' => true,
-					'action' => $this->get('router')->generate('views.criteria.align', ['view' => $view->getId()]),
-					'attr' => [
-							'id' =>  'hiddenFilterForm'
-					]
-			]);
+		if(!$authorized) {
+			$this->addFlash('notice', 'Your are not allowed to update data via this view');
+			
 		}
-		else {
-			$hiddenform = NULL;
-		}
+		$hiddenform = $this->createForm(CriteriaFilterType::class, $criteriaUpdateConfig, [
+				'view' => $view,
+				'hidden' => true,
+				'action' => $this->get('router')->generate('views.criteria.align', ['view' => $view->getId()]),
+				'attr' => [
+						'id' =>  'hiddenFilterForm'
+				]
+		]);
+// 		}
+// 		else {
+// 			$hiddenform = NULL;
+// 		}
 		
 		$tables = $this->generateCriteriaTable($view, $criteriaUpdateConfig);
 		
