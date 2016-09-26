@@ -2,12 +2,11 @@
 
 namespace AppBundle\Repository;
 
-use AppBundle\Entity\Revision;
-use AppBundle\Entity\Environment;
 use AppBundle\Entity\ContentType;
+use AppBundle\Entity\Environment;
+use AppBundle\Entity\Revision;
 use Doctrine\ORM\Mapping\OrderBy;
 use Doctrine\ORM\Query\ResultSetMapping;
-use AppBundle\Service\UserService;
 
 /**
  * RevisionRepository

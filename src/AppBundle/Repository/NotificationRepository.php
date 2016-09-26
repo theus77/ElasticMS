@@ -2,12 +2,11 @@
 
 namespace AppBundle\Repository;
 
-use AppBundle\Entity\User;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use AppBundle\Entity\Notification;
-use AppBundle\Repository\TemplateRepository;
 use AppBundle\Entity\ContentType;
-use Doctrine\DBAL\Types\Type;
+use AppBundle\Entity\Notification;
+use AppBundle\Entity\User;
+use AppBundle\Repository\TemplateRepository;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 /**
  * NotificationRepository
  *

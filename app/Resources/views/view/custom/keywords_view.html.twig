@@ -9,8 +9,7 @@
 
 <div class="row">
 	{% for keyword in keywords %}
-		{{ view.options.template|generate_from_template({})) }}
-{# 		{% include template_from_string(view.options.template) %}#}
+		{{ view.options.template|generate_from_template({keyword: keyword})|raw }}
 	{% endfor %}
 </div>
 

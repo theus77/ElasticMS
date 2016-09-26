@@ -11,12 +11,12 @@ use AppBundle\Entity\Helper\JsonNormalizer;
 use AppBundle\Form\DataField\SubfieldType;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Form\Form\ContentTypeStructureType;
 use AppBundle\Form\Form\ContentTypeType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -26,6 +26,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,8 +34,6 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Form\Form;
-use AppBundle\Form\Form\ContentTypeStructureType;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
