@@ -53,7 +53,7 @@ class UserService {
 				'usernameCanonical' => $username
 		]);
 		
-		if($detachIt) {
+		if(!empty($user) && $detachIt) {
 			$em->detach($user);			
 		}
 		
