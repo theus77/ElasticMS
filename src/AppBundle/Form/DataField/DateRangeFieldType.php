@@ -140,6 +140,7 @@ class DateRangeFieldType extends DataFieldType {
 		$resolver->setDefault ( 'timePicker24Hour', true );
 		$resolver->setDefault ( 'timePickerIncrement', 5 );
 		$resolver->setDefault ( 'icon', null );
+		$resolver->setDefault ( 'locale', [] );
 	}
 	
 	/**
