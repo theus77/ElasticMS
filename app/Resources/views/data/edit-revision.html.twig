@@ -446,6 +446,20 @@ function addEventListeners(target){
 
 	  	$(this).datepicker(params)
 	});
+
+	target.find('.ems_daterangepicker').each(function( index ) {
+
+		var options = $(this).data('display-option');
+		$(this).unbind('change');
+		
+		$(this).daterangepicker(
+			options, 
+			function(start, end, label) {
+// 				console.log(label);
+				onFormChange();
+			    //alert("A new date range was chosen: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+			});
+	});
 }
 
 

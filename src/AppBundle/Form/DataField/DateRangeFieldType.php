@@ -40,24 +40,19 @@ class DateRangeFieldType extends DataFieldType {
 	 *
 	 */
 	public function getDataValue(DataField &$dataField, array $options){
-		return '';
-// 		$format = DateFieldType::convertJavaDateFormat($options['displayOptions']['displayFormat']);
+		if(!empty($dataField->getRawData())){
+			$dateFrom = \DateTime::createFromFormat(\DateTime::ISO8601, $dataField->getRawData()[$dataField->getFieldType()->getName().'_date_from']);
+			$dateTo = \DateTime::createFromFormat(\DateTime::ISO8601, $dataField->getRawData()[$dataField->getFieldType()->getName().'_date_to']);
 
-// 		$dates = [];
-// 		if(null !== $dataField->getRawData()){
-// 			foreach ($dataField->getRawData() as $dataValue){
-// 				/**@var \DateTime $converted*/
-// 				$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $dataValue);
-// 				if($dateTime){
-// 					$dates[] = $dateTime->format($format);
-// 				}
-// 				else{
-// 					$dates[] = null;
-// 					//TODO: should add a flash message
-// 				}
-// 			}			
-// 		}
-// 		return implode(',', $dates);
+			if($dateFrom && $dateTo){
+				$displayformat = DateRangeFieldType::convertJavascriptDateFormat($options['displayOptions']['locale']['format']);
+				dump($displayformat);
+				
+				dump($dateFrom->format($displayformat) . ' - ' . $dateTo->format($displayformat));
+				return $dateFrom->format($displayformat) . ' - ' . $dateTo->format($displayformat);
+			}
+		}
+		return '';
 		
 	}
 	
@@ -66,26 +61,29 @@ class DateRangeFieldType extends DataFieldType {
 	 *
 	 */
 	public function setDataValue($input, DataField &$dataField, array $options){
-		//Do nothing it's just a display field
-// 		$format = DateFieldType::convertJavaDateFormat($options['displayOptions']['displayFormat']);
-// 		if($options['displayOptions']['multidate']){
-// 			$dates = explode(',', $input);
-// 		}
-// 		else{
-// 			$dates = [$input];
-// 		}
+		$format = DateRangeFieldType::convertJavascriptDateFormat($options['displayOptions']['locale']['format']);
 		
-// 		$convertedDates = [];
+		$inputs = explode(' - ', $input);
 		
-// 		foreach ($dates as $idx => $date){
-// 			/**@var \DateTime $converted*/
-// 			$converted = \DateTime::createFromFormat($format, $date);
-// 			if($converted){
-// 				$convertedDates[] = $converted->format(\DateTime::ISO8601);
-// 			}
-// 		}
+		if(count($inputs) == 2){
+			$convertedDates = [];
+			
+			$fromConverted = \DateTime::createFromFormat($format, $inputs[0]);
+			if($fromConverted){
+				$convertedDates[$dataField->getFieldType()->getName().'_date_from'] = $fromConverted->format(\DateTime::ISO8601);
+			}
+			
+			$toConverted = \DateTime::createFromFormat($format, $inputs[1]);
+			if($toConverted){
+				$convertedDates[$dataField->getFieldType()->getName().'_date_to'] = $toConverted->format(\DateTime::ISO8601);
+			}
+						
+			$dataField->setRawData($convertedDates);
+		}
+		else {
+			//TODO: log warnign
+		}
 		
-// 		$dataField->setRawData($convertedDates);
 	}
 
 
@@ -152,21 +150,6 @@ class DateRangeFieldType extends DataFieldType {
 		
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
-	
-		$builder->add ( 'raw_data', HiddenType::class, [
-				'label' => null,
-				'required' => false,
-				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
-// 				'attr' => [
-// 					'class' => 'datepicker',
-// 					'data-date-format' => $fieldType->getDisplayOptions()['displayFormat'],
-// 					'data-today-highlight' => $fieldType->getDisplayOptions()['todayHighlight'],
-// 					'data-week-start' => $fieldType->getDisplayOptions()['weekStart'],
-// 					'data-days-of-week-highlighted' => $fieldType->getDisplayOptions()['daysOfWeekHighlighted'],
-// 					'data-days-of-week-disabled' => $fieldType->getDisplayOptions()['daysOfWeekDisabled'],
-// 					'data-multidate' => $fieldType->getDisplayOptions()['multidate']?"true":"false",
-// 				] 
-		] );		
 		
 		$builder->add ( 'data_value', IconTextType::class, [
 				'label' => false,
@@ -174,13 +157,8 @@ class DateRangeFieldType extends DataFieldType {
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'icon' => $options['icon'],
 				'attr' => [
-					'class' => 'daterangepicker',
-// 					'data-date-format' => $fieldType->getDisplayOptions()['displayFormat'],
-// 					'data-today-highlight' => $fieldType->getDisplayOptions()['todayHighlight'],
-// 					'data-week-start' => $fieldType->getDisplayOptions()['weekStart'],
-// 					'data-days-of-week-highlighted' => $fieldType->getDisplayOptions()['daysOfWeekHighlighted'],
-// 					'data-days-of-week-disabled' => $fieldType->getDisplayOptions()['daysOfWeekDisabled'],
-// 					'data-multidate' => $fieldType->getDisplayOptions()['multidate']?"true":"false",
+					'class' => 'ems_daterangepicker',
+					'data-display-option' => json_encode($fieldType->getDisplayOptions()),
 				] 
 		] );
 	}
@@ -195,11 +173,27 @@ class DateRangeFieldType extends DataFieldType {
 		$out['mappingOptions']['format'] = 'yyyy/MM/dd HH:mm';
 		$out['displayOptions']['timePickerIncrement'] = 5;
 		$out['displayOptions']['locale'] = [
-				'format' => 'MM/DD/YYYY HH:MM',
+				'format' => 'DD/MM/YYYY HH:mm',
 				'firstDay' => 1
 		];
 		
 		return $out;
+	}
+	
+
+
+	public static function convertJavascriptDateFormat($format){
+		$dateFormat = $format;
+		//TODO: naive approch....find a way to comvert java date format into php
+		$dateFormat = str_replace('DD', 'd', $dateFormat);
+		$dateFormat = str_replace('MM', 'm', $dateFormat);
+		$dateFormat = str_replace('YYYY', 'Y', $dateFormat);
+		$dateFormat = str_replace('hh', 'h', $dateFormat);
+		$dateFormat = str_replace('HH', 'H', $dateFormat);
+		$dateFormat = str_replace('mm', 'i', $dateFormat);
+		$dateFormat = str_replace('ss', 's', $dateFormat);
+		$dateFormat = str_replace('aa', 'A', $dateFormat);	
+		return $dateFormat;
 	}
 	
 	/**
@@ -239,23 +233,7 @@ class DateRangeFieldType extends DataFieldType {
 	 */
 	public static function buildObjectArray(DataField $data, array &$out) {
 		if (! $data->getFieldType()->getDeleted ()) {
-			$format = $data->getFieldType()->getMappingOptions()['format'];
-			
-			$format = DateFieldType::convertJavaDateFormat($format);
-			
-			$dates = [];
-			if(null !== $data->getRawData()['ems_date_from']){
-				/**@var \DateTime $converted*/
-				$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()['ems_date_from']);
-				$dates['ems_date_from'] = $dateTime->format($format);
-			}	
-			if(null !== $data->getRawData()['ems_date_to']){
-				/**@var \DateTime $converted*/
-				$dateTime = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()['ems_date_to']);
-				$dates['ems_date_to'] = $dateTime->format($format);
-			}	
-			
-			$out [$data->getFieldType ()->getName ()] = $dates;
+			$out [$data->getFieldType ()->getName ()] = $data->getRawData();
 		}
 	}
 	
@@ -283,7 +261,10 @@ class DateRangeFieldType extends DataFieldType {
 				'label' => false,
 		] );
 		$optionsForm->get ( 'displayOptions' )->get ( 'locale' )->add ( 'format', TextType::class, [
-				'required' => false
+				'required' => false,
+				'attr' => [
+					'placeholder' => 'i.e. DD/MM/YYYY HH:mm'
+				],
 		] );
 		$optionsForm->get ( 'displayOptions' )->get ( 'locale' )->add ( 'firstDay', IntegerType::class, [
 				'required' => false,
