@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use AppBundle\Form\Field\IconPickerType;
 use AppBundle\Form\Field\IconTextType;
 use AppBundle\Form\DataField\Options\SubOptionsType;
+use Symfony\Component\Serializer\Encoder\JsonEncode;
 
 class DateRangeFieldType extends DataFieldType {
 	
@@ -46,9 +47,6 @@ class DateRangeFieldType extends DataFieldType {
 
 			if($dateFrom && $dateTo){
 				$displayformat = DateRangeFieldType::convertJavascriptDateFormat($options['displayOptions']['locale']['format']);
-				dump($displayformat);
-				
-				dump($dateFrom->format($displayformat) . ' - ' . $dateTo->format($displayformat));
 				return $dateFrom->format($displayformat) . ' - ' . $dateTo->format($displayformat);
 			}
 		}
@@ -115,7 +113,6 @@ class DateRangeFieldType extends DataFieldType {
 // 				$sourceArray = [$sourceArray];
 // 			}
 // 			$data = [];
-// // 			dump($sourceArray);
 // 			foreach ($sourceArray as $idx => $child){
 // 				$dateObject = \DateTime::createFromFormat($format, $child);
 // 				$data[] = $dateObject->format(\DateTime::ISO8601);
@@ -170,7 +167,6 @@ class DateRangeFieldType extends DataFieldType {
 	 */
 	public function getDefaultOptions($name) {
 		$out = parent::getDefaultOptions($name);
-		$out['mappingOptions']['format'] = 'yyyy/MM/dd HH:mm';
 		$out['displayOptions']['timePickerIncrement'] = 5;
 		$out['displayOptions']['locale'] = [
 				'format' => 'DD/MM/YYYY HH:mm',
@@ -209,18 +205,17 @@ class DateRangeFieldType extends DataFieldType {
 					$current->getName()."_date_from" => 
 						array_merge([
 							"type" => "date",
+							"format" => 'date_time_no_millis',
 						],  array_filter($current->getMappingOptions()))							
 					,
 					$current->getName()."_date_to" => 
 						array_merge([
 							"type" => "date",
+							"format" => 'date_time_no_millis',
 						],  array_filter($current->getMappingOptions()))	
 				]
 			]
 		];
-		
-		dump($out);
-			
 		return $out;
 		
 		
@@ -233,6 +228,21 @@ class DateRangeFieldType extends DataFieldType {
 	 */
 	public static function buildObjectArray(DataField $data, array &$out) {
 		if (! $data->getFieldType()->getDeleted ()) {
+			
+// 			$dateFrom = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()[$data->getFieldType()->getName().'_date_from']);
+// 			$dateTo = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()[$data->getFieldType()->getName().'_date_to']);
+			
+// 			$format = DateFieldType::convertJavaDateFormat($format);
+			
+// 			$temp = [];
+// 			if($dateFrom){
+// 				$temp[$data->getFieldType()->getName().'_date_from'] = $dateFrom->format($format);
+// 			}
+// 			if($dateTo){
+// 				$temp[$data->getFieldType()->getName().'_date_to'] = $dateTo->format($format);
+// 			}
+			
+// 			$out [$data->getFieldType ()->getName ()] = $temp;
 			$out [$data->getFieldType ()->getName ()] = $data->getRawData();
 		}
 	}
@@ -248,13 +258,13 @@ class DateRangeFieldType extends DataFieldType {
 		$optionsForm = $builder->get ( 'options' );
 
 		// String specific display options
-		$optionsForm->get ( 'mappingOptions' )->add ( 'format', TextType::class, [
-				'required' => false,
-				'empty_data' => 'yyyy/MM/dd HH:mm',
-				'attr' => [
-						'placeholder' => 'i.e. yyyy/MM/dd HH:mm'
-				],
-		] );	
+// 		$optionsForm->get ( 'mappingOptions' )->add ( 'format', TextType::class, [
+// 				'required' => false,
+// 				'empty_data' => 'yyyy/MM/dd HH:mm',
+// 				'attr' => [
+// 						'placeholder' => 'i.e. yyyy/MM/dd HH:mm'
+// 				],
+// 		] );	
 		
 		$optionsForm->get ( 'displayOptions' )->add ( 'locale', SubOptionsType::class, [
 				'required' => false,

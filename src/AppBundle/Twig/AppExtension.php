@@ -14,6 +14,7 @@ use Symfony\Component\Form\FormError;
 use AppBundle\Repository\I18nRepository;
 use AppBundle\Entity\I18n;
 use AppBundle\Entity\User;
+use AppBundle\Form\DataField\DateRangeFieldType;
 
 class AppExtension extends \Twig_Extension
 {
@@ -57,6 +58,7 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('firstInArray', array($this, 'firstInArray')),
 				new \Twig_SimpleFilter('md5', array($this, 'md5')),
 				new \Twig_SimpleFilter('convertJavaDateFormat', array($this, 'convertJavaDateFormat')),
+				new \Twig_SimpleFilter('convertJavascriptDateFormat', array($this, 'convertJavascriptDateFormat')),
 				new \Twig_SimpleFilter('getTimeFieldTimeFormat', array($this, 'getTimeFieldTimeFormat')),
 				new \Twig_SimpleFilter('soapRequest', array($this, 'soapRequest')),
 				new \Twig_SimpleFilter('luma', array($this, 'relativeluminance')),
@@ -75,11 +77,23 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('internal_links', array($this, 'internalLinks')),		
 				new \Twig_SimpleFilter('get_user', array($this, 'getUser')),			
 				new \Twig_SimpleFilter('displayname', array($this, 'displayname')),			
+				new \Twig_SimpleFilter('date_difference', array($this, 'dateDifference')),			
 				
 				
 		);
 	}
 
+	
+	function dateDifference($date1, $date2, $detailed=false){
+		$datetime1 = date_create($date1);
+		$datetime2 = date_create($date2);
+		$interval = date_diff($datetime1, $datetime2);
+		if($detailed){
+			return $interval->format('%R%a days %h hours %i minutes');			
+		}
+		return (intval($interval->format('%R%a'))+1).' days';	
+	}
+	
 	function getUser($username){
 		return $this->userService->getUser($username);
 	}
@@ -378,6 +392,11 @@ class AppExtension extends \Twig_Extension
 	public function convertJavaDateFormat($format)
 	{
     	return DateFieldType::convertJavaDateFormat($format);
+	}
+
+	public function convertJavascriptDateFormat($format)
+	{
+    	return DateRangeFieldType::convertJavascriptDateFormat($format);
 	}
 
 	public function getTimeFieldTimeFormat($options)
