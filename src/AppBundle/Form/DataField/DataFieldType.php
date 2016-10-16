@@ -11,6 +11,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\SelectPickerType;
 
 
 /**
@@ -25,6 +26,21 @@ abstract class DataFieldType extends AbstractType {
 	
 	public function setAuthorizationChecker($authorizationChecker){
 		$this->authorizationChecker = $authorizationChecker;
+	}
+	
+	public function getDefaultOptions($name) {
+		return [
+			'displayOptions' => [
+				'label' => SelectPickerType::humanize($name),
+				'class' => 'col-md-12',
+			],
+			'mappingOptions' => [
+			],
+			'restrictionOptions' => [
+			],
+			'extraOptions' => [
+			],
+		];
 	}
 
 	/**

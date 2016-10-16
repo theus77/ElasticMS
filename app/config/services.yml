@@ -185,6 +185,15 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: date }
             - { name: form.type }
+    ems.fieldtype.daterange:
+        class: AppBundle\Form\DataField\DateRangeFieldType
+        #arguments: ['%date_format%']
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        #    - [setDateFormat, ['%date_format%']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: daterange }
+            - { name: form.type }
     ems.fieldtype.time:
         class: AppBundle\Form\DataField\TimeFieldType
         #arguments: ['%date_format%']

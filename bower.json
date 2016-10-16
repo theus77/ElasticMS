@@ -34,6 +34,12 @@
     "jquery_lazyload": "jquery.lazyload#^1.9.7",
     "bootstrap-datepicker": "^1.6.0",
     "bootstrap-timepicker": "^0.5.2",
-    "bootstrap-fileinput": "^4.3.2"
+    "bootstrap-fileinput": "^4.3.2",
+    "moment": "^2.15.1",
+    "daterangepicker": "^1.5.2"
+  },
+  "resolutions": {
+    "moment": "^2.15.1",
+    "jquery": "^2.0"
   }
 }

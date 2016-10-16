@@ -34,6 +34,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Serializer;
+use AppBundle\Form\DataField\DataFieldType;
 
 /**
  * Operations on content types such as CRUD but alose rebuild index.
@@ -415,10 +416,15 @@ class ContentTypeController extends AppController {
 					&& isset($formArray ['ems:internal:add:field:class']) 
 					&& strcmp($formArray ['ems:internal:add:field:class'], '') != 0) {
 				if($this->isValidName($formArray ['ems:internal:add:field:name'])){
+					$fieldTypeNameOrServiceName = $formArray ['ems:internal:add:field:class'];
+					$fieldName = $formArray ['ems:internal:add:field:name']; 
+					/** @var DataFieldType $dataFieldType */
+					$dataFieldType = $this->getDataFielType($fieldTypeNameOrServiceName);
 					$child = new FieldType ();
-					$child->setName ( $formArray ['ems:internal:add:field:name'] );
-					$child->setType ( $formArray ['ems:internal:add:field:class'] );
+					$child->setName ( $fieldName );
+					$child->setType ( $fieldTypeNameOrServiceName );
 					$child->setParent ( $fieldType );
+					$child->setOptions( $dataFieldType->getDefaultOptions($fieldName) );
 					$fieldType->addChild ( $child );
 					$this->addFlash('notice', 'The field '.$child->getName().' has been prepared to be added');
 					return '_ems_'.$child->getName().'_modal_options';

@@ -35,6 +35,17 @@ class AppController extends Controller
 		return $this->container->get('twig');
 	}
 	
+	/**
+	 * 
+	 * @param string $fieldTypeNameOrServiceName
+	 * 
+	 * @return DataFieldType
+	 */
+	protected function getDataFielType($fieldTypeNameOrServiceName){
+		return $this->get('form.registry')->getType($fieldTypeNameOrServiceName)->getInnerType();
+	}
+	
+	
 
 	protected function startJob($service, $arguments){
 		/** @var EntityManager $em */
