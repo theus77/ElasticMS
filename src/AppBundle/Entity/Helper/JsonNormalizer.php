@@ -177,9 +177,6 @@ class JsonNormalizer implements NormalizerInterface, DenormalizerInterface
 				if (method_exists($object, $setter)) {
 					$object->$setter($value);
 				} 
-// 				else {
-// 					dump("Method not found ". $setter . " for object ". $object->getName());
-// 				}
 			}
 		}
 		if(!empty($options)) {

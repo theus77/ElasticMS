@@ -28,8 +28,6 @@ class CriteriaFilterType extends AbstractType {
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		parent::buildForm($builder, $options);
-		
-// 		dump($options);
 
 		if($options['view']){
 			/** @var View $view */
@@ -121,7 +119,6 @@ class CriteriaFilterType extends AbstractType {
 					}
 					
 					$displayOptions = $child->getDisplayOptions();
-	// 				dump($displayOptions);
 					$displayOptions['metadata'] = $child;
 					$displayOptions['class'] = 'col-md-12';
 					if(isset($displayOptions['dynamicLoading'])){

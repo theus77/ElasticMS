@@ -8,6 +8,7 @@ use AppBundle\Service\DataService;
 use AppBundle\Service\PublishService;
 use AppBundle\Service\ContentTypeService;
 use AppBundle\Service\EnvironmentService;
+use Elasticsearch\Client;
 
 class AppController extends Controller
 {
@@ -20,7 +21,7 @@ class AppController extends Controller
 	}
 
 	/**
-	 * @return \Elasticsearch\ClientBuilder
+	 * @return Client
 	 */
 	protected function getElasticsearch()
 	{

@@ -91,7 +91,6 @@ class DataController extends AppController
 // 				'contentType' => $contentTypeId
 // 		]);
 		
-// 		dump($revisions);
 		$revisions= $revisionRep->findInProgresByContentType($contentType, $this->get('ems.service.user')->getCurrentUser()->getCircles(), $this->get('security.authorization_checker')->isGranted('ROLE_ADMIN'));
 		
 		
@@ -460,7 +459,6 @@ class DataController extends AppController
 			$this->get('ems.service.data')->loadDataStructure($revision);
 			
 			$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
-// 			dump($objectArray);
 			/** @var \AppBundle\Entity\Environment $environment */
 			foreach ($revision->getEnvironments() as $environment ){
 				$status = $client->index([
@@ -723,8 +721,6 @@ class DataController extends AppController
 //		TODO: User validators
 // 		$validator = $this->get('validator');
 // 		$errors = $validator->validate($revision);
-// 		dump($validator);
-// 		dump($errors);
 		
 		return $this->get("ems.service.data")->finalizeDraft($revision, $form, $username);
 	}
@@ -745,7 +741,6 @@ class DataController extends AppController
 	 */
 	public function editRevisionAction($revisionId, Request $request)
 	{
-//		dump($request);
 		$em = $this->getDoctrine()->getManager();
 		$logger = $this->get('logger');
 		
@@ -978,8 +973,6 @@ class DataController extends AppController
 				
 				$em->persist($revision);
 				$em->flush();
-			
-				//dump($revision);
 				
 				return $this->redirectToRoute('revision.edit', [
 						'revisionId' => $revision->getId()

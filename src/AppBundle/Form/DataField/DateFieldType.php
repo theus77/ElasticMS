@@ -112,7 +112,6 @@ class DateFieldType extends DataFieldType {
 				$sourceArray = [$sourceArray];
 			}
 			$data = [];
-// 			dump($sourceArray);
 			foreach ($sourceArray as $idx => $child){
 				$dateObject = \DateTime::createFromFormat($format, $child);
 				$data[] = $dateObject->format(\DateTime::ISO8601);
