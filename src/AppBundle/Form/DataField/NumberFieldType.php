@@ -39,6 +39,7 @@ class NumberFieldType extends DataFieldType {
 		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
 			$dataField->setFloatValue($sourceArray);
 		}
+		return [$dataField->getFieldType()->getName()];
 	}
 	
 	/**

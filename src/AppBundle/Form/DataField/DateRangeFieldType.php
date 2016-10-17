@@ -42,8 +42,10 @@ class DateRangeFieldType extends DataFieldType {
 	 */
 	public function getDataValue(DataField &$dataField, array $options){
 		if(!empty($dataField->getRawData())){
-			$dateFrom = \DateTime::createFromFormat(\DateTime::ISO8601, $dataField->getRawData()[$dataField->getFieldType()->getName().'_date_from']);
-			$dateTo = \DateTime::createFromFormat(\DateTime::ISO8601, $dataField->getRawData()[$dataField->getFieldType()->getName().'_date_to']);
+			$temp = $dataField->getRawData();
+			
+			$dateFrom = \DateTime::createFromFormat(\DateTime::ISO8601, $temp[$options['mappingOptions']['fromDateMachineName']]);
+			$dateTo = \DateTime::createFromFormat(\DateTime::ISO8601, $temp[$options['mappingOptions']['toDateMachineName']]);
 
 			if($dateFrom && $dateTo){
 				$displayformat = DateRangeFieldType::convertJavascriptDateFormat($options['displayOptions']['locale']['format']);
@@ -68,12 +70,12 @@ class DateRangeFieldType extends DataFieldType {
 			
 			$fromConverted = \DateTime::createFromFormat($format, $inputs[0]);
 			if($fromConverted){
-				$convertedDates[$dataField->getFieldType()->getName().'_date_from'] = $fromConverted->format(\DateTime::ISO8601);
+				$convertedDates[$options['mappingOptions']['fromDateMachineName']] = $fromConverted->format(\DateTime::ISO8601);
 			}
 			
 			$toConverted = \DateTime::createFromFormat($format, $inputs[1]);
 			if($toConverted){
-				$convertedDates[$dataField->getFieldType()->getName().'_date_to'] = $toConverted->format(\DateTime::ISO8601);
+				$convertedDates[$options['mappingOptions']['toDateMachineName']] = $toConverted->format(\DateTime::ISO8601);
 			}
 						
 			$dataField->setRawData($convertedDates);
@@ -81,7 +83,6 @@ class DateRangeFieldType extends DataFieldType {
 		else {
 			//TODO: log warnign
 		}
-		
 	}
 
 
@@ -94,32 +95,45 @@ class DateRangeFieldType extends DataFieldType {
 		return 'daterangefieldtype';
 	}
 	
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function isVirtualField(array $option){
+		return !$option['mappingOptions']['nested'];
+	}
 	
-// 	/**
-// 	 *
-// 	 * {@inheritdoc}
-// 	 *
-// 	 */
-// 	public function importData(DataField $dataField, $sourceArray, $isMigration) {
-// 		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
-// 		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
-// 			$format = $dataField->getFieldType()->getMappingOptions()['format'];	
-// 			$format = DateFieldType::convertJavaDateFormat($format);
-		
-// 			if(null == $sourceArray) {
-// 				$sourceArray = [];
-// 			}
-// 			if(is_string($sourceArray)){
-// 				$sourceArray = [$sourceArray];
-// 			}
-// 			$data = [];
-// 			foreach ($sourceArray as $idx => $child){
-// 				$dateObject = \DateTime::createFromFormat($format, $child);
-// 				$data[] = $dateObject->format(\DateTime::ISO8601);
-// 			}
-// 			$dataField->setRawData($data);
-// 		}
-// 	}
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+			
+			if(!$dataField->getFieldType()->getMappingOptions()['nested']){
+				$out = [];
+				$in = [];
+				if(isset($sourceArray[$dataField->getFieldType()->getMappingOptions()['fromDateMachineName']])){
+					$out[] = $dataField->getFieldType()->getMappingOptions()['fromDateMachineName'];
+					$in[$dataField->getFieldType()->getMappingOptions()['fromDateMachineName']] = $sourceArray[$dataField->getFieldType()->getMappingOptions()['fromDateMachineName']];
+				}
+				if(isset($sourceArray[$dataField->getFieldType()->getMappingOptions()['toDateMachineName']])){
+					$out[] = $dataField->getFieldType()->getMappingOptions()['toDateMachineName'];
+					$in[$dataField->getFieldType()->getMappingOptions()['toDateMachineName']] = $sourceArray[$dataField->getFieldType()->getMappingOptions()['toDateMachineName']];
+				}
+				$dataField->setRawData($in);
+				return $out;
+			}
+			else{
+				return parent::importData($dataField, $sourceArray, $isMigration);
+			}
+		}
+		return [$dataField->getFieldType()->getName()];
+	}
 	
 	
 	/**
@@ -167,6 +181,11 @@ class DateRangeFieldType extends DataFieldType {
 	 */
 	public function getDefaultOptions($name) {
 		$out = parent::getDefaultOptions($name);
+		
+		$out['mappingOptions']['toDateMachineName'] = $name.'_to_date';
+		$out['mappingOptions']['fromDateMachineName'] = $name.'_from_date';
+		$out['mappingOptions']['nested'] = true;
+		$out['mappingOptions']['index'] = null;
 		$out['displayOptions']['timePickerIncrement'] = 5;
 		$out['displayOptions']['locale'] = [
 				'format' => 'DD/MM/YYYY HH:mm',
@@ -198,29 +217,35 @@ class DateRangeFieldType extends DataFieldType {
 	 *
 	 */
 	public static function generateMapping(FieldType $current){
+		
 		$out = [
-			$current->getName() => [
-				"type" => "nested",
-				"properties" =>[
-					$current->getName()."_date_from" => 
-						array_merge([
-							"type" => "date",
-							"format" => 'date_time_no_millis',
-						],  array_filter($current->getMappingOptions()))							
-					,
-					$current->getName()."_date_to" => 
-						array_merge([
-							"type" => "date",
-							"format" => 'date_time_no_millis',
-						],  array_filter($current->getMappingOptions()))	
-				]
-			]
+			$current->getMappingOptions()['fromDateMachineName'] => 
+			[
+				"type" => "date",
+				"format" => 'date_time_no_millis',
+			],
+			$current->getMappingOptions()['toDateMachineName'] => 
+			[
+				"type" => "date",
+				"format" => 'date_time_no_millis',
+			],
 		];
+		
+		if(!empty($current->getMappingOptions()['index'])) {
+			$current->getMappingOptions()['fromDateMachineName']['index'] = $current->getMappingOptions()['index'];
+			$current->getMappingOptions()['toDateMachineName']['index'] = $current->getMappingOptions()['index'];
+		}
+		
+		if($current->getMappingOptions()['nested']){
+			$out = [
+				$current->getName() => [
+					"type" => "nested",
+					"properties" => $out
+				]
+			];			
+		}
+		
 		return $out;
-		
-		
-		
-
 	}
 	
 	/**
@@ -228,22 +253,17 @@ class DateRangeFieldType extends DataFieldType {
 	 */
 	public static function buildObjectArray(DataField $data, array &$out) {
 		if (! $data->getFieldType()->getDeleted ()) {
-			
-// 			$dateFrom = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()[$data->getFieldType()->getName().'_date_from']);
-// 			$dateTo = \DateTime::createFromFormat(\DateTime::ISO8601, $data->getRawData()[$data->getFieldType()->getName().'_date_to']);
-			
-// 			$format = DateFieldType::convertJavaDateFormat($format);
-			
-// 			$temp = [];
-// 			if($dateFrom){
-// 				$temp[$data->getFieldType()->getName().'_date_from'] = $dateFrom->format($format);
-// 			}
-// 			if($dateTo){
-// 				$temp[$data->getFieldType()->getName().'_date_to'] = $dateTo->format($format);
-// 			}
-			
-// 			$out [$data->getFieldType ()->getName ()] = $temp;
-			$out [$data->getFieldType ()->getName ()] = $data->getRawData();
+			if($data->getFieldType()->getMappingOptions()['nested']){
+				$out [$data->getFieldType ()->getName ()] = $data->getRawData();				
+			}
+			else {
+				$rawData = $data->getRawData();
+				if(empty($rawData)){
+					$rawData = [];
+				}
+				
+				$out = array_merge($out, $rawData);
+			}
 		}
 	}
 	
@@ -258,13 +278,13 @@ class DateRangeFieldType extends DataFieldType {
 		$optionsForm = $builder->get ( 'options' );
 
 		// String specific display options
-// 		$optionsForm->get ( 'mappingOptions' )->add ( 'format', TextType::class, [
-// 				'required' => false,
-// 				'empty_data' => 'yyyy/MM/dd HH:mm',
-// 				'attr' => [
-// 						'placeholder' => 'i.e. yyyy/MM/dd HH:mm'
-// 				],
-// 		] );	
+		$optionsForm->get ( 'mappingOptions' )->add ( 'fromDateMachineName', TextType::class, [
+				'required' => false,
+		] )->add ( 'toDateMachineName', TextType::class, [
+				'required' => false,
+		] )->add ( 'nested', CheckboxType::class, [
+				'required' => false,
+		] );	
 		
 		$optionsForm->get ( 'displayOptions' )->add ( 'locale', SubOptionsType::class, [
 				'required' => false,

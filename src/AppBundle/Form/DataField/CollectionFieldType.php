@@ -75,6 +75,8 @@ class CollectionFieldType extends DataFieldType {
 				$colItem->setParent($dataField);
 			}
 		}
+		return [$dataField->getFieldType()->getName()];
+		
 	}
 	
 	

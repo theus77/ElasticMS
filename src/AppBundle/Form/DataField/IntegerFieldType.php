@@ -39,6 +39,7 @@ class IntegerFieldType extends DataFieldType {
 		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
 			$dataField->setIntegerValue($sourceArray);
 		}
+		return [$dataField->getFieldType()->getName()];
 	}
 	
 	/**

@@ -44,6 +44,7 @@ class TimeFieldType extends DataFieldType {
 			$timeObject = \DateTime::createFromFormat($format, $sourceArray);
 			$dataField->setRawData($timeObject->format(\DateTime::ISO8601));
 		}
+		return [$dataField->getFieldType()->getName()];
 	}
 	
 	public static function getFormat($options){

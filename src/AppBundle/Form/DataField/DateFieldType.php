@@ -119,6 +119,7 @@ class DateFieldType extends DataFieldType {
 			}
 			$dataField->setRawData($data);
 		}
+		return [$dataField->getFieldType()->getName()];
 	}
 	
 	

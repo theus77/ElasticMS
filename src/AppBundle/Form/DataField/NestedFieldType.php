@@ -49,6 +49,7 @@ class NestedFieldType extends DataFieldType {
 				$child->updateDataValue($sourceArray);
 			}
 		}
+		return [$dataField->getFieldType()->getName()];
 	}
 	
 	/**

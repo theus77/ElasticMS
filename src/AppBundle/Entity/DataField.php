@@ -288,10 +288,19 @@ class DataField implements \ArrayAccess, \IteratorAggregate
 	    	}
     	} 
     	else {
-    		if(array_key_exists($fieldName, $elasticIndexDatas)){
-    			$dataFieldType->importData($this, $elasticIndexDatas[$fieldName], $isMigration);
-    			unset($elasticIndexDatas[$fieldName]);    				
+    		if($dataFieldType->isVirtualField($this->getFieldType()->getOptions()))  {
+    			$treatedFields = $dataFieldType->importData($this, $elasticIndexDatas, $isMigration);
+    			foreach($treatedFields as $fieldName){
+    				unset($elasticIndexDatas[$fieldName]);
+    			}
     		}
+    		else if(array_key_exists($fieldName, $elasticIndexDatas)){
+    			$treatedFields = $dataFieldType->importData($this, $elasticIndexDatas[$fieldName], $isMigration);
+    			foreach($treatedFields as $fieldName){
+	    			unset($elasticIndexDatas[$fieldName]);    				    				
+    			}
+    		}
+    		
     	}
     }
     
