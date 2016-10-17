@@ -91,16 +91,6 @@ class DateRangeFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public function getBlockPrefix() {
-		return 'daterangefieldtype';
-	}
-	
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
 	public function isVirtualField(array $option){
 		return !$option['mappingOptions']['nested'];
 	}
@@ -163,7 +153,7 @@ class DateRangeFieldType extends DataFieldType {
 		$fieldType = $builder->getOptions () ['metadata'];
 		
 		$builder->add ( 'data_value', IconTextType::class, [
-				'label' => false,
+				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'required' => false,
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'icon' => $options['icon'],
