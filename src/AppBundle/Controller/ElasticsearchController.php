@@ -491,7 +491,6 @@ class ElasticsearchController extends AppController
 				}
 			}
 			
-// 			dump($mapAlias);
 			//1. Define the parameters for a regular search request
 			$params = [
 					'version' => true, 

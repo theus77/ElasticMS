@@ -507,7 +507,6 @@ class ContentTypeController extends AppController {
 					$new = clone $fieldType;
 					$new->setName ( $formArray ['ems:internal:add:subfield:target_name'] );
 					$new->getParent()->addChild($new);
-// 					dump($new);
 					
 					$this->addFlash('notice', 'The field '.$new->getName().' has been initialized/duplicated');
 					return 'first_ems_'.$new->getName().'_modal_options';

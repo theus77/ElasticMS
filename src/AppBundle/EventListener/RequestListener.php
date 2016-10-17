@@ -143,7 +143,6 @@ class RequestListener
 	    					
 	    					
 	    					$input = new ArgvInput($this->getArgv("console ".$command));
-// 	    					dump($input); exit;
 	    					$application->run($input, $output);
 		    				$output->writeln("Job done");
 	    				}
