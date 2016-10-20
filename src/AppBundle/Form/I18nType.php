@@ -5,6 +5,8 @@ namespace AppBundle\Form;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\I18nContentType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class I18nType extends AbstractType
 {
@@ -15,10 +17,12 @@ class I18nType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('identifier')
-            ->add('locale')
-            ->add('content')
-        ;
+            ->add('identifier', null, array('required' => true))
+            ->add('content', CollectionType::class, array(
+            	 'entry_type'   => I18nContentType::class,
+			      'allow_add' => true,
+            	  'label' => false,
+            ));
     }
     
     /**

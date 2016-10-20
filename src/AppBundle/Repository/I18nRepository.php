@@ -10,4 +10,22 @@ namespace AppBundle\Repository;
  */
 class I18nRepository extends \Doctrine\ORM\EntityRepository
 {
+	/** 
+	 * Find all Keys
+	 * 
+	 * @param unknown $from
+	 * @param unknown $limit
+	 */
+	public function findAllI18n($from, $limit){
+		 
+		$qb = $this->createQueryBuilder('i')
+		->select('i')
+		->setFirstResult($from)
+		->setMaxResults($limit);
+		
+		$query =  $qb->getQuery();
+		
+		return $query->getResult();
+	}	
+	
 }

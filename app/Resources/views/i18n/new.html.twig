@@ -1,16 +1,74 @@
 {% extends 'base.html.twig' %}
 
+{% block title %} I18n creation {%endblock %} 
+{% block pagetitle %} I18n creation {% endblock %} 
+
 {% block body %}
-    <h1>I18n creation</h1>
 
     {{ form_start(form) }}
-        {{ form_widget(form) }}
-        <input type="submit" value="Create" />
+        <div class="box">
+        	<div class="box-body"> 
+        	<div class="row">
+        		<div class=" col-md-12">
+          			{{ form_row(form.identifier)}}
+          		</div>
+		 	</div>
+          <div class="row" id="i18n_content" data-prototype="{{ form_row(form.content.vars.prototype)|e }}" data-index="{{ form.content|length }}">
+            {{ form_widget(form.content) }}
+          </div>
+          <a class="btn-add btn btn-success" data-target="i18n-content"><i class="fa fa-plus-square"></i> Translation</a>
+    	</div>
+    	<div class="box-footer">
+           
+          <input type="submit" value="Create" class="btn btn-primary" />
+          <a class="btn btn-primary" href="{{ path('i18n_index') }}">Back to the list</a>
+        </div>
+       </div>
     {{ form_end(form) }}
-
-    <ul>
-        <li>
-            <a href="{{ path('i18n_index') }}">Back to the list</a>
-        </li>
-    </ul>
 {% endblock %}
+
+
+{% block javascripts %}z
+<script type="text/javascript">
+<!--
+
+//-->
+
+
+$(window).ready(function() {
+	$('.btn-add').on('click', function(e) {
+		// prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        var $listTranslations = $('#i18n_content');
+        var prototype = $listTranslations.data('prototype');
+        var index = $listTranslations.data('index');
+     	// Replace '__name__' in the prototype's HTML to
+        // instead be a number based on how many items we have
+        var newForm = $(prototype.replace(/__name__/g, index));
+
+     	// increase the index with one for the next item
+        $listTranslations.data('index', index + 1);
+
+        newForm.find('.btn-remove').on('click', function(e) {
+    		// prevent the link from creating a "#" on the URL
+            e.preventDefault();
+
+            console.log($(this).parents('.filter-container').remove());
+            
+    	});
+
+        $listTranslations.append(newForm);
+        
+	});
+
+	$('.btn-remove').on('click', function(e) {
+		// prevent the link from creating a "#" on the URL
+        e.preventDefault();
+
+        console.log($(this).parents('.filter-container').remove());
+        
+	});
+});
+</script>
+{% endblock %}	

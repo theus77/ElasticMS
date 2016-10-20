@@ -117,6 +117,7 @@ class AppExtension extends \Twig_Extension
 	
 	
 	function i18n($key, $locale=null){
+
 		if(empty($locale)) {
 			$locale = $this->router->getContext()->getParameter('_locale');
 		}
@@ -125,12 +126,13 @@ class AppExtension extends \Twig_Extension
 		/**@var I18n $result*/
 		$result = $repo->findOneBy([
 				'identifier' => $key,
-				'locale' => $locale,
 		]);
+
 		if(empty($result)){
 			return $key;
 		}
-		return $result->getContent();
+		
+		return $result->getContentTextforLocale($locale);
 	}
 	
 	private function superizer($role){

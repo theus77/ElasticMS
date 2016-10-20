@@ -3,15 +3,19 @@
 {# Widgets #}
 
 {% block icontext_widget -%}
-	<div class="input-group {% if class %}{{ class }}{% endif %}">
-		{% if icon or prefixText %}
-			<span class="input-group-addon"><i class="{% if icon %}{{ icon }}{% endif %}"></i>{% if prefixText %} &nbsp; {{ prefixText }} {% endif %}</span>
-		{% endif %}
-	 	{{ block('form_widget') }}
-		{% if suffixIcon or suffixText %}
-			<span class="input-group-addon"><i class="{% if suffixIcon %}{{ suffixIcon }}{% endif %}"></i>{% if suffixText %} &nbsp; {{ suffixText }} {% endif %}</span>
-		{% endif %}
-	</div>
+	{% if  icon or prefixText or suffixIcon or suffixText %}
+		<div class="input-group {% if class %}{{ class }}{% endif %}">
+			{% if icon or prefixText %}
+				<span class="input-group-addon"><i class="{% if icon %}{{ icon }}{% endif %}"></i>{% if prefixText %} &nbsp; {{ prefixText }} {% endif %}</span>
+			{% endif %}
+		 	{{ block('form_widget') }}
+			{% if suffixIcon or suffixText %}
+				<span class="input-group-addon"><i class="{% if suffixIcon %}{{ suffixIcon }}{% endif %}"></i>{% if suffixText %} &nbsp; {{ suffixText }} {% endif %}</span>
+			{% endif %}
+		</div>
+	{% else %}
+		{{ block('form_widget') }}
+	{% endif %}
 {%- endblock icontext_widget %}
 
 {% block colorpicker_widget -%}
@@ -550,6 +554,32 @@
 </li>
 {%- endblock fieldTypeType_row %}
 
+
+{% block i18n_content_row -%}
+	<div class="filter-container row">
+		<div class="col-xs-12">
+			<div class="col-md-1">
+					<label class="control-label">&nbsp;</label>
+				{{- form_row(form.locale) -}}
+			</div>
+			<div class="col-md-10">
+				{{- form_row(form.text) -}}
+			</div>
+			<div class="col-md-1">
+				<div class="form-group">
+					<label class="control-label">&nbsp;</label>
+						{% if not form|firstInArray(form.parent.children)  %}
+							<a class="btn btn-danger btn-remove form-control" href="#">
+								<i class="fa fa-trash"></i>
+							</a>
+						{% endif %}					
+				</div>
+			</div>
+			
+			{{- form_errors(form) -}}
+		</div>  
+	</div>             
+{%- endblock i18n_content_row %}
 
 {# Errors #}
 

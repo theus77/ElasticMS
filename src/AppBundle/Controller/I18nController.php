@@ -22,14 +22,27 @@ class I18nController extends Controller
      * @Route("/", name="i18n_index")
      * @Method("GET")
      */
-    public function indexAction()
+    public function indexAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
-
-        $i18ns = $em->getRepository('AppBundle:I18n')->findAll();
-
+        
+        $count = $em->getRepository('AppBundle:I18n')->findAll();
+        // for pagination
+        $paging_size = $this->getParameter('paging_size');
+        $lastPage = ceil(count($count)/$paging_size);
+        if(null != $request->query->get('page')){
+        	$page = $request->query->get('page');
+        }
+        else{
+        	$page = 1;
+        }
+        
+        $i18ns = $this->get('ems.service.i18n')->findAllI18n(($page-1)*$paging_size, $paging_size);
         return $this->render('i18n/index.html.twig', array(
-            'i18ns' => $i18ns,
+            'i18nkeys' => $i18ns,
+        	'lastPage' => $lastPage,
+        	'paginationPath' => 'i18n_index',
+        	'page' => $page,
         ));
     }
 
@@ -42,6 +55,10 @@ class I18nController extends Controller
     public function newAction(Request $request)
     {
         $i18n = new I18n();
+        $content = $i18n->getContent();
+        
+        $i18n->setContent(array(array('locale' => "", 'text' => "")));
+        
         $form = $this->createForm('AppBundle\Form\I18nType', $i18n);
         $form->handleRequest($request);
 

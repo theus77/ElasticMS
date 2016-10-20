@@ -318,7 +318,10 @@ services:
     ems.service.notification:
         class: AppBundle\Service\NotificationService
         arguments: ['%audit_index%', '@doctrine', '@ems.service.user', '@logger', '@ems.service.audit', '@session', '@service_container', '@ems.service.data', '%from_email%', '@twig']
-
+    ems.service.i18n:
+        class: AppBundle\Service\I18nService
+        arguments: ['@doctrine']
+        
 ### Storage services ###
     ems.storage.filesystem:
         class: AppBundle\Service\Storage\FileSystemStorage

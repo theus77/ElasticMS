@@ -43,17 +43,10 @@ class I18n
      */
     private $identifier; 
 
-    /**
-     * @var string
+     /**
+     * @var array
      *
-     * @ORM\Column(name="locale", type="string", length=6)
-     */
-    private $locale; 
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="content", type="string")
+     * @ORM\Column(name="content", type="json_array")
      */
     private $content; 
 
@@ -132,33 +125,9 @@ class I18n
     }
 
     /**
-     * Set locale
-     *
-     * @param string $locale
-     *
-     * @return I18n
-     */
-    public function setLocale($locale)
-    {
-        $this->locale = $locale;
-
-        return $this;
-    }
-
-    /**
-     * Get locale
-     *
-     * @return string
-     */
-    public function getLocale()
-    {
-        return $this->locale;
-    }
-
-    /**
      * Set content
      *
-     * @param string $content
+     * @param array $content
      *
      * @return I18n
      */
@@ -172,11 +141,28 @@ class I18n
     /**
      * Get content
      *
-     * @return string
+     * @return array
      */
     public function getContent()
     {
         return $this->content;
+    }
+    
+    /**
+     * Get content of locale
+     *
+     * @param string $locale
+     * @return string
+     */
+    public function getContentTextforLocale($locale)
+    {
+    	foreach ($this->content as $translation) {
+    		if ($translation['locale'] === $locale) {
+    			return $translation['text'];
+    		}
+    	}
+    	
+    	return "no match found for key" . $this->getIdentifier() .  " with locale " . $locale;
     }
 
     /**
