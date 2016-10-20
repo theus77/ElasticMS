@@ -94,7 +94,13 @@ var ajaxRequest = new function() {
     	var response = false;
     	this.private_begin_response();
     	try {
-            response = JSON.parse(data);
+    		if(typeof response === 'string'){
+    			response = JSON.parse(data);
+    			console.log('An AJAX call did not returned a JSON');
+    		}
+    		else{
+    			response = data;
+    		}
             if(response.success){
             	this.private_add_messages(response.notice, 'text-aqua');
             	this.private_add_alerts(response.warning, 'warning', 'warning', 'Warning!');

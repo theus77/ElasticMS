@@ -39,6 +39,7 @@ class CheckboxFieldType extends DataFieldType {
 		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
 			$dataField->setBooleanValue($sourceArray?true:false);
 		}
+		return [$dataField->getFieldType()->getName()];
 	}
 	
 	/**

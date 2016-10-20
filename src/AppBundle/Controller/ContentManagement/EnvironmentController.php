@@ -605,7 +605,6 @@ class EnvironmentController extends AppController {
 		foreach ($environment->getRevisions() as $revision) {
 			if(!$revision->getDeleted()){
 				$objectArray = $this->get('ems.service.mapping')->dataFieldToArray ($revision->getDataField());
-// 				dump($objectArray);
 				$status = $client->index([
 						'index' => $alias,
 						'id' => $revision->getOuuid(),

@@ -533,25 +533,33 @@
 				{{ dataField.fieldType.name|raw }}
 			{% endif %}
 		</dt>
+		{% set dateFrom = null %}
+		{% if attribute(dataField.rawData, dataField.fieldType.mappingOptions.fromDateMachineName) is defined %}
+			{% set dateFrom = attribute(dataField.rawData, dataField.fieldType.mappingOptions.fromDateMachineName) %}
+		{% endif %}
+		{% set dateTo = null %}
+		{% if attribute(dataField.rawData, dataField.fieldType.mappingOptions.toDateMachineName) is defined %}
+			{% set dateTo = attribute(dataField.rawData, dataField.fieldType.mappingOptions.toDateMachineName) %}
+		{% endif %}
+		
+		
 		<dd>
 			<ul>
-				{% if attribute(dataField.rawData, dataField.fieldType.name~'_date_from') is defined %}
+				{% if dateFrom %}
 					<li>
 						<b>From </b>
-						{{ attribute(dataField.rawData, dataField.fieldType.name~'_date_from')|date(dataField.fieldType.displayOptions.locale.format|convertJavascriptDateFormat) }}
-{# 						({{ value|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})#}
+						{{ dateFrom|date(dataField.fieldType.displayOptions.locale.format|convertJavascriptDateFormat) }}
 					</li>	
 				{% endif %}		
-				{% if attribute(dataField.rawData, dataField.fieldType.name~'_date_from') is defined %}
+				{% if dateTo %}
 					<li>
 						<b>To </b>
-						{{ attribute(dataField.rawData, dataField.fieldType.name~'_date_to')|date(dataField.fieldType.displayOptions.locale.format|convertJavascriptDateFormat) }}
-{# 						({{ value|date(dataField.fieldType.mappingOptions.format|convertJavaDateFormat) }})#}
+						{{ dateTo|date(dataField.fieldType.displayOptions.locale.format|convertJavascriptDateFormat) }}
 					</li>	
 				{% endif %}		
-				{% if attribute(dataField.rawData, dataField.fieldType.name~'_date_from') is defined and attribute(dataField.rawData, dataField.fieldType.name~'_date_to')%}
+				{% if dateFrom and dateTo %}
 					<li>
-						<b>Duration </b> {{ attribute(dataField.rawData, dataField.fieldType.name~'_date_from')|date_difference(attribute(dataField.rawData, dataField.fieldType.name~'_date_to'), dataField.fieldType.displayOptions.timePicker) }}
+						<b>Duration </b> {{ dateFrom|date_difference(dateTo, dataField.fieldType.displayOptions.timePicker) }}
 					</li>
 				{% endif %}
 			</ul>

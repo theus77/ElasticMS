@@ -235,6 +235,11 @@ services:
         arguments: ['@twig', '@app.elasticsearch']
         tags:
             - { name: ems.form.viewtype, alias: report }
+    ems.view.calendar:
+        class: AppBundle\Form\View\CalendarViewType
+        arguments: ['@twig', '@app.elasticsearch']
+        tags:
+            - { name: ems.form.viewtype, alias: calendar }
             - { name: form.type }
 #### End list available ems views ###
     ems.form.factories.objectChoiceListFactory:

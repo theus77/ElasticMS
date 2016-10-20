@@ -69,10 +69,11 @@ class ContentTypeService {
 				return $envs;
 			} );
 			
+			$body = $this->mappingService->generateMapping ($contentType);
 			$out = $this->client->indices()->putMapping ( [
 					'index' => $envs,
 					'type' => $contentType->getName (),
-					'body' => $this->mappingService->generateMapping ($contentType)
+					'body' => $body
 			] );
 				
 			if (isset ( $out ['acknowledged'] ) && $out ['acknowledged']) {

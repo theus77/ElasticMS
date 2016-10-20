@@ -110,6 +110,17 @@ abstract class DataFieldType extends AbstractType {
 				'error_bubbling' => false,
 		]);
 	}
+	
+	/**
+	 * See if we can asume that we should find this field directly or if its a more complex type such as file or date range
+	 * 
+	 * @param array $option
+	 * @return boolean
+	 */
+	public function isVirtualField(array $option){
+		return false;
+	}
+	
 	/**
      * Assign data of the dataField based on the elastic index content ($sourceArray)
      * 
@@ -121,6 +132,7 @@ abstract class DataFieldType extends AbstractType {
 		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
 			$dataField->setRawData($sourceArray);			
 		}
+		return [$dataField->getFieldType()->getName()];
 	}
 	
 	/**
