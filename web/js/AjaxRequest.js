@@ -90,6 +90,69 @@ var ajaxRequest = new function() {
     	
     }
     
+    this.get = function(url, data){
+    	this.initRequest();
+    	var self = this;
+    	
+    	var out = new function() {
+    		var successFct;
+    		var failFct;	
+    		var alwaysFct;
+    		
+    		this.success = function(callback){
+    			this.successFct = callback;
+    			return this;
+    		}
+
+    		this.fail = function(callback){
+    			this.failFct = callback;
+    			return this;
+    		}
+    		
+    		this.always = function(callback){
+    			this.alwaysFct = callback;
+    			return this;
+    		}
+    		
+    		var xhr = $.get( url, data )
+    		.done(function(data) {
+    			var response = self.treatResponse(data);
+    			if(response.success) {
+    				if(out.successFct) {
+    					out.successFct(response);
+    				}
+    			}
+    			else{
+    				if(out.failFct) {
+    					out.failFct(response);
+    				}
+    			}
+    			if(out.alwaysFct) {
+    				out.alwaysFct(response);
+    			}
+    		})
+    		.fail(function( event, data ) {
+    			if(data && data.aborted){
+//    				console.log('post aborted');
+    			}
+    			else{
+    				self.requestFailed();    				
+    			}
+    		});
+    		
+    		this.abortFct = xhr.abort;
+    		
+    		this.abort = function(){
+    			self.private_begin_response();
+    			out.abortFct({aborted:true});
+    		}
+    		
+    	};
+    	
+    	return out;
+    	
+    }
+    
     this.treatResponse = function (data) {
     	var response = false;
     	this.private_begin_response();

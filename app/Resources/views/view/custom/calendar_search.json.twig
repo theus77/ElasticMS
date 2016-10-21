@@ -1,4 +1,6 @@
-[
+{% extends 'ajax/notification.json.twig' %}
+{% block body %}
+"events": [
 {% for item in data.hits.hits %}{
 			"id": {{ item._id|json_encode|raw }},
         	"title": {% if contentType.labelField and attribute(item._source, contentType.labelField) is defined %}{{ attribute(item._source, contentType.labelField)|json_encode|raw }}{% else %}{{ item._id|json_encode|raw }}{% endif %},
@@ -16,4 +18,5 @@
 			"start": {{ attribute(item, field.mappingOptions.fromDateMachineName)|json_encode|raw }},
 			"end": {{ attribute(item, field.mappingOptions.toDateMachineName)|json_encode|raw }},
 			"allDay": {% if field.displayOptions.timePicker %}false{% else %}true{% endif %} 
-}{% if not loop.last %}, {% endif %}{% endfor %}]
+}{% if not loop.last %}, {% endif %}{% endfor %}],
+{% endblock %}

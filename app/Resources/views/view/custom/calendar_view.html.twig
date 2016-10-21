@@ -160,7 +160,16 @@ $(function () {
         day: 'day'
       },
       //Random default events
-      events: '{{ url('views.calendar.search', {view: view.id}) }}',
+      events:  function(from, to, timezone, callback){
+    		var data = {
+    				from :from.format(),
+    				to :to.format(),
+    		};
+    		ajaxRequest.get("{{ url('views.calendar.search', {view: view.id}) }}", data)
+    		.success(function(response) {
+                callback(response.events);
+    		  });
+      },
       eventDrop: updateEvent,
       eventResize: updateEvent,
       editable: true,
