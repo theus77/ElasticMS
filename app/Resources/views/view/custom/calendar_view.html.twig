@@ -98,13 +98,11 @@
 //-->
 
 function updateEvent(event){
-	console.log(event);
 	var data = {
 		    start :event.start.format(),
 		    ouuid :event.id,
 	};
 
-	console.log(event.end);
 	if(event.end) {
 		data.end = event.end.format();
 	}
