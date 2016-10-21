@@ -40,6 +40,7 @@ class I18n
      * @var string
      *
      * @ORM\Column(name="identifier", type="string", length=200)
+     * @ORM\OrderBy({"identifier" = "ASC"})
      */
     private $identifier; 
 

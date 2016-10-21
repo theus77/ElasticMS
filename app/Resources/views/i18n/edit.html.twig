@@ -1,65 +1,27 @@
-{% extends 'base.html.twig' %} {% block title %} I18n edit {%endblock %}
-{% block pagetitle %} I18n edit {% endblock %} {% block body %} {{
-form_start(edit_form) }}
-<div class="box">
-	<div class="box-body">
-		{{ form_widget(edit_form) }} <a class="btn-add btn btn-success"
-			data-target="i18n-content"><i class="fa fa-plus-square"></i>
-			Translation</a>
-	</div>
+{% extends 'base.html.twig' %} 
 
-	<div class="box-footer">
-		<input class="btn btn-primary" type="submit" value="Edit" /> <a
-			class="btn btn-primary" href="{{ path('i18n_index') }}">Back to
-			the list</a> 
-	</div>
-</div>
-{{ form_end(edit_form) }} 
-{{ form_start(delete_form) }} <input class="btn btn-danger"
-			type="submit" value="Delete"> {{ form_end(delete_form) }}{% endblock %}
+{% block title %} {{ 'I18N edit'|trans }} {%endblock %}
+{% block pagetitle %} {{ 'I18N edit'|trans }} {% endblock %} 
 
+{% block breadcrumb %}
+	<ol class="breadcrumb">
+		<li><a href="{{ url('i18n_index') }}"><i class="fa fa-language"></i> {{ 'I18N'|trans }}</a></li>
+   		<li class="active">{{ 'I18N edit'|trans }} </li>
+   	</ol>
+{% endblock %}
 
-{% block javascripts %}z
-<script type="text/javascript">
-<!--
-
-//-->
+{% block body %}
+	{% include "i18n/form.html.twig" with {
+		form: edit_form,
+		title: 'I18N edit',
+		action: 'Save',
+		actionIcon: 'fa-save'
+	} %}
+{% endblock %}
 
 
-$(window).ready(function() {
-	$('.btn-add').on('click', function(e) {
-		// prevent the link from creating a "#" on the URL
-        e.preventDefault();
-
-        var $listTranslations = $('#i18n_content');
-        var prototype = $listTranslations.data('prototype');
-        var index = $listTranslations.data('index');
-     	// Replace '__name__' in the prototype's HTML to
-        // instead be a number based on how many items we have
-        var newForm = $(prototype.replace(/__name__/g, index));
-
-     	// increase the index with one for the next item
-        $listTranslations.data('index', index + 1);
-
-        newForm.find('.btn-remove').on('click', function(e) {
-    		// prevent the link from creating a "#" on the URL
-            e.preventDefault();
-
-            console.log($(this).parents('.filter-container').remove());
-            
-    	});
-
-        $listTranslations.append(newForm);
-        
-	});
-
-	$('.btn-remove').on('click', function(e) {
-		// prevent the link from creating a "#" on the URL
-        e.preventDefault();
-
-        console.log($(this).parents('.filter-container').remove());
-        
-	});
-});
-</script>
+{% block javascripts %}
+	{% include 'i18n/javascript.html.twig' with {
+		'item':  'i18n-index'
+	}%}
 {% endblock %}	

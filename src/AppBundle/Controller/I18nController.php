@@ -2,12 +2,13 @@
 
 namespace AppBundle\Controller;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use AppBundle\Entity\I18n;
+use AppBundle\Form\Form\I18nType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use AppBundle\Entity\I18n;
-use AppBundle\Form\I18nType;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
+use AppBundle\Service\I18nService;
 
 /**
  * I18n controller.
@@ -26,24 +27,28 @@ class I18nController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         
-        $count = $em->getRepository('AppBundle:I18n')->findAll();
+        $count = $this->getI18nService()->count();
         // for pagination
         $paging_size = $this->getParameter('paging_size');
-        $lastPage = ceil(count($count)/$paging_size);
-        if(null != $request->query->get('page')){
-        	$page = $request->query->get('page');
-        }
-        else{
-        	$page = 1;
-        }
+        $lastPage = ceil($count/$paging_size);
+        $page = $request->query->get('page', 1);
         
-        $i18ns = $this->get('ems.service.i18n')->findAllI18n(($page-1)*$paging_size, $paging_size);
+        $i18ns = $this->getI18nService()->findAll(($page-1)*$paging_size, $paging_size);
+        
         return $this->render('i18n/index.html.twig', array(
             'i18nkeys' => $i18ns,
         	'lastPage' => $lastPage,
         	'paginationPath' => 'i18n_index',
         	'page' => $page,
+        	'paging_size' => $paging_size,
         ));
+    }
+    
+    /**
+     * @return I18nService
+     */
+    private function getI18nService(){
+    	return $this->get('ems.service.i18n');
     }
 
     /**
@@ -59,7 +64,7 @@ class I18nController extends Controller
         
         $i18n->setContent(array(array('locale' => "", 'text' => "")));
         
-        $form = $this->createForm('AppBundle\Form\I18nType', $i18n);
+        $form = $this->createForm(I18nType::class, $i18n);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -67,28 +72,12 @@ class I18nController extends Controller
             $em->persist($i18n);
             $em->flush();
 
-            return $this->redirectToRoute('i18n_show', array('id' => $i18n->getId()));
+            return $this->redirectToRoute('i18n_index', array('id' => $i18n->getId()));
         }
 
         return $this->render('i18n/new.html.twig', array(
             'i18n' => $i18n,
             'form' => $form->createView(),
-        ));
-    }
-
-    /**
-     * Finds and displays a I18n entity.
-     *
-     * @Route("/{id}", name="i18n_show")
-     * @Method("GET")
-     */
-    public function showAction(I18n $i18n)
-    {
-        $deleteForm = $this->createDeleteForm($i18n);
-
-        return $this->render('i18n/show.html.twig', array(
-            'i18n' => $i18n,
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
@@ -100,22 +89,31 @@ class I18nController extends Controller
      */
     public function editAction(Request $request, I18n $i18n)
     {
-        $deleteForm = $this->createDeleteForm($i18n);
-        $editForm = $this->createForm('AppBundle\Form\I18nType', $i18n);
+//         $deleteForm = $this->createDeleteForm($i18n);
+		if(empty($i18n->getContent())){
+			$i18n->setContent([
+				[
+					'locale' => '',
+					'text' => '',
+				]
+			]);
+		}
+        $editForm = $this->createForm(I18nType::class, $i18n);
         $editForm->handleRequest($request);
 
         if ($editForm->isSubmitted() && $editForm->isValid()) {
             $em = $this->getDoctrine()->getManager();
+			//renumber array elements
+            $i18n->setContent(array_values($i18n->getContent()));
             $em->persist($i18n);
             $em->flush();
 
-            return $this->redirectToRoute('i18n_edit', array('id' => $i18n->getId()));
+            return $this->redirectToRoute('i18n_index');
         }
 
         return $this->render('i18n/edit.html.twig', array(
             'i18n' => $i18n,
             'edit_form' => $editForm->createView(),
-            'delete_form' => $deleteForm->createView(),
         ));
     }
 
@@ -123,35 +121,12 @@ class I18nController extends Controller
      * Deletes a I18n entity.
      *
      * @Route("/{id}", name="i18n_delete")
-     * @Method("DELETE")
+     * @Method("POST")
      */
     public function deleteAction(Request $request, I18n $i18n)
     {
-        $form = $this->createDeleteForm($i18n);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
-            $em->remove($i18n);
-            $em->flush();
-        }
+        $this->getI18nService()->delete($i18n);
 
         return $this->redirectToRoute('i18n_index');
-    }
-
-    /**
-     * Creates a form to delete a I18n entity.
-     *
-     * @param I18n $i18n The I18n entity
-     *
-     * @return \Symfony\Component\Form\Form The form
-     */
-    private function createDeleteForm(I18n $i18n)
-    {
-        return $this->createFormBuilder()
-            ->setAction($this->generateUrl('i18n_delete', array('id' => $i18n->getId())))
-            ->setMethod('DELETE')
-            ->getForm()
-        ;
     }
 }

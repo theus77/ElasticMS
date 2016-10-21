@@ -557,27 +557,27 @@
 
 {% block i18n_content_row -%}
 	<div class="filter-container row">
-		<div class="col-xs-12">
-			<div class="col-md-1">
-					<label class="control-label">&nbsp;</label>
-				{{- form_row(form.locale) -}}
+		<div class="col-md-2 col-sm-3">
+			<div class="form-group col-xs-6 col-sm-12">
+				{{- form_label(form.locale) -}}
+				{{- form_widget(form.locale) -}}
+				{{- form_errors(form.locale) -}}
 			</div>
-			<div class="col-md-10">
-				{{- form_row(form.text) -}}
+			<div class="form-group col-xs-6 col-sm-12">
+					<div class="control-label visible-xs-block">&nbsp;
+					</div>
+					{% if not form|firstInArray(form.parent.children)  %}
+						<a class="btn btn-danger btn-remove form-control" href="#">
+							<i class="fa fa-trash"></i>
+						</a>
+					{% endif %}					
 			</div>
-			<div class="col-md-1">
-				<div class="form-group">
-					<label class="control-label">&nbsp;</label>
-						{% if not form|firstInArray(form.parent.children)  %}
-							<a class="btn btn-danger btn-remove form-control" href="#">
-								<i class="fa fa-trash"></i>
-							</a>
-						{% endif %}					
-				</div>
-			</div>
-			
-			{{- form_errors(form) -}}
-		</div>  
+			<div class="clearfix visible-xs-block"></div>
+		</div>
+		<div class="col-md-10 col-sm-9">
+			{{- form_row(form.text) -}}
+		</div>
+		{{- form_errors(form) -}}
 	</div>             
 {%- endblock i18n_content_row %}
 
