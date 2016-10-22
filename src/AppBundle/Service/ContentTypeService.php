@@ -141,6 +141,13 @@ class ContentTypeService {
 		}
 		return implode(',', $out);
 	}
+	/**
+	 *
+	 */
+	public function getAll(){
+		$this->loadEnvironment();
+		return $this->orderedContentTypes;
+	}
 
 	/**
 	 * 

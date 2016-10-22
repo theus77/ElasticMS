@@ -349,8 +349,8 @@ class DataController extends AppController
 
 
 		return $this->redirectToRoute('elasticsearch.search', [
-				'search_form[typeFacet]' => $contentTypes[0]->getName(),
-				'search_form[aliasFacet]' => $contentTypes[0]->getEnvironment()->getAlias(),
+			'search_form[contentTypes][0]' => $contentTypes[0]->getName(), 
+			'search_form[environments][0]' => $contentTypes[0]->getEnvironment()->getName(),
 		]);
 	}
 	

@@ -13,6 +13,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\EnvironmentPickerType;
+use AppBundle\Form\Field\ContentTypeFieldPickerType;
+use AppBundle\Form\Field\ContentTypePickerType;
 
 class SearchFormType extends AbstractType {
 	/**
@@ -21,17 +24,10 @@ class SearchFormType extends AbstractType {
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder->add('aliasFacet', HiddenType::class);
-		$builder->add('typeFacet', HiddenType::class);
+		
 		$builder->add('filters', CollectionType::class, array(
-				// each entry in the array will be an "email" field
 				'entry_type'   => SearchFilterType::class,
 				'allow_add'    => true,
-				// these options are passed to each "email" type
-// 				'entry_options'  => array(
-// 						'required'  => false,
-// 						'attr'      => array('class' => 'email-box')
-// 				),
 		));
 		if($options['light']){
 			$builder->add('applyFilters', SubmitEmsType::class, [
@@ -62,6 +58,13 @@ class SearchFormType extends AbstractType {
 							'class' => 'btn-primary btn-sm'
 					],
 					'icon' => 'glyphicon glyphicon-export',
+			])->add('environments', EnvironmentPickerType::class, [
+				'multiple' => true,
+				'required' => false,
+		    	'managedOnly' => false,
+			])->add('contentTypes', ContentTypePickerType::class, [
+				'multiple' => true,
+				'required' => false,
 			]);			
 			if(!$options['savedSearch']){
 				$builder->add('save', SubmitEmsType::class, [

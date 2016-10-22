@@ -388,8 +388,11 @@ class ElasticsearchController extends AppController
 					'method' => 'GET',
 					'savedSearch' => $searchId,
 			] );
+			
 
 			$form->handleRequest ( $request );
+
+			$openSearchForm = $form->get('search')->isClicked();
 			
 			//Form treatement after the "Save" button has been pressed (= ask for a name to save the search preset)
 			if($form->isValid() && $request->query->get('search_form') && array_key_exists('save', $request->query->get('search_form'))) {
@@ -472,13 +475,24 @@ class ElasticsearchController extends AppController
 					}
 				}
 			}
+
+			$selectedEnvironments = [];
+			if(!empty($search->getEnvironments() )){
+				foreach($search->getEnvironments() as $envName){
+					$temp = $this->getEnvironmentService()->getAliasByName($envName);
+					if($temp){
+						$selectedEnvironments[] = $temp->getAlias();
+					}
+				}				
+			}
+			
 			
 			//1. Define the parameters for a regular search request
 			$params = [
 					'version' => true, 
 // 					'df'=> isset($field)?$field:'_all',
-					'index' => $search->getAliasFacet() != null?$search->getAliasFacet():array_keys($environments),
-					'type' => $search->getTypeFacet() != null?$search->getTypeFacet():array_keys($types),
+					'index' => empty($selectedEnvironments)?array_keys($environments):$selectedEnvironments,
+					'type' => empty($search->getContentTypes())?array_keys($types):array_values($search->getContentTypes()),
 					'size' => $this->container->getParameter('paging_size'), 
 					'from' => ($page-1)*$this->container->getParameter('paging_size')
 				
@@ -750,7 +764,9 @@ class ElasticsearchController extends AppController
 					'page' => $page,
 					'searchId' => $searchId,
 					'currentFilters' => $request->query,
-					'body' => $body
+					'body' => $body,
+					'openSearchForm' => $openSearchForm,
+					'search' => $search,
 			] );
 		}
 		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){

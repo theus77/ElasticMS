@@ -79,9 +79,8 @@
 	          	</a>
 	          	<ul class="treeview-menu">
 	            	{% set searchForm = { 
-	            		'search_form[typeFacet]': contentType.name, 
-	            		'search_form[aliasFacet]': contentType.environment.alias,
-	            		'search_form[boolean]': 'and'
+	            		'search_form[contentTypes][0]': contentType.name, 
+	            		'search_form[environments][0]': contentType.environment.alias
 					} %}
 					{% if contentType.labelField %}
 		            	{% set searchForm = searchForm|merge({ 

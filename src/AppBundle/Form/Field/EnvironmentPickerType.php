@@ -5,8 +5,10 @@ namespace AppBundle\Form\Field;
 use AppBundle\Service\EnvironmentService;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Entity\Environment;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
 
-class EnvironmentPickerType extends SelectPickerType {
+class EnvironmentPickerType extends ChoiceType {
 	
 	private $choices;
 	private $service;
@@ -18,24 +20,43 @@ class EnvironmentPickerType extends SelectPickerType {
 	}
 	
 	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getBlockPrefix() {
+		return 'selectpicker';
+	}
+	
+	public function buildForm(FormBuilderInterface $builder, array $options)
+	{
+// 		$this->choices = [];
+		$keys = [];
+		/**@var Environment $choice*/
+		foreach ($this->choices as $key => $choice){
+			if($choice->getManaged() || !$options['managedOnly']){
+				$keys[] = $choice->getName();
+				$this->choices[$choice->getName()] = $choice;
+			}
+		}		
+		$options['choices'] = $keys;
+		parent::buildForm($builder, $options);
+	}
+	
+	/**
 	 * @param OptionsResolver $resolver
 	 */
 	public function configureOptions(OptionsResolver $resolver)
 	{
-		
-		
 		$this->choices = [];
-		$keys = [];
 		/**@var Environment $choice*/
-		foreach ($this->service->getAllInMyCircle() as $choice){
-			if($choice->getManaged()){
-				$keys[] = $choice->getName();	
+		foreach ($this->service->getAllInMyCircle() as $choice){	
 				$this->choices[$choice->getName()] = $choice;
-			}
 		}
+		parent::configureOptions($resolver);
 		
 		$resolver->setDefaults(array(
-			'choices' => $keys,
+			'choices' => [],
 			'attr' => [
 					'data-live-search' => false
 			],
@@ -50,6 +71,7 @@ class EnvironmentPickerType extends SelectPickerType {
 				return $value;
 		    },
 		    'multiple' => false,
+		    'managedOnly' => true,
 		));
 	}
 }

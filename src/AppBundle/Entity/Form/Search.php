@@ -28,28 +28,28 @@ class Search
 	private $filters;
 	
 	/**
-	 * @var string $typeFacet
-	 * 
-     * @ORM\Column(name="type_facet", type="string", length=100, nullable=true)
-	 */
-	private $typeFacet;
-	
-	/**
-	 * @var string $typeFacet
-	 * 
-     * @ORM\Column(name="alias_facet", type="string", length=100, nullable=true)
-	 */
-	private $aliasFacet;
-	
-	/**
-	 * @var string $typeFacet
+	 * @var string
 	 * 
      * @ORM\Column(name="user", type="string", length=100)
 	 */
 	private $user;
+
+     /**
+     * @var array
+     *
+     * @ORM\Column(name="environments", type="json_array")
+     */
+    private $environments; 
+
+     /**
+     * @var array
+     *
+     * @ORM\Column(name="contentTypes", type="json_array")
+     */
+    private $contentTypes; 
 	
 	/**
-	 * @var string $typeFacet
+	 * @var string
 	 * 
      * @ORM\Column(name="name", type="string", length=100)
 	 */
@@ -58,14 +58,14 @@ class Search
 	/**
 	 * @var string $sortBy
 	 * 
-     * @ORM\Column(name="sort_by", type="string", length=100)
+     * @ORM\Column(name="sort_by", type="string", length=100, nullable=true)
 	 */
 	private $sortBy;
 	
 	/**
 	 * @var string $sortOrder
 	 * 
-     * @ORM\Column(name="sort_order", type="string", length=100)
+     * @ORM\Column(name="sort_order", type="string", length=100, nullable=true)
 	 */
 	private $sortOrder;
 	
@@ -86,54 +86,6 @@ class Search
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set typeFacet
-     *
-     * @param string $typeFacet
-     *
-     * @return Search
-     */
-    public function setTypeFacet($typeFacet)
-    {
-        $this->typeFacet = $typeFacet;
-
-        return $this;
-    }
-
-    /**
-     * Get typeFacet
-     *
-     * @return string
-     */
-    public function getTypeFacet()
-    {
-        return $this->typeFacet;
-    }
-
-    /**
-     * Set aliasFacet
-     *
-     * @param string $aliasFacet
-     *
-     * @return Search
-     */
-    public function setAliasFacet($aliasFacet)
-    {
-        $this->aliasFacet = $aliasFacet;
-
-        return $this;
-    }
-
-    /**
-     * Get aliasFacet
-     *
-     * @return string
-     */
-    public function getAliasFacet()
-    {
-        return $this->aliasFacet;
     }
 
     /**
@@ -264,5 +216,53 @@ class Search
     public function getSortOrder()
     {
         return $this->sortOrder;
+    }
+
+    /**
+     * Set environments
+     *
+     * @param array $environments
+     *
+     * @return Search
+     */
+    public function setEnvironments($environments)
+    {
+        $this->environments = $environments;
+
+        return $this;
+    }
+
+    /**
+     * Get environments
+     *
+     * @return array
+     */
+    public function getEnvironments()
+    {
+        return $this->environments;
+    }
+
+    /**
+     * Set contentTypes
+     *
+     * @param array $contentTypes
+     *
+     * @return Search
+     */
+    public function setContentTypes($contentTypes)
+    {
+        $this->contentTypes = $contentTypes;
+
+        return $this;
+    }
+
+    /**
+     * Get contentTypes
+     *
+     * @return array
+     */
+    public function getContentTypes()
+    {
+        return $this->contentTypes;
     }
 }

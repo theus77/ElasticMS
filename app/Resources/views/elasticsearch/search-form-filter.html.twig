@@ -1,16 +1,26 @@
 
 {{ form_start(form) }}	
 	<div class="box ">
-		<div id="searchFormBoxBody" class="collapse">
+		<div id="searchFormBoxBody" class="collapse {% if openSearchForm is defined and openSearchForm %}in{% endif %}" aria-expanded="{% if openSearchForm is not defined or not openSearchForm %}false{%else%}true{% endif %}">
 			<div class="box-body" >
 				<div class="row">
+					{% if form.environments is defined %}
+						<div class=" col-md-3 col-xs-6">
+							{{ form_row(form.environments) }}
+						</div>
+					{% endif %}
+					{% if form.contentTypes is defined %}
+						<div class=" col-md-3 col-xs-6">
+							{{ form_row(form.contentTypes) }}
+						</div>
+					{% endif %}
 					{% if form.sortBy is defined %}
-						<div class=" col-md-2">
+						<div class=" col-md-2 col-xs-6">
 							{{ form_row(form.sortBy) }}
 						</div>
 					{% endif %}
 					{% if form.sortBy is defined %}
-						<div class=" col-md-2">
+						<div class=" col-md-2 col-xs-6">
 							{{ form_row(form.sortOrder) }}
 						</div>
 					{% endif %}
@@ -53,37 +63,7 @@
 					{{ form_widget(form.filters) }}
 				</div>
 			</div>
-			{% set hasFacets= form.aliasFacet.vars.value or form.typeFacet.vars.value %}
-			{% if hasFacets %}
-			<div class="box-body">
-						Facets : 
-						{% if form.typeFacet.vars.value %}
-							{% if attribute(types, form.typeFacet.vars.value ) is defined %}
-								<a href="{{ path(paginationPath, currentFilters|merge({'search_form[typeFacet]': ''})) }}">
-									<span class=" badge bg-{{ attribute(types, form.typeFacet.vars.value).color }}" >
-										<i class="fa fa-close"></i>
-										{{ form.typeFacet.vars.value|humanize }}
-									</span>
-								</a>
-							{% else %}
-								<a href="{{ path(paginationPath, currentFilters|merge({'search_form[typeFacet]': ''})) }}">
-									<span class="badge" >
-										<i class="fa fa-close"></i>
-										{{  form.typeFacet.vars.value|humanize }}
-									</span>
-								</a>
-							{% endif %}
-						{% endif %}
-						{% if form.aliasFacet.vars.value %}
-							<a href="{{ path(paginationPath, currentFilters|merge({'search_form[aliasFacet]': ''})) }}">
-								<span class=" badge bg-{{ attribute(alias, form.aliasFacet.vars.value).color }}" >
-									<i class="fa fa-close"></i>
-									{{ attribute(alias, form.aliasFacet.vars.value).name|humanize }}
-								</span>
-							</a>
-						{% endif %}
-			</div>
-			{% endif %}						
+				
 			<div class="box-footer">
 				<div class="form-group">
 					<div class="btn-group">
@@ -126,7 +106,7 @@
 		{% endif %}
 		<div class="box-footer with-border">
 			<div class="btn-group">
-				<a class="toggle-button collapsed btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="false" aria-controls="searchFormBoxBody">
+				<a class="toggle-button {% if openSearchForm is not defined or not openSearchForm %}collapsed{% endif %} btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="{% if openSearchForm is not defined or not openSearchForm %}false{%else%}true{% endif %}" aria-controls="searchFormBoxBody">
 					<i class="fa fa-search"></i> Search form
 				</a>
 				{% if is_granted('ROLE_ADMIN') and body is defined	 %}

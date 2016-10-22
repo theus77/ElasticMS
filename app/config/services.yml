@@ -276,6 +276,11 @@ services:
         arguments: ['@ems.service.environment']
         tags:
             - { name: form.type }
+    ems.form.field.contenttypepickertype:
+        class: AppBundle\Form\Field\ContentTypePickerType
+        arguments: ['@ems.service.contenttype']
+        tags:
+            - { name: form.type }
     ems.form.fieldtype.fieldtypetype:
         class: AppBundle\Form\FieldType\FieldTypeType
         arguments: ['@ems.form.field.datafieldtypepickertype']
