@@ -116,7 +116,7 @@ class CalendarController extends AppController
 					'path' => $field->getName(),
 					'query' => [
 						'range' => [
-								$field->getName().'.'.$field->getMappingOptions()['toDateMachineName'] => ['gte' => $to->format('c')]
+								$field->getName().'.'.$field->getMappingOptions()['toDateMachineName'] => ['gte' => $from->format('c')]
 						]
 					]
 				]
