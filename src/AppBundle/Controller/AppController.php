@@ -9,6 +9,7 @@ use AppBundle\Service\PublishService;
 use AppBundle\Service\ContentTypeService;
 use AppBundle\Service\EnvironmentService;
 use Elasticsearch\Client;
+use AppBundle\Service\SearchService;
 
 class AppController extends Controller
 {
@@ -34,6 +35,14 @@ class AppController extends Controller
 	protected function getTwig()
 	{
 		return $this->container->get('twig');
+	}
+
+	/**
+	 * @return SearchService
+	 */
+	protected function getSearchService()
+	{
+		return $this->container->get('ems.service.search');
 	}
 	
 	/**

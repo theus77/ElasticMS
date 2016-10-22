@@ -8,6 +8,9 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
+use AppBundle\Entity\Form\Search;
+use AppBundle\Form\Form\SearchFormType;
+use AppBundle\Entity\Form\SearchFilter;
 
 class CalendarController extends AppController
 {
@@ -76,13 +79,68 @@ class CalendarController extends AppController
 	 * @Method({"GET"})
 	 */
 	public function searchAction(View $view, Request $request) {
+		$search = new Search();
+		$form = $this->createForm(SearchFormType::class, $search, [
+				'method' => 'GET',
+				'light' => true,
+		]);
+		$form->handleRequest($request);
 		
-		//TODO: only the object in the current month
+		$search = $form->getData();
+
+		$body = $this->getSearchService()->generateSearchBody($search);
+		
+		/**@var \DateTime $from */
+		/**@var \DateTime $to */
+		$from = new \DateTime($request->query->get('from'));
+		$to = new \DateTime($request->query->get('to'));
+		$field = $view->getContentType()->getFieldType()->__get('ems_'.$view->getOptions()['dateRangeField']);
+		
+		if(empty($body['query']['bool']['must'])){
+			$body['query']['bool']['must'] = [];
+		}
+		
+		if($field->getMappingOptions()['nested']){
+			$body['query']['bool']['must'][] = [
+				'nested' => [
+					'path' => $field->getName(),
+					'query' => [
+						'range' => [
+								$field->getName().'.'.$field->getMappingOptions()['fromDateMachineName'] => ['lte' => $to->format('c')]
+						]
+					]
+				]
+			];
+			$body['query']['bool']['must'][] = [
+				'nested' => [
+					'path' => $field->getName(),
+					'query' => [
+						'range' => [
+								$field->getName().'.'.$field->getMappingOptions()['toDateMachineName'] => ['gte' => $to->format('c')]
+						]
+					]
+				]
+			];
+		}
+		else {
+			$body['query']['bool']['must'][] = [
+				'range' => [
+					$field->getMappingOptions()['fromDateMachineName'] => ['lte' => $to->format('c')]
+				]
+			];
+			$body['query']['bool']['must'][] = [
+				'range' => [
+					$field->getMappingOptions()['toDateMachineName'] => ['gte' => $from->format('c')]
+				]
+			];
+		}
+		
 		$searchQuery = [
 				'index' => $view->getContentType()->getEnvironment()->getAlias(),
 				'type' => $view->getContentType()->getName(),
 				"from" => 0,
 				"size" => 1000,
+				"body" => $body,
 		];
 		
 		$data = $this->getElasticsearch()->search($searchQuery);

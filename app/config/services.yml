@@ -326,6 +326,9 @@ services:
     ems.service.i18n:
         class: AppBundle\Service\I18nService
         arguments: ['@doctrine']
+    ems.service.search:
+        class: AppBundle\Service\SearchService
+        arguments: []
         
 ### Storage services ###
     ems.storage.filesystem:

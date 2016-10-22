@@ -28,13 +28,6 @@ class Search
 	private $filters;
 	
 	/**
-	 * @var string $boolean
-	 * 
-     * @ORM\Column(name="boolean", type="string", length=100)
-	 */
-	private $boolean;
-	
-	/**
 	 * @var string $typeFacet
 	 * 
      * @ORM\Column(name="type_facet", type="string", length=100, nullable=true)
@@ -93,30 +86,6 @@ class Search
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * Set boolean
-     *
-     * @param string $boolean
-     *
-     * @return Search
-     */
-    public function setBoolean($boolean)
-    {
-        $this->boolean = $boolean;
-
-        return $this;
-    }
-
-    /**
-     * Get boolean
-     *
-     * @return string
-     */
-    public function getBoolean()
-    {
-        return $this->boolean;
     }
 
     /**

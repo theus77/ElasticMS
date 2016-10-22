@@ -16,6 +16,8 @@ use AppBundle\Form\Field\ContentTypeFieldPickerType;
 use AppBundle\Form\DataField\DateRangeFieldType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use AppBundle\Entity\Form\Search;
+use AppBundle\Form\Form\SearchFormType;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -97,11 +99,21 @@ class CalendarViewType extends ViewType {
 	 *
 	 */
 	public function getParameters(View $view, FormFactoryInterface $formFactoty, Request $request) {
+		
+
+		$search = new Search();
+		$form = $formFactoty->create(SearchFormType::class, $search, [
+				'method' => 'GET',
+				'light' => true,
+		]);
+		
+		
 		return [
 			'view' => $view,
 			'field' => $view->getContentType()->getFieldType()->__get('ems_'.$view->getOptions()['dateRangeField']),
 			'contentType' => $view->getContentType(),
 			'environment' => $view->getContentType()->getEnvironment(),
+			'form' => $form->createView(),
 		];
 	}
 	

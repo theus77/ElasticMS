@@ -41,11 +41,11 @@ class SearchFilter
 	private $field;
 	
 	/**
-	 * @var bool $inverted
+	 * @var string $booleanClause
 	 * 
-     * @ORM\Column(name="inverted", type="boolean", nullable=true)
+     * @ORM\Column(name="boolean_clause", type="string", length=20, nullable=true)
 	 */
-	private $inverted;
+	private $booleanClause;
 	
 	/**
 	 * @var string $operator
@@ -142,9 +142,6 @@ class SearchFilter
 					];
 				}
 			}
-			if($this->inverted){
-				$out = ['not' => $out];
-			}
 		}		
 		
 		return $out;
@@ -183,24 +180,6 @@ class SearchFilter
 	 */
 	public function setField($field){
 		$this->field = $field;
-		return $this;
-	}
-
-    /**
-     * Get inverted
-     *
-     * @return boolean
-     */
-	public function getInverted(){
-		return $this->inverted;
-	}	
-	/**
-	 * Set inverted
-	 * 
-	 * @param boolean $inverted
-	 */
-	public function setInverted($inverted){
-		$this->inverted = $inverted;
 		return $this;
 	}
 
@@ -273,5 +252,29 @@ class SearchFilter
     public function getSearch()
     {
         return $this->search;
+    }
+
+    /**
+     * Set booleanClause
+     *
+     * @param boolean $booleanClause
+     *
+     * @return SearchFilter
+     */
+    public function setBooleanClause($booleanClause)
+    {
+        $this->booleanClause = $booleanClause;
+
+        return $this;
+    }
+
+    /**
+     * Get booleanClause
+     *
+     * @return boolean
+     */
+    public function getBooleanClause()
+    {
+        return $this->booleanClause;
     }
 }

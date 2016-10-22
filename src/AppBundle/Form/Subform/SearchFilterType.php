@@ -21,10 +21,6 @@ class SearchFilterType extends AbstractType {
 
 		$builder->add('field', TextType::class, [
 				'required' => false,
-		]);	
-		
-		$builder->add('inverted', CheckboxType::class, [
-			'required' => false,
 		]);
 		
 		$builder->add('boost', NumberType::class, [
@@ -38,6 +34,15 @@ class SearchFilterType extends AbstractType {
 				'Match (and)' => 'match_and',
 				'Match (or)' => 'match_or', 
 				'Term' => 'term', 
+			]
+		]);
+		
+		$builder->add('booleanClause', ChoiceType::class, [
+			'choices' => [
+				'Must' => 'must',
+				'Should' => 'should', 
+				'Must not' => 'must_not',
+				'Filter' => 'filter', 
 			]
 		]);
 		

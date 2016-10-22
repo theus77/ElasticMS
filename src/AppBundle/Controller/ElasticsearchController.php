@@ -438,26 +438,8 @@ class ElasticsearchController extends AppController
 				$search = $form->getData();
 			}
 
-			$body = [];
-			/** @var SearchFilter $filter */
-			foreach ($search->getFilters() as $filter){
-					
-				$esFilter = $filter->generateEsFilter();
-
-				if($esFilter){
-					$body["query"][$search->getBoolean()][] = $esFilter;
-				}
-					
-			}		
-			if ( null != $search->getSortBy() && strlen($search->getSortBy()) > 0  ) {
-				$body["sort"] = [
-					$search->getSortBy() => [
-						'order' => $search->getSortOrder(),
-						'missing' => '_last',
-					]
-				];
-				
-			}
+			
+			$body = $this->getSearchService()->generateSearchBody($search);
 			
 // 			
 			

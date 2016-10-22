@@ -21,23 +21,6 @@ class SearchFormType extends AbstractType {
 	 *
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
-		$builder->add('boolean', ChoiceType::class, [
-				'choices' => [
-						'And' => 'and',
-						'Or' => 'or',
-				],
-				'label' => 'Boolean operator'
-		]);
-		$builder->add('sortBy', TextType::class, [
-				'required' => false,
-		]);
-		$builder->add('sortOrder', ChoiceType::class, [
-				'choices' => [
-						'Ascending' => 'asc',
-						'Descending' => 'desc',
-				],
-				'required' => false,
-		]);
 		$builder->add('aliasFacet', HiddenType::class);
 		$builder->add('typeFacet', HiddenType::class);
 		$builder->add('filters', CollectionType::class, array(
@@ -49,27 +32,48 @@ class SearchFormType extends AbstractType {
 // 						'required'  => false,
 // 						'attr'      => array('class' => 'email-box')
 // 				),
-		))->add('search', SubmitEmsType::class, [
+		));
+		if($options['light']){
+			$builder->add('applyFilters', SubmitEmsType::class, [
 				'attr' => [ 
-						'class' => 'btn-primary btn-md' 
+						'class' => 'btn-primary btn-md',
 				],
-				'icon' => 'fa fa-search'
-		])->add('exportResults', SubmitEmsType::class, [
-				'attr' => [
-						'class' => 'btn-primary btn-sm'
-				],
-				'icon' => 'glyphicon glyphicon-export',
-		]);
-		
-		if(!$options['savedSearch']){
-			$builder->add('save', SubmitEmsType::class, [
+				'icon' => 'fa fa-check',
+			]);
+		}
+		else{
+			$builder->add('sortBy', TextType::class, [
+					'required' => false,
+			]);
+			$builder->add('sortOrder', ChoiceType::class, [
+					'choices' => [
+							'Ascending' => 'asc',
+							'Descending' => 'desc',
+					],
+					'required' => false,
+			]);
+			$builder->add('search', SubmitEmsType::class, [
 					'attr' => [ 
 							'class' => 'btn-primary btn-md' 
 					],
-					'icon' => 'fa fa-save',
-			]);
-			
+					'icon' => 'fa fa-search'
+			])->add('exportResults', SubmitEmsType::class, [
+					'attr' => [
+							'class' => 'btn-primary btn-sm'
+					],
+					'icon' => 'glyphicon glyphicon-export',
+			]);			
+			if(!$options['savedSearch']){
+				$builder->add('save', SubmitEmsType::class, [
+						'attr' => [ 
+								'class' => 'btn-primary btn-md' 
+						],
+						'icon' => 'fa fa-save',
+				]);
+				
+			}
 		}
+		
 	}
 	
 	public function configureOptions(OptionsResolver $resolver)
@@ -78,6 +82,7 @@ class SearchFormType extends AbstractType {
 				'data_class' => 'AppBundle\Entity\Form\Search',
 				'savedSearch' => false,
 				'csrf_protection' => false,
+				'light' => false,
 		]);
 	}
 	

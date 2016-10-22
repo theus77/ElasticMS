@@ -6,6 +6,18 @@
 
 
 {% block body %}
+      
+      
+	<div class="row">
+    	<div class="col-md-12">
+    		{% include "elasticsearch/search-form-filter.html.twig" with {
+				form: form,
+			} %}
+		</div>
+	</div>
+	<!-- /.row -->
+	
+	
       <div class="row">
 {#         <div class="col-md-3">#}
 {#           <div class="box box-solid">#}
@@ -86,10 +98,12 @@
 
 
 {% block javascripts %}
-{% include 'app/menu.html.twig' with {
-	'item':  'data-view-'~ contentType.id ~ '-' ~ view.id
-}%}
+	{% include 'app/menu.html.twig' with {
+		'item':  'data-view-'~ contentType.id ~ '-' ~ view.id
+	}%}
 
+	{% include 'elasticsearch/search-javascript-filter.html.twig' %}
+	
 <script src="{{ asset('bower/AdminLTE/plugins/fullcalendar/fullcalendar.min.js') }}"></script>
 
 <script type="text/javascript">
@@ -145,7 +159,7 @@ $(function () {
     var d = date.getDate(),
         m = date.getMonth(),
         y = date.getFullYear();
-    $('#calendar').fullCalendar({
+    var calendar = $('#calendar').fullCalendar({
       header: {
         left: 'prev,next today',
         center: 'title',
@@ -159,10 +173,9 @@ $(function () {
       },
       //Random default events
       events:  function(from, to, timezone, callback){
-    		var data = {
-    				from :from.format(),
-    				to :to.format(),
-    		};
+    		var data = $("form[name={{ form.vars.id }}]").serialize();
+    		data = data+'&from='+from.format()+'&to='+to.format();
+
     		ajaxRequest.get("{{ url('views.calendar.search', {view: view.id}) }}", data)
     		.success(function(response) {
                 callback(response.events);
@@ -211,6 +224,13 @@ $(function () {
 //         }
 
 //       }
+    });
+
+
+
+    $('#search_form_applyFilters').click(function (e) {
+        e.preventDefault();
+        calendar.fullCalendar( 'refetchEvents' );
     });
 
     /* ADDING EVENTS */

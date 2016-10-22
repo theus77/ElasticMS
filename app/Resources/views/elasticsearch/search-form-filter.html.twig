@@ -1,0 +1,143 @@
+
+{{ form_start(form) }}	
+	<div class="box ">
+		<div id="searchFormBoxBody" class="collapse">
+			<div class="box-body" >
+				<div class="row">
+					{% if form.sortBy is defined %}
+						<div class=" col-md-2">
+							{{ form_row(form.sortBy) }}
+						</div>
+					{% endif %}
+					{% if form.sortBy is defined %}
+						<div class=" col-md-2">
+							{{ form_row(form.sortOrder) }}
+						</div>
+					{% endif %}
+				</div>
+				<div class="row" id="list-of-search-filters" data-prototype="{{ form_row(form.filters.vars.prototype)|e }}" data-index="{{ form.filters|length }}">
+							<div class="col-xs-12 visible-md-block visible-lg-block">
+								<div class="col-md-2">
+									<div class="form-group">
+										<label class="control-label">Boolean clause</label>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label class="control-label">Field</label>
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label class="control-label">Operator</label>
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group">
+										<label class="control-label">Pattern</label>
+									</div>
+								</div>
+								<div class="col-md-1">
+									<div class="form-group">
+										<label class="control-label">Boost</label>
+									</div>
+								</div>
+								<div class="col-md-1">
+									<div class="form-group">
+										<label class="control-label">&nbsp;</label>
+									</div>
+								</div>
+								
+								{{- form_errors(form) -}}
+							</div>  
+					{{ form_widget(form.filters) }}
+				</div>
+			</div>
+			{% set hasFacets= form.aliasFacet.vars.value or form.typeFacet.vars.value %}
+			{% if hasFacets %}
+			<div class="box-body">
+						Facets : 
+						{% if form.typeFacet.vars.value %}
+							{% if attribute(types, form.typeFacet.vars.value ) is defined %}
+								<a href="{{ path(paginationPath, currentFilters|merge({'search_form[typeFacet]': ''})) }}">
+									<span class=" badge bg-{{ attribute(types, form.typeFacet.vars.value).color }}" >
+										<i class="fa fa-close"></i>
+										{{ form.typeFacet.vars.value|humanize }}
+									</span>
+								</a>
+							{% else %}
+								<a href="{{ path(paginationPath, currentFilters|merge({'search_form[typeFacet]': ''})) }}">
+									<span class="badge" >
+										<i class="fa fa-close"></i>
+										{{  form.typeFacet.vars.value|humanize }}
+									</span>
+								</a>
+							{% endif %}
+						{% endif %}
+						{% if form.aliasFacet.vars.value %}
+							<a href="{{ path(paginationPath, currentFilters|merge({'search_form[aliasFacet]': ''})) }}">
+								<span class=" badge bg-{{ attribute(alias, form.aliasFacet.vars.value).color }}" >
+									<i class="fa fa-close"></i>
+									{{ attribute(alias, form.aliasFacet.vars.value).name|humanize }}
+								</span>
+							</a>
+						{% endif %}
+			</div>
+			{% endif %}						
+			<div class="box-footer">
+				<div class="form-group">
+					<div class="btn-group">
+						<a class="btn btn-primary" href="#" id="add-search-filter-button"><i class="fa fa-plus"></i> Add filter</a>
+						{% if form.search is defined %}
+							{{ form_widget(form.search) }}
+						{% endif %}						
+						{% if form.applyFilters is defined %}
+							{{ form_widget(form.applyFilters) }}
+						{% endif %}
+					</div>
+					<div class="btn-group pull-right">
+						{% if searchId is defined and searchId %}
+							{% include 'elements/post-button.html.twig' with {
+								'url':  path('elasticsearch.search.delete', {'id': searchId, 'search': app.request.query}),
+								'message': 'Do you confirm ?',
+								'label': 'Delete',
+								'icon': 'trash',
+								'class': 'btn'
+							}%}
+						{% endif %}
+						
+						{% if form.save is defined %}
+							{{ form_widget(form.save) }}
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+		{% if body is defined %}
+			<div id="queryElasticsearchBoxBody" class="collapse">
+				<div class="box-body" >
+					<div class="row">
+						<div class=" col-md-12">
+							{{ body|json_encode }}
+					    </div>
+					</div>
+				</div>
+			</div>
+		{% endif %}
+		<div class="box-footer with-border">
+			<div class="btn-group">
+				<a class="toggle-button collapsed btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#searchFormBoxBody" aria-expanded="false" aria-controls="searchFormBoxBody">
+					<i class="fa fa-search"></i> Search form
+				</a>
+				{% if is_granted('ROLE_ADMIN') and body is defined	 %}
+					<a class="toggle-button collapsed btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#queryElasticsearchBoxBody" aria-expanded="false" aria-controls="queryElasticsearchBoxBody">
+						<i class="fa fa-eye"></i> Query
+					</a>
+				{% endif %}
+				{% if form.exportResults is defined %}
+				    {{ form_widget(form.exportResults) }}
+				{% endif %}
+			</div>
+		</div>
+	</div>
+{{ form_end(form) }}
