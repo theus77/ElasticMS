@@ -11,6 +11,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use AppBundle\Form\Field\ObjectPickerType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 class EditEnvironmentType extends AbstractType {
 	/**
@@ -39,6 +41,13 @@ class EditEnvironmentType extends AbstractType {
 		}
 		$builder->add ( 'baseUrl', TextType::class, [
 				'required' => false,
+		])->add ( 'inDefaultSearch', CheckboxType::class, [
+			'required' => false,
+		])->add ( 'extra', TextareaType::class, [
+			'required' => false,
+			'attr' => [
+				'rows' => '6',
+			]
 		])
 		->add ( 'save', SubmitEmsType::class, [ 
 				'attr' => [ 

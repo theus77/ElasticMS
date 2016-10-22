@@ -99,6 +99,20 @@ class Environment
      */
     private $circles;
     
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="in_default_search", type="boolean")
+     */
+    private $inDefaultSearch;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="extra", type="text", nullable=true)
+     */
+    private $extra;
+    
     
     /**
      * @ORM\PrePersist
@@ -421,5 +435,53 @@ class Environment
     public function getCircles()
     {
     	return $this->circles;
+    }
+
+    /**
+     * Set inDefaultSearch
+     *
+     * @param boolean $inDefaultSearch
+     *
+     * @return Environment
+     */
+    public function setInDefaultSearch($inDefaultSearch)
+    {
+        $this->inDefaultSearch = $inDefaultSearch;
+
+        return $this;
+    }
+
+    /**
+     * Get inDefaultSearch
+     *
+     * @return boolean
+     */
+    public function getInDefaultSearch()
+    {
+        return $this->inDefaultSearch;
+    }
+
+    /**
+     * Set extra
+     *
+     * @param string $extra
+     *
+     * @return Environment
+     */
+    public function setExtra($extra)
+    {
+        $this->extra = $extra;
+
+        return $this;
+    }
+
+    /**
+     * Get extra
+     *
+     * @return string
+     */
+    public function getExtra()
+    {
+        return $this->extra;
     }
 }

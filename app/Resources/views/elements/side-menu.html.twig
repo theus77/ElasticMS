@@ -29,6 +29,9 @@
           <input type="text" name="search_form[filters][0][pattern]" class="form-control" placeholder="Search...">
           <input type="hidden" name="search_form[filters][0][operator]" value="query_and">
           <input type="hidden" name="search_form[filters][0][booleanClause]" value="must">
+          {% for environment in defaultEnvironments %}
+             <input type="hidden" name="search_form[environments][{{ loop.index0 }}]" value="{{ environment|e('html_attr') }}">
+          {% endfor %}
               <span class="input-group-btn">
                 <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
                 </button>

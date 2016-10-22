@@ -91,6 +91,18 @@ class RequestListener
     	]);
 
     	$this->twig->addGlobal('contentTypes', $contentTypes);
+    	
+    	$envRepository = $this->doctrine->getRepository('AppBundle:Environment');
+    	$contentTypes = $envRepository->findBy([
+    			'inDefaultSearch' => true,
+    	]);
+    	
+    	$defaultEnvironments = [];
+    	foreach ($contentTypes as $contentType){
+    		$defaultEnvironments[] = $contentType->getName();
+    	}
+
+    	$this->twig->addGlobal('defaultEnvironments', $defaultEnvironments);
     }
     
     public static function getArgv ($string) {
