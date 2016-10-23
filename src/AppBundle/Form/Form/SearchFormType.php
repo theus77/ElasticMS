@@ -2,20 +2,18 @@
 
 namespace AppBundle\Form\Form;
 
+use AppBundle\Form\Field\ContentTypePickerType;
+use AppBundle\Form\Field\EnvironmentPickerType;
 use AppBundle\Form\Field\SubmitEmsType;
 use AppBundle\Form\Subform\SearchFilterType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Form\Field\EnvironmentPickerType;
-use AppBundle\Form\Field\ContentTypeFieldPickerType;
-use AppBundle\Form\Field\ContentTypePickerType;
 
 class SearchFormType extends AbstractType {
 	/**

@@ -3,18 +3,15 @@
 namespace AppBundle\Form\DataField;
 
 use AppBundle\Entity\DataField;
-use AppBundle\Entity\DataValue;
 use AppBundle\Entity\FieldType;
+use AppBundle\Form\DataField\Options\SubOptionsType;
+use AppBundle\Form\Field\IconPickerType;
+use AppBundle\Form\Field\IconTextType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use AppBundle\Form\Field\IconPickerType;
-use AppBundle\Form\Field\IconTextType;
-use AppBundle\Form\DataField\Options\SubOptionsType;
-use Symfony\Component\Serializer\Encoder\JsonEncode;
 
 class DateRangeFieldType extends DataFieldType {
 	

@@ -3,21 +3,17 @@
 namespace AppBundle\Form\View;
 
 use AppBundle\Entity\DataField;
-use AppBundle\Form\View\ViewType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Elasticsearch\Client;
+use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\View;
+use AppBundle\Form\Form\SearchFormType;
+use AppBundle\Form\View\ViewType;
+use Elasticsearch\Client;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Form\Field\FieldTypePickerType;
-use AppBundle\Form\Field\ContentTypeFieldPickerType;
-use AppBundle\Form\DataField\DateRangeFieldType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use AppBundle\Entity\Form\Search;
-use AppBundle\Form\Form\SearchFormType;
 
 /**
  * It's the mother class of all specific DataField used in eMS

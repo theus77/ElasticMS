@@ -3,14 +3,13 @@ namespace AppBundle\Controller\Views;
 
 use AppBundle;
 use AppBundle\Controller\AppController;
+use AppBundle\Entity\Form\Search;
 use AppBundle\Entity\View;
+use AppBundle\Form\Form\SearchFormType;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Entity\Form\Search;
-use AppBundle\Form\Form\SearchFormType;
-use AppBundle\Entity\Form\SearchFilter;
 
 class CalendarController extends AppController
 {
