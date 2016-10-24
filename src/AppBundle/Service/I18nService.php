@@ -24,8 +24,13 @@ class I18nService {
 		$this->repository = $this->manager->getRepository('AppBundle:I18n');
 	}
 
-	public function count() {
-		return $this->repository->count();
+	public function count($filters = null) {
+		$identifier = null;
+		
+		if($filters != null && isset($filters['identifier']) && !empty($filters['identifier'])) {
+			$identifier = $filters['identifier'];
+		}
+		return $this->repository->count($identifier);
 	}
 
 	public function delete(I18n $i18n) {
@@ -39,7 +44,12 @@ class I18nService {
 	 * @return array Notification
 	 */
 	public function findAll($from, $limit, $filters = null) {
-		return $this->repository->findBy([], ['identifier'=> 'asc'], $limit, $from);
+		$identifier = null;
+		
+		if($filters != null && isset($filters['identifier']) && !empty($filters['identifier'])) {
+			$identifier = $filters['identifier'];
+		}
+		return $this->repository->findByWithFilter($limit, $from, $identifier);
 	}
 	
 }
