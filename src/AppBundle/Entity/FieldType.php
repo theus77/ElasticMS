@@ -193,7 +193,7 @@ class FieldType
     
     public function getFieldsRoles(){
     	$out = ['ROLE_AUTHOR' => 'ROLE_AUTHOR'];
-    	if(isset($this->getOptions()['restrictionOptions']) && $this->getOptions()['restrictionOptions']['minimum_role']){
+    	if(isset($this->getOptions()['restrictionOptions']) && isset($this->getOptions()['restrictionOptions']['minimum_role']) && $this->getOptions()['restrictionOptions']['minimum_role']){
 	    	$out[$this->getOptions()['restrictionOptions']['minimum_role']] = $this->getOptions()['restrictionOptions']['minimum_role'];
     	}
     	
