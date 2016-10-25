@@ -4,11 +4,13 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\I18n;
 use AppBundle\Form\Form\I18nType;
+use AppBundle\Service\I18nService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
-use AppBundle\Service\I18nService;
+use AppBundle\Entity\Form\I18nFilter;
+use AppBundle\Form\Form\I18nFormType;
 
 /**
  * I18n controller.
@@ -25,20 +27,40 @@ class I18nController extends Controller
      */
     public function indexAction(Request $request)
     {
+    	$filters = $request->query->get('i18n_form');
+
+ 		//TODO: Why do we need to unset these fields ? 
+//  		if (is_array($filters)) {
+//  			unset($filters['filter']);
+//  			unset($filters['_token']);
+//  		}
+ 		
+		$i18nFilter = new I18nFilter();
+		
+ 		$form = $this->createForm(I18nFormType::class, $i18nFilter, [
+ 				'method' => 'GET'
+ 		]);
+ 		$form->handleRequest ( $request );
+ 		
+ 		if($form->isSubmitted()){
+ 			$i18nFilter = $form->getData();
+ 		}
+    	
         $em = $this->getDoctrine()->getManager();
         
-        $count = $this->getI18nService()->count();
+        $count = $this->getI18nService()->count($filters);
         // for pagination
         $paging_size = $this->getParameter('paging_size');
         $lastPage = ceil($count/$paging_size);
         $page = $request->query->get('page', 1);
         
-        $i18ns = $this->getI18nService()->findAll(($page-1)*$paging_size, $paging_size);
+        $i18ns = $this->getI18nService()->findAll(($page-1)*$paging_size, $paging_size, $filters);
         
         return $this->render('i18n/index.html.twig', array(
             'i18nkeys' => $i18ns,
         	'lastPage' => $lastPage,
         	'paginationPath' => 'i18n_index',
+        	'filterform' => $form->createView(),
         	'page' => $page,
         	'paging_size' => $paging_size,
         ));
