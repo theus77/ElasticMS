@@ -58,6 +58,27 @@ class User extends BaseUser
      */
     private $apiKey;
     
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="allowed_to_configure_wysiwyg", type="boolean")
+     */
+    private $allowedToConfigureWysiwyg;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="wysiwyg_profile", length=20, type="text", nullable=true)
+     */
+    private $wysiwygProfile;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="wysiwyg_options", type="text", nullable=true)
+     */
+    private $wysiwygOptions;
+    
 
     
     public function __construct()
@@ -208,5 +229,77 @@ class User extends BaseUser
     public function getApiKey()
     {
         return $this->apiKey;
+    }
+
+    /**
+     * Set allowedToConfigureWysiwyg
+     *
+     * @param boolean $allowedToConfigureWysiwyg
+     *
+     * @return User
+     */
+    public function setAllowedToConfigureWysiwyg($allowedToConfigureWysiwyg)
+    {
+        $this->allowedToConfigureWysiwyg = $allowedToConfigureWysiwyg;
+
+        return $this;
+    }
+
+    /**
+     * Get allowedToConfigureWysiwyg
+     *
+     * @return boolean
+     */
+    public function getAllowedToConfigureWysiwyg()
+    {
+        return $this->allowedToConfigureWysiwyg;
+    }
+
+    /**
+     * Set wysiwygProfile
+     *
+     * @param string $wysiwygProfile
+     *
+     * @return User
+     */
+    public function setWysiwygProfile($wysiwygProfile)
+    {
+        $this->wysiwygProfile = $wysiwygProfile;
+
+        return $this;
+    }
+
+    /**
+     * Get wysiwygProfile
+     *
+     * @return string
+     */
+    public function getWysiwygProfile()
+    {
+        return $this->wysiwygProfile;
+    }
+
+    /**
+     * Set wysiwygOptions
+     *
+     * @param string $wysiwygOptions
+     *
+     * @return User
+     */
+    public function setWysiwygOptions($wysiwygOptions)
+    {
+        $this->wysiwygOptions = $wysiwygOptions;
+
+        return $this;
+    }
+
+    /**
+     * Get wysiwygOptions
+     *
+     * @return string
+     */
+    public function getWysiwygOptions()
+    {
+        return $this->wysiwygOptions;
     }
 }
