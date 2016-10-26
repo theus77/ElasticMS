@@ -298,7 +298,7 @@ services:
             - { name: form.type }
     ems.form.form.userprofile:
         class: AppBundle\Form\Form\UserProfileType
-        arguments: ['@ems.service.user']
+        arguments: ['@security.token_storage']
         tags:
             - { name: form.type }
 ### regular services

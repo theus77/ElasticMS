@@ -2,21 +2,20 @@
 
 namespace AppBundle\Form\Form;
 
+use AppBundle\Service\UserService;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Service\UserService;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class UserProfileType extends AbstractType {
 	
-	/**@var UserService */
-	private $userService;
+	/**@var TokenStorageInterface */
+	private $tokenStorage;
 	
-	public function __construct(UserService $userService) {
-		$this->userService = $userService;
+	public function __construct(TokenStorageInterface $tokenStorage) {
+		$this->tokenStorage = $tokenStorage;
 	}
 	
 	
@@ -27,8 +26,9 @@ class UserProfileType extends AbstractType {
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 
-		$builder->add ('displayName');
-		if($options['withWysiwygOptions']){
+		$builder->add ('displayName')->remove('username');
+		
+		if($this->tokenStorage->getToken()->getUser()->getAllowedToConfigureWysiwyg()){
 			$builder->add('wysiwygProfile', ChoiceType::class, [
 						'required' => true,
 						'label' => 'WYSIWYG profile',
@@ -47,20 +47,6 @@ class UserProfileType extends AbstractType {
 						]
 				]);			
 		}
-		
-		$builder->remove('username');
-	}
-	
-
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function configureOptions(OptionsResolver $resolver) {
-		$resolver->setDefaults ( [
-				'withWysiwygOptions' => $this->userService->getCurrentUser()->getAllowedToConfigureWysiwyg(),
-		]);
 	}
 	
 	public function getParent()

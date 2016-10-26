@@ -19,8 +19,9 @@
 	    	{% endif %}
 	    	{{ form_row(form.expiresAt) }}
 	    	{{ form_row(form.allowedToConfigureWysiwyg) }}
-	    	{{ form_row(form.wysiwygProfile) }}
-	    	{{ form_row(form.wysiwygOptions) }}
+    		{% include "user/wysiwygOptions.html.twig" with {
+				form: form
+			} %}
     	</div>
     	<div class="col-md-6">
 	    	{{ form_row(form.roles) }}
@@ -34,3 +35,8 @@
 	<!-- /.box -->
 
 {% endblock fos_user_content %}
+{% block extra_javascripts %}
+	{% include "user/wysiwygOptionsJS.html.twig" with {
+		form: form
+	} %}
+{% endblock extra_javascripts %}

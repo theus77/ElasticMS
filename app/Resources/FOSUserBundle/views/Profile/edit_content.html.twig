@@ -17,8 +17,9 @@
               	{{ form_row(form.current_password) }}
               	{{ form_row(form.current_password) }}
               	{% if form.wysiwygProfile is defined %}
-	              	{{ form_row(form.wysiwygProfile) }}
-	              	{{ form_row(form.wysiwygOptions) }}
+		    		{% include "user/wysiwygOptions.html.twig" with {
+						form: form
+					} %}
 				{% endif %}	
               </div>
               <!-- /.box-body -->
