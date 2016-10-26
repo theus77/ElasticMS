@@ -61,7 +61,7 @@ class User extends BaseUser
     /**
      * @var bool
      *
-     * @ORM\Column(name="allowed_to_configure_wysiwyg", type="boolean")
+     * @ORM\Column(name="allowed_to_configure_wysiwyg", type="boolean", nullable=true)
      */
     private $allowedToConfigureWysiwyg;
 
