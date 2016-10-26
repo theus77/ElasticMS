@@ -102,7 +102,7 @@ class Environment
     /**
      * @var bool
      *
-     * @ORM\Column(name="in_default_search", type="boolean")
+     * @ORM\Column(name="in_default_search", type="boolean", nullable=true)
      */
     private $inDefaultSearch;
 
