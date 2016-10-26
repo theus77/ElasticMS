@@ -4,15 +4,17 @@ namespace AppBundle\Controller;
 use AppBundle\Entity\User;
 use AppBundle\Form\Field\ObjectPickerType;
 use AppBundle\Form\Field\SubmitEmsType;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use FOS\UserBundle\Util\LegacyFormHelper;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
-use Doctrine\ORM\EntityManager;
 
 class UserController extends Controller
 {
@@ -161,6 +163,25 @@ class UserController extends Controller
 					
 				),
 		))
+		->add('allowedToConfigureWysiwyg', CheckboxType::class, [
+				'required' => false,
+		])
+		->add('wysiwygProfile', ChoiceType::class, [
+				'required' => true,
+				'choices' => [
+					'Standard' => 'standard',
+					'Light' => 'light',
+					'Full' => 'full',
+					'Custom' => 'custom'
+				]
+		])
+		->add('wysiwygOptions', TextareaType::class, [
+				'required' => false,
+				'label' => 'WYSIWYG custom options',
+				'attr' => [
+					'rows' => 8,
+				]
+		])
 		->add('roles', ChoiceType::class, array('choices' => $this->getExistingRoles(),
 	        'label' => 'Roles',
 	        'expanded' => true,

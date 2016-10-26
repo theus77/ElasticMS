@@ -15,7 +15,11 @@
               	{{ form_row(form.displayName) }}
               	{{ form_row(form.email) }}
               	{{ form_row(form.current_password) }}
-
+              	{{ form_row(form.current_password) }}
+              	{% if form.wysiwygProfile is defined %}
+	              	{{ form_row(form.wysiwygProfile) }}
+	              	{{ form_row(form.wysiwygOptions) }}
+				{% endif %}	
               </div>
               <!-- /.box-body -->
               <div class="box-footer">
