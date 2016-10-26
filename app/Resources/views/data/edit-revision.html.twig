@@ -291,62 +291,61 @@ function addEventListeners(target){
 	});
 
 	target.find(".ckeditor_ems").each(function(index){
+		var ckconfig = {
+			removePlugins: 'link,about',
+			extraPlugins: 'adv_link,dialogadvtab,div',
+		};
 
+
+		{% if app.user.wysiwygProfile == 'full' %}
+		ckconfig = {
+			//uiColor: 'grey',
+			plugins: 'adv_link,a11yhelp,basicstyles,bidi,blockquote,clipboard,colorbutton,colordialog,contextmenu,dialogadvtab,div,elementspath,enterkey,entities,filebrowser,find,floatingspace,font,format,horizontalrule,htmlwriter,image,iframe,indentlist,indentblock,justify,language,list,liststyle,magicline,maximize,newpage,pagebreak,pastefromword,pastetext,preview,print,removeformat,resize,save,scayt,selectall,showblocks,showborders,smiley,sourcearea,specialchar,stylescombo,tab,table,tabletools,templates,toolbar,undo,wsc,wysiwygarea',
+
+		    toolbarGroups: [
+		      { name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
+		      { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
+		      { name: 'editing',     groups: [ 'find', 'spellchecker' ] },//, 'selection'
+//			      { name: 'forms' },
+		      '/',
+		      { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
+		      { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
+		      { name: 'links' },
+		      { name: 'insert' },
+		      '/',
+		      { name: 'styles' },
+		      { name: 'colors' },
+		      { name: 'tools' },
+		      { name: 'others' },
+		      { name: 'about' }
+		    ]
+		};	
+	{% elseif app.user.wysiwygProfile == 'light' %}
+		ckconfig = {
+			toolbar : [
+	           ['Styles','Format','Font','FontSize'],
+	           ['Bold','Italic'],
+	           ['NumberedList','BulletedList','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+	           ['Image','Table','-','Link']
+			        ],
+			removePlugins: 'link,about',
+			extraPlugins: 'adv_link,',
+		};	
+	{% elseif app.user.wysiwygProfile == 'custom' %}
+		ckconfig = {{ app.user.wysiwygOptions|raw }};
+	{% endif %}
+
+	
 		var height = $( this ).attr('data-height');
 		if(!height){
 			height = 400;
 		}
+		
+		ckconfig.height = height;
+		ckconfig.div_wrapTable = 'true';
+		ckconfig.allowedContent = true;
 
-		var ckconfig = {
-// 			    height: 300,
-// 			    plugins: 'about,a11yhelp,basicstyles,bidi,blockquote,clipboard,colorbutton,colordialog,contextmenu,dialogadvtab,div,elementspath,enterkey,entities,filebrowser,find,flash,floatingspace,font,format,forms,horizontalrule,htmlwriter,image,iframe,indentlist,indentblock,justify,language,link,list,liststyle,magicline,maximize,newpage,pagebreak,pastefromword,pastetext,preview,print,removeformat,resize,save,scayt,selectall,showblocks,showborders,smiley,sourcearea,specialchar,stylescombo,tab,table,tabletools,templates,toolbar,undo,wsc,wysiwygarea',
-// 			    removeButtons: '',
-// 			    removeDialogTabs : '',
-// 			    extraPlugins: 'uploadimage',
-// 			    toolbarGroups: [
-// 			      { name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
-// 			      { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
-// 			      { name: 'editing',     groups: [ 'find', 'selection', 'spellchecker' ] },
-// 			      { name: 'forms' },
-// 			      '/',
-// 			      { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-// 			      { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
-// 			      { name: 'links' },
-// 			      { name: 'insert' },
-// 			      '/',
-// 			      { name: 'styles' },
-// 			      { name: 'colors' },
-// 			      { name: 'tools' },
-// 			      { name: 'others' },
-// 			      { name: 'about' }
-// 			    ]
-			
-				//uiColor: 'pink',
-				plugins: 'adv_link,a11yhelp,basicstyles,bidi,blockquote,clipboard,colorbutton,colordialog,contextmenu,dialogadvtab,div,elementspath,enterkey,entities,filebrowser,find,flash,floatingspace,font,format,horizontalrule,htmlwriter,image,iframe,indentlist,indentblock,justify,language,list,liststyle,magicline,maximize,newpage,pagebreak,pastefromword,pastetext,preview,print,removeformat,resize,save,scayt,selectall,showblocks,showborders,smiley,sourcearea,specialchar,stylescombo,tab,table,tabletools,templates,toolbar,undo,wsc,wysiwygarea',
-				//removePlugins: 'link,about,forms',
-				//extraPlugins: 'adv_link,dialogadvtab,div,colorbutton,colordialog',
-				
-			    div_wrapTable: 'true',
-				height: height,
-				allowedContent: true,
-			    toolbarGroups: [
-			      { name: 'document',	   groups: [ 'mode', 'document', 'doctools' ] },
-			      { name: 'clipboard',   groups: [ 'clipboard', 'undo' ] },
-			      { name: 'editing',     groups: [ 'find', 'spellchecker' ] },//, 'selection'
-// 			      { name: 'forms' },
-			      '/',
-			      { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ] },
-			      { name: 'paragraph',   groups: [ 'list', 'indent', 'blocks', 'align', 'bidi' ] },
-			      { name: 'links' },
-			      { name: 'insert' },
-			      '/',
-			      { name: 'styles' },
-			      { name: 'colors' },
-			      { name: 'tools' },
-			      { name: 'others' },
-			      { name: 'about' }
-			    ]
-			};
+		
 		if (!CKEDITOR.instances[$( this ).attr('id')]) {
 			CKEDITOR.replace(this, ckconfig).on('key', onFormChange );
 		}
