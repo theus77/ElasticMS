@@ -10994,12 +10994,11 @@ table#CriteriaUpdateCustomViewTable > tbody > tr > td {
 }
 
 /* line 11, ../../sass/_ems.scss */
-body {
+.raw-view, .revision-view {
   word-break: break-word;
 }
-
-/* line 16, ../../sass/_ems.scss */
-.raw-view .leaf-item {
+/* line 13, ../../sass/_ems.scss */
+.raw-view .leaf-item, .revision-view .leaf-item {
   max-height: 400px;
   overflow-y: scroll;
 }
