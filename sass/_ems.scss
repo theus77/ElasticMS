@@ -7,3 +7,14 @@ table#CriteriaUpdateCustomViewTable > tbody > tr > td {
 .ui-sortable-handle {
     cursor: move;
 }
+
+body {
+    word-break: break-word;
+}
+
+.raw-view {
+	.leaf-item {
+		max-height: 400px;
+    	overflow-y: scroll;
+	}
+}

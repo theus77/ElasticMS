@@ -10992,3 +10992,14 @@ table#CriteriaUpdateCustomViewTable > tbody > tr > td {
 .ui-sortable-handle {
   cursor: move;
 }
+
+/* line 11, ../../sass/_ems.scss */
+body {
+  word-break: break-word;
+}
+
+/* line 16, ../../sass/_ems.scss */
+.raw-view .leaf-item {
+  max-height: 400px;
+  overflow-y: scroll;
+}
