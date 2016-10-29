@@ -328,9 +328,32 @@ class EnvironmentController extends AppController {
 		if ($environment->getRevisions ()->count () != 0) {
 			$this->addFlash ( 'error', 'The environement ' . $environment->getName () . ' is not empty.' );
 		} else {
-			$this->addFlash ( 'notice', 'The environment '.$environment->getName().' has been removed' );
-			$em->remove ( $environment );
-			$em->flush ();
+			$linked = false;
+			/**@var ContentType $contentType */
+			foreach ($environment->getContentTypesHavingThisAsDefault() as $contentType){
+				if(!$contentType->getDeleted()){
+					$linked = true;
+					break;
+				}
+			}
+			
+			if($linked){
+				$this->addFlash ( 'error', 'At least one content type have the environment ' . $environment->getName () . ' has default environment.' );
+			}
+			else {
+				/**@var ContentType $contentType */
+				foreach ($environment->getContentTypesHavingThisAsDefault() as $contentType){
+					$contentType->getFieldType()->setContentType(null);
+					$em->persist($contentType->getFieldType());
+					$em->flush ();
+					$em->remove($contentType);
+					$em->flush ();
+				}				
+				$em->remove ( $environment );
+				$em->flush ();				
+				$this->addFlash ( 'notice', 'The environment '.$environment->getName().' has been removed' );
+			}
+			
 		}
 		
 		return $this->redirectToRoute ( 'environment.index' );

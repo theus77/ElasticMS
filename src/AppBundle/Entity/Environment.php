@@ -113,6 +113,11 @@ class Environment
      */
     private $extra;
     
+
+    /**
+     * @ORM\OneToMany(targetEntity="ContentType", mappedBy="environment", cascade={"remove"})
+     */
+    private $contentTypesHavingThisAsDefault;
     
     /**
      * @ORM\PrePersist
@@ -483,5 +488,39 @@ class Environment
     public function getExtra()
     {
         return $this->extra;
+    }
+
+    /**
+     * Add contentTypesHavingThisAsDefault
+     *
+     * @param \AppBundle\Entity\ContentType $contentTypesHavingThisAsDefault
+     *
+     * @return Environment
+     */
+    public function addContentTypesHavingThisAsDefault(\AppBundle\Entity\ContentType $contentTypesHavingThisAsDefault)
+    {
+        $this->contentTypesHavingThisAsDefault[] = $contentTypesHavingThisAsDefault;
+
+        return $this;
+    }
+
+    /**
+     * Remove contentTypesHavingThisAsDefault
+     *
+     * @param \AppBundle\Entity\ContentType $contentTypesHavingThisAsDefault
+     */
+    public function removeContentTypesHavingThisAsDefault(\AppBundle\Entity\ContentType $contentTypesHavingThisAsDefault)
+    {
+        $this->contentTypesHavingThisAsDefault->removeElement($contentTypesHavingThisAsDefault);
+    }
+
+    /**
+     * Get contentTypesHavingThisAsDefault
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getContentTypesHavingThisAsDefault()
+    {
+        return $this->contentTypesHavingThisAsDefault;
     }
 }
