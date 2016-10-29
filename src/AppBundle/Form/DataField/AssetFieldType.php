@@ -88,15 +88,19 @@ class AssetFieldType extends DataFieldType {
 					"type" => "nested",
 					"properties" => [
 							"mimetype" => [
-									"type" => "string",
-									"index" => "not_analyzed"
+								"type" => "string",
+								"index" => "not_analyzed"
 							],
 							"sha1" => [
-									"type" => "string",
-									"index" => "not_analyzed"
+								"type" => "string",
+								"index" => "not_analyzed"
 							],
 							"filename" => [
-									"type" => "string",
+								"type" => "string",
+							],
+							"language" => [
+								"type" => "string",
+								"index" => "not_analyzed",
 							]
 					]
 			],  array_filter($current->getMappingOptions()))

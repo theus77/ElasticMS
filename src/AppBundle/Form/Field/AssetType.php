@@ -28,6 +28,12 @@ class AssetType extends AbstractType {
 			],
 			'required' => $options['required'],
 		])
+		->add('language', TextType::class, [
+			'attr' => [
+					'class' => 'language'
+			],
+			'required' => $options['required'],
+		])
 		->add('filename', TextType::class, [
 			'attr' => [
 					'class' => 'name'
