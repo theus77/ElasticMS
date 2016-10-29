@@ -4,7 +4,7 @@
 {%  macro recursifArray(array) %}
 <ul class="list-group">
 	{% for prop, value in array %}
-		<li class="list-group-item">
+		<li class="list-group-item{% if value is not iterable %} leaf-item{% endif %}">
 			<strong>{{ prop }} : </strong>
 			{% if value is iterable %}
 				{{ _self.recursifArray(value) }}
