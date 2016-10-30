@@ -187,7 +187,7 @@
 				
 					{% for index in results.aggregations.indexes.buckets %}
 						<li class="list-group-item">
-							<a href="{{ path(paginationPath, cleanedFilters|merge({'search_form[environments][0]': attribute(indexes, index.key).alias})) }}" class="text-{{ attribute(indexes, index.key).color }}">
+							<a href="{{ path(paginationPath, cleanedFilters|merge({'search_form[environments][0]': attribute(indexes, index.key).name})) }}" class="text-{{ attribute(indexes, index.key).color }}">
 								{{ attribute(indexes, index.key).name|humanize }} 
 								<span class=" badge pull-right bg-{{ attribute(indexes, index.key).color }}">
 									{{ index.doc_count }}

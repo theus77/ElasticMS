@@ -138,6 +138,7 @@ services:
         class: AppBundle\Form\DataField\AssetFieldType
         calls:
             - [setAuthorizationChecker, ['@security.authorization_checker']]
+            - [setFileService, ['@ems.service.file']]
         tags:
             - { name: ems.form.datafieldtype, alias: asset }
             - { name: form.type }

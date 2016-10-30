@@ -8,6 +8,7 @@ use AppBundle\Form\Field\AssetType;
 use AppBundle\Form\Field\IconPickerType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Service\FileService;
 	
 /**
  * Defined a Container content type.
@@ -18,6 +19,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class AssetFieldType extends DataFieldType {
 
+	/**@var FileService */
+	private $fileService;
+	
+	public function setFileService(FileService $fileService) {
+		$this->fileService = $fileService;
+	}
+	
 	/**
 	 * Get a icon to visually identify a FieldType
 	 *
@@ -44,7 +52,7 @@ class AssetFieldType extends DataFieldType {
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		/** @var FieldType $fieldType */
 		$fieldType = $options ['metadata'];
-		$builder->add ( 'raw_data', AssetType::class, [
+		$builder->add ( 'input_value', AssetType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'required' => false,
@@ -98,6 +106,9 @@ class AssetFieldType extends DataFieldType {
 							"filename" => [
 								"type" => "string",
 							],
+							"filesize" => [
+								"type" => "integer",
+							],
 							"language" => [
 								"type" => "string",
 								"index" => "not_analyzed",
@@ -105,5 +116,33 @@ class AssetFieldType extends DataFieldType {
 					]
 			],  array_filter($current->getMappingOptions()))
 		];
+	}
+	
+	public function convertInput(DataField $dataField) {		
+		if(!empty($dataField->getInputValue()) && !empty($dataField->getInputValue()['sha1'])){
+			$rawData = $dataField->getInputValue();
+			$rawData['filesize'] = $this->fileService->getSize($rawData['sha1']);
+			if(!$rawData['filesize']){
+				unset($rawData['filesize']);
+			}
+			
+			$dataField->setRawData($rawData);
+		}
+		else{
+			$dataField->setRawData(null);
+		}
+	}	
+	
+	public function generateInput(DataField $dataField){
+		$rawData = $dataField->getRawData();
+		
+		if(!empty($rawData) && !empty($rawData['sha1'])){
+			unset($rawData['filesize']);
+			$dataField->setInputValue($rawData);
+		}
+		else {
+			$dataField->setInputValue(null);			
+		}
+		return $this;
 	}
 }
