@@ -69,7 +69,7 @@ class ContentTypeFieldChoiceList implements ChoiceListInterface {
 	private function recursiveLoad($mapping, $path=''){
 		foreach ($mapping as $key => $field){
 			$newPath = (empty($path)?'':$path.'.').$key;
-			if( array_search($field['type'], $this->types) !== false ){
+			if( isset($field['type']) && array_search($field['type'], $this->types) !== false ){
 				$this->choices[$newPath] = new ContentTypeFieldChoiceListItem($newPath, $newPath);				
 				if(isset($field['fields'])){
 					foreach ($field['fields'] as $fieldName => $field){
