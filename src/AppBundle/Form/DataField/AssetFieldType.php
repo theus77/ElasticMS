@@ -109,10 +109,6 @@ class AssetFieldType extends DataFieldType {
 							"filesize" => [
 								"type" => "integer",
 							],
-							"language" => [
-								"type" => "string",
-								"index" => "not_analyzed",
-							]
 					]
 			],  array_filter($current->getMappingOptions()))
 		];

@@ -150,6 +150,14 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: file_attachment }
             - { name: form.type }
+    ems.fieldtype.urlattachement:
+        class: AppBundle\Form\DataField\UrlAttachmentFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+            - [setFileService, ['@ems.service.file']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: url_attachment }
+            - { name: form.type }
     ems.fieldtype.radio:
         class: AppBundle\Form\DataField\RadioFieldType
         calls:

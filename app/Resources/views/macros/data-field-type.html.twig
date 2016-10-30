@@ -21,6 +21,31 @@
 	{% endif %}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_UrlAttachmentFieldType(dataField) %}
+	<div class="panel panel-default">
+	<div class="panel-heading">
+		<h3 class="panel-title">
+			<i class="{% if dataField.fieldType.displayOptions.icon is defined %}{{ dataField.fieldType.displayOptions.icon }}{% else %}fa fa-file-o{% endif %}"></i> 				
+				{% if dataField.fieldType.displayOptions.label is defined %}
+					{{ dataField.fieldType.displayOptions.label }}
+				{% else %}
+					{{ dataField.fieldType.name }}
+				{% endif %}
+		</h3>
+	</div>
+	<div class="panel-body" >
+		{% if dataField.rawData and dataField.rawData.url is defined %}
+			<ul>
+				<li><a href="{{ dataField.rawData.url }}" target="_blank">URL: {{ dataField.rawData.url }}</a></li>
+				{% if dataField.rawData.size is defined %}
+					<li>Size: {{ dataField.rawData.size }}</li>
+				{% endif %}
+			</ul>
+		{% endif %}
+		
+	</div>
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_FileAttachmentFieldType(dataField) %}
 	{{ _self.AppBundle_Form_DataField_AssetFieldType(dataField) }}
 {% endmacro %}
@@ -39,7 +64,7 @@
 		</h3>
 	</div>
 	<div class="panel-body" >
-		{% if dataField.rawData %}
+		{% if dataField.rawData and dataField.rawData.sha1 is defined %}
 			{% if dataField.rawData.sha1 and dataField.rawData.mimetype starts with 'image/' %}
 				<img src="{{ url('file.download', {'sha1':dataField.rawData.sha1, 'type':dataField.rawData.mimetype, 'name':dataField.rawData.filename }) }}" class="img-responsive" alt="Image of the field {{ dataField.fieldType.name }}">
 			{% else %}
@@ -55,7 +80,7 @@
 		{% endif %}
 		
 	</div>
-	{% if dataField.rawData and dataField.rawData.sha1 %}
+	{% if dataField.rawData and dataField.rawData.sha1 is defined and dataField.rawData.sha1 %}
 		<div class="panel-footer" >
 			<a href="{{ url('file.download', {'sha1':dataField.rawData.sha1, 'type':dataField.rawData.mimetype, 'name':dataField.rawData.filename }) }}" class="btn btn-small btn-primary"><i class="fa fa-download"></i>&nbsp;Download</a>
 		</div>

@@ -9,6 +9,7 @@ use AppBundle\Form\Field\IconPickerType;
 use AppBundle\Service\FileService;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Form\Field\IconTextType;
 	
 /**
  * Defined a Container content type.
@@ -17,7 +18,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  * @author Mathieu De Keyzer <ems@theus.be>
  *
  */
-class FileAttachmentFieldType extends DataFieldType {
+class UrlAttachmentFieldType extends DataFieldType {
 	
 
 	/**@var FileService */
@@ -28,12 +29,12 @@ class FileAttachmentFieldType extends DataFieldType {
 	}
 
 	/**
-	 * Get a icon to visually identify a FieldType
 	 *
-	 * @return string
+	 * {@inheritdoc}
+	 *
 	 */
 	public static function getIcon() {
-		return 'fa fa-file-text-o';
+		return 'fa fa-cloud-download';
 	}
 
 	/**
@@ -42,7 +43,7 @@ class FileAttachmentFieldType extends DataFieldType {
 	 *
 	 */
 	public function getLabel(){
-		return 'File Attachment (indexed) field';
+		return 'Url Attachment (indexed) field';
 	}
 
 	/**
@@ -53,10 +54,11 @@ class FileAttachmentFieldType extends DataFieldType {
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		/** @var FieldType $fieldType */
 		$fieldType = $options ['metadata'];
-		$builder->add ( 'input_value', AssetType::class, [
+		$builder->add ( 'input_value', IconTextType::class, [
 				'label' => (null != $options ['label']?$options ['label']:$fieldType->getName()),
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 				'required' => false,
+				'icon' => $options['icon'],
 		] );
 	}
 	
@@ -64,16 +66,13 @@ class FileAttachmentFieldType extends DataFieldType {
 
 	public function convertInput(DataField $dataField) {
 		
-		if(!empty($dataField->getInputValue()) && !empty($dataField->getInputValue()['sha1'])){
-			$rawData = $dataField->getInputValue();
-			$rawData['content'] = $this->fileService->getBase64($rawData['sha1']);
-			if(!$rawData['content']){
-				unset($rawData['content']);
-			}
-			$rawData['filesize'] = $this->fileService->getSize($rawData['sha1']);
-			if(!$rawData['filesize']){
-				unset($rawData['filesize']);
-			}
+		if(!empty($dataField->getInputValue())){
+			$content = file_get_contents($dataField->getInputValue());
+			$rawData = [
+				'url' => $dataField->getInputValue(),
+				'content' => base64_encode($content),
+				'size' => strlen($content),
+			];
 			
 			$dataField->setRawData($rawData);
 		}
@@ -87,10 +86,8 @@ class FileAttachmentFieldType extends DataFieldType {
 		
 		$rawData = $dataField->getRawData();
 		
-		if(!empty($rawData) && !empty($rawData['sha1'])){
-			unset($rawData['content']);
-			unset($rawData['filesize']);
-			$dataField->setInputValue($rawData);
+		if(!empty($rawData) && !empty($rawData['url'])){
+			$dataField->setInputValue($rawData['url']);
 		}
 		else {
 			$dataField->setInputValue(null);			
@@ -148,25 +145,17 @@ class FileAttachmentFieldType extends DataFieldType {
 		$body = [
 				"type" => "nested",
 				"properties" => [
-						"mimetype" => [
-							"type" => "string",
-							"index" => "not_analyzed"
-						],
-						"sha1" => [
-							"type" => "string",
-							"index" => "not_analyzed"
-						],
-						"filename" => [
+						"url" => [
 							"type" => "string",
 						],
-						"filesize" => [
+						"size" => [
 							"type" => "long",
 						]
 				],
 			];
 		
 		if($withPipeline) {
-			$body['properties']['content'] = [
+			$body['properties']['content'] =[
 				"type" => "text",
 				"index" => "no",
 				'fields' => [
@@ -177,7 +166,6 @@ class FileAttachmentFieldType extends DataFieldType {
 				]
 			];
 		}
-		
 		
 		return [
 			$current->getName() => array_merge($body,  array_filter($current->getMappingOptions()))
