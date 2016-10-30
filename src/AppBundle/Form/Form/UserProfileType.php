@@ -1,13 +1,12 @@
 <?php
-
 namespace AppBundle\Form\Form;
 
-use AppBundle\Service\UserService;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+
 
 class UserProfileType extends AbstractType {
 	

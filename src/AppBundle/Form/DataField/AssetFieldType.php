@@ -82,7 +82,7 @@ class AssetFieldType extends DataFieldType {
 	/**
 	 * {@inheritdoc}
 	 */
-	public static function generateMapping(FieldType $current){
+	public static function generateMapping(FieldType $current, $withPipeline){
 		return [
 			$current->getName() => array_merge([
 					"type" => "nested",

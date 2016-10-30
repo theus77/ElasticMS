@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use AppBundle\Form\Field\SelectPickerType;
+use Symfony\Component\Form\FormRegistryInterface;
 
 
 /**
@@ -26,7 +27,30 @@ abstract class DataFieldType extends AbstractType {
 	
 	public function setAuthorizationChecker($authorizationChecker){
 		$this->authorizationChecker = $authorizationChecker;
+		return $this;
 	}
+	
+	/**FormRegistryInterface $formRegistry*/
+	protected $formRegistry;
+	
+	public function setFormRegistry(FormRegistryInterface $formRegistry){
+		$this->formRegistry = $formRegistry;
+		return $this;
+	}
+	
+	/**@var FormRegistryInterface*/
+	public function getFormRegistry(){
+		return $this->formRegistry;
+	}
+	
+	public function convertInput(DataField $dataField){
+		//by default do nothing
+	}
+	
+	public function generateInput(DataField $dataField){
+		//by default do nothing
+	}
+	
 	
 	public function getDefaultOptions($name) {
 		return [
@@ -251,9 +275,17 @@ abstract class DataFieldType extends AbstractType {
 	 * @param array $options
 	 * @param FieldType $current
 	 */
-	public static function generateMapping(FieldType $current){
+	public static function generateMapping(FieldType $current, $withPipeline){
 		return [
 			$current->getName() => array_merge(["type" => "string"],  array_filter($current->getMappingOptions()))
 		];
+	}
+
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public static function generatePipeline(FieldType $current){
+		return false;
 	}
 }

@@ -3,8 +3,8 @@
 namespace AppBundle\Form\Field;
 
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
 
 class AssetType extends AbstractType {
 
@@ -25,12 +25,6 @@ class AssetType extends AbstractType {
 		->add('mimetype', TextType::class, [
 			'attr' => [
 					'class' => 'type'
-			],
-			'required' => $options['required'],
-		])
-		->add('language', TextType::class, [
-			'attr' => [
-					'class' => 'language'
 			],
 			'required' => $options['required'],
 		])

@@ -177,12 +177,12 @@ class FieldTypeType extends AbstractType
     	return $out;
     }
     
-    public function generateMapping(FieldType $fieldType) {
+    public function generateMapping(FieldType $fieldType, $withPipeline = false) {
     	$type = $fieldType->getType();
     	/** @var DataFieldType $dataFieldType */
     	$dataFieldType = new $type();
     	
-    	$out = $dataFieldType->generateMapping($fieldType);
+    	$out = $dataFieldType->generateMapping($fieldType, $withPipeline);
     	
     	$jsonName = $dataFieldType->getJsonName($fieldType);
     	/** @var FieldType $child */
@@ -190,14 +190,14 @@ class FieldTypeType extends AbstractType
 	    	if (! $child->getDeleted ()) {
 	    		if(isset($jsonName)){
 	    			if(isset($out[$jsonName]["properties"])){
-		    			$out[$jsonName]["properties"] = array_merge($out[$jsonName]["properties"], $this->generateMapping($child));
+		    			$out[$jsonName]["properties"] = array_merge($out[$jsonName]["properties"], $this->generateMapping($child, $withPipeline));
 	    			}
 	    			else{
-		    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateMapping($child));	    				
+		    			$out[$jsonName] = array_merge($out[$jsonName], $this->generateMapping($child, $withPipeline));	    				
 	    			}
 	    		}
 	    		else{
-		    		$out = array_merge($out, $this->generateMapping($child));	    			
+		    		$out = array_merge($out, $this->generateMapping($child, $withPipeline));	    			
 	    		}
 	    	}
     	}

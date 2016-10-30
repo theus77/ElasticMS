@@ -57,7 +57,7 @@ class SubfieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */	
-	public static function generateMapping(FieldType $current){
+	public static function generateMapping(FieldType $current, $withPipeline){
 		return [
 				'fields' => [$current->getName() => array_merge(["type" => "string"],  array_filter($current->getMappingOptions()))]
 		];

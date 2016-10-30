@@ -141,6 +141,14 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: asset }
             - { name: form.type }
+    ems.fieldtype.fileattachement:
+        class: AppBundle\Form\DataField\FileAttachmentFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+            - [setFileService, ['@ems.service.file']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: file_attachment }
+            - { name: form.type }
     ems.fieldtype.radio:
         class: AppBundle\Form\DataField\RadioFieldType
         calls:
@@ -307,13 +315,13 @@ services:
         arguments: ['@ems.form.fieldtype.fieldtypetype']
     ems.service.data:
         class: AppBundle\Service\DataService
-        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory', '@service_container']
+        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory', '@service_container', '@form.registry']
     ems.service.environment:
         class: AppBundle\Service\EnvironmentService
         arguments: ['@doctrine', '@session', '@ems.service.user', '@security.authorization_checker']
     ems.service.contenttype:
         class: AppBundle\Service\ContentTypeService
-        arguments: ['@doctrine', '@session', '@ems.service.mapping', '@app.elasticsearch', '@ems.service.environment']
+        arguments: ['@doctrine', '@session', '@ems.service.mapping', '@app.elasticsearch', '@ems.service.environment', '@form.registry', '%instance_id%']
     ems.service.user:
         class: AppBundle\Service\UserService
         arguments: ['@doctrine', '@session', '@security.token_storage', '%security.role_hierarchy.roles%']
@@ -335,6 +343,9 @@ services:
     ems.service.search:
         class: AppBundle\Service\SearchService
         arguments: []
+    ems.service.file:
+        class: AppBundle\Service\FileService
+        arguments: []
         
 ### Storage services ###
     ems.storage.filesystem:
@@ -343,6 +354,11 @@ services:
         tags:
             -  { name: ems.storage }
 ### command services ###
+    ems.environment.ems:
+        class: AppBundle\Command\EmsCommand
+        arguments: ['@logger', '@app.elasticsearch', '@session']
+        tags:
+            -  { name: console.command }
     ems.contenttype.migrate:
         class: AppBundle\Command\MigrateCommand
         arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@ems.service.data']
@@ -350,7 +366,7 @@ services:
             -  { name: console.command }
     ems.environment.rebuild:
         class: AppBundle\Command\RebuildCommand
-        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container', '@session']
         tags:
             -  { name: console.command }
     ems.environment.align:
@@ -360,7 +376,7 @@ services:
             -  { name: console.command }
     ems.environment.reindex:
         class: AppBundle\Command\ReindexCommand
-        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container', '%instance_id%', '@session']
         tags:
             -  { name: console.command }
     ems.contenttype.delete:

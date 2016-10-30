@@ -43,6 +43,11 @@ class DataField implements \ArrayAccess, \IteratorAggregate
      * object
      */
     private $rawData;
+
+    /**
+     * object
+     */
+    private $inputValue;
     
     
     private $messages;
@@ -819,5 +824,29 @@ class DataField implements \ArrayAccess, \IteratorAggregate
     public function getRawData()
     {
         return $this->rawData;
+    }
+
+    /**
+     * Set rawData
+     *
+     * @param array $rawData
+     *
+     * @return DataField
+     */
+    public function setInputValue($inputValue)
+    {
+        $this->inputValue = $inputValue;
+
+        return $this;
+    }
+
+    /**
+     * Get rawData
+     *
+     * @return array
+     */
+    public function getInputValue()
+    {
+        return $this->inputValue;
     }
 }

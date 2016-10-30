@@ -21,6 +21,11 @@
 	{% endif %}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_FileAttachmentFieldType(dataField) %}
+	{{ _self.AppBundle_Form_DataField_AssetFieldType(dataField) }}
+{% endmacro %}
+
+
 {% macro AppBundle_Form_DataField_AssetFieldType(dataField) %}
 	<div class="panel panel-default">
 	<div class="panel-heading">
@@ -41,6 +46,9 @@
 				<ul>
 					<li>Sha1: {{ dataField.rawData.sha1 }}</li>
 					<li>Name: {{ dataField.rawData.filename }}</li>
+					{% if dataField.rawData.filesize is defined %}
+						<li>Size: {{ dataField.rawData.filesize }}</li>
+					{% endif %}
 					<li>Type: {{ dataField.rawData.mimetype }}</li>
 				</ul>
 			{% endif %}
@@ -116,14 +124,14 @@
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_ContainerFieldType(dataField) %}
-    {% if dataField.fieldType.displayOptions.label is defined %}
+    {% if dataField.fieldType.displayOptions.label is defined and dataField.fieldType.displayOptions.label %}
     	<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">
 					{% if dataField.fieldType.displayOptions.icon is defined %}
 						<i class="{{ dataField.fieldType.displayOptions.icon }}"></i> 
 					{% endif %}
-					{% if dataField.fieldType.displayOptions.label is defined %}
+					{% if dataField.fieldType.displayOptions.label is defined and dataField.fieldType.displayOptions.label%}
 						{{ dataField.fieldType.displayOptions.label }}
 					{% else %}
 						{{ dataField.fieldType.name }}

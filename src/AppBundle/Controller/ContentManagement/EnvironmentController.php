@@ -18,7 +18,6 @@ use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\RevisionRepository;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
-use Elasticsearch\Common\Exceptions\BadRequest400Exception;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
@@ -406,55 +405,24 @@ class EnvironmentController extends AppController {
 				$em = $this->getDoctrine ()->getManager ();
 				$em->persist ( $environment );
 				$em->flush ();
-				$this->reindexAllInNewIndex($environment, true);
+
+				$indexName = $environment->getAlias().AppController::getFormatedTimestamp();
+				$this->getElasticsearch()->indices()->create([
+						'index' => $indexName,
+						'body' => ContentType::getIndexAnalysisConfiguration(),
+				]);
+				
+				foreach ($this->getContentTypeService()->getAll() as $contentType){
+					$this->getContentTypeService()->updateMapping($contentType, $indexName);				
+				}
+				
+				$this->getElasticsearch()->indices()->putAlias([
+    				'index' => $indexName,
+    				'name' => $environment->getAlias()
+    			]);
+				
 				$this->addFlash('notice', 'A new environement '.$environment->getName().' has been created');
 				return $this->redirectToRoute ( 'environment.index' );
-				
-// 				/** @var  Client $client */
-// 				$client = $this->get ( 'app.elasticsearch' );
-				
-// 				$environment->setAlias ( $this->getParameter ( 'instance_id' ) . $environment->getName () );
-// 				$environment->setManaged ( true );
-// 				try {
-// 					$indexes = $client->indices ()->get ( [ 
-// 							'index' => $environment->getAlias () 
-// 					] );
-// 					$form->get ( 'name' )->addError ( new FormError ( 'Another index named ' . $environment->getName () . ' already exists' ) );
-					
-// 				} catch ( Missing404Exception $e ) {
-// 					/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
-// 					$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
-// 					$contentTypes = $contentTypeRepository->findAll();
-					
-// 					$mapping = [];
-// 					/** @var ContentType $contentType */
-// 					foreach ($contentTypes as $contentType){
-// 						if($contentType->getEnvironment()->getManaged()){
-// 							$mapping = array_merge($mapping, $contentType->generateMapping());
-// 						}
-// 					}
-					
-					
-					
-// 					$body = '{'.
-// 							(count($mapping)>0?'"mappings" : {'.json_encode ( $mapping ).'},':'').
-// 		    				'"aliases" : {
-// 		        			' . json_encode ( $environment->getAlias () ) . ' : {}}}';
-					
-// 					$client->indices ()->create ( [ 
-// 							'index' => $environment->getAlias () . $this->getFormatedTimestamp (),
-// 							'body' =>  $body
-// 					] );
-// 					if ($form->isValid ()) {
-// 						$em = $this->getDoctrine ()->getManager ();
-// 						$em->persist ( $environment );
-// 						$em->flush ();
-// 						$this->addFlash('notice', 'A new environement '.$environment->getName().' has been created');
-						
-						
-// 						return $this->redirectToRoute ( 'environment.index' );
-// 					}
-// 				}
 				
 			}
 		}
@@ -557,61 +525,6 @@ class EnvironmentController extends AppController {
 				'environment' => $environment,
 				'info' => $info,
 		]);
-	
-	}
-	
-	/**
-	 * A new index will be created and all object's revision defined in this environnement will be published.
-	 * Once it's done the environment alias is updarted.
-	 * 
-	 * @param Environment $environment
-	 */
-	private function reindexAllInNewIndex(Environment $environment, $newEnv = false){
-		/** @var EntityManager $em */
-		$em = $this->getDoctrine()->getManager();
-		/** @var  Client $client */
-		$client = $this->get('app.elasticsearch');
-		$indexName = $environment->getAlias().$this->getFormatedTimestamp();
-			
-			
-		/** @var \AppBundle\Repository\ContentTypeRepository $contentTypeRepository */
-		$contentTypeRepository = $em->getRepository('AppBundle:ContentType');
-		$contentTypes = $contentTypeRepository->findAll();
-		/** @var ContentType $contentType */
-		
-
-		$client->indices()->create([
-				'index' => $indexName,
-				'body' => ContentType::getIndexAnalysisConfiguration(),
-		]);
-		$this->addFlash('notice', 'A new index '.$indexName.' has been created');
-		
-		$mapping = [];
-		
-		/** @var ContentType $contentType */
-		foreach ($contentTypes as $contentType){
-			if($contentType->getEnvironment()->getManaged() && !$contentType->getDeleted()){
-				try {
-					$out = $client->indices ()->putMapping ( [
-							'index' => $indexName,
-							'type' => $contentType->getName (),
-							'body' => $this->get('ems.service.mapping')->generateMapping ($contentType)
-					] );
-					$this->addFlash('notice', 'A new mapping for '.$contentType->getName ().' has been defined');					
-				}
-				catch (BadRequest400Exception $e){
-					$this->addFlash('error', 'Error on putting mapping for '.$contentType->getName ().'!  Message: '.$e->getMessage());
-					$this->addFlash('error', print_r($this->get('ems.service.mapping')->generateMapping ($contentType), true));
-				}
-			}
-		}
-		
-		if(!$newEnv){
-			$this->reindexAll($environment, $indexName);			
-		}
-	
-		$this->switchAlias($client, $environment->getAlias(), $indexName, $newEnv);
-		$this->addFlash('notice', 'The alias <strong>'.$environment->getName().'</strong> is now pointing to '.$indexName);
 	
 	}
 	

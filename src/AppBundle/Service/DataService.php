@@ -25,6 +25,9 @@ use AppBundle\Form\DataField\ComputedFieldType;
 use AppBundle\Entity\ContentType;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use AppBundle\Exception\DataStateException;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormRegistryInterface;
+use AppBundle\Form\DataField\DataFieldType;
 
 class DataService
 {
@@ -46,10 +49,12 @@ class DataService
 	protected $revRepository;
 	/**@var Session $session*/
 	protected $session;
-	/**@var Session $session*/
+	/**@var FormFactoryInterface $formFactory*/
 	protected $formFactory;
 	protected $container;
 	protected $appTwig;
+	/**@var FormRegistryInterface*/
+	protected $formRegistry;
 	
 	public function __construct(
 			Registry $doctrine, 
@@ -60,8 +65,9 @@ class DataService
 			Mapping $mapping, 
 			$instanceId,
 			Session $session,
-			$formFactory,
-			$container)
+			FormFactoryInterface $formFactory,
+			$container,
+			FormRegistryInterface $formRegistry)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
@@ -77,6 +83,7 @@ class DataService
 		$this->container = $container;
 		$this->twig = $container->get('twig');
 		$this->appTwig = $container->get('app.twig_extension');
+		$this->formRegistry = $formRegistry;
 	}
 	
 	
@@ -176,6 +183,24 @@ class DataService
 		return $found;
 	}
 	
+	public function convertInputValues(DataField $dataField) {
+		/**@var DataFieldType $dataFieldType*/
+		$dataFieldType = $this->formRegistry->getType($dataField->getFieldType()->getType())->getInnerType();
+		foreach ($dataField->getChildren() as $child){
+			$this->convertInputValues($child);
+		}
+		$dataFieldType->convertInput($dataField);
+	}
+	
+	public function generateInputValues(DataField $dataField) {
+		/**@var DataFieldType $dataFieldType*/
+		$dataFieldType = $this->formRegistry->getType($dataField->getFieldType()->getType())->getInnerType();
+		foreach ($dataField->getChildren() as $child){
+			$this->generateInputValues($child);
+		}
+		$dataFieldType->generateInput($dataField);
+	}
+	
 	public function createData($ouuid, array $rawdata, ContentType $contentType, $byARealUser=true){
 
 		$now = new \DateTime();
@@ -250,22 +275,23 @@ class DataService
 //    	if(!$form->isValid()){//Trying to work with validators
   		if($this->isValid($form)){
 		
-			if( null == $revision->getOuuid() ) {
-				$status = $this->client->create([
-						'index' => $revision->getContentType()->getEnvironment()->getAlias(),
-						'type' => $revision->getContentType()->getName(),
-						'body' => $objectArray
-				]);
-		
+			$config = [
+				'index' => $revision->getContentType()->getEnvironment()->getAlias(),
+				'type' => $revision->getContentType()->getName(),
+				'body' => $objectArray,
+			];
+			
+			if($revision->getContentType()->getHavePipelines()){
+				$config['pipeline'] = $this->instanceId.$revision->getContentType()->getName();
+			}
+			
+			if(empty($revision->getOuuid())) {
+				$status = $this->client->index($config);
 				$revision->setOuuid($status['_id']);
 			}
 			else {
-				$status = $this->client->index([
-						'id' => $revision->getOuuid(),
-						'index' => $this->instanceId.$revision->getContentType()->getEnvironment()->getName(),
-						'type' => $revision->getContentType()->getName(),
-						'body' => $objectArray
-				]);
+				$config['id'] = $revision->getOuuid();
+				$status = $this->client->index($config);
 		
 				$result = $repository->findByOuuidContentTypeAndEnvironnement($revision);
 		
@@ -281,6 +307,7 @@ class DataService
 			$revision->addEnvironment($revision->getContentType()->getEnvironment());
 			$revision->getDataField()->propagateOuuid($revision->getOuuid());
 			$revision->setDraft(false);
+			
 			$em->persist($revision);
 			$em->flush();
 		

@@ -18,7 +18,7 @@ class Mapping
 		$this->fieldTypeType = $fieldTypeType;
 	}
 	
-	public function generateMapping(ContentType $contentType){
+	public function generateMapping(ContentType $contentType, $withPipeline = false){
 		$out = [
 				$contentType->getName() => [
 						"_all" => [
@@ -31,7 +31,7 @@ class Mapping
 		];
 		
 		if(null != $contentType->getFieldType()){
-			$out[$contentType->getName()]['properties'] = $this->fieldTypeType->generateMapping($contentType->getFieldType());
+			$out[$contentType->getName()]['properties'] = $this->fieldTypeType->generateMapping($contentType->getFieldType(), $withPipeline);
 		}
 		return $out;
 	} 

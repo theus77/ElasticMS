@@ -655,6 +655,8 @@ class DataController extends AppController
 				
 		/** @var Revision $revision */
 		$revision = $form->getData();
+
+		$this->getDataService()->convertInputValues($revision->getDataField());
 		
 		$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
 		$revision->setAutoSave($objectArray);
@@ -761,6 +763,7 @@ class DataController extends AppController
 		}
 		
 		$this->getDataService()->loadDataStructure($revision);
+		$this->getDataService()->generateInputValues($revision->getDataField());
 
 		$logger->debug('DataField structure generated');
 		
@@ -802,6 +805,8 @@ class DataController extends AppController
 				/** @var Revision $revision */
 				$revision = $form->getData();
 				$this->get('logger')->debug('Revision extracted from the form');
+				
+				$this->getDataService()->convertInputValues($revision->getDataField());
 				
 				$objectArray = $this->get('ems.service.mapping')->dataFieldToArray($revision->getDataField());
 				$revision->setRawData($objectArray);

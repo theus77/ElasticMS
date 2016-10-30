@@ -7,34 +7,40 @@ use AppBundle\Controller\AppController;
 use AppBundle\Entity\ContentType;
 use AppBundle\Entity\Environment;
 use AppBundle\Repository\JobRepository;
+use AppBundle\Service\ContentTypeService;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Monolog\Logger;
-use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Session\Session;
 
-class RebuildCommand extends ContainerAwareCommand
+class RebuildCommand extends EmsCommand
 {
-	protected  $client;
-	protected $mapping;
-	protected $doctrine;
-	protected $logger;
-	protected $container;
+	private $mapping;
+	private $doctrine;
+	private $container;
 	
-	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, $container)
+	/**@var ContentTypeService*/
+	private $contentTypeService;
+	
+	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, Container $container, Session $session)
 	{
 		$this->doctrine = $doctrine;
 		$this->logger = $logger;
 		$this->client = $client;
 		$this->mapping = $mapping;
 		$this->container = $container;
-		parent::__construct();
+		$this->contentTypeService = $container->get('ems.service.contenttype');
+		$this->session = $session;
+		parent::__construct($logger, $client, $session);
 	}
 	
 	protected function configure()
@@ -58,7 +64,9 @@ class RebuildCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        
+
+    	$this->waitForGreen($output);
+    	
 		/** @var EntityManager $em */
 		$em = $this->doctrine->getManager();
 		/** @var  Client $client */
@@ -83,31 +91,31 @@ class RebuildCommand extends ContainerAwareCommand
 					'index' => $indexName,
 					'body' => ContentType::getIndexAnalysisConfiguration(),
 			]);
+		
 			$output->writeln('A new index '.$indexName.' has been created');
+			$this->waitForGreen($output);
 			
-			$mapping = [];
+			// create a new progress bar
+			$progress = new ProgressBar($output, count($contentTypes));
+			// start and displays the progress bar
+			$progress->start();
+			$progressMessage = " creating content type's mappings in ".$indexName;
 			
 			/** @var ContentType $contentType */
 			foreach ($contentTypes as $contentType){
 				if($contentType->getEnvironment()->getManaged() && !$contentType->getDeleted()){
-
-					try {
-						$out = $client->indices ()->putMapping ( [
-								'index' => $indexName,
-								'type' => $contentType->getName (),
-								'body' => $this->mapping->generateMapping ($contentType)
-						] );
-						$output->writeln('A new mapping for '.$contentType->getName ().' has been defined');					
-					}
-					catch (\Exception $e){
-						$output->writeln('ERROR: Error on putting mapping for '.$contentType->getName ().'!  Message: '.$e->getMessage());
-						$output->writeln('ERROR: '. print_r($this->mapping->generateMapping ($contentType), true));
-					}
+					$this->contentTypeService->updateMapping($contentType, $indexName);
 				}
+
+				$progress->advance();
+				$output->write($progressMessage);
 			}
+			$progress->finish();
+			$output->writeln($progressMessage);
 			
+			$this->flushFlash($output);			
 			
-			$command = $this->container->get('ems.environment.reindex');
+			$command = $this->getReindexCommand();
 			
 			$arguments = array(
 					'name'    => $name,
@@ -121,16 +129,23 @@ class RebuildCommand extends ContainerAwareCommand
 				$output->writeln('Reindexed with return code: '.$returnCode);				
 			}
 			
-				
+			$this->waitForGreen($output);
 			$this->switchAlias($environment->getAlias(), $indexName, true, $output);
 			$output->writeln('The alias <info>'.$environment->getName().'</info> is now pointing to '.$indexName);
 		}
 		else{
 			$output->writeln("WARNING: Environment named ".$name." not found");
 		}
+		$this->flushFlash($output);
     }
     
-
+    
+    /*
+     * @return ReindexCommand
+     */
+    protected function getReindexCommand() {
+    	return $this->container->get('ems.environment.reindex');
+    }
 
     /**
      * Update the alias of an environement to a new index
@@ -143,22 +158,25 @@ class RebuildCommand extends ContainerAwareCommand
     			
     		
     		$result = $this->client->indices()->getAlias(['name' => $alias]);
-    		$index = array_keys ( $result ) [0];
-    		$params ['body'] = [
-    				'actions' => [
-    						[
-    								'remove' => [
-    										'index' => $index,
-    										'alias' => $alias
-    								],
-    								'add' => [
-    										'index' => $to,
-    										'alias' => $alias
-    								]
-    						]
+    		$params ['body']['actions'] = [];
+    		
+    		foreach ($result as $id => $item){
+    			$params ['body']['actions'][] = [
+    				'remove' => [
+	    				"index" => $id,
+	    				"alias" => $alias,
     				]
+    			];
+    		}
+    		
+    		$params ['body']['actions'][] = [
+    			'add' => [
+	    			'index' => $to,
+	    			'alias' => $alias,
+    			]
     		];
-    		$this->client->indices ()->updateAliases ( $params );
+    		
+    		$this->client->indices()->updateAliases ( $params );
     	}
     	catch(\Exception $e){ //TODO why does Elasticsearch\Common\Exceptions\Missing404Exception is not catched?
     		

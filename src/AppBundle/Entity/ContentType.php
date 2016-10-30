@@ -109,6 +109,13 @@ class ContentType
     /**
      * @var bool
      *
+     * @ORM\Column(name="have_pipelines", type="boolean")
+     */
+    private $havePipelines;
+    
+    /**
+     * @var bool
+     *
      * @ORM\Column(name="ask_for_ouuid", type="boolean")
      */
     private $askForOuuid;
@@ -1447,5 +1454,29 @@ class ContentType
     public function getViewRole()
     {
         return $this->viewRole;
+    }
+
+    /**
+     * Set havePipelines
+     *
+     * @param boolean $havePipelines
+     *
+     * @return ContentType
+     */
+    public function setHavePipelines($havePipelines)
+    {
+        $this->havePipelines = $havePipelines;
+
+        return $this;
+    }
+
+    /**
+     * Get havePipelines
+     *
+     * @return boolean
+     */
+    public function getHavePipelines()
+    {
+        return $this->havePipelines;
     }
 }

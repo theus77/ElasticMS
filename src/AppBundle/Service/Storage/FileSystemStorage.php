@@ -34,6 +34,10 @@ class FileSystemStorage implements StorageInterface {
 	}
 	
 	public function read($sha1){
-		return $this->getPath($sha1);
+		$out = $this->getPath($sha1);
+		if(!file_exists($out)){
+			return false;
+		}
+		return $out;
 	}
 }

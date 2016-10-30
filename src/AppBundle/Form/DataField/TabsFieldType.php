@@ -123,7 +123,7 @@ class TabsFieldType extends DataFieldType {
 	 * {@inheritdoc}
 	 *
 	 */
-	public static function generateMapping(FieldType $current) {
+	public static function generateMapping(FieldType $current, $withPipeline) {
 		return [];
 	}
 }
