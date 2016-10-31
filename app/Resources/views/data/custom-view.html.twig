@@ -3,7 +3,7 @@
 {% block title %}View {{ template.name }} of the {{ object._type }} : {{ object._id }}{% endblock %}
 {% block pagetitle %}
 	<i class="{% if contentType.icon %}{{ contentType.icon }} {% else %} fa fa-question {% endif %} "></i>
-	View {{ template.name }} of the {{ object._type|humanize }} : 
+	View {{ template.name }} of the {{ object._type }} : 
 	
 	{% if (contentType.labelField) and (attribute(attribute(object, '_source'), contentType.labelField)  is defined ) %}
 		{{ attribute(attribute(object, '_source'), contentType.labelField) }}<small>{{ object._id }}</small>

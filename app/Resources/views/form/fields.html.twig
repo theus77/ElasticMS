@@ -49,7 +49,7 @@
                 '%id%': id,
             }) %}
         {%- else -%}
-            {% set label = name|humanize %}
+            {% set label = name %}
         {%- endif -%}
     {%- endif -%}
     <button type="{{ type|default('submit') }}" {{ block('button_attributes') }}>
@@ -408,7 +408,7 @@
 		<strong>{{ form.vars.data.name }}</strong> 
 		<small>{{ form.vars.data.type }}</small>
 	{% else %}
-		<strong>{{ form.vars.data.contentType.name|humanize }}</strong>
+		<strong>{{ form.vars.data.contentType.singularName }}</strong>
 	{% endif %}
 	<div class="btn-group pull-right">
 		{% if form.add is defined %}		

@@ -84,7 +84,7 @@ class NotificationFormType extends AbstractType {
 					
 				},
 				'choice_label' => function ($value, $key, $index) {
-					return '<i class="'.$value->getIcon().' text-'.$value->getColor().'"></i>&nbsp;&nbsp;'.SelectPickerType::humanize($value->getName());
+					return '<i class="'.$value->getIcon().' text-'.$value->getColor().'"></i>&nbsp;&nbsp;'.$value->getSingularName();
 				},
 				'multiple' => true,
 				'required' => false,

@@ -72,7 +72,7 @@
         	{% if contentType.active and (not contentType.viewRole or is_granted(contentType.viewRole) or contentType.rootContentType ) %}
 	          <li class="">
 	          	<a href="{{ path('data.root', {name: contentType.name}) }}" class="text-{{ contentType.color }}">
-	          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName|humanize }}</span>
+	          		<i class=" {% if contentType.icon %}{{ contentType.icon }}{% else %}fa fa-book{% endif %}"></i> <span>{{ contentType.pluralName }}</span>
 	          		
 	            	{% if draftCounterGroupedByContentType[contentType.id] is defined %}
 	          			<span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span>
@@ -98,7 +98,7 @@
 						}) %}
 					{% endif %}
 					
-	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm) }}">Search {{ contentType.pluralName|humanize }}</a></li>
+	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm) }}">Search {{ contentType.pluralName }}</a></li>
 	          		
 	          		{% if contentType.circlesField and app.user.circles|length > 0 %}
 		            	{% set searchForm = searchForm|merge({ 
@@ -136,7 +136,7 @@
 	            	{% endif %}
 	            	
 	            	{% if not contentType.createRole or is_granted(contentType.createRole) %}
-						<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.name|humanize }}</a></li>
+						<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.singularName }}</a></li>
 					{% endif %}
 	            	
 	            	

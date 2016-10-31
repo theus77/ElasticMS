@@ -5,11 +5,12 @@ namespace AppBundle\Form\DataField;
 
 
 
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use AppBundle\Form\Field\AnalyzerPickerType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use AppBundle\Entity\FieldType;
+use AppBundle\Entity\DataField;
 
 class ComputedFieldType extends DataFieldType {
 	/**
@@ -21,13 +22,43 @@ class ComputedFieldType extends DataFieldType {
 		return 'Computed from the raw-data';
 	}	
 	
+
+
 	/**
-	 * Get a icon to visually identify a FieldType
-	 * 
-	 * @return string
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function generateMapping(FieldType $current, $withPipeline){
+		if(!empty($current->getMappingOptions()) && !empty($current->getMappingOptions()['mappingOptions'])){
+			return [ $current->getName() =>  $current->getMappingOptions()['mappingOptions']];
+		}
+		return [];
+	}
+	
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
 	 */
 	public static function getIcon(){
 		return 'fa fa-gears';
+	}
+
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public static function buildObjectArray(DataField $data, array &$out) {
+		if (! $data->getFieldType ()->getDeleted ()) {
+			/**
+			 * by default it serialize the text value.
+			 * It can be overrided.
+			 */
+			$out [$data->getFieldType ()->getName ()] = $data->getRawData();
+		}
 	}
 	
 	/**
@@ -42,16 +73,28 @@ class ComputedFieldType extends DataFieldType {
 		// String specific display options
 		$optionsForm->get ( 'displayOptions' )->add ( 'valueTemplate', TextareaType::class, [ 
 				'required' => false,
+				'attr' => [
+					'rows' => 8,
+				],
 		] )->add ( 'json', CheckboxType::class, [ 
 				'required' => false,
 				'label' => 'Try to JSON decode'
 		] )->add ( 'displayTemplate', TextareaType::class, [ 
 				'required' => false,
+				'attr' => [
+					'rows' => 8,
+				],
 		] );
 
+
+		$optionsForm->get ( 'mappingOptions' )->remove('index')->remove('analyzer')->add('mappingOptions', TextareaType::class, [ 
+				'required' => false,
+				'attr' => [
+					'rows' => 8,
+				],
+		] );
 		$optionsForm->remove('restrictionOptions');
 		$optionsForm->remove('migrationOptions');
-		$optionsForm->get ('mappingOptions')->add ( 'analyzer', AnalyzerPickerType::class);
 		
 	}
 

@@ -32,4 +32,12 @@ class ContentTypeRepository extends \Doctrine\ORM\EntityRepository
 		 ->getQuery()
 		 ->getSingleScalarResult();
 	}
+	
+	
+	public function maxOrderKey() {
+		return $this->createQueryBuilder('a')
+		 ->select('max(a.orderKey)')
+		 ->getQuery()
+		 ->getSingleScalarResult();
+	}
 }

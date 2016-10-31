@@ -89,7 +89,7 @@
 	{# 								{{ form_widget(attribute(treatform.notifications, notification.id)) }}#}
 								</td>
 	{# 							<td><i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}</td>#}
-								<td>{{ notification.username|humanize }}</td>
+								<td>{{ notification.username }}</td>
 								<td>{{ notification.created|date|date(date_time_format) }}</td>
 								<td>
 									<span class="badge bg-{{ notification.environmentId.color|raw }}">{{ notification.environmentId.name }}</span>

@@ -53,6 +53,13 @@ class ContentType
     /**
      * @var string
      *
+     * @ORM\Column(name="singularName", type="string", length=100)
+     */
+    private $singularName;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="icon", type="string", length=100, nullable=true)
      */
     private $icon;
@@ -109,7 +116,7 @@ class ContentType
     /**
      * @var bool
      *
-     * @ORM\Column(name="have_pipelines", type="boolean")
+     * @ORM\Column(name="have_pipelines", type="boolean", nullable=true)
      */
     private $havePipelines;
     
@@ -1478,5 +1485,29 @@ class ContentType
     public function getHavePipelines()
     {
         return $this->havePipelines;
+    }
+
+    /**
+     * Set singularName
+     *
+     * @param string $singularName
+     *
+     * @return ContentType
+     */
+    public function setSingularName($singularName)
+    {
+        $this->singularName = $singularName;
+
+        return $this;
+    }
+
+    /**
+     * Get singularName
+     *
+     * @return string
+     */
+    public function getSingularName()
+    {
+        return $this->singularName;
     }
 }

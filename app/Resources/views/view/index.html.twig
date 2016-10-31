@@ -29,7 +29,7 @@
 							<tr>
 								<td class="text-center">{{ loop.index }}.</td>
 								<td class="text-center"><i class="{% if view.icon %}{{ view.icon }}{% else %}fa fa-file-text-o{% endif %}"></i></td>
-								<td>{{ view.name|humanize }}</td>
+								<td>{{ view.name }}</td>
 								<td>
 								
 									<div class="btn-group">
@@ -40,7 +40,7 @@
 										}%}
 										{% include 'elements/post-button.html.twig' with {
 											'url': path('view.remove', {'id': view.id}),
-											'message': 'Delete the view ' ~ view.name|humanize ~ ' ?',
+											'message': 'Delete the view ' ~ view.name ~ ' ?',
 											'label': 'Delete',
 											'icon': 'trash'
 										}%}

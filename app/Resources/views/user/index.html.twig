@@ -87,21 +87,21 @@
 										}%}
 										{% include 'elements/post-button.html.twig' with {
 											'url': path('user.delete', {'id': user.id}),
-											'message': 'Delete the user ' ~ user.username|humanize ~ ' ?',
+											'message': 'Delete the user ' ~ user.username ~ ' ?',
 											'label': 'Delete',
 											'icon': 'trash'
 										}%}
 										{% if user.enabled %}
 											{% include 'elements/post-button.html.twig' with {
 												'url': path('user.enabling', {'id': user.id}),
-													'message': 'Disable the user ' ~ user.username|humanize ~ ' ?',
+													'message': 'Disable the user ' ~ user.username ~ ' ?',
 													'label': 'Disable',
 													'icon': 'user-times'
 											}%}
 										{% else %}
 											{% include 'elements/post-button.html.twig' with {
 													'url': path('user.enabling', {'id': user.id}),
-													'message': 'Enable the user ' ~ user.username|humanize ~ ' ?',
+													'message': 'Enable the user ' ~ user.username ~ ' ?',
 													'label': 'Enable',
 													'icon': 'user-plus'
 											}%}
@@ -109,20 +109,20 @@
 										{% if user.locked %}
 											{% include 'elements/post-button.html.twig' with {
 												'url': path('user.locking', {'id': user.id}),
-													'message': 'Unlock the user ' ~ user.username|humanize ~ ' ?',
+													'message': 'Unlock the user ' ~ user.username ~ ' ?',
 													'label': 'Unlock',
 													'icon': 'unlock-alt'
 											}%}
 										{% else %}
 											{% include 'elements/post-button.html.twig' with {
 													'url': path('user.locking', {'id': user.id}),
-													'message': 'Lock the user ' ~ user.username|humanize ~ ' ?',
+													'message': 'Lock the user ' ~ user.username ~ ' ?',
 													'label': 'Lock',
 													'icon': 'lock'
 											}%}
 											{% include 'elements/post-button.html.twig' with {
 													'url': path('user.apikey', {'user': user.id}),
-													'message': 'Generate API key for ' ~ user.username|humanize ~ ' ?',
+													'message': 'Generate API key for ' ~ user.username ~ ' ?',
 													'label': 'API key',
 													'icon': 'key'
 											}%}

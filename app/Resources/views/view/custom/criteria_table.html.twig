@@ -1,7 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ view.name }} for {{view.contentType.pluralName|humanize}}{% endblock %}
-{% block pagetitle %}{{ view.name }} for {{view.contentType.pluralName|humanize}}{% endblock %} 
+{% block title %}{{ view.name }} for {{view.contentType.pluralName}}{% endblock %}
+{% block pagetitle %}{{ view.name }} for {{view.contentType.pluralName}}{% endblock %} 
 {# {% block subtitle %}<!-- TODO -->{% endblock %} #}
 
 
@@ -11,7 +11,7 @@
 		<div class="box">
 			<div class="box-header">
 				<h3 class="box-title">
-				{{ view.contentType.pluralName|humanize }}			
+				{{ view.contentType.pluralName }}			
 				
 				{% if config.criterion|length > 2 %}
 					for criterion 				

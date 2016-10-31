@@ -100,6 +100,7 @@ class ContentTypeType extends AbstractType {
 			'label' => 'Edit the Twig template with a WYSIWYG editor',
 			'required' => false,
 		]);
+		$builder->add ( 'singularName', TextType::class);
 		$builder->add ( 'pluralName', TextType::class);
 		$builder->add ( 'icon', IconPickerType::class, [
 			'required' => false,

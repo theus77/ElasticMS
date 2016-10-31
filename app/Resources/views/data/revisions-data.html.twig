@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Revisions of {{ revision.contentType.name|humanize }} : {{ revision.ouuid }}{% endblock %}
+{% block title %}Revisions of {{ revision.contentType.singularName }} : {{ revision.ouuid }}{% endblock %}
 {% block pagetitle %}
 	<i class="{% if revision.contentType.icon %}{{ revision.contentType.icon }} {% else %} fa fa-question {% endif %} "></i>
 	Revisions of {{ revision.contentType.name }} : {{ revision.ouuid }}

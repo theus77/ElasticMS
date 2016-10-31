@@ -167,6 +167,11 @@ class DataService
 							'_type' => $type,
 							'_id' => $ouuid
 						]);
+						
+						if($dataField->getFieldType()->getDisplayOptions()['json']){
+							$out = json_decode($out);
+						}
+						
 					}
 					catch (\Exception $e) {
 						$out = "Error in template: ".$e->getMessage();

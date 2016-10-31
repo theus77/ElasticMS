@@ -170,8 +170,8 @@ class ContentTypeController extends AppController {
 				'icon' => 'fa fa-gear',
 				'label' => "Machine name",
 				'required' => true
+		] )->add ( 'singularName', TextType::class, [ 
 		] )->add ( 'pluralName', TextType::class, [ 
-				'label' => 'Plural form' 
 		] )->add ( 'import', FileType::class, [ 
 				'label' => 'Import From JSON',
 				'mapped' => false,
@@ -232,13 +232,17 @@ class ContentTypeController extends AppController {
 					$contentType->setActive(false);
 					$contentType->setDirty(true);
 					$contentType->getFieldType()->updateAncestorReferences($contentType, NULL);
-					$contentType->setOrderKey($contentTypeRepository->countContentType());
+					$contentType->setOrderKey($contentTypeRepository->maxOrderKey()+1);
 
 					$em->persist ( $contentType );
 				}
 				else {
 					$contentType = $contentTypeAdded;
-					$contentType->setOrderKey($contentTypeRepository->countContentType());
+					$contentType->setAskForOuuid(false);
+					$contentType->setViewRole('ROLE_AUTHOR');
+					$contentType->setEditRole('ROLE_AUTHOR');
+					$contentType->setCreateRole('ROLE_AUTHOR');
+					$contentType->setOrderKey($contentTypeRepository->maxOrderKey()+1);
 					$em->persist ( $contentType );
 				}
 				$em->flush ();

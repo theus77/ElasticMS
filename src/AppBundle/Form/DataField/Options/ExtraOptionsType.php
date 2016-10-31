@@ -19,7 +19,10 @@ class ExtraOptionsType extends AbstractType {
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		$builder->add ( 'extra', TextareaType::class, [ 
-				'required' => false
+				'attr' => [
+					'rows' => 8,
+				],
+				'required' => false,
 		] );
 	}
 }
