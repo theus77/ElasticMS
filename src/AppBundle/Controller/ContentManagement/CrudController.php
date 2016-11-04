@@ -63,10 +63,13 @@ class CrudController extends AppController
 		
 		$revision = $this->dataService()->getRevisionById($id, $contentType);
 		
-		$this->dataService()->finalizeDraft($revision);
+		$newRevision = $this->dataService()->finalizeDraft($revision);
+		
+		$finalize = !$newRevision->getDraft();
 		
 		return $this->render( 'ajax/notification.json.twig', [
 				'success' => true,
+				'finalize' => $finalize,
 		]);
 	}
 	

@@ -18,4 +18,7 @@
     {% if revision_id is defined %}
 		"revision_id": {{ revision_id|json_encode|raw }},
 	{% endif %}
+	 {% if finalize is defined %}
+		"finalize": {{ finalize|json_encode|raw }},
+	{% endif %}
 }
