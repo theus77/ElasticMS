@@ -15,4 +15,7 @@
 	{% endif %}
 	{% block body %}{% endblock %}
    "success": {{ success|json_encode|raw }}
+    {% if revision_id is defined %}
+		"revision_id": {{ revision_id|json_encode|raw }},
+	{% endif %}
 }
