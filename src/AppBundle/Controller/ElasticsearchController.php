@@ -203,9 +203,11 @@ class ElasticsearchController extends AppController
 				foreach ($types as $type){
 					/**@var \AppBundle\Entity\ContentType $ct*/
 					$ct = $contentTypeRepository->findByName($type);
-					$alias = $service->getAliasByName($ct[0]->getEnvironment()->getName());
-					if($alias){
-						$aliases[] =  $alias->getAlias();
+					if(!empty($ct)) {
+						$alias = $service->getAliasByName($ct[0]->getEnvironment()->getName());
+						if($alias){
+							$aliases[] =  $alias->getAlias();
+						}						
 					}
 				}			
 			}
@@ -224,11 +226,11 @@ class ElasticsearchController extends AppController
 					'type' => array_unique($types),
 					'size' => $this->container->getParameter('paging_size'),
 					'body' => [
-							'query' => [
-									'and' => [
-											
-									]
+						'query' => [
+							'bool' => [
+								'must' => []
 							]
+						]
 					]
 			
 			];
@@ -250,17 +252,19 @@ class ElasticsearchController extends AppController
 			$patterns = explode(' ', $pattern);
 			
 			for($i=0; $i < (count($patterns)-1); ++$i){
-				$params['body']['query']['and'][] = [
-						'match' => [
-								'_all' => $patterns[$i]
-						]
+				$params['body']['query']['bool']['must'][] = [
+						'query_string' => [
+						'default_field' => '_all',
+						'query' => $patterns[$i],
+					]
 				];
 			}
 			
-			$params['body']['query']['and'][] = [
-					'wildcard' => [
-							'_all' => '*'.$patterns[$i].'*'
-					]
+			$params['body']['query']['bool']['must'][] = [
+					'query_string' => [
+					'default_field' => '_all',
+					'query' => '*'.$patterns[$i].'*',
+				]
 			];
 			
 			if(count($types) == 1){
@@ -275,17 +279,16 @@ class ElasticsearchController extends AppController
 						]
 					];
 				}
-				else if($contentType && $contentType->getLabelField()) {
-					$params['body']['sort'] = [
-						$contentType->getLabelField() => [
-								'order' => 'asc',
-								'missing' => '_last',
-						]
-					];
-				}
+// 				else if($contentType && $contentType->getLabelField()) {
+// 					$params['body']['sort'] = [
+// 						$contentType->getLabelField() => [
+// 								'order' => '_id',
+// 						]
+// 					];
+// 				}
 				
 				if($category && $contentType && $contentType->getCategoryField()) {
-					$params['body']['query']['and'][] = [
+					$params['body']['query']['bool']['must'][] = [
 							'term' => [
 									$contentType->getCategoryField() => [
 											'value' => $category

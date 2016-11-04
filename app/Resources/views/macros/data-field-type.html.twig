@@ -22,7 +22,6 @@
 {% endmacro %}
 
 {% macro AppBundle_Form_DataField_UrlAttachmentFieldType(dataField) %}
-	<div class="panel panel-default">
 	<div class="panel-heading">
 		<h3 class="panel-title">
 			<i class="{% if dataField.fieldType.displayOptions.icon is defined %}{{ dataField.fieldType.displayOptions.icon }}{% else %}fa fa-file-o{% endif %}"></i> 				
@@ -52,7 +51,7 @@
 
 
 {% macro AppBundle_Form_DataField_AssetFieldType(dataField) %}
-	<div class="panel panel-default">
+<div class="panel panel-default">
 	<div class="panel-heading">
 		<h3 class="panel-title">
 			<i class="{% if dataField.fieldType.displayOptions.icon is defined %}{{ dataField.fieldType.displayOptions.icon }}{% else %}fa fa-file-o{% endif %}"></i> 				
@@ -175,7 +174,7 @@
 			{% endif %}
 		{% endfor %}
 	</div>
-    {% if dataField.fieldType.displayOptions.label is defined %}
+    {% if dataField.fieldType.displayOptions.label is defined and dataField.fieldType.displayOptions.label %}
     		</div>
 		</div>
 	{% endif %}

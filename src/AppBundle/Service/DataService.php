@@ -189,21 +189,26 @@ class DataService
 	}
 	
 	public function convertInputValues(DataField $dataField) {
-		/**@var DataFieldType $dataFieldType*/
-		$dataFieldType = $this->formRegistry->getType($dataField->getFieldType()->getType())->getInnerType();
 		foreach ($dataField->getChildren() as $child){
 			$this->convertInputValues($child);
 		}
-		$dataFieldType->convertInput($dataField);
+		if(!empty($dataField->getFieldType()) && !empty($dataField->getFieldType()->getType())) {
+				/**@var DataFieldType $dataFieldType*/
+			$dataFieldType = $this->formRegistry->getType($dataField->getFieldType()->getType())->getInnerType();
+			$dataFieldType->convertInput($dataField);
+		}
 	}
 	
 	public function generateInputValues(DataField $dataField) {
-		/**@var DataFieldType $dataFieldType*/
-		$dataFieldType = $this->formRegistry->getType($dataField->getFieldType()->getType())->getInnerType();
-		foreach ($dataField->getChildren() as $child){
-			$this->generateInputValues($child);
-		}
-		$dataFieldType->generateInput($dataField);
+		
+			foreach ($dataField->getChildren() as $child){
+				$this->generateInputValues($child);
+			}
+			if(!empty($dataField->getFieldType()) && !empty($dataField->getFieldType()->getType())) {
+				/**@var DataFieldType $dataFieldType*/
+				$dataFieldType = $this->formRegistry->getType($dataField->getFieldType()->getType())->getInnerType();
+				$dataFieldType->generateInput($dataField);			
+			}
 	}
 	
 	public function createData($ouuid, array $rawdata, ContentType $contentType, $byARealUser=true){

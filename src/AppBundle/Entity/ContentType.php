@@ -361,6 +361,7 @@ class ContentType
     public static function getIndexAnalysisConfiguration(){
     	return '{
 		   "index" : {
+    		  "max_result_window" : 50000,
 		      "analysis" : {
 		         "analyzer" : {
 		            "for_all_field" : {

@@ -120,99 +120,206 @@ class MigrateCommand extends ContainerAwareCommand
 			$repository->clear();
 		}
 		
-		$arrayElasticsearchIndex = $this->client->search([
-				'index' => $elasticsearchIndex,
-				'type' => $contentTypeNameFrom,
-				'size' => 1
-		]);
 		
-		$total = $arrayElasticsearchIndex["hits"]["total"];
+		$params = [
+// 			"search_type" => "scan",    // use search_type=scan
+			"scroll" => "30s",          // how long between scroll requests. should be small!
+			"size" => 50,               // how many results *per shard* you want back
+			"index" => $elasticsearchIndex,
+			'type' => $contentTypeNameFrom,
+		];
+		
+		$docs = $this->client->search($params);   // Execute the search
+		$scroll_id = $docs['_scroll_id'];   // The response will contain no results, just a _scroll_id
+
+
+
+		$total = $docs["hits"]["total"];
 		// create a new progress bar
 		$progress = new ProgressBar($output, $total);
 		// start and displays the progress bar
 		$progress->start();
 		
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository( 'AppBundle:Revision' );
+		$progressMessage = " migrating ".$contentTypeNameTo;
 		
-		for($from = 0; $from < $total; $from = $from + 10) {
-			$arrayElasticsearchIndex = $this->client->search([
-					'index' => $elasticsearchIndex,
-					'type' => $contentTypeNameFrom,
-					'size' => 10,
-					'from' => $from,
-					'preference' => '_primary', //http://stackoverflow.com/questions/10836142/elasticsearch-duplicate-results-with-paging
-			]);
-// 			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
+		// Now we loop until the scroll "cursors" are exhausted
+		while (\true) {
+		
+		    // Execute a Scroll request
+		    $response = $this->client->scroll([
+		            "scroll_id" => $scroll_id,  //...using our previously obtained _scroll_id
+		            "scroll" => "30s"           // and the same timeout window
+		        ]
+		    );
+		
+		    // Check to see if we got any search hits from the scroll
+		    if (count($response['hits']['hits']) > 0) {
+		        // If yes, Do Work Here
+		        
+		    	foreach ($response['hits']['hits'] as $index => $value){
+		    		try{
+		    			$now = new \DateTime();
+		    			$until = $now->add(new \DateInterval("PT5M"));//+5 minutes
+		    			$newRevision = new Revision();
+		    			$newRevision->setContentType($contentTypeTo);
+		    			$newRevision->addEnvironment($contentTypeTo->getEnvironment());
+		    			$newRevision->setOuuid($value['_id']);
+		    			$newRevision->setStartTime($now);
+		    			$newRevision->setEndTime(null);
+		    			$newRevision->setDeleted(0);
+		    			$newRevision->setDraft(1);
+		    			$newRevision->setLockBy('SYSTEM_MIGRATE');
+		    			$newRevision->setLockUntil($until);
+		    		
+		    			$currentRevision = $repository->getCurrentRevision($contentTypeTo, $value['_id']);
+		    			if($currentRevision) {
+		    				//If there is a current revision, datas in fields that are protected against migration must not be overridden
+		    				//So we load the datas from the current revision into the next revision
+		    				$newRevision->setRawData($currentRevision->getRawData());
+		    				//We build the new revision object
+		    				$this->dataService->loadDataStructure($newRevision);
+		    				//We update the new revision object with the new datas. Here, the protected fields are not overridden.
+		    				$newRevision->getDataField()->updateDataValue($value['_source'], true);//isMigrate=true
+		    				//We serialize the new object
+		    				$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
+		    				$newRevision->setRawData($objectArray);
+		    			}
+		    			else if($input->getOption('strip')){
+		    				$newRevision->setRawData([]);
+		    				$this->dataService->loadDataStructure($newRevision);
+		    				$newRevision->getDataField()->updateDataValue($value['_source'], true);
+		    				//We serialize the new object
+		    				$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
+		    				$newRevision->setRawData($objectArray);
+		    			}
+		    			else{
+		    				$newRevision->setRawData($value['_source']);
+		    				$objectArray = $value['_source'];
+		    			}
+		    				
+		    			$this->client->index([
+		    					'index' => $contentTypeTo->getEnvironment()->getAlias(),
+		    					'type' => $contentTypeNameTo,
+		    					'id' => $value['_id'],
+		    					'body' => $objectArray,
+		    			]);
+		    			//TODO: Test if client->index OK
+		    			$em->persist($newRevision);
+		    			$output->write(".");
+		    			$em->flush();
+		    			$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
+		    			//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
+		    			$repository->publishRevision($newRevision);
+		    		}
+		    		catch(NotLockedException $e){
+		    			$output->writeln("<error>'.$e.'</error>");
+		    		}
 
-			/** @var RevisionRepository $repository */
-			$repository = $em->getRepository( 'AppBundle:Revision' );
-
-			foreach ($arrayElasticsearchIndex["hits"]["hits"] as $index => $value) {
-				try{
-					$now = new \DateTime();
-					$until = $now->add(new \DateInterval("PT5M"));//+5 minutes
-					$newRevision = new Revision();
-					$newRevision->setContentType($contentTypeTo);
-					$newRevision->addEnvironment($contentTypeTo->getEnvironment());
-					$newRevision->setOuuid($value['_id']);
-					$newRevision->setStartTime($now);
-					$newRevision->setEndTime(null);
-					$newRevision->setDeleted(0);
-					$newRevision->setDraft(1);
-					$newRevision->setLockBy('SYSTEM_MIGRATE');
-					$newRevision->setLockUntil($until);
-						
-					$currentRevision = $repository->getCurrentRevision($contentTypeTo, $value['_id']);
-					if($currentRevision) {
-						//If there is a current revision, datas in fields that are protected against migration must not be overridden
-						//So we load the datas from the current revision into the next revision
-						$newRevision->setRawData($currentRevision->getRawData());
-						//We build the new revision object
-						$this->dataService->loadDataStructure($newRevision);
-						//We update the new revision object with the new datas. Here, the protected fields are not overridden.
-						$newRevision->getDataField()->updateDataValue($value['_source'], true);//isMigrate=true
-						//We serialize the new object
-						$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
-						$newRevision->setRawData($objectArray);
-					}	
-					else if($input->getOption('strip')){
-						$newRevision->setRawData([]);
-						$this->dataService->loadDataStructure($newRevision);
-						$newRevision->getDataField()->updateDataValue($value['_source'], true);
-						//We serialize the new object
-						$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
-						$newRevision->setRawData($objectArray);
-					}
-					else{
-						$newRevision->setRawData($value['_source']);
-						$objectArray = $value['_source'];
-					}
-					
-					$this->client->index([
-							'index' => $contentTypeTo->getEnvironment()->getAlias(),
-							'type' => $contentTypeNameTo,
-							'id' => $value['_id'],
-							'body' => $objectArray,
-					]);
-					//TODO: Test if client->index OK
-					$em->persist($newRevision);
-					$output->write(".");
-					$em->flush();
- 					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
-					//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
-					$repository->publishRevision($newRevision);
-				}
-				catch(NotLockedException $e){
-					$output->writeln("<error>'.$e.'</error>");
-				}
-
-				// advance the progress bar 1 unit
-				$progress->advance();
-			}
-			$repository->clear();
+		    		// advance the progress bar 1 unit
+		    		$progress->advance();
+					$output->write($progressMessage);
+		    	}
+		
+		        // Get new scroll_id
+		        // Must always refresh your _scroll_id!  It can change sometimes
+		        $scroll_id = $response['_scroll_id'];
+		    	
+		    } else {
+		        // No results, scroll cursor is empty.  You've exported all the data
+		        break;
+		    }
 		}
+
+		$repository->clear();
 		// ensure that the progress bar is at 100%
 		$progress->finish();
-		$output->writeln("");
+		$output->writeln($progressMessage);
 		$output->writeln("Migration done");
+		
+// 		exit;
+		
+// 		for($from = 0; $from < $total; $from = $from + 10) {
+// 			$arrayElasticsearchIndex = $this->client->search([
+// 					'index' => $elasticsearchIndex,
+// 					'type' => $contentTypeNameFrom,
+// 					'size' => 10,
+// 					'from' => $from,
+// 					'preference' => '_primary', //http://stackoverflow.com/questions/10836142/elasticsearch-duplicate-results-with-paging
+// 			]);
+// // 			$output->writeln("\nMigrating " . ($from+1) . " / " . $total );
+
+// 			/** @var RevisionRepository $repository */
+// 			$repository = $em->getRepository( 'AppBundle:Revision' );
+
+// 			foreach ($arrayElasticsearchIndex["hits"]["hits"] as $index => $value) {
+// 				try{
+// 					$now = new \DateTime();
+// 					$until = $now->add(new \DateInterval("PT5M"));//+5 minutes
+// 					$newRevision = new Revision();
+// 					$newRevision->setContentType($contentTypeTo);
+// 					$newRevision->addEnvironment($contentTypeTo->getEnvironment());
+// 					$newRevision->setOuuid($value['_id']);
+// 					$newRevision->setStartTime($now);
+// 					$newRevision->setEndTime(null);
+// 					$newRevision->setDeleted(0);
+// 					$newRevision->setDraft(1);
+// 					$newRevision->setLockBy('SYSTEM_MIGRATE');
+// 					$newRevision->setLockUntil($until);
+						
+// 					$currentRevision = $repository->getCurrentRevision($contentTypeTo, $value['_id']);
+// 					if($currentRevision) {
+// 						//If there is a current revision, datas in fields that are protected against migration must not be overridden
+// 						//So we load the datas from the current revision into the next revision
+// 						$newRevision->setRawData($currentRevision->getRawData());
+// 						//We build the new revision object
+// 						$this->dataService->loadDataStructure($newRevision);
+// 						//We update the new revision object with the new datas. Here, the protected fields are not overridden.
+// 						$newRevision->getDataField()->updateDataValue($value['_source'], true);//isMigrate=true
+// 						//We serialize the new object
+// 						$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
+// 						$newRevision->setRawData($objectArray);
+// 					}	
+// 					else if($input->getOption('strip')){
+// 						$newRevision->setRawData([]);
+// 						$this->dataService->loadDataStructure($newRevision);
+// 						$newRevision->getDataField()->updateDataValue($value['_source'], true);
+// 						//We serialize the new object
+// 						$objectArray = $this->mapping->dataFieldToArray($newRevision->getDataField());
+// 						$newRevision->setRawData($objectArray);
+// 					}
+// 					else{
+// 						$newRevision->setRawData($value['_source']);
+// 						$objectArray = $value['_source'];
+// 					}
+					
+// 					$this->client->index([
+// 							'index' => $contentTypeTo->getEnvironment()->getAlias(),
+// 							'type' => $contentTypeNameTo,
+// 							'id' => $value['_id'],
+// 							'body' => $objectArray,
+// 					]);
+// 					//TODO: Test if client->index OK
+// 					$em->persist($newRevision);
+// 					$output->write(".");
+// 					$em->flush();
+//  					$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
+// 					//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
+// 					$repository->publishRevision($newRevision);
+// 				}
+// 				catch(NotLockedException $e){
+// 					$output->writeln("<error>'.$e.'</error>");
+// 				}
+
+// 				// advance the progress bar 1 unit
+// 				$progress->advance();
+// 			}
+// 			$repository->clear();
+// 		}
+// 		// ensure that the progress bar is at 100%
+// 		$progress->finish();
+// 		$output->writeln("");
+// 		$output->writeln("Migration done");
     }
 }

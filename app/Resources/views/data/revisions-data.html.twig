@@ -102,8 +102,7 @@
 	</div>
 	<div class="col-md-9">
 		<div class="box revision-view">
-			<div
-				class="box-header with-border bg-{{ revision.contentType.color }} color-palette">
+			<div class="box-header with-border bg-{{ revision.contentType.color }} color-palette">
 				<h3 class="box-title">
 					{% if revision.draft %}
 						<i class="fa fa-fire"></i>
@@ -119,7 +118,9 @@
 			</div>
 			<!-- /.box-header -->
 			<!-- form start -->
-			<div class="box-body">{{ macros.renderDataField(revision.dataField) }}</div>
+			<div class="box-body">
+				{{ macros.renderDataField(revision.dataField) }}
+			</div>
 			<!-- /.box-body -->
 			<div class="box-footer">
 				{% include 'elements/revision-toolbar.html.twig' with {
@@ -136,6 +137,7 @@
 		</div>
 	</div>
 </div>
+
 <div class="row">
 	<div class="col-xs-12">
 

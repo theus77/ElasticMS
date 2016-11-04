@@ -105,22 +105,25 @@ class FieldTypeType extends AbstractType
 
     	if(isset($fieldType) && null != $fieldType->getChildren() && $fieldType->getChildren()->count() > 0){
 
-
-    		$builder->add ( 'reorder', SubmitEmsType::class, [
-    				'attr' => [
-    						'class' => 'btn-primary '
-    				],
-    				'icon' => 'fa fa-reorder'    			
-    		] );
-
+    		$childFound = false;
 			/** @var FieldType $field */
 			foreach ($fieldType->getChildren() as $idx => $field) {
 				if(!$field->getDeleted()){
+					$childFound = true;
 					$builder->add ( 'ems_'.$field->getName(), FieldTypeType::class, [
 							'data' => $field,
 							'container' => true,
 					]  );						
 				}
+			}
+			
+			if($childFound) {
+				$builder->add ( 'reorder', SubmitEmsType::class, [
+						'attr' => [
+								'class' => 'btn-primary '
+						],
+						'icon' => 'fa fa-reorder'
+				] );				
 			}
     	}
     }   

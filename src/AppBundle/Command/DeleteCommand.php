@@ -16,6 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use AppBundle\Repository\RevisionRepository;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use AppBundle\Repository\NotificationRepository;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class DeleteCommand extends ContainerAwareCommand
 {
@@ -63,8 +64,7 @@ class DeleteCommand extends ContainerAwareCommand
 				'deleted'=> 0
 				
 		]);
-		if($contentType){
-			$output->writeln("Content type found");		
+		if($contentType){	
 			/** @var RevisionRepository $revRepo */
 			$revRepo = $em->getRepository('AppBundle:Revision');
 			
@@ -72,9 +72,16 @@ class DeleteCommand extends ContainerAwareCommand
 			$notRepo = $em->getRepository('AppBundle:Notification');
 			
 			$counter = 0;
-			if($revRepo->countByContentType($contentType) == 0) {
-				$output->writeln("Content type \"".$name."\" already empty");
+			$total = $revRepo->countByContentType($contentType);
+			if( $total == 0) {
+				$output->writeln("Content type \"".$name."\" is already empty");
 			} else {
+
+				// create a new progress bar
+				$progress = new ProgressBar($output, $total);
+				// start and displays the progress bar
+				$progress->start();
+				
 				while($revRepo->countByContentType($contentType) > 0 ) {
 					$revisions = $revRepo->findByContentType($contentType, null, 20);
 					/**@var \AppBundle\Entity\Revision $revision */
@@ -100,15 +107,22 @@ class DeleteCommand extends ContainerAwareCommand
 						}
 						
 						$em->remove($revision);
-							
-						$output->write('.');
+
+						// advance the progress bar 1 unit
+						$progress->advance();
+
+						$output->write(" deleting content type ".$name);
 						$em->flush();
 // 						$em->clear($revision);
 					}
 					
 					unset($revisions);
-					$output->writeln("\n".$counter. ' documents have been deleted so far');
 				}
+				
+
+				// ensure that the progress bar is at 100%
+				$progress->finish();
+				$output->writeln(" deleting content type ".$name);	
 			}
 			
 		} else {
