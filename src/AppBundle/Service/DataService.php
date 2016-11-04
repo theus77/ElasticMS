@@ -589,4 +589,32 @@ class DataService
 		return $revision;
 		
 	}
+	
+	public function replaceData(Revision $revision, array $rawData){
+		
+		if(! $revision->getDraft()){
+			$em = $this->doctrine->getManager();
+			$this->lockRevision($revision, false, false);
+			
+			$now = new \DateTime();
+
+			$newDraft = new Revision($revision);
+			
+			$newDraft->setRawData($rawData);
+				
+			$newDraft->setStartTime($now);
+			$revision->setEndTime($now);
+	
+			$this->lockRevision($newDraft, false, false);
+	
+			$em->persist($revision);
+			$em->persist($newDraft);
+			$em->flush();
+			return $newDraft;
+		}else {
+			$this->session->getFlashBag()->add('error', 'The revision ' . $revision . ' is not a finalize version');
+		}
+		return $revision;
+	
+	}
 }

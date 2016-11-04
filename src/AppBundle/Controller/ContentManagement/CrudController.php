@@ -93,6 +93,36 @@ class CrudController extends AppController
 	}
 	
 	/**
+	 * @Route("/api/{name}/replace/{ouuid}", defaults={"_format": "json"})
+	 * @ParamConverter("contentType", options={"mapping": {"name": "name", "deleted": 0, "active": 1}})
+	 * @Method({"POST"})
+	 */
+	public function replaceAction($ouuid, ContentType $contentType, Request $request) {
+	
+		if(!$contentType->getEnvironment()->getManaged()){
+			throw new BadRequestHttpException('You can not create content for a managed content type');	
+		}
+		
+		$rawdata = json_decode($request->getContent(), true);
+		if (empty($rawdata)){
+			throw new BadRequestHttpException('Not a valid JSON message');	
+		}
+	
+		$revision = $this->dataService()->getNewestRevision($contentType->getName(), $ouuid);
+		
+		$newDraft = $this->dataService()->replaceData($revision, $rawdata);
+			
+		$replace = ($revision->getId() != $newDraft->getId()) ? true : false;
+		
+	
+		return $this->render( 'ajax/notification.json.twig', [
+				'success' => $replace,
+				'revision_id' => $newDraft->getId(),
+		]);
+	}
+	
+	
+	/**
 	 * @Route("/api/test", defaults={"_format": "json"}, name="api.test")
      * @Method({"GET"})
 	 */
