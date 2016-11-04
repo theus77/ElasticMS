@@ -68,8 +68,27 @@ class CrudController extends AppController
 		$finalize = !$newRevision->getDraft();
 		
 		return $this->render( 'ajax/notification.json.twig', [
+				'success' => $finalize,
+		]);
+	}
+	
+	/**
+	 * @Route("/api/{name}/discard/{id}", defaults={"_format": "json"})
+	 * @ParamConverter("contentType", options={"mapping": {"name": "name", "deleted": 0, "active": 1}})
+	 * @Method({"GET"})
+	 */
+	public function discardAction($id, ContentType $contentType, Request $request) {
+	
+		if(!$contentType->getEnvironment()->getManaged()){
+			throw new BadRequestHttpException('You can not create content for a managed content type');
+		}
+	
+		$revision = $this->dataService()->getRevisionById($id, $contentType);
+	
+		$this->dataService()->discardDraft($revision);
+	
+		return $this->render( 'ajax/notification.json.twig', [
 				'success' => true,
-				'finalize' => $finalize,
 		]);
 	}
 	

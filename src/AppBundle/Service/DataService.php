@@ -317,7 +317,7 @@ class DataService
 		
 		} else {
  			$form->addError(new FormError("This Form is not valid!"));
-			$this->session->getFlashBag()->add('notice', 'The revision ' . $revision . ' can not be finalized');
+			$this->session->getFlashBag()->add('error', 'The revision ' . $revision . ' can not be finalized');
 		}
 		return $revision;
 	}
