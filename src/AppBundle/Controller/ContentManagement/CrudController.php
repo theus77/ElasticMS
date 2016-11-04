@@ -26,6 +26,7 @@ class CrudController extends AppController
 	
 	/**
 	 * @Route("/api/{name}/create/{ouuid}", defaults={"ouuid": null, "_format": "json"})
+	 * @Route("/api/{name}/draft/{ouuid}", defaults={"ouuid": null, "_format": "json"})
      * @ParamConverter("contentType", options={"mapping": {"name": "name", "deleted": 0, "active": 1}})
      * @Method({"POST"})
 	 */
@@ -41,33 +42,28 @@ class CrudController extends AppController
 		}
 		
 		$newRevision = $this->dataService()->createData($ouuid, $rawdata, $contentType);
-
-
-		$this->dataService()->finalizeDraft($newRevision);
 		
 		return $this->render( 'ajax/notification.json.twig', [
 				'success' => true,
+				'revision_id' => $newRevision->getId(),
 		]);
 	}
 	
 	
 	/**
-	 * @Route("/api/{name}/draft/{ouuid}", defaults={"ouuid": null, "_format": "json"})
+	 * @Route("/api/{name}/finalize/{id}", defaults={"_format": "json"})
      * @ParamConverter("contentType", options={"mapping": {"name": "name", "deleted": 0, "active": 1}})
-     * @Method({"POST"})
+     * @Method({"GET"})
 	 */
-	public function draftAction($ouuid, ContentType $contentType, Request $request) {
+	public function finalizeAction($id, ContentType $contentType, Request $request) {
 		
 		if(!$contentType->getEnvironment()->getManaged()){
 			throw new BadRequestHttpException('You can not create content for a managed content type');	
 		}
 		
-		$rawdata = json_decode($request->getContent(), true);
-		if (empty($rawdata)){
-			throw new BadRequestHttpException('Not a valid JSON message');	
-		}
+		$revision = $this->dataService()->getRevisionById($id, $contentType);
 		
-		$newRevision = $this->dataService()->createData($ouuid, $rawdata, $contentType);
+		$this->dataService()->finalizeDraft($revision);
 		
 		return $this->render( 'ajax/notification.json.twig', [
 				'success' => true,

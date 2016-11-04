@@ -3,10 +3,14 @@
 namespace AppBundle\Service;
 
 
+use AppBundle\Entity\ContentType;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\Revision;
+use AppBundle\Exception\DataStateException;
 use AppBundle\Exception\LockedException;
 use AppBundle\Exception\PrivilegeException;
+use AppBundle\Form\DataField\ComputedFieldType;
+use AppBundle\Form\DataField\DataFieldType;
 use AppBundle\Form\Form\RevisionType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\RevisionRepository;
@@ -15,19 +19,14 @@ use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
-use Symfony\Component\Form\FormFactory;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormRegistryInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use AppBundle\Form\DataField\ComputedFieldType;
-use AppBundle\Entity\ContentType;
-use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
-use AppBundle\Exception\DataStateException;
-use Symfony\Component\Form\FormFactoryInterface;
-use Symfony\Component\Form\FormRegistryInterface;
-use AppBundle\Form\DataField\DataFieldType;
 
 class DataService
 {
@@ -318,7 +317,7 @@ class DataService
 		
 		} else {
  			$form->addError(new FormError("This Form is not valid!"));
-			$this->session->getFlashBag()->add('notice', 'The revision '.$revision.' can be finalized');
+			$this->session->getFlashBag()->add('notice', 'The revision ' . $revision . ' can not be finalized');
 		}
 		return $revision;
 	}
@@ -553,5 +552,41 @@ class DataService
 		}
     	
 		return $isValid;
+	}
+	
+	public function getRevisionById($id, ContentType $type){
+	
+		$em = $this->doctrine->getManager();
+	
+		/** @var ContentTypeRepository $contentTypeRepo */
+		$contentTypeRepo = $em->getRepository('AppBundle:ContentType');
+		$contentTypes = $contentTypeRepo->findBy([
+				'name' => $type->getName(),
+				'deleted' => false,
+		]);
+	
+		if(count($contentTypes) != 1) {
+			throw new NotFoundHttpException('Unknown content type');
+		}
+		$contentType = $contentTypes[0];
+	
+		/** @var RevisionRepository $repository */
+		$repository = $em->getRepository('AppBundle:Revision');
+	
+		/** @var Revision $revision */
+		$revisions = $repository->findBy([
+				'id' => $id,
+				'endTime' => null,
+				'contentType' => $contentType,
+				'deleted' => false,
+		]);
+	
+		if(count($revisions) != 1 || null != $revisions[0]->getEndTime()) {
+			throw new NotFoundHttpException('Unknown revision');
+		}
+		$revision = $revisions[0];
+	
+		return $revision;
+		
 	}
 }
