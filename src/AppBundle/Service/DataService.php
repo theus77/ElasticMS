@@ -590,7 +590,7 @@ class DataService
 		
 	}
 	
-	public function replaceData(Revision $revision, array $rawData){
+	public function replaceData(Revision $revision, array $rawData, $replaceOrMerge = "replace"){
 		
 		if(! $revision->getDraft()){
 			$em = $this->doctrine->getManager();
@@ -600,8 +600,16 @@ class DataService
 
 			$newDraft = new Revision($revision);
 			
-			$newDraft->setRawData($rawData);
-				
+			if ($replaceOrMerge === "replace") {
+				$newDraft->setRawData($rawData);
+			} elseif($replaceOrMerge === "merge") {
+				$newRawData = array_merge($revision->getRawData(), $rawData);
+				$newDraft->setRawData($newRawData);
+			} else {
+				$this->session->getFlashBag()->add('error', 'The revision ' . $revision . ' has not been replaced or replaced');
+				return $revision;
+			}
+			
 			$newDraft->setStartTime($now);
 			$revision->setEndTime($now);
 	

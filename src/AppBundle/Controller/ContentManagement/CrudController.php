@@ -114,9 +114,37 @@ class CrudController extends AppController
 			
 		$replace = ($revision->getId() != $newDraft->getId()) ? true : false;
 		
-	
 		return $this->render( 'ajax/notification.json.twig', [
 				'success' => $replace,
+				'revision_id' => $newDraft->getId(),
+		]);
+	}
+	
+	
+	/**
+	 * @Route("/api/{name}/merge/{ouuid}", defaults={"_format": "json"})
+	 * @ParamConverter("contentType", options={"mapping": {"name": "name", "deleted": 0, "active": 1}})
+	 * @Method({"POST"})
+	 */
+	public function mergeAction($ouuid, ContentType $contentType, Request $request) {
+	
+		if(!$contentType->getEnvironment()->getManaged()){
+			throw new BadRequestHttpException('You can not create content for a managed content type');
+		}
+	
+		$rawdata = json_decode($request->getContent(), true);
+		if (empty($rawdata)){
+			throw new BadRequestHttpException('Not a valid JSON message');
+		}
+	
+		$revision = $this->dataService()->getNewestRevision($contentType->getName(), $ouuid);
+	
+		$newDraft = $this->dataService()->replaceData($revision, $rawdata, "merge");
+			
+		$merge = ($revision->getId() != $newDraft->getId()) ? true : false;
+	
+		return $this->render( 'ajax/notification.json.twig', [
+				'success' => $merge,
 				'revision_id' => $newDraft->getId(),
 		]);
 	}
