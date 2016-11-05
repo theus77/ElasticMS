@@ -140,8 +140,6 @@ class MigrateCommand extends ContainerAwareCommand
 		// start and displays the progress bar
 		$progress->start();
 		
-		/** @var RevisionRepository $repository */
-		$repository = $em->getRepository( 'AppBundle:Revision' );
 		$progressMessage = " migrating ".$contentTypeNameTo;
 		
 		// Now we loop until the scroll "cursors" are exhausted
@@ -150,7 +148,7 @@ class MigrateCommand extends ContainerAwareCommand
 		    // Execute a Scroll request
 		    $response = $this->client->scroll([
 		            "scroll_id" => $scroll_id,  //...using our previously obtained _scroll_id
-		            "scroll" => "30s"           // and the same timeout window
+		            "scroll" => "3m"           // and the same timeout window
 		        ]
 		    );
 		
@@ -159,6 +157,10 @@ class MigrateCommand extends ContainerAwareCommand
 		        // If yes, Do Work Here
 		        
 		    	foreach ($response['hits']['hits'] as $index => $value){
+
+		    		/** @var RevisionRepository $repository */
+		    		$repository = $em->getRepository( 'AppBundle:Revision' );
+		    		
 		    		try{
 		    			$now = new \DateTime();
 		    			$until = $now->add(new \DateInterval("PT5M"));//+5 minutes
@@ -207,7 +209,7 @@ class MigrateCommand extends ContainerAwareCommand
 		    			]);
 		    			//TODO: Test if client->index OK
 		    			$em->persist($newRevision);
-		    			$output->write(".");
+		    			//$output->write(".");
 		    			$em->flush();
 		    			$repository->finaliseRevision($contentTypeTo, $value['_id'], $now);
 		    			//hot fix query: insert into `environment_revision`  select id, 1 from `revision` where `end_time` is null;
@@ -226,13 +228,13 @@ class MigrateCommand extends ContainerAwareCommand
 		        // Must always refresh your _scroll_id!  It can change sometimes
 		        $scroll_id = $response['_scroll_id'];
 		    	
+				$repository->clear();
 		    } else {
 		        // No results, scroll cursor is empty.  You've exported all the data
 		        break;
 		    }
 		}
 
-		$repository->clear();
 		// ensure that the progress bar is at 100%
 		$progress->finish();
 		$output->writeln($progressMessage);

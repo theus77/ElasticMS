@@ -157,7 +157,7 @@ var ajaxRequest = new function() {
     	var response = false;
     	this.private_begin_response();
     	try {
-    		if(typeof response === 'string'){
+    		if(typeof data === 'string'){
     			response = JSON.parse(data);
     			console.log('An AJAX call did not returned a JSON');
     		}
