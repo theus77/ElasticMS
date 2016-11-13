@@ -32,14 +32,28 @@ class CriteriaFilterType extends AbstractType {
 		if($options['view']){
 			/** @var View $view */
 			$view = $options['view'];
-			$criteriaField = $view->getContentType()->getFieldType()->__get('ems_'.$view->getOptions()['criteriaField']);
 
+			$criteriaField = $view->getContentType()->getFieldType();
+			if($view->getOptions()['criteriaMode'] == 'internal'){
+				$criteriaField = $view->getContentType()->getFieldType()->__get('ems_'.$view->getOptions()['criteriaField']);
+			}
+			else if ($view->getOptions()['criteriaMode'] == 'another'){
+					
+			}
+			else {
+				throw new \Exception('Should never happen');
+			}
+			
 			$choices = [];
 			$defaultColumn = false;
 			$defaultRow = false;
-			/**@var \AppBundle\Entity\FieldType $child*/
-			foreach ($criteriaField->getChildren() as $child){
-				if(!$child->getDeleted()) {
+			
+			$fieldPaths = preg_split("/\\r\\n|\\r|\\n/", $view->getOptions()['criteriaFieldPaths']);
+			
+			foreach ($fieldPaths as $path){
+				/**@var \AppBundle\Entity\FieldType $child*/
+				$child = $criteriaField->getChildByPath($path);
+				if($child) {
 					$label = $child->getDisplayOptions()['label']?$child->getDisplayOptions()['label']:$child->getName();
 					$choices[$label] = $child->getName();
 					$defaultRow = $defaultColumn;
@@ -79,27 +93,31 @@ class CriteriaFilterType extends AbstractType {
 			
 			
 			
-			if($view->getContentType()->getCategoryField()){
-				$categoryField = $view->getContentType()->getFieldType()->__get('ems_'.$view->getContentType()->getCategoryField());
-				$displayOptions = $categoryField->getDisplayOptions();
+			if($view->getOptions()['categoryFieldPath']){
+				$categoryField = $view->getContentType()->getFieldType()->getChildByPath($view->getOptions()['categoryFieldPath']);
 				
-				$catOptions = $categoryField->getOptions();
-				if(isset($catOptions['restrictionOptions']) && isset($catOptions['restrictionOptions']['minimum_role'])){
-					$catOptions['restrictionOptions']['minimum_role'] = null;
-					$categoryField->setOptions($catOptions);
-				}
-				$displayOptions['metadata'] = $categoryField;
-				$displayOptions['class'] = 'col-md-12';
-				$displayOptions['multiple'] = false;
-				$displayOptions['required'] = true;
-				if(isset($displayOptions['dynamicLoading'])){
-					$displayOptions['dynamicLoading'] = false;					
-				}
-				if($options['hidden']) {
-					$builder->add('category', HiddenFieldType::class, ['metadata' => $categoryField, 'required' => false]);
-				}
-				else {
-					$builder->add ( 'category', $categoryField->getType(), $displayOptions);
+				if($categoryField) {
+					$displayOptions = $categoryField->getDisplayOptions();
+					
+					$catOptions = $categoryField->getOptions();
+					if(isset($catOptions['restrictionOptions']) && isset($catOptions['restrictionOptions']['minimum_role'])){
+						$catOptions['restrictionOptions']['minimum_role'] = null;
+						$categoryField->setOptions($catOptions);
+					}
+					$displayOptions['metadata'] = $categoryField;
+					$displayOptions['class'] = 'col-md-12';
+					$displayOptions['multiple'] = false;
+					$displayOptions['required'] = true;
+					if(isset($displayOptions['dynamicLoading'])){
+						$displayOptions['dynamicLoading'] = false;					
+					}
+					if($options['hidden']) {
+						$builder->add('category', HiddenFieldType::class, ['metadata' => $categoryField, 'required' => false]);
+					}
+					else {
+						$builder->add ( 'category', $categoryField->getType(), $displayOptions);
+					}
+					
 				}
 			}
 			
@@ -108,9 +126,12 @@ class CriteriaFilterType extends AbstractType {
 					'label' => ' ',
 			]);
 
-			/**@var \AppBundle\Entity\FieldType $child*/
-			foreach ($criteriaField->getChildren() as $child){
-				if(!$child->getDeleted()) {
+			$fieldPaths = preg_split("/\\r\\n|\\r|\\n/", $view->getOptions()['criteriaFieldPaths']);
+			
+			foreach ($fieldPaths as $path){
+				/**@var \AppBundle\Entity\FieldType $child*/
+				$child = $criteriaField->getChildByPath($path);
+				if($child) {
 
 					$childOptions = $child->getOptions();
 					if(isset($childOptions['restrictionOptions']) && isset($childOptions['restrictionOptions']['minimum_role'])){

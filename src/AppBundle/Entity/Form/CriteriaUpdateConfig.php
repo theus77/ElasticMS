@@ -5,7 +5,7 @@ namespace AppBundle\Entity\Form;
 
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\View;
-use AppBundle\Entity\FieldType;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 /**
  * RebuildIndex
@@ -19,27 +19,50 @@ class CriteriaUpdateConfig{
 	private $category;
 	
 	private $criterion;
+	
+	/**@var Session */
+	private $session;
 
 
-	function __construct(View $view){
+	function __construct(View $view, Session $session){
 		
+		$this->session = $session;
 		$this->criterion = [];
 		$contentType = $view->getContentType();
 		
 		$rootFieldType = $contentType->getFieldType();
 		
-		if($contentType->getCategoryField() && $rootFieldType->__get('ems_'.$contentType->getCategoryField())){
+		if(!empty($view->getOptions()['categoryFieldPath']) && $categoryField = $rootFieldType->getChildByPath($view->getOptions()['categoryFieldPath'])){
 			$dataField = new DataField();
-			$dataField->setFieldType($rootFieldType->__get('ems_'.$contentType->getCategoryField()));
+			$dataField->setFieldType($categoryField);
 			$this->setCategory($dataField);
 		}
 		
-		$criteriaField = $rootFieldType->__get('ems_'.$view->getOptions()['criteriaField']);
-		/** @var FieldType $child */
-		foreach ($criteriaField->getChildren() as $child){
-			$dataField = new DataField();
-			$dataField->setFieldType($child);
-			$this->criterion[$child->getName()] = $dataField;			
+		$criteriaField = $rootFieldType;
+		
+		if($view->getOptions()['criteriaMode'] == 'internal'){
+			$criteriaField = $rootFieldType->__get('ems_'.$view->getOptions()['criteriaField']);
+		}
+		else if ($view->getOptions()['criteriaMode'] == 'another'){
+			
+		}
+		else {
+			throw new \Exception('Should never happen');
+		}
+		
+		
+		$fieldPaths = preg_split("/\\r\\n|\\r|\\n/", $view->getOptions()['criteriaFieldPaths']);
+		
+		foreach ($fieldPaths as $path){
+			$child = $criteriaField->getChildByPath($path);
+			if($child){
+				$dataField = new DataField();
+				$dataField->setFieldType($child);
+				$this->criterion[$child->getName()] = $dataField;					
+			}
+			else {
+				$this->session->getFlashBag()->add('warning', 'Field path not found '.$path);
+			}
 		}
 		
 	}

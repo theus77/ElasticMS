@@ -127,7 +127,9 @@ class ContentTypeService {
 				
 			if (isset ( $out ['acknowledged'] ) && $out ['acknowledged']) {
 				$contentType->setDirty ( false );
-				$this->session->getFlashBag()->add ( 'notice', 'Mappings successfully updated/created for '.$contentType->getName().' in '.$envs );
+				if($this->session->isStarted()){
+					$this->session->getFlashBag()->add ( 'notice', 'Mappings successfully updated/created for '.$contentType->getName().' in '.$envs );
+				}
 			} else {
 				$contentType->setDirty ( true );
 				$this->session->getFlashBag()->add ( 'warning', '<p><strong>Something went wrong. Try again</strong></p>

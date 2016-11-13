@@ -45,10 +45,15 @@ function objectPickerListeners(objectPicker, maximumSelectionLength){
 	  	templateResult: formatRepo, // omitted for brevity, see the source of this page
 	  	templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
 	};
-	
+
 	if(maximumSelectionLength) {
 		params.maximumSelectionLength = maximumSelectionLength;
 	}
+	else if(objectPicker.attr('multiple')) {
+	  	params.allowClear = true;
+	  	params.closeOnSelect = false;
+	}
+	
 
 
 	if(dynamicLoading){

@@ -605,6 +605,29 @@ class FieldType
     }
 
     /**
+     * Get child by path
+     *
+     * @return FieldType
+     */
+    public function getChildByPath($path)
+    {
+    	$elem = explode('.', $path);
+    	if(!empty($elem)){
+	    	/**@var FieldType $child*/
+	    	foreach ($this->children as $child){
+	    		if(!$child->getDeleted() && $child->getName() == $elem[0]){
+	    			if(strpos($path, ".")){
+	    				return $child->getChildByPath(substr($path, strpos($path, ".")+1));
+	    			}
+	    			return $child;
+	    		}
+	    	}
+    		
+    	}
+        return FALSE;
+    }
+
+    /**
      * Set options
      *
      * @param string $options

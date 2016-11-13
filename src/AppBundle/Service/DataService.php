@@ -27,6 +27,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use AppBundle\Entity\FieldType;
 
 class DataService
 {
@@ -629,5 +630,10 @@ class DataService
 		}
 		return $revision;
 	
+	}
+	
+
+	public function waitForGreen(){
+		$this->client->cluster()->health(['wait_for_status' => 'green']);
 	}
 }

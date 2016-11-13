@@ -37,14 +37,16 @@ class EmsCommand extends ContainerAwareCommand
     }
     
     protected function flushFlash(OutputInterface $output){
-    	foreach($this->session->getFlashBag()->get('error') as $error){
-    		$output->writeln('<error>    '.$error.'</error>');
-    	}
-    	foreach($this->session->getFlashBag()->get('warning') as $warning){
-    		$output->writeln('<comment>    '.$warning.'</comment>');
-    	}
-    	foreach($this->session->getFlashBag()->get('notice') as $notice){
-    		$output->writeln('<info>    '.$notice.'</info>');
+    	if($this->session->isStarted()) {
+	    	foreach($this->session->getFlashBag()->get('error') as $error){
+	    		$output->writeln('<error>    '.$error.'</error>');
+	    	}
+	    	foreach($this->session->getFlashBag()->get('warning') as $warning){
+	    		$output->writeln('<comment>    '.$warning.'</comment>');
+	    	}
+	    	foreach($this->session->getFlashBag()->get('notice') as $notice){
+	    		$output->writeln('<info>    '.$notice.'</info>');
+	    	}    		
     	}
     }
     

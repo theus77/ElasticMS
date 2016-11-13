@@ -28,7 +28,7 @@
                 <tr>
                   <td>{{ form_row(form.rowCriteria) }}</td>
                   <td>
-                  	{% if form.category %}
+                  	{% if form.category is defined %}
 							{{ form_row(form.category) }}
 					{% endif %}
 				</td>
@@ -86,14 +86,10 @@ $(window).load(function() {
 
 		if($('#criteria_filter_columnCriteria option:selected').val() == $('#criteria_filter_rowCriteria  option:selected').val()){
 			if($(this).attr('id') == 'criteria_filter_columnCriteria'){
-// 				console.log('row');
-// 				console.log($('#criteria_filter_rowCriteria option:not(:selected)').first().val());
 				$('#criteria_filter_rowCriteria').val($('#criteria_filter_rowCriteria option:not(:selected)').first().val());
 
 			}
 			else {
-// 				console.log('col');
-// 				console.log($('#criteria_filter_columnCriteria option:not(:selected)').first().val());
 				$('#criteria_filter_columnCriteria').val($('#criteria_filter_columnCriteria option:not(:selected)').first().val());
 
 			}
@@ -112,7 +108,7 @@ $(window).load(function() {
 				objectPickerListeners($( this ));
 			}
 			else{
-				if($(this).val().length > 1){
+				if($(this).val() && $(this).val().length > 1){
 					$(this).val('');
 				}
 				objectPickerListeners($( this ), 1);
@@ -121,81 +117,11 @@ $(window).load(function() {
 	 	});
 	});
 
-	$('#applyConfig55555').click(function(event){
-		event.preventDefault();
-
-		$('#waitingModal').modal('show');
-		
-		var formContent = $("form[name=criteria_filter]").serialize();
-
-		$('#table_container').empty();
-		
-		$.get("{{ url('views.criteria.table', {view: view.id}) }}", formContent)
-		  .done(function(message) {
-
-			  $('#table_container').append(message);
-
-
-			  
-		  })
-		  .fail(function() {
-			  $('#table_container').append('<div class="alert alert-danger alert-dismissible">'+
-		                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+
-		                '<h4><i class="icon fa fa-ban"></i> Alert!</h4>'+
-		                'It was impossible to retrieve the criteria table.'+
-		                '</div>');
-// 			alert( "It was impossible to retrieve the criteria table." );
-		  })
-		  .always(function() {
-			$('#waitingModal').modal('hide');
-// 			globalWaitingResponse = false;
-		});
-	});
 
 	$(".objectpicker").each(function(index){
 		objectPickerListeners($( this ));
 	});
 
-	$(".select2Filter").each(function(){
-		
-		var targetField = $("#"+$(this).data('field-target'));
-
-		$( this ).select2({
-			  ajax: {
-			    url: '{{ url("views.criteria.fieldFilter") }}',
-			    dataType: 'json',
-			    delay: 250,
-			    data: function (params) {
-				    
-			      return {
-			        q: params.term, // search term
-			        page: params.page,
-			        targetField: targetField.val(),
-			      };
-			    },
-			    processResults: function (data, params) {
-			      // parse the results into the format expected by Select2
-			      // since we are using custom formatting functions we do not need to
-			      // alter the remote JSON data, except to indicate that infinite
-			      // scrolling can be used
-			      params.page = params.page || 1;
-			
-			      return {
-			        results: data.items,
-			        pagination: {
-			          more: (params.page * 30) < data.total_count
-			        }
-			      };
-			    },
-			    cache: true
-			  },
-			  escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-			  minimumInputLength: 0,
-			  templateResult: formatRepo, // omitted for brevity, see the source of this page
-			  templateSelection: formatRepoSelection // omitted for brevity, see the source of this page
-			});
-		
-	});
 
 	$('.criteria-filter-columnrow').trigger('change');
 	

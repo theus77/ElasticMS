@@ -189,15 +189,17 @@ function formatRepoSelectionForTable (repo) {
 	var url = "{{ url('data.revisions', {type: '__type__' , ouuid: '__ouuid__' }) }}";
 	url = url.replace('__type__:__ouuid__', repo.id);
 
+	var style = "style=\"color: white;\"";
 	var complementary;
 	if(color){
 		//var colorIntValue = parseInt(color.replace("#", "0x"));
 		//complementary = '#'+('000000' + (('0xffffff' ^ colorIntValue).toString(16))).slice(-6);
-
 		complementary = (luma(color.replace("#", "")) >= 165) ? '#000000' : '#ffffff';
+		style = " style=\"color: "+complementary+";background-color: "+color+"; padding: 2px;\"";
+		
 	}
 
-	var html = $("<a href=\""+url+"\" style=\"color: "+complementary+";background-color: "+color+"; padding: 2px;\">"+repo.text+"</a>");
+	var html = $("<a href=\""+url+"\""+style+">"+repo.text+"</a>");
 	return html;
 }
 
@@ -211,9 +213,9 @@ function formatRepoSelectionForTable (repo) {
 		    data: function (params) {
 		      return {
 		        		q: params.term, // search term
-		        		environment: {{ view.contentType.environment.name|json_encode|raw }},
-		        		type: {{ view.contentType.name|json_encode|raw }},
-			        	{% if config.category and config.category.rawData %}category: {{ config.category.rawData|json_encode|raw }}, {% endif %} 
+		        		environment: {% if targetContentType %} {{ targetContentType.environment.name|json_encode|raw  }} {% else %} {{ view.contentType.environment.name|json_encode|raw }} {% endif %},
+		        		type: {% if targetContentType %} {{ targetContentType.name|json_encode|raw  }} {% else %} {{ view.contentType.name|json_encode|raw }} {% endif %},
+			        	{% if view.options.criteriaMode == 'internal' and config.category and config.category.rawData %}category: {{ config.category.rawData|json_encode|raw }}, {% endif %} 
 			        	page: params.page
 			     	};
 			    },
@@ -248,11 +250,14 @@ function formatRepoSelectionForTable (repo) {
 					var data = { 
 			  			filters: filters, 
 					  	target: $(this).val(), 
+					  	{% if config.category and config.category.rawData %}
+					  		category: {{ attribute(categoryChoiceList, config.category.rawData).value|json_encode|raw }},
+					  	{% endif %}
 					  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
 					};
 	
 
-					ajaxRequest.post( "{{ url('views.criteria.add') }}", data )
+					ajaxRequest.post( "{{ url('views.criteria.add', {view: view.id}) }}", data )
 			  	  		.success(function(response) {
 							optionElem.attr('data-status', 'added');
 				  	        
@@ -274,11 +279,14 @@ function formatRepoSelectionForTable (repo) {
 					var data = { 
 			  			filters: filters, 
 					  	target: $(this).val(), 
+					  	{% if config.category and config.category.rawData %}
+					  		category: {{ attribute(categoryChoiceList, config.category.rawData).value|json_encode|raw }},
+					  	{% endif %}
 					  	criteriaField: {{ view.options.criteriaField|json_encode|raw }}
 					};
 	
 
-					ajaxRequest.post("{{ url('views.criteria.remove') }}", data)
+					ajaxRequest.post("{{ url('views.criteria.remove', {view: view.id}) }}", data)
 						.success(function(response){
 							optionElem.attr('data-status', 'removed');
 						})
