@@ -76,6 +76,13 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: computed }
             - { name: form.type }
+    #ems.fieldtype.json:
+    #    class: AppBundle\Form\DataField\JSONFieldType
+    #    calls:
+    #        - [setAuthorizationChecker, ['@security.authorization_checker']]
+    #    tags:
+    #        - { name: ems.form.datafieldtype, alias: json }
+    #        - { name: form.type }
     ems.fieldtype.dataLink:
         class: AppBundle\Form\DataField\DataLinkFieldType
         calls:
@@ -252,6 +259,7 @@ services:
         arguments: ['@twig', '@app.elasticsearch']
         tags:
             - { name: ems.form.viewtype, alias: report }
+            - { name: form.type }
     ems.view.calendar:
         class: AppBundle\Form\View\CalendarViewType
         arguments: ['@twig', '@app.elasticsearch']
@@ -390,6 +398,11 @@ services:
             -  { name: console.command }
     ems.contenttype.delete:
         class: AppBundle\Command\DeleteCommand
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
+        tags:
+            -  { name: console.command }
+    ems.contenttype.clean:
+        class: AppBundle\Command\CleanDeletedContentTypeCommand
         arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container']
         tags:
             -  { name: console.command }

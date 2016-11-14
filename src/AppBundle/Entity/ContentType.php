@@ -1037,6 +1037,18 @@ class ContentType
     }
 
     /**
+     * Unset fieldType
+     *
+     * @return ContentType
+     */
+    public function unsetFieldType()
+    {
+        $this->fieldType = null;
+
+        return $this;
+    }
+
+    /**
      * Set environment
      *
      * @param \AppBundle\Entity\Environment $environment

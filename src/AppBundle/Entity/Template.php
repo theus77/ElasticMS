@@ -140,7 +140,7 @@ class Template
    	private $role;
    	
    	/**
-   	 * @ORM\ManyToMany(targetEntity="Environment", cascade={"persist", "remove"})
+   	 * @ORM\ManyToMany(targetEntity="Environment", cascade={"persist"})
    	 * @ORM\JoinTable(name="environment_template",
      *      joinColumns={@ORM\JoinColumn(name="template_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="environment_id", referencedColumnName="id")}

@@ -85,12 +85,6 @@
 	            		'search_form[contentTypes][0]': contentType.name, 
 	            		'search_form[environments][0]': contentType.environment.name
 					} %}
-					{% if contentType.labelField %}
-		            	{% set searchForm = searchForm|merge({ 
-		            		'search_form[sortBy]': contentType.labelField,
-		            		'search_form[sortOrder]': 'asc'
-						}) %}
-					{% endif %}
 					{% if contentType.sortBy %}
 		            	{% set searchForm = searchForm|merge({ 
 		            		'search_form[sortBy]': contentType.sortBy,

@@ -96,7 +96,7 @@ class FieldType
     private $parent;
 
     /**
-     * @ORM\OneToMany(targetEntity="FieldType", mappedBy="parent", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="FieldType", mappedBy="parent", cascade={"persist", "remove"})
      * @ORM\OrderBy({"orderKey" = "ASC"})
      */
     private $children;

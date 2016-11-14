@@ -58,12 +58,18 @@ class ReportViewType extends ViewType {
 		$builder
 		->add ( 'body', TextareaType::class, [
 				'label' => 'The Elasticsearch body query [JSON Twig]',
+				'attr' => [
+					'rows' => 10,
+				]
 		] )
 		->add ( 'size', IntegerType::class, [
 				'label' => 'Limit the result to the x first results',
 		] )
 		->add ( 'template', TextareaType::class, [
-				'label' => 'The Twig template used to display each keywords'
+				'label' => 'The Twig template used to display each keywords',
+				'attr' => [
+					'rows' => 10,
+				]
 		] );
 	}
 	

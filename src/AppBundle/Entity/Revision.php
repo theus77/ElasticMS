@@ -119,7 +119,7 @@ class Revision
     private $lockUntil;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Environment", inversedBy="revisions", cascade={"persist", "remove"})
+     * @ORM\ManyToMany(targetEntity="Environment", inversedBy="revisions", cascade={"persist"})
      * @ORM\JoinTable(name="environment_revision")
      */
     private $environments;

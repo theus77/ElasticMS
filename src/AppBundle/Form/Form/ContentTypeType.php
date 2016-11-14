@@ -81,11 +81,13 @@ class ContentTypeType extends AbstractType {
 			]]);
 			$builder->add ( 'sortBy', ContentTypeFieldPickerType::class, [
 				'required' => false,
-				'firstLevelOnly' => true,
+				'firstLevelOnly' => false,
 				'mapping' => $mapping,
 				'types' => [
 						'string',
-						'integer'
+						'integer',
+						'text',
+						'keyword'
 			]]);
     	}
     	
