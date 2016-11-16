@@ -89,11 +89,22 @@ class ReportViewType extends ViewType {
 	 *
 	 */
 	public function getParameters(View $view, FormFactoryInterface $formFactoty, Request $request) {
+
+		try {
+			$renderQuery = $this->twig->createTemplate($view->getOptions()['body'])->render([
+					'view' => $view,
+					'contentType' => $view->getContentType(),
+					'environment' => $view->getContentType()->getEnvironment(),
+			]);
+		}
+		catch (\Exception $e){
+			$renderQuery = "{}";
+		}		
 		
 		$searchQuery = [
 			'index' => $view->getContentType()->getEnvironment()->getAlias(),
 			'type' => $view->getContentType()->getName(),
-			'body' => $view->getOptions()['body'],
+			'body' => $renderQuery,
 			'size' => $view->getOptions()['size'],
 		];
 		

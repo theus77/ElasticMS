@@ -428,12 +428,16 @@ class CriteriaController extends AppController
 			}
 		}
 		
-		
 		$result = $client->search([
 			'index' => $contentType->getEnvironment()->getAlias(),
 			'type' => $contentType->getName(),
-			'body' => $body
+			'body' => $body,
+			'size' => 500, //is it enough?
 		]);
+
+		if($result['hits']['total']>count($result['hits']['hits'])) {
+			$this->addFlash('error', 'Some criteria were not loaded!!!! There is more than '.count($result['hits']['hits']). ' criteria for this view. Leave this view and be more restrictive with your filters.');
+		}
 		
 		$targetField = false;
 		$loaderTypes = $view->getContentType()->getName();
