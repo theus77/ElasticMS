@@ -316,7 +316,7 @@ class ContentType
     private $active;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Environment")
+     * @ORM\ManyToOne(targetEntity="Environment", inversedBy="contentTypesHavingThisAsDefault")
      * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
      */
     private $environment;

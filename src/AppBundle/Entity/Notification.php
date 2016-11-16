@@ -85,7 +85,7 @@ class Notification
     private $responseBy;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Revision")
+     * @ORM\ManyToOne(targetEntity="Revision", inversedBy="notifications")
      * @ORM\JoinColumn(name="revision_id", referencedColumnName="id")
      */
     private $revisionId;

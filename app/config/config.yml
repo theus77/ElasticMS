@@ -40,6 +40,7 @@ framework:
 twig:
     debug:            "%kernel.debug%"
     strict_variables: "%kernel.debug%"
+    autoescape: "name"
     globals:
         date_time_format: "%date_time_format%"
         theme_color: "%theme_color%"

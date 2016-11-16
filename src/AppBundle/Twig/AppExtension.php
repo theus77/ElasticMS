@@ -43,7 +43,7 @@ class AppExtension extends \Twig_Extension
 		$this->twig = $twig;
 		$this->objectChoiceListFactory = $objectChoiceListFactory;
 		
-		$this->twig->getExtension('core')->setEscaper('csv', array($this, 'csvEscaper'));
+		$this->twig->getExtension('Twig_Extension_Core')->setEscaper('csv', array($this, 'csvEscaper'));
 	}
 	
 	public function getFilters()
