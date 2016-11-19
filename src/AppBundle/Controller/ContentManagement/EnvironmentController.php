@@ -21,10 +21,10 @@ use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class EnvironmentController extends AppController {
@@ -32,12 +32,9 @@ class EnvironmentController extends AppController {
 	/**
 	 *
 	 * @Route("/publisher/align", name="environment.align"))
+     * @Security("has_role('ROLE_PUBLISHER')")
 	 */
 	public function alignAction(Request $request) {
-
-		if(! $this->get('security.authorization_checker')->isGranted('ROLE_PUBLISHER') ){
-			throw new AccessDeniedHttpException('You must be at least publisher');
-		}
 		
 		
 		$data = [];
@@ -96,10 +93,10 @@ class EnvironmentController extends AppController {
 							/** @var Revision $item */
 							foreach ($result as $item){
 								$this->getDataService()->lockRevision($item);
-								$item->removeEnvironment($this->get('ems.service.environment')->getAliasByName($env));
+								$item->removeEnvironment($this->getEnvironmentService()->getAliasByName($env));
 								$em->persist($item);
 							}
-							$revision->addEnvironment($this->get('ems.service.environment')->getAliasByName($env));
+							$revision->addEnvironment($this->getEnvironmentService()->getAliasByName($env));
 							$status = $this->getElasticsearch()->index([
 									'id' => $revision->getOuuid(),
 									'index' => $this->get('ems.service.environment')->getAliasByName($env)->getAlias(),

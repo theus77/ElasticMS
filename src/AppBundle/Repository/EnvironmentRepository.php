@@ -34,6 +34,14 @@ class EnvironmentRepository extends \Doctrine\ORM\EntityRepository
 		return $qb->getQuery()->getResult();
 	}
 	
+	
+	public function findByName($name) {
+		return $this->findOneBy([
+				'deleted' => false,
+				'name' => $name,
+		]);
+	}
+	
 
 
 	public function findAllAsAssociativeArray($field){

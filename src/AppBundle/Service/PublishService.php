@@ -164,7 +164,7 @@ class PublishService
 		foreach ($result as $item){
 			if($item == $revision){
 				$already = true;
-				$this->session->getFlashBag()->add('warning', 'The revision '.$revision.' is already specified as published in '.$environment);
+				$this->session->getFlashBag()->add('notice', 'The revision '.$revision.' is already specified as published in '.$environment);
 			}
 			else {
 				$this->dataService->lockRevision($item);

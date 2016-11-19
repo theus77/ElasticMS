@@ -28,6 +28,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Entity\FieldType;
+use AppBundle\Entity\Environment;
 
 class DataService
 {
@@ -46,6 +47,7 @@ class DataService
 	protected $mapping;
 	protected $instanceId;
 	protected $em;
+	/** @var RevisionRepository */
 	protected $revRepository;
 	/**@var Session $session*/
 	protected $session;
@@ -150,6 +152,18 @@ class DataService
 			}
 		}
 		return $out;
+	}
+	
+	/**
+	 * 
+	 * @param string $ouuid
+	 * @param ContentType $contentType
+	 * @param Environment $environment
+	 * @return Revision
+	 */
+	public function getRevisionByEnvironment($ouuid, ContentType $contentType, Environment $environment) {
+		return $this->revRepository->findByEnvironment($ouuid, $contentType, $environment);
+
 	}
 	
 	public function propagateDataToComputedField(DataField $dataField, array $objectArray, $type, $ouuid){

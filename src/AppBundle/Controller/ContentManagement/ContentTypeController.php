@@ -352,6 +352,7 @@ class ContentTypeController extends AppController {
 					$contentType = new ContentType ();
 					$contentType->setName ( $request->get ( 'name' ) );
 					$contentType->setPluralName ( $contentType->getName () );
+					$contentType->setSingularName( $contentType->getName () );
 					$contentType->setEnvironment ( $defaultEnvironment );
 					$contentType->setActive ( true );
 					$contentType->setDirty ( false );

@@ -16,6 +16,17 @@ use Doctrine\ORM\Query\ResultSetMapping;
  */
 class RevisionRepository extends \Doctrine\ORM\EntityRepository
 {
+
+	public function findByEnvironment($ouuid, ContentType $contentType, Environment $environment){
+		$qb = $this->createQueryBuilder('r')
+			->join('r.environments', 'e')
+			->andWhere('r.ouuid = :ouuid')
+			->andWhere('e.id = :eid')
+			->setParameter('ouuid', $ouuid)
+			->setParameter('eid', $environment->getId());
+		
+		return $qb->getQuery()->getSingleResult();
+	}
 	
 	public function draftCounterGroupedByContentType($circles, $isAdmin) {
 		$parameters = [];

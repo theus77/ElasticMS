@@ -34,7 +34,7 @@ class EnvironmentPickerType extends ChoiceType {
 		$keys = [];
 		/**@var Environment $choice*/
 		foreach ($this->choices as $key => $choice){
-			if($choice->getManaged() || !$options['managedOnly']){
+			if(($choice->getManaged() || !$options['managedOnly']) && ! in_array($choice->getName(), $options['ignore'])){
 				$keys[] = $choice->getName();
 				$this->choices[$choice->getName()] = $choice;
 			}
@@ -72,6 +72,7 @@ class EnvironmentPickerType extends ChoiceType {
 		    },
 		    'multiple' => false,
 		    'managedOnly' => true,
+		    'ignore' => [],
 		));
 	}
 }

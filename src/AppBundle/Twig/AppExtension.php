@@ -15,6 +15,7 @@ use AppBundle\Repository\I18nRepository;
 use AppBundle\Entity\I18n;
 use AppBundle\Entity\User;
 use AppBundle\Form\DataField\DateRangeFieldType;
+use AppBundle\Service\EnvironmentService;
 
 class AppExtension extends \Twig_Extension
 {
@@ -31,8 +32,10 @@ class AppExtension extends \Twig_Extension
 	private $twig;
 	/**@var ObjectChoiceListFactory $objectChoiceListFactory*/
 	private $objectChoiceListFactory;
+	/** @var EnvironmentService */
+	private $environmentService;
 	
-	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router, $twig, ObjectChoiceListFactory $objectChoiceListFactory)
+	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router, $twig, ObjectChoiceListFactory $objectChoiceListFactory, EnvironmentService $environmentService)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
@@ -42,6 +45,7 @@ class AppExtension extends \Twig_Extension
 		$this->router = $router;
 		$this->twig = $twig;
 		$this->objectChoiceListFactory = $objectChoiceListFactory;
+		$this->environmentService = $environmentService;
 		
 		$this->twig->getExtension('Twig_Extension_Core')->setEscaper('csv', array($this, 'csvEscaper'));
 	}
@@ -68,6 +72,7 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('in_my_circles', array($this, 'inMyCircles')),
 				new \Twig_SimpleFilter('data_link', array($this, 'dataLink')),
 				new \Twig_SimpleFilter('get_content_type', array($this, 'getContentType')),
+				new \Twig_SimpleFilter('get_environment', array($this, 'getEnvironment')),
 				new \Twig_SimpleFilter('generate_from_template', array($this, 'generateFromTemplate')),
 				new \Twig_SimpleFilter('objectChoiceLoader', array($this, 'objectChoiceLoader')),
 				new \Twig_SimpleFilter('groupedObjectLoader', array($this, 'groupedObjectLoader')),		
@@ -418,6 +423,10 @@ class AppExtension extends \Twig_Extension
 	
 	public function getContentType($name){
 		return $this->contentTypeService->getByName($name);
+	}
+	
+	public function getEnvironment($name){
+		return $this->environmentService->getAliasByName($name);
 	}
 
 	
