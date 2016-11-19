@@ -114,7 +114,7 @@ class PublishController extends AppController
 				
 				foreach ($scroll['hits']['hits'] as $hit){
 					$revision = $this->getDataService()->getRevisionByEnvironment($hit['_id'], $this->getContentTypeService()->getByName($hit['_type']), $environment);
-					$this->getPublishService()->publish($revision, $environment);
+					$this->getPublishService()->publish($revision, $toEnvironment);
 				}
 			}
 			
