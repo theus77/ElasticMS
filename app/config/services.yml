@@ -388,7 +388,7 @@ services:
             -  { name: console.command }
     ems.environment.align:
         class: AppBundle\Command\AlignCommand
-        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.data']
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.data', '@ems.service.contenttype', '@ems.service.environment', '@ems.service.publish']
         tags:
             -  { name: console.command }
     ems.environment.reindex:

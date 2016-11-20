@@ -317,11 +317,8 @@ class DataService
 				$config['id'] = $revision->getOuuid();
 				$status = $this->client->index($config);
 		
-				$result = $repository->findByOuuidContentTypeAndEnvironnement($revision);
-		
-		
-				/** @var Revision $item */
-				foreach ($result as $item){
+				$item = $repository->findByOuuidContentTypeAndEnvironnement($revision);
+				if($item){
 					$this->lockRevision($item, false, false, $username);
 					$item->removeEnvironment($revision->getContentType()->getEnvironment());
 					$em->persist($item);

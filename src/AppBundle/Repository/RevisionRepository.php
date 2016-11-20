@@ -7,6 +7,7 @@ use AppBundle\Entity\Environment;
 use AppBundle\Entity\Revision;
 use Doctrine\ORM\Mapping\OrderBy;
 use Doctrine\ORM\Query\ResultSetMapping;
+use Doctrine\ORM\NonUniqueResultException;
 
 /**
  * RevisionRepository
@@ -21,10 +22,11 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		$qb = $this->createQueryBuilder('r')
 			->join('r.environments', 'e')
 			->andWhere('r.ouuid = :ouuid')
+			->andWhere('r.contentType = :contentType')
 			->andWhere('e.id = :eid')
 			->setParameter('ouuid', $ouuid)
+			->setParameter('contentType', $contentType)
 			->setParameter('eid', $environment->getId());
-		
 		return $qb->getQuery()->getSingleResult();
 	}
 	
@@ -193,8 +195,15 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 				'envId' => $env->getId(),
 				'contentTypeId' => $contentType->getId()
 		]);
-	
-		return $qb->getQuery()->getResult();
+		
+		$out = $qb->getQuery()->getResult();
+		if(count($out) > 1){
+			throw new NonUniqueResultException($ouuid.' is publish multiple times in '.$env->getName());
+		}
+		if(empty($out)){
+			return NULL;
+		}
+		return $out[0];
 	}
 	
 	public function lockRevision($revisionId, $username,\DateTime $lockUntil) {

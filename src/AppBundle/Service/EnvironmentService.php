@@ -45,7 +45,21 @@ class EnvironmentService {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param string $name
+	 * @return Environment
+	 */
 	public function getAliasByName($name){
+		return $this->getByName($name);
+	}	
+	
+	/**
+	 * 
+	 * @param string $name
+	 * @return Environment
+	 */
+	public function getByName($name){
 		$this->loadEnvironment();
 		if(isset($this->environments[$name])){
 			return $this->environments[$name];

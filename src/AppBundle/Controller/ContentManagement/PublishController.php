@@ -103,11 +103,11 @@ class PublishController extends AppController
 		
 		if($form->isSubmitted()) {
 			$toEnvironment = $this->getEnvironmentService()->getAliasByName($form->get('toEnvironment')->getData());
-			for($from = 0; $from < $total; $from = $from + 5) {
+			for($from = 0; $from < $total; $from = $from + 50) {
 				$scroll = $this->getElasticsearch()->search([
 					'type' => $contentType->getName(),
 					'index' => $environment->getAlias(),
-						'size' => 5,
+						'size' => 50,
 						'from' => $from,
 						'preference' => '_primary', //http://stackoverflow.com/questions/10836142/elasticsearch-duplicate-results-with-paging
 				]);

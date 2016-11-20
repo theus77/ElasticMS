@@ -1045,7 +1045,7 @@ class DataController extends AppController
 			/**@var Revision $revision */
 			$revision = $repository->findByOuuidAndContentTypeAndEnvironnement($contentType, $ouuid, $contentType->getEnvironment());
 			
-			if(empty($revision)){
+			if(!$revision){
 				throw new NotFoundHttpException('Impossible to find this item : ' . $ouuid);
 			}
 						
@@ -1064,9 +1064,9 @@ class DataController extends AppController
 					throw new NotFoundHttpException('Asset field not found for '. $revision);
 				}
 				return $this->redirectToRoute('file.download', [
-						'sha1' => $revision[0]->getRawData()[$contentType->getAssetField()]['sha1'],
-						'type' => $revision[0]->getRawData()[$contentType->getAssetField()]['mimetype'],
-						'name' => $revision[0]->getRawData()[$contentType->getAssetField()]['filename'],
+						'sha1' => $revision->getRawData()[$contentType->getAssetField()]['sha1'],
+						'type' => $revision->getRawData()[$contentType->getAssetField()]['mimetype'],
+						'name' => $revision->getRawData()[$contentType->getAssetField()]['filename'],
 				]);
 				
 			}

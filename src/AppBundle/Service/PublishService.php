@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Entity\Environment;
+use AppBundle\Repository\RevisionRepository;
 
 
 class PublishService
@@ -32,6 +33,7 @@ class PublishService
 	protected $mapping;
 	protected $instanceId;
 	protected $em;
+	/**@var RevisionRepository*/
 	protected $revRepository;
 	/**@var Session $session*/
 	protected $session;
@@ -89,44 +91,33 @@ class PublishService
 			$this->session->getFlashBag()->add('warning', 'You can not align the default environment for '.$type.':'.$ouuid);
 		}
 		else{
-			
+			$contentType = $this->contentTypeService->getByName($type);
 			$revision = $this->revRepository->findByOuuidAndContentTypeAndEnvironnement(
-					$this->contentTypeService->getByName($type),
+					$contentType,
 					$ouuid, 
-					$this->environmentService->getAliasByName($envirronmentSource)
+					$this->environmentService->getByName($envirronmentSource)
 			);
 		
-			if(count($revision) != 1){
+			if(!$revision){
 				$this->session->getFlashBag()->add('warning', 'Missing revision in the environment '.$envirronmentSource.' for '.$type.':'.$ouuid);
 			}
 			else{
+				$target = $this->environmentService->getByName($envirronmentTarget);
+				
 				$toClean = $this->revRepository->findByOuuidAndContentTypeAndEnvironnement(
-					$this->contentTypeService->getByName($type),
+					$contentType,
 					$ouuid,
-					$this->environmentService->getAliasByName($envirronmentTarget)
+					$target
 				);
 				
-				$em = $this->doctrine->getManager();
-				/** @var Revision $item */
-				foreach ($toClean as $item){
-					$this->dataService->lockRevision($item);
-					$item->removeEnvironment($this->environmentService->getAliasByName($envirronmentTarget));
-					$em->persist($item);
+				if($toClean != $revision) {
+					if($toClean) {
+						$this->unpublish($toClean, $target);
+					}
+					$this->publish($revision, $target);
+					
 				}
-				$revision = $revision[0];
-				$this->dataService->lockRevision($revision);
-				$revision->addEnvironment($this->environmentService->getAliasByName($envirronmentTarget));
 				
-				$status = $this->client->index([
-					'id' => $revision->getOuuid(),
-					'index' => $this->environmentService->getAliasByName($envirronmentTarget)->getAlias(),
-					'type' => $revision->getContentType()->getName(),
-					'body' => $revision->getRawData()
-				]);
-				
-				$em->persist($revision);
-				$em->flush();
-				$this->session->getFlashBag()->add('notice', 'Object '.$type.':'.$ouuid.' published in '.$envirronmentTarget);
 			}
 			
 		}
@@ -134,17 +125,18 @@ class PublishService
 		
 	}
 	
-	public function publish(Revision $revision, Environment $environment) {
-		
-		if( ! $this->authorizationChecker->isGranted($revision->getContentType()->getEditRole()) ){
-			$this->session->getFlashBag()->add('warning', 'You are not allowed to publish the object '.$revision);
-			return;
-		}
-
-		$user = $this->userService->getCurrentUser();
-		if( !empty($environment->getCircles()) && !$this->authorizationChecker->isGranted('ROLE_ADMIN') && empty(array_intersect($environment->getCircles(), $user->getCircles()) )) {
-			$this->session->getFlashBag()->add('warning', 'You are not allowed to publish in the environment '.$environment);
-			return;
+	public function publish(Revision $revision, Environment $environment, $command=false) {
+		if(!$command) {
+			if( ! $this->authorizationChecker->isGranted($revision->getContentType()->getEditRole()) ){
+				$this->session->getFlashBag()->add('warning', 'You are not allowed to publish the object '.$revision);
+				return;
+			}
+	
+			$user = $this->userService->getCurrentUser();
+			if( !empty($environment->getCircles()) && !$this->authorizationChecker->isGranted('ROLE_ADMIN') && empty(array_intersect($environment->getCircles(), $user->getCircles()) )) {
+				$this->session->getFlashBag()->add('warning', 'You are not allowed to publish in the environment '.$environment);
+				return;
+			}			
 		}
 		
 		if($revision->getContentType()->getEnvironment() == $environment && !empty($revision->getEndTime())) {
@@ -152,67 +144,76 @@ class PublishService
 			return;
 		}
 
-		$this->dataService->lockRevision($revision, $environment);
-
-		$result = $this->revRepository->findByOuuidContentTypeAndEnvironnement($revision, $environment);
+		$item = $this->revRepository->findByOuuidContentTypeAndEnvironnement($revision, $environment);
 		
-
-		$em = $this->doctrine->getManager();
+		$connection = $this->doctrine->getConnection();
 		
 		$already = false;
-		/** @var Revision $item */
-		foreach ($result as $item){
-			if($item == $revision){
-				$already = true;
-				$this->session->getFlashBag()->add('notice', 'The revision '.$revision.' is already specified as published in '.$environment);
-			}
-			else {
-				$this->dataService->lockRevision($item);
-				$item->removeEnvironment($environment);
-				$em->persist($item);				
-			}
+		if($item == $revision){
+			$already = true;
+			$this->session->getFlashBag()->add('notice', 'The revision '.$revision.' is already specified as published in '.$environment);
 		}
-		
+		else if($item) {
+			$statement = $connection->prepare("delete from environment_revision where environment_id = :envId and revision_id = :revId");
+			$statement->bindValue('envId', $environment->getId());
+			$statement->bindValue('revId', $revision->getId());
+			$statement->execute();		
+		}
 
 		$status = $this->client->index([
 				'id' => $revision->getOuuid(),
 				'index' => $environment->getAlias(),
 				'type' => $revision->getContentType()->getName(),
-				'body' => $revision->getRawData()
+				'body' => $revision->getRawData(),
 		]);
 		
 		if(!$already) {
-			$revision->addEnvironment($environment);
-			$em->persist($revision);
-			$em->flush();			
-			$this->session->getFlashBag()->add('notice', 'Revision '.$revision.' has been published in '.$environment);
+			
+			$connection = $this->doctrine->getConnection();
+			$statement = $connection->prepare("insert into environment_revision (environment_id, revision_id) VALUES(:envId, :revId)");
+			$statement->bindValue('envId', $environment->getId());
+			$statement->bindValue('revId', $revision->getId());
+			$statement->execute();
+			if(!$command){
+				$this->session->getFlashBag()->add('notice', 'Revision '.$revision.' has been published in '.$environment);				
+			}
+		}
+
+		if(!$command){
+			$this->auditService->auditLog('PublishService:publish', $revision->getRawData(), $environment->getName());			
 		}
 		
-		$this->auditService->auditLog('PublishService:publish', $revision->getRawData(), $environment->getName());
+		return $already?0:1;
 		
 	}
 	
-	public function unpublish(Revision $revision, Environment $environment) {
+	public function unpublish(Revision $revision, Environment $environment, $command=false) {
 		
-		if( ! $this->authorizationChecker->isGranted($revision->getContentType()->getEditRole()) ){
-			$this->session->getFlashBag()->add('warning', 'You are not allowed to unpublish the object '.$revision);
-			return;
-		}
-
-		$user = $this->userService->getCurrentUser();
-		if( !empty($environment->getCircles() && !$this->authorizationChecker->isGranted('ROLE_ADMIN') && empty(array_intersect($environment->getCircles(), $user->getCircles())) )) {
-			$this->session->getFlashBag()->add('warning', 'You are not allowed to unpublish from the environment '.$environment);
-			return;
+		if(!$command){
+			if( ! $this->authorizationChecker->isGranted($revision->getContentType()->getEditRole()) ){
+				$this->session->getFlashBag()->add('warning', 'You are not allowed to unpublish the object '.$revision);
+				return;
+			}
+	
+			$user = $this->userService->getCurrentUser();
+			if( !empty($environment->getCircles() && !$this->authorizationChecker->isGranted('ROLE_ADMIN') && empty(array_intersect($environment->getCircles(), $user->getCircles())) )) {
+				$this->session->getFlashBag()->add('warning', 'You are not allowed to unpublish from the environment '.$environment);
+				return;
+			}
+			
 		}
 		
 		if($revision->getContentType()->getEnvironment() == $environment) {
 			$this->session->getFlashBag()->add('warning', 'You can\'t unpublish from the default environment of the content type '.$revision->getContentType());
 			return;
 		}
-
-		$this->dataService->lockRevision($revision, $environment);
 		
-		$revision->removeEnvironment($environment);
+
+		$connection = $this->doctrine->getConnection();
+		$statement = $connection->prepare("delete from environment_revision where environment_id = :envId and revision_id = :revId");
+		$statement->bindValue('envId', $environment->getId());
+		$statement->bindValue('revId', $revision->getId());
+		$statement->execute();
 		
 		try {
 			$status = $this->client->delete([
@@ -227,12 +228,9 @@ class PublishService
 				$this->session->getFlashBag()->add('warning', 'The object '.$revision.' was already unpublished from environment '.$environment->getName());
 			}
 		}
-
-		$em = $this->doctrine->getManager();
-		$em->persist($revision);
-		$em->flush();
-
-		$this->auditService->auditLog('PublishService:unpublish', $revision->getRawData(), $environment->getName());
+		if(!$command){
+			$this->auditService->auditLog('PublishService:unpublish', $revision->getRawData(), $environment->getName());	
+		}
 	}
 	
 	

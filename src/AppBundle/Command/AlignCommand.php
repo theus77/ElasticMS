@@ -18,6 +18,10 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use AppBundle\Entity\Revision;
 use AppBundle\Repository\RevisionRepository;
 use AppBundle\Service\DataService;
+use AppBundle\Entity\ContentType;
+use AppBundle\Service\ContentTypeService;
+use AppBundle\Service\EnvironmentService;
+use AppBundle\Service\PublishService;
 
 class AlignCommand extends ContainerAwareCommand
 {
@@ -25,13 +29,22 @@ class AlignCommand extends ContainerAwareCommand
 	protected $logger;
 	protected $client;
 	protected $data;
+	/**@var ContentTypeService */
+	private $contentTypeService;
+	/**@var EnvironmentService */
+	private $environmentService;
+	/**@var PublishService */
+	private $publishService;
 	
-	public function __construct(Registry $doctrine, Logger $logger, Client $client, DataService $data)
+	public function __construct(Registry $doctrine, Logger $logger, Client $client, DataService $data, ContentTypeService $contentTypeService, EnvironmentService $environmentService, PublishService $publishService)
 	{
 		$this->doctrine = $doctrine;
 		$this->logger = $logger;
 		$this->client = $client;
 		$this->data = $data;
+		$this->contentTypeService = $contentTypeService;
+		$this->environmentService = $environmentService;
+		$this->publishService = $publishService;
 		parent::__construct();
 	}
 	
@@ -62,122 +75,92 @@ class AlignCommand extends ContainerAwareCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {	
-    	/** @var EntityManager $em */
-		$em = $this->doctrine->getManager();
-		/** @var JobRepository $envRepo */
-		$envRepo = $em->getRepository('AppBundle:Environment');
-		/** @var RevisionRepository $revRepo */
-		$revRepo = $em->getRepository('AppBundle:Revision');
+    	if(! $input->getOption('force')){
+			$output->writeln('<error>Has protection, the force option is mandatory</error>');
+			return -1;
+		}   	
 		
-    	$this->logger->info('Execute the AlignCommand');
-    	
-    	$sourceName = $input->getArgument('source');
-		/** @var Environment $environment */
-		$source = $envRepo->findOneBy(['name' => $sourceName, 'managed' => true]);
-
-		if(!$source){
-			$output->writeln('<error>Source '.$sourceName.' not found</error>');
-		}
-    	
+		$sourceName = $input->getArgument('source');
     	$targetName = $input->getArgument('target');
-		/** @var Environment $environment */
-		$target = $envRepo->findOneBy(['name' => $targetName, 'managed' => true]);
 
-		if(!$target){
-			$output->writeln('<error>Target '.$targetName.' not found</error>');
-		}
-		
-		if(! $source || ! $target){
+    	$source = $this->environmentService->getAliasByName($sourceName);
+    	$target = $this->environmentService->getAliasByName($targetName);
+    	
+    	if(!$source){
+    		$output->writeln('<error>Source '.$sourceName.' not found</error>');
+    	}   	
+    	if(!$target){
+    		$output->writeln('<error>Target '.$targetName.' not found</error>');
+    	}
+    	
+    	if(! $source || ! $target){
 			return -1;
 		}
 		
 		if($source === $target) {
 			$output->writeln('<error>Target and source are the same environment, it\'s aligned ;-)</error>');
-			return 0;
-		}
-		
-		if(! $input->getOption('force')){
-			$output->writeln('<error>Has protection, the force option is mandatory</error>');
 			return -1;
 		}
-			
-		$output->writeln('The source environment contains '.$source->getRevisions()->count().' elements, start aligning environments...');
-
-		// create a new progress bar
-		$progress = new ProgressBar($output, $source->getRevisions()->count());
-		// start and displays the progress bar
-		$progress->start();
-
-		$deletedRevision = 0;
-		$targetIsPreviewEnvironment = [];
-		$alreadyAligned = 0;
-		$lockedRevision = 0;
 		
-		/**@var Revision $revision*/
-		foreach ($source->getRevisions() as $revision) {
-			if(!$revision->getDeleted() && !$revision->getContentType()->getDeleted()){
-				if($revision->getContentType()->getEnvironment() === $target){
+		$this->logger->info('Execute the AlignCommand');
+    	 
+    	$total = $this->client->search([
+    		'index' => $source->getAlias(),
+    		'size' => 0,
+    	])['hits']['total'];
+    	
+		$output->writeln('The source environment contains '.$total.' elements, start aligning environments...');
+
+    	// create a new progress bar
+    	$progress = new ProgressBar($output, $total);
+    	// start and displays the progress bar
+    	$progress->start();
+    	
+    	$deletedRevision = 0;
+    	$alreadyAligned = 0;
+    	$targetIsPreviewEnvironment = [];
+    	 
+    	for($from = 0; $from < $total; $from = $from + 50) {
+    		$scroll = $this->client->search([
+    			'index' => $source->getAlias(),
+    			'size' => 50,
+    			'from' => $from,
+    			'preference' => '_primary', //http://stackoverflow.com/questions/10836142/elasticsearch-duplicate-results-with-paging
+    		]);
+    		
+    		foreach ($scroll['hits']['hits'] as &$hit){
+    			$revision = $this->data->getRevisionByEnvironment($hit['_id'], $this->contentTypeService->getByName($hit['_type']), $source);
+    			if($revision->getDeleted()){
+    				++$deletedRevision;
+    			}
+    			else if($revision->getContentType()->getEnvironment() === $target){
 					if(!isset($targetIsPreviewEnvironment[$revision->getContentType()->getName()])){
 						$targetIsPreviewEnvironment[$revision->getContentType()->getName()] = 0;
 					}
 					++$targetIsPreviewEnvironment[$revision->getContentType()->getName()];
-				}
-				else {
-					if($revision->getEnvironments()->contains($target)){
-						++$alreadyAligned;
-					}
-					else {
-						
-						$now = new \DateTime();
-						$until = $now->add(new \DateInterval("PT5M"));//+5 minutes
-						
-						/**@var Revision $previousRev*/
-						$previousRev = $revRepo->findByOuuidContentTypeAndEnvironnement($revision, $target);
-						if($previousRev && count($previousRev) == 1){
-							$previousRev = $previousRev[0];
-							$previousRev->setLockBy('SYSTEM_ALIGN');
-							$previousRev->setLockUntil($until);
-							$previousRev->removeEnvironment($target);
-							$em->persist($previousRev);
-
-						}
-
-						$revision->setLockBy('SYSTEM_ALIGN');
-						$revision->setLockUntil($until);
-						$revision->addEnvironment($target);
-						$em->persist($revision);
-						$this->client->index([
-							'index' => $target->getAlias(),
-							'type' => $revision->getContentType()->getName(),
-							'id' => $revision->getOuuid(),
-							'body' => $revision->getRawData(),
-						]);
-						$em->flush();
-					}
-				}
-			}
-			else {
-				++ $deletedRevision;
-			}
-			
-			// advance the progress bar 1 unit
-			$progress->advance();
+    			}
+    			else {
+	    			if($this->publishService->publish($revision, $target, true) == 0){
+	    				++ $alreadyAligned;
+	    			}
+    			}
+    			$progress->advance();    				
+    		}
     	}
-		// ensure that the progress bar is at 100%
-		$progress->finish();
-		$output->writeln('');
-		if($deletedRevision){
+    	
+    	$progress->finish();
+    	$output->writeln('');
+    	if($deletedRevision){
 			$output->writeln('<error>'.$deletedRevision.' deleted revisions were not aligned</error>');
 		}
 		if($alreadyAligned){
 			$output->writeln(''.$alreadyAligned.' revisions were already aligned');
 		}
-		if(count($targetIsPreviewEnvironment)){
-			foreach ($targetIsPreviewEnvironment as $ctName => $counter){
-				$output->writeln('<error>'.$counter.' '.$ctName.' revisions were not aligned as '.$targetName.' is the default environment</error>');				
-			}
+		foreach ($targetIsPreviewEnvironment as $ctName => $counter){
+			$output->writeln('<error>'.$counter.' '.$ctName.' revisions were not aligned as '.$targetName.' is the default environment</error>');				
 		}
-
+		
 		$output->writeln('Environments are aligned.');
+    	return 0;    
     }
 }
