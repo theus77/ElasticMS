@@ -16,6 +16,7 @@ use AppBundle\Entity\I18n;
 use AppBundle\Entity\User;
 use AppBundle\Form\DataField\DateRangeFieldType;
 use AppBundle\Service\EnvironmentService;
+use Monolog\Logger;
 
 class AppExtension extends \Twig_Extension
 {
@@ -34,8 +35,10 @@ class AppExtension extends \Twig_Extension
 	private $objectChoiceListFactory;
 	/** @var EnvironmentService */
 	private $environmentService;
+	/** @var Logger */
+	private $logger;
 	
-	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router, $twig, ObjectChoiceListFactory $objectChoiceListFactory, EnvironmentService $environmentService)
+	public function __construct(Registry $doctrine, AuthorizationCheckerInterface $authorizationChecker, UserService $userService, ContentTypeService $contentTypeService, Client $client, Router $router, $twig, ObjectChoiceListFactory $objectChoiceListFactory, EnvironmentService $environmentService, Logger $logger)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
@@ -46,6 +49,7 @@ class AppExtension extends \Twig_Extension
 		$this->twig = $twig;
 		$this->objectChoiceListFactory = $objectChoiceListFactory;
 		$this->environmentService = $environmentService;
+		$this->logger = $logger;
 		
 		$this->twig->getExtension('Twig_Extension_Core')->setEscaper('csv', array($this, 'csvEscaper'));
 	}
@@ -82,12 +86,18 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('internal_links', array($this, 'internalLinks')),		
 				new \Twig_SimpleFilter('get_user', array($this, 'getUser')),			
 				new \Twig_SimpleFilter('displayname', array($this, 'displayname')),			
-				new \Twig_SimpleFilter('date_difference', array($this, 'dateDifference')),			
+				new \Twig_SimpleFilter('date_difference', array($this, 'dateDifference')),	
+				new \Twig_SimpleFilter('debug', array($this, 'debug')),			
 				
 				
 		);
 	}
 
+
+	function debug($message, array $context=[]){
+		$context['twig'] = 'twig';
+		$this->logger->addDebug($message, $context);
+	}
 	
 	function dateDifference($date1, $date2, $detailed=false){
 		$datetime1 = date_create($date1);

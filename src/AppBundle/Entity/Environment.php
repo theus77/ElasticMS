@@ -67,6 +67,11 @@ class Environment
     private $counter;
     
     /**
+     * @var integer
+     */
+    private $deletedRevision;
+    
+    /**
      * @var string
      *
      * @ORM\Column(name="color", type="string", length=50, nullable=true)
@@ -129,18 +134,6 @@ class Environment
     	if(!isset($this->created)){
     		$this->created = $this->modified;
     	}
-    }
-    
-    
-    public function getIndexedCounter(){
-    	$count = 0;
-    	/** @var Revision $revision */
-    	foreach($this->revisions as $revision){
-    		if(!$revision->getContentType()->getDeleted()){
-    			++ $count;
-    		}
-    	}
-    	return $count;
     }
     
     /**
@@ -266,7 +259,7 @@ class Environment
     /**
      * Set total
      *
-     * @param string $total
+     * @param integer $total
      *
      * @return Environment
      */
@@ -280,11 +273,57 @@ class Environment
     /**
      * Get total
      *
-     * @return string
+     * @return integer
      */
     public function getTotal()
     {
         return $this->total;
+    }
+
+    /**
+     * Get counter
+     *
+     * @return integer
+     */
+    public function getCounter()
+    {
+        return $this->counter;
+    }
+    /**
+     * Set counter
+     *
+     * @param integer $counter
+     *
+     * @return Environment
+     */
+    public function setCounter($counter)
+    {
+        $this->counter = $counter;
+
+        return $this;
+    }
+
+    /**
+     * Get counter of deleted revision
+     *
+     * @return integer
+     */
+    public function getDeletedRevision()
+    {
+        return $this->deletedRevision;
+    }
+    /**
+     * Set counter of deleted revision
+     *
+     * @param integer $deletedRevision
+     *
+     * @return Environment
+     */
+    public function setDeletedRevision($deletedRevision)
+    {
+        $this->deletedRevision = $deletedRevision;
+
+        return $this;
     }
     
 

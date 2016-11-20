@@ -10,6 +10,7 @@ use AppBundle\Service\ContentTypeService;
 use AppBundle\Service\EnvironmentService;
 use Elasticsearch\Client;
 use AppBundle\Service\SearchService;
+use Monolog\Logger;
 
 class AppController extends Controller
 {
@@ -53,6 +54,16 @@ class AppController extends Controller
 	 */
 	protected function getDataFielType($fieldTypeNameOrServiceName){
 		return $this->get('form.registry')->getType($fieldTypeNameOrServiceName)->getInnerType();
+	}
+	
+	/**
+	 * Get the injected logger
+	 * 
+	 * @return Logger
+	 * 
+	 */
+	protected function getLogger(){
+		return $this->get('logger');
 	}
 	
 	

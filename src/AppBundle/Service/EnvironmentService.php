@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Entity\Environment;
+use AppBundle\Repository\EnvironmentRepository;
 
 class EnvironmentService {
 	/**@var Registry $doctrine */
@@ -30,6 +31,12 @@ class EnvironmentService {
 		$this->authorizationChecker = $authorizationChecker;
 		$this->environments = false;
 		$this->byId = false;
+	}
+	
+	public function getEnvironmentsStats() {
+		/**@var EnvironmentRepository $repo*/
+		$repo = $this->doctrine->getManager()->getRepository('AppBundle:Environment');
+		return $repo->getEnvironmentsStats();
 	}
 	
 	private function loadEnvironment(){

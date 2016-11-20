@@ -14,6 +14,16 @@ use Doctrine\DBAL\Query\QueryBuilder;
 class EnvironmentRepository extends \Doctrine\ORM\EntityRepository
 {
 	
+	public function getEnvironmentsStats() {
+		/** @var QueryBuilder $qb */
+		$qb = $this->createQueryBuilder('e')
+			->select('e as environment', 'count(r) as counter', 'sum(r.deleted) as deleted')
+			->join('e.revisions', 'r')
+			->groupBy('e.id');
+		
+		return $qb->getQuery()->getResult();
+	}
+	
 	public function findAvailableEnvironements(Environment $defaultEnv) {
 		/** @var QueryBuilder $qb */
 		$qb = $this->createQueryBuilder('e');

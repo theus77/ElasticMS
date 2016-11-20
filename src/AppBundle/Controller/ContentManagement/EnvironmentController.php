@@ -617,15 +617,15 @@ class EnvironmentController extends AppController {
 			/** @var EnvironmentRepository $repository */
 			$repository = $em->getRepository('AppBundle:Environment');
 		
-			$environments = $repository->findAll();
-		
 			$client = $this->get('app.elasticsearch');
 			
+			$logger = $this->getLogger();
 		
 		
 			$temp = [];
 			$orphanIndexes = [];
 		
+			$logger->addDebug('For each aliases: start');
 			foreach ($client->indices()->getAliases() as $index => $aliases) {
 				if(count($aliases["aliases"]) == 0 && strcmp($index{0}, '.') != 0 ){
 					$orphanIndexes[] = [
@@ -639,14 +639,26 @@ class EnvironmentController extends AppController {
 				}
 					
 			}
+			$logger->addDebug('For each aliases: done');
 		
+
+			$logger->addDebug('For each environments: start');
+
+
+			$environments = [];//$repository->findAll();
+			$stats = $this->getEnvironmentService()->getEnvironmentsStats();
+			dump($stats);
 			/** @var  Environment $environment */
-			foreach ($environments as $environment) {
+			foreach ($stats as $stat) {
+				$environment = $stat['environment'];
+				$environment->setCounter($stat['counter']);
+				$environment->setDeletedRevision($stat['deleted']);
 				if(isset($temp[$environment->getAlias()])){
 					$environment->setIndex($temp[$environment->getAlias()]);
 					$environment->setTotal($client->count(['index'=>$environment->getAlias()])["count"]);
 					unset($temp[$environment->getAlias()]);
 				}
+				$environments[] = $environment;
 			}
 			$unmanagedIndexes = [];
 			foreach ($temp as $alias => $index){
@@ -656,11 +668,12 @@ class EnvironmentController extends AppController {
 						'total' => $client->count(['index'=>$index])["count"],
 				];
 			}
+			$logger->addDebug('For each environments: done');
 		
 			return $this->render( 'environment/index.html.twig', [
 					'environments' => $environments,
 					'orphanIndexes' => $orphanIndexes,
-					'unmanagedIndexes' => $unmanagedIndexes
+					'unmanagedIndexes' => $unmanagedIndexes,
 			]);
 		}
 		catch (\Elasticsearch\Common\Exceptions\NoNodesAvailableException $e){
