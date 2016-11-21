@@ -647,7 +647,6 @@ class EnvironmentController extends AppController {
 
 			$environments = [];//$repository->findAll();
 			$stats = $this->getEnvironmentService()->getEnvironmentsStats();
-			dump($stats);
 			/** @var  Environment $environment */
 			foreach ($stats as $stat) {
 				$environment = $stat['environment'];

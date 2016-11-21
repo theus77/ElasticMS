@@ -26,6 +26,7 @@ use Elasticsearch\Client;
 use Elasticsearch\Common\Exceptions\Missing404Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Form;
@@ -147,6 +148,25 @@ class DataController extends AppController
 				'environment' => $environments[0],
 				'contentType' => $contentType,
 		] );
+	}
+	
+	/**
+	 * @Route("/data/revisions-in-environment/{environment}/{type}:{ouuid}", name="data.revision_in_environment", defaults={"deleted":0})
+ 	 * @ParamConverter("contentType", options={"mapping": {"type" = "name", "deleted" = "deleted"}})
+ 	 * @ParamConverter("environment", options={"mapping": {"environment" = "name"}})
+	 */
+	public function revisionInEnvironmentDataAction(ContentType $contentType, $ouuid, Environment $environment, Request $request)
+	{
+		$revision = $this->getDataService()->getRevisionByEnvironment($ouuid, $contentType, $environment);
+		if(!$revision){
+			$this->addFlash('warning', 'No revision found in '.$environment->getName().' for '.$contentType->getName().':'.$ouuid);
+			return $this->redirectToRoute('data.draft_in_progress', ['contentTypeId' => $contentType->getId()]);
+		}
+		return $this->redirectToRoute('data.revisions', [
+				'type' => $contentType->getName(),
+				'ouuid' => $ouuid,
+				'revisionId' => $revision->getId(),
+		]);
 	}
 	
 	/**

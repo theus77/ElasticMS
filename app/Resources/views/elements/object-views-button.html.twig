@@ -46,11 +46,19 @@
 					{% endif %}					
 				{% endfor %}
 				<li>
-					<a href="{{ path('data.view', {'environmentName': environment.name, 'type': contentType.name, 'ouuid': object._id} ) }}">
-						<span class="entity">&infin;</span>
-						Raw view
+					<a href="{{ path('data.revision_in_environment', {'type': object._type, 'ouuid': object._id, 'environment':environment.name } ) }}" >
+						<i class="fa fa-archive"></i>
+						Corresponding revision
 					</a>
 				</li>
+				{% if ''|is_super %}
+					<li>
+						<a href="{{ path('data.view', {'environmentName': environment.name, 'type': contentType.name, 'ouuid': object._id} ) }}">
+							<i class="entity">&infin;</i>
+							Raw view
+						</a>
+					</li>
+				{% endif %}
 			
 	{# 		{% endif %}#}
 		</ul>

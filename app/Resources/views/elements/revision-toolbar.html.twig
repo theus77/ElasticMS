@@ -117,7 +117,7 @@
 				{% endif %}
 				<div class="btn-group">
 				  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				    	<span class="glyphicon glyphicon-open"></span>&nbsp;
+				    	<span class="fa fa-toggle-on"></span>&nbsp;
 						Publish to
 						<span class="caret"></span>
 				  </button>
@@ -136,7 +136,7 @@
 		  {% if is_granted('ROLE_PUBLISHER') and ((environments|length > 0 and not current) or (environments|length > 1 and current)) %}
 		  	<div class="btn-group">
 				  <button type="button" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				    	<span class="fa fa-close"></span>&nbsp;
+				    	<span class="fa fa-toggle-off"></span>&nbsp;
 						Unpublish from
 						<span class="caret"></span>
 				  </button>
