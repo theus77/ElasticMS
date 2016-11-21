@@ -114,56 +114,58 @@
 				{% if not found %}
 					There is no external environment yet
 				{% else %}
-				<table class="table table-condensed table-striped">
-					<tbody>
-						<tr>
-							<th class="text-center" style="width: 10px">#</th>
-							<th>Name</th>
-							<th>Alias</th>
-							<th>Index</th>
-							<th class="text-center">Total</th>
-							<th>Action</th>
-						</tr>
-						{% for environment in environments %}
-							{% if not environment.managed  %}
+					<div class="table-responsive">
+						<table class="table table-condensed table-striped">
+							<tbody>
 								<tr>
-									<td class="text-center">{{ loop.index }}.</td>
-									<td>
-										<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
-									</td>
-									<td>{{ environment.alias }}</td>
-									<td>{{ environment.index }}</td>
-									<td class="text-center">{{ environment.total|number_format }}</td>
-									<td>
-										<div class="btn-group">
-{# 											{% include 'elements/get-button.html.twig' with {#}
-{# 												'url': path('index.switch', {'id': environment.id}),#}
-{# 												'label': 'Switch',#}
-{# 												'icon': 'share-square-o'#}
-{# 											}%}#}
-											{% include 'elements/get-button.html.twig' with {
-													'url': path('environment.view', {'id': environment.id}),
-													'label': 'View',
-													'icon': 'eye'
-												}%}
-											{% include 'elements/get-button.html.twig' with {
-													'url': path('environment.edit', {'id': environment.id}),
-													'label': 'Edit',
-													'icon': 'pencil'
-												}%}
-											{% include 'elements/post-button.html.twig' with {
-												'url': path('environment.remove', {'id': environment.id}),
-												'message': 'Detach the environment ' ~ environment.name|humanize ~ ' ?',
-												'label': 'Detach',
-												'icon': 'trash'
-											}%}
-										</div>
-									</td>
+									<th class="text-center" style="width: 10px">#</th>
+									<th>Name</th>
+									<th>Alias</th>
+									<th>Index</th>
+									<th class="text-center">Total</th>
+									<th>Action</th>
 								</tr>
-							{% endif %}
-						{% endfor %}
-					</tbody>
-				</table>
+								{% for environment in environments %}
+									{% if not environment.managed  %}
+										<tr>
+											<td class="text-center">{{ loop.index }}.</td>
+											<td>
+												<span class="badge bg-{{ environment.color|raw }}">{{ environment.name|humanize }}</span>		
+											</td>
+											<td>{{ environment.alias }}</td>
+											<td>{{ environment.index }}</td>
+											<td class="text-center">{{ environment.total|number_format }}</td>
+											<td>
+												<div class="btn-group">
+		{# 											{% include 'elements/get-button.html.twig' with {#}
+		{# 												'url': path('index.switch', {'id': environment.id}),#}
+		{# 												'label': 'Switch',#}
+		{# 												'icon': 'share-square-o'#}
+		{# 											}%}#}
+													{% include 'elements/get-button.html.twig' with {
+															'url': path('environment.view', {'id': environment.id}),
+															'label': 'View',
+															'icon': 'eye'
+														}%}
+													{% include 'elements/get-button.html.twig' with {
+															'url': path('environment.edit', {'id': environment.id}),
+															'label': 'Edit',
+															'icon': 'pencil'
+														}%}
+													{% include 'elements/post-button.html.twig' with {
+														'url': path('environment.remove', {'id': environment.id}),
+														'message': 'Detach the environment ' ~ environment.name|humanize ~ ' ?',
+														'label': 'Detach',
+														'icon': 'trash'
+													}%}
+												</div>
+											</td>
+										</tr>
+									{% endif %}
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
 				{% endif %}
 			</div>
 			<!-- /.box-body -->
@@ -186,6 +188,7 @@
 					All indexes are referenced
 				{% else %}
 			
+					<div class="table-responsive">
 					<table class="table table-condensed table-striped">
 						<tbody>
 							<tr>
@@ -211,6 +214,7 @@
 							{% endfor %}
 						</tbody>
 					</table>
+					</div>
 				{% endif %}
 
 			</div>
@@ -232,6 +236,7 @@
 					There is no orphean index
 				{% else %}
 				
+				<div class="table-responsive">
 				<table class="table table-condensed table-striped">
 					<tbody>
 						<tr>
@@ -265,6 +270,7 @@
 						{% endfor %}
 					</tbody>
 				</table>
+				</div>
 				{% endif %}
 
 			</div>

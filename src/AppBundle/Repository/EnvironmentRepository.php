@@ -18,7 +18,7 @@ class EnvironmentRepository extends \Doctrine\ORM\EntityRepository
 		/** @var QueryBuilder $qb */
 		$qb = $this->createQueryBuilder('e')
 			->select('e as environment', 'count(r) as counter', 'sum(r.deleted) as deleted')
-			->join('e.revisions', 'r')
+			->leftJoin('e.revisions', 'r')
 			->groupBy('e.id');
 		
 		return $qb->getQuery()->getResult();
