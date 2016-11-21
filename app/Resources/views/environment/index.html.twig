@@ -25,6 +25,7 @@
 				{% if environments|length == 0 %}
 					There is no environment yet
 				{% else %}
+				<div class="table-responsive">
 				<table class="table table-condensed table-striped">
 					<tbody>
 						<tr>
@@ -90,6 +91,7 @@
 						{% endfor %}
 					</tbody>
 				</table>
+				</div>
 				{% endif %}
 			</div>
 			<!-- /.box-body -->
