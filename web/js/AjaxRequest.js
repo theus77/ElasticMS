@@ -27,7 +27,7 @@ var ajaxRequest = new function() {
         }    	
     };
     
-    this.post = function(url, data){
+    this.post = function(url, data, modal){
     	this.initRequest();
     	var self = this;
     	
@@ -53,7 +53,7 @@ var ajaxRequest = new function() {
     		
     		var xhr = $.post( url, data )
     		.done(function(data) {
-    			var response = self.treatResponse(data);
+    			var response = self.treatResponse(data, modal);
     			if(response.success) {
     				if(out.successFct) {
     					out.successFct(response);
@@ -116,7 +116,7 @@ var ajaxRequest = new function() {
     		
     		var xhr = $.get( url, data )
     		.done(function(data) {
-    			var response = self.treatResponse(data);
+    			var response = self.treatResponse(data, modal);
     			if(response.success) {
     				if(out.successFct) {
     					out.successFct(response);
@@ -153,7 +153,8 @@ var ajaxRequest = new function() {
     	
     }
     
-    this.treatResponse = function (data) {
+    this.treatResponse = function (data, modal) {
+    	
     	var response = false;
     	this.private_begin_response();
     	try {
@@ -164,6 +165,13 @@ var ajaxRequest = new function() {
     		else{
     			response = data;
     		}
+    		if(modal){
+    			$('#'+modal).modal('show') ;
+            	this.private_add_modal(modal, response.notice, 'info', 'info', 'Info!');
+            	this.private_add_modal(modal, response.warning, 'warning', 'warning', 'Warning!');
+            	this.private_add_modal(modal, response.error, 'danger', 'ban', 'Error!');
+    		}
+    		
             if(response.success){
             	this.private_add_messages(response.notice, 'text-aqua');
             	this.private_add_alerts(response.warning, 'warning', 'warning', 'Warning!');
@@ -196,6 +204,22 @@ var ajaxRequest = new function() {
         	}
         	output +=  '</div>';
         	$('#flashbags').append(output);
+        }
+    }
+    
+    this.private_add_modal = function (modal, alerts, cls, icon, title){
+        if(alerts) {
+        	var output = '<div class="alert alert-'+cls+' alert-dismissible">'
+	                +'<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'
+	                +' <h4><i class="icon fa fa-'+icon+'"></i> '
+	                + title
+	                +' </h4>';
+
+        	for (index = 0; index < alerts.length; ++index) {
+            	output +=  ' <div class="flash-notice">'+alerts[index]+'</div>';
+        	}
+        	output +=  '</div>';
+        	$('#'+modal+' .modal-body').append(output);
         }
     }
     

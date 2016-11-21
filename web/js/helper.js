@@ -92,5 +92,15 @@ function objectPickerListeners(objectPicker, maximumSelectionLength){
 
 function requestNotification (element, tId, envName, ctId, id){
 	var data = { templateId : tId, environmentName : envName, contentTypeId : ctId, ouuid : id};
-	ajaxRequest.post(element.getAttribute("data-url") , data);
+	ajaxRequest.post(element.getAttribute("data-url") , data, 'modal-notifications');
 }
+
+$(document).ready(function() {
+	
+	$('#modal-notification-close-button').click(function(){
+		$('#modal-notifications .modal-body').empty();
+		$('#modal-notifications').modal('hide');
+	});
+	
+
+});
