@@ -279,8 +279,8 @@
 		<div class="panel-heading">
 	  		{{- form_label(form) -}}
 	  		<div class="btn-group pull-right">
-	  			{{- form_widget(form.add_nested) -}}
-	  			
+	  			{% set widget_button = form_widget(form.add_nested) %}
+	  			{{ widget_button|raw }}
 
 				{% set tempId = form.vars.name~'_'~random() %}
 				{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %}
@@ -295,6 +295,9 @@
 	  	class="panel-body{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %} collapse{% endif %}{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.sortable is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.sortable %} ems-sortable{% endif %}" 
 	  	id="{{ tempId }}">
 	    {{- form_widget(attribute(form, form.vars.name)) -}}
+	  </div>
+	  <div class="panel-footer">
+	  		{{ widget_button|raw }}
 	  </div>
 	  {{- form_errors(form) -}}
 	</div>               
