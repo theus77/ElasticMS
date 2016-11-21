@@ -95,18 +95,15 @@
 	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm) }}">Search {{ contentType.pluralName }}</a></li>
 	          		
 	          		{% if contentType.circlesField and app.user.circles|length > 0 %}
-		            	{% set searchForm = searchForm|merge({ 
-		            		'search_form[boolean]': 'or'
-						}) %}
-						
 		            	
 	          			{% for circle in  app.user.circles%}
+	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][booleanClause]'):('must')}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][field]'):contentType.circlesField}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][operator]'):('term')}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][pattern]'):circle}) %}
 		            	{% endfor %}
 		            	
-		            	{% set label = circles_object %}
+		            	{% set label = contentType.circlesField %}
 		            	{% if app.user.circles|length > 1 %}
 			            	{% set label = (circles_object|get_content_type).pluralName %}
 		            	{% endif %}

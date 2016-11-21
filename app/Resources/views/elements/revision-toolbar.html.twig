@@ -141,7 +141,7 @@
 						<span class="caret"></span>
 				  </button>
 				   <ul class="dropdown-menu">
-				   		{% for env in availableEnv if env in environments %}
+				   		{% for env in availableEnv if env in environments and env.circles|in_my_circles %}
 				   			<li>
 				   				<a href="{{ path('revision.unpublish', {'revisionId': revisionId, 'envId': env.id}) }}">{{ env.name|humanize }}</a>
 				   			</li>

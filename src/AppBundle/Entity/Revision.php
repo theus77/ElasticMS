@@ -125,7 +125,7 @@ class Revision
     private $environments;
 
     /**
-     * @ORM\OneToMany(targetEntity="Notification", mappedBy="revisionId", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="Notification", mappedBy="revision", cascade={"persist", "remove"})
      * @ORM\OrderBy({"created" = "ASC"})
      */
     private $notifications;

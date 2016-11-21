@@ -63,7 +63,7 @@ class SendNotificationsCommand extends ContainerAwareCommand
     	/**@var Notification $item*/
     	foreach ( $resultSet as $idx => $item ) {
     		if($output->isVerbose()) {
-    			$output->writeln(($idx+1).'/'.$count.' : '.$item.' for '.$item->getRevisionId());
+    			$output->writeln(($idx+1).'/'.$count.' : '.$item.' for '.$item->getRevision());
     		}
     		
     		$this->notificationService->sendEmail($item);

@@ -11,6 +11,7 @@ use AppBundle\Service\EnvironmentService;
 use Elasticsearch\Client;
 use AppBundle\Service\SearchService;
 use Monolog\Logger;
+use AppBundle\Service\NotificationService;
 
 class AppController extends Controller
 {
@@ -30,6 +31,15 @@ class AppController extends Controller
 		return $this->get('app.elasticsearch');
 	}
 
+	
+		/**
+	 * @return NotificationService
+	 */
+	protected function getNotificationService()
+	{
+		return $this->get('ems.service.notification');
+	}
+	
 	/**
 	 * @return \Twig_Environment
 	 */

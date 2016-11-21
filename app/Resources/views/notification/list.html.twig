@@ -82,40 +82,40 @@
 								<td class="">
 									<label id="treat_notifications_notifications_{{ notification.id }}_label">
 										&nbsp;&nbsp;&nbsp;<input class="item-to-treat" type="checkbox" id="treat_notifications_notifications_{{ notification.id }}" name="treat_notifications[notifications][{{ notification.id }}]" label="treat_notifications_notifications_{{ notification.id }}_label" value="{{ notification.id }}">
-										&nbsp;&nbsp;&nbsp;<i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}
+										&nbsp;&nbsp;&nbsp;<i class="fa {{notification.template.icon}}"></i> {{ notification.template.name }}
 									</label>
 								
 								
 	{# 								{{ form_widget(attribute(treatform.notifications, notification.id)) }}#}
 								</td>
-	{# 							<td><i class="fa {{notification.templateId.icon}}"></i> {{ notification.templateId.name }}</td>#}
+	{# 							<td><i class="fa {{notification.template.icon}}"></i> {{ notification.template.name }}</td>#}
 								<td>{{ notification.username }}</td>
 								<td>{{ notification.created|date|date(date_time_format) }}</td>
 								<td>
-									<span class="badge bg-{{ notification.environmentId.color|raw }}">{{ notification.environmentId.name }}</span>
+									<span class="badge bg-{{ notification.environment.color|raw }}">{{ notification.environment.name }}</span>
 								</td>
 								<td>
 								{% set found = false %}
-								{% for env in notification.revisionId.environments %}
-									{% if env == notification.environmentId %}
+								{% for env in notification.revision.environments %}
+									{% if env == notification.environment %}
 										{% set found = true %}
 									{% endif %}
 								{% endfor %}
 								{% if not found and notification.counter > 1 %}
-									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title=" This revision is not published in {{ notification.environmentId.name }} anymore and another notification exists"></i> This revision is not published in {{ notification.environmentId.name }} anymore and another notification exists
+									<i class="fa fa-warning  text-{{ notification.revision.contentType.color }}" title=" This revision is not published in {{ notification.name }} anymore and another notification exists"></i> This revision is not published in {{ notification.environment.name }} anymore and another notification exists
 								{% elseif not found %}
-									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title="This revision is not published in {{ notification.environmentId.name }} anymore"></i> This revision is not published in {{ notification.environmentId.name }} anymore
+									<i class="fa fa-warning  text-{{ notification.revision.contentType.color }}" title="This revision is not published in {{ notification.environment.name }} anymore"></i> This revision is not published in {{ notification.environment.name }} anymore
 								{% elseif notification.counter > 1 %}
-									<i class="fa fa-warning  text-{{ notification.revisionId.contentType.color }}" title="At least another notification exists for this object"></i> At least another notification exists for this object
+									<i class="fa fa-warning  text-{{ notification.revision.contentType.color }}" title="At least another notification exists for this object"></i> At least another notification exists for this object
 								{% else %}
-									<i class="fa fa-thumbs-up  text-{{ notification.revisionId.contentType.color }}"></i>
+									<i class="fa fa-thumbs-up  text-{{ notification.revision.contentType.color }}"></i>
 								{% endif %}
 								&nbsp;
 								</td>
 								<td>
-								<a class="btn btn-sm btn-default text-{{ notification.revisionId.contentType.color }}" href="{{ path('data.revisions', {'type': notification.revisionId.contentType.name, 'ouuid':  notification.revisionId.ouuid, 'revisionId':  notification.revisionId.id} ) }}">
-									<i class="{{ notification.revisionId.contentType.icon }}"></i>
-									{{ notification.revisionId.ouuid }}
+								<a class="btn btn-sm btn-default text-{{ notification.revision.contentType.color }}" href="{{ path('data.revisions', {'type': notification.revision.contentType.name, 'ouuid':  notification.revision.ouuid, 'revisionId':  notification.revision.id} ) }}">
+									<i class="{{ notification.revision.contentType.icon }}"></i>
+									{{ notification.revision.ouuid }}
 								</a>
 			
 								<td>
@@ -124,11 +124,11 @@
 										  <i class="fa fa-gear"></i> Treat
 										</button>
 										{% include 'elements/object-views-button.html.twig' with { 
-											'object':  notification.revisionId.buildObject,
-											'contentType': notification.revisionId.contentType,
-											'environment': notification.environmentId,
-											'ouuid': notification.revisionId,
-											'currentTemplate': notification.templateId
+											'object':  notification.revision.buildObject,
+											'contentType': notification.revision.contentType,
+											'environment': notification.environment,
+											'ouuid': notification.revision,
+											'currentTemplate': notification.template
 										}%}
 				                    </div>
 				         

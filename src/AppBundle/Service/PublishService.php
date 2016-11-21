@@ -156,7 +156,7 @@ class PublishService
 		else if($item) {
 			$statement = $connection->prepare("delete from environment_revision where environment_id = :envId and revision_id = :revId");
 			$statement->bindValue('envId', $environment->getId());
-			$statement->bindValue('revId', $revision->getId());
+			$statement->bindValue('revId', $item->getId());
 			$statement->execute();		
 		}
 

@@ -63,9 +63,7 @@ class NotificationController extends AppController
 			throw new NotFoundHttpException('Unknown revision');
 		}
 		
-		/**@var NotificationService $notificationService*/
-		$notificationService = $this->get("ems.service.notification");
-		$success = $notificationService->addNotification($templateId, reset($revision), $env);
+		$success = $this->getNotificationService()->addNotification($templateId, $revision, $env);
 
 		return $this->render( 'ajax/notification.json.twig', [
 				'success' => $success,
@@ -108,11 +106,11 @@ class NotificationController extends AppController
 				}
 				
 				if(!empty($publishIn)) {
-					$this->getPublishService()->publish($notification->getRevisionId(), $publishIn);
+					$this->getPublishService()->publish($notification->getRevision(), $publishIn);
 				}
 				
 				if(!empty($unpublishFrom)) {
-					$this->getPublishService()->unpublish($notification->getRevisionId(), $unpublishFrom);
+					$this->getPublishService()->unpublish($notification->getRevision(), $unpublishFrom);
 				}
 				
 				if($treatNotification->getAccept()){

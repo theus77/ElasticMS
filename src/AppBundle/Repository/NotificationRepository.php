@@ -35,15 +35,15 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		$query = $this->createQueryBuilder('n')
 		->select('COUNT(n)')
 		->where('n.status = :status')
-		->andwhere('n.templateId IN (:ids)');
+		->andwhere('n.template IN (:ids)');
 		$params = array('status' => "pending", 'ids' => $templateIds);
 		
 		if($environments != null){
-			$query->andWhere('n.environmentId IN (:envs)');
+			$query->andWhere('n.environment IN (:envs)');
 			$params['envs'] = $environments;			
 		}
 		if($templates != null){
-			$query->andWhere('n.templateId IN (:templates)');
+			$query->andWhere('n.template IN (:templates)');
 			$params['templates'] = $templates;
 		}
 		
@@ -57,7 +57,7 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	public function countNotificationByUuidAndContentType($ouuid, ContentType $contentType){
 		$qb = $this->createQueryBuilder('n')
 		->select('count(n)')
-		->leftJoin('AppBundle:Revision', 'r', 'WITH', 'n.revisionId = r.id')
+		->leftJoin('AppBundle:Revision', 'r', 'WITH', 'n.revision = r.id')
 		->where('n.status = :status')
 		->andWhere('r.contentType = :contentType')
 		->andwhere('r.ouuid = :ouuid');
@@ -88,15 +88,15 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		$qb = $this->createQueryBuilder('n')
 		->select('n')
 		->where('n.status = :status')
-		->andwhere('n.templateId IN (:ids)');
+		->andwhere('n.template IN (:ids)');
 		$params = array('status' => "pending", 'ids' => $templateIds);
 		
 		if($environments != null){
-			$qb->andWhere('n.environmentId IN (:envs)');
+			$qb->andWhere('n.environment IN (:envs)');
 			$params['envs'] = $environments;			
 		}
 		if($templates != null){
-			$qb->andWhere('n.templateId IN (:templates)');
+			$qb->andWhere('n.template IN (:templates)');
 			$params['templates'] = $templates;
 		}
 		

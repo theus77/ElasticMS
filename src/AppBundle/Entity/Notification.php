@@ -40,7 +40,7 @@ class Notification
      * @ORM\ManyToOne(targetEntity="Template")
      * @ORM\JoinColumn(name="template_id", referencedColumnName="id")
      */
-    private $templateId;
+    private $template;
 
     /**
      * @var string
@@ -88,13 +88,13 @@ class Notification
      * @ORM\ManyToOne(targetEntity="Revision", inversedBy="notifications")
      * @ORM\JoinColumn(name="revision_id", referencedColumnName="id")
      */
-    private $revisionId;
+    private $revision;
 
    	/**
      * @ORM\ManyToOne(targetEntity="Environment")
      * @ORM\JoinColumn(name="environment_id", referencedColumnName="id")
      */
-    private $environmentId;
+    private $environment;
 
     /**
      * @var \DateTime
@@ -114,7 +114,7 @@ class Notification
     private $counter;
 
     public function __toString() {
-    	return $this->getTemplateId()->getName().'#'.$this->id;
+    	return $this->getTemplate()->getName().'#'.$this->id;
     }
     
     /**
@@ -189,27 +189,27 @@ class Notification
     
 
     /**
-     * Set templateId
+     * Set template
      *
-     * @param \AppBundle\Entity\Template $templateId
+     * @param \AppBundle\Entity\Template $template
      *
      * @return Notification
      */
-    public function setTemplateId(\AppBundle\Entity\Template $templateId)
+    public function setTemplate(\AppBundle\Entity\Template $template)
     {
-        $this->templateId = $templateId;
+        $this->template = $template;
 
         return $this;
     }
 
     /**
-     * Get templateId
+     * Get template
      *
      * @return \AppBundle\Entity\Template
      */
-    public function getTemplateId()
+    public function getTemplate()
     {
-        return $this->templateId;
+        return $this->template;
     }
 
     /**
@@ -357,51 +357,51 @@ class Notification
     }
 
     /**
-     * Set revisionId
+     * Set revision
      *
-     * @param \AppBundle\Entity\Revision $revisionId
+     * @param \AppBundle\Entity\Revision $revision
      *
      * @return Notification
      */
-    public function setRevisionId(\AppBundle\Entity\Revision $revisionId)
+    public function setRevision(\AppBundle\Entity\Revision $revision)
     {
-        $this->revisionId = $revisionId;
+        $this->revision = $revision;
 
         return $this;
     }
 
     /**
-     * Get revisionId
+     * Get revision
      *
      * @return \AppBundle\Entity\Revision
      */
-    public function getRevisionId()
+    public function getRevision()
     {
-        return $this->revisionId;
+        return $this->revision;
     }
 
     /**
-     * Set environmentId
+     * Set environment
      *
-     * @param \AppBundle\Entity\Environment $environmentId
+     * @param \AppBundle\Entity\Environment $environment
      *
      * @return Notification
      */
-    public function setEnvironmentId(\AppBundle\Entity\Environment $environmentId)
+    public function setEnvironment(\AppBundle\Entity\Environment $environment)
     {
-        $this->environmentId = $environmentId;
+        $this->environment = $environment;
 
         return $this;
     }
 
     /**
-     * Get environmentId
+     * Get environment
      *
      * @return \AppBundle\Entity\Environment
      */
-    public function getEnvironmentId()
+    public function getEnvironment()
     {
-        return $this->environmentId;
+        return $this->environment;
     }
 
     /**

@@ -104,9 +104,9 @@ class NotificationService {
 			
 			
 			$alreadyPending = $repository->findBy([
-					'templateId' => $template,
-					'revisionId' => $revision,
-					'environmentId' => $environment,
+					'template' => $template,
+					'revision' => $revision,
+					'environment' => $environment,
 					'status' => 'pending',
 			]);
 			
@@ -117,13 +117,13 @@ class NotificationService {
 				return;
 			}
 			
-			$notification->setTemplateId($template);
+			$notification->setTemplate($template);
 			$sentTimestamp = new \DateTime();
 			$notification->setSentTimestamp($sentTimestamp);
 			
-			$notification->setEnvironmentId($environment);
+			$notification->setEnvironment($environment);
 			
-			$notification->setRevisionId($revision);
+			$notification->setRevision($revision);
 			$userName = $this->userService->getCurrentUser()->getUserName();
 			$notification->setUsername($userName);
 			$em->persist($notification);
@@ -205,7 +205,7 @@ class NotificationService {
 
 		/**@var Notification $notification*/
 		foreach ($notifications as $notification) {
-			$result = $repository->countNotificationByUuidAndContentType($notification->getRevisionId()->getOuuid(), $notification->getRevisionId()->getContentType());
+			$result = $repository->countNotificationByUuidAndContentType($notification->getRevision()->getOuuid(), $notification->getRevision()->getContentType());
 			
 			$notification->setCounter($result);
 		}
@@ -229,7 +229,7 @@ class NotificationService {
 		
 		}
 		
-		$this->session->getFlashBag()->add('notice', '<i class="'.$notification->getTemplateId()->getIcon().'"></i> '.$notification->getTemplateId()->getName().' for '.$notification->getRevisionId().' has been '.$notification->getStatus());
+		$this->session->getFlashBag()->add('notice', '<i class="'.$notification->getTemplate()->getIcon().'"></i> '.$notification->getTemplate()->getName().' for '.$notification->getRevision().' has been '.$notification->getStatus());
 	}
 
 	public function accept(Notification $notification, TreatNotifications $treatNotifications) {
@@ -267,51 +267,51 @@ class NotificationService {
 	
 	public function sendEmail(Notification $notification) {
 		
-		$fromCircles = $this->dataService->getDataCircles($notification->getRevisionId());
+		$fromCircles = $this->dataService->getDataCircles($notification->getRevision());
 		
-		$toCircles = array_unique(array_merge($fromCircles, $notification->getTemplateId()->getCirclesTo()));
+		$toCircles = array_unique(array_merge($fromCircles, $notification->getTemplate()->getCirclesTo()));
 
 		$fromUser = $this->usersToEmailAddresses([$this->userService->getUser($notification->getUsername())]);
-		$toUsers = $this->usersToEmailAddresses($this->userService->getUsersForRoleAndCircles($notification->getTemplateId()->getRoleTo(), $toCircles));
-		$ccUsers = $this->usersToEmailAddresses($this->userService->getUsersForRoleAndCircles($notification->getTemplateId()->getRoleCc(), $toCircles));
+		$toUsers = $this->usersToEmailAddresses($this->userService->getUsersForRoleAndCircles($notification->getTemplate()->getRoleTo(), $toCircles));
+		$ccUsers = $this->usersToEmailAddresses($this->userService->getUsersForRoleAndCircles($notification->getTemplate()->getRoleCc(), $toCircles));
 		
 		$message = \Swift_Message::newInstance();
 		
 		$params = [
 				'notification' => $notification,
-				'source' => $notification->getRevisionId()->getRawData(),
-				'object' => $notification->getRevisionId()->buildObject(),
+				'source' => $notification->getRevision()->getRawData(),
+				'object' => $notification->getRevision()->buildObject(),
 				'status' => $notification->getStatus(),
-				'environment' => $notification->getEnvironmentId(),
+				'environment' => $notification->getEnvironment(),
 		];
 		
 		if($notification->getStatus() == 'pending') {
 			//it's a notification
 			try {
-				$body = $this->twig->createTemplate($notification->getTemplateId()->getBody())->render($params);
+				$body = $this->twig->createTemplate($notification->getTemplate()->getBody())->render($params);
 			}
 			catch (\Exception $e) {
 				$body = "Error in body template: ".$e->getMessage();
 			}
 			
-			$message->setSubject($notification->getTemplateId().' for '.$notification->getRevisionId())
+			$message->setSubject($notification->getTemplate().' for '.$notification->getRevision())
 				->setFrom($this->sender['address'], $this->sender['sender_name'])
 				->setTo($toUsers)
 				->setCc(array_unique(array_merge($ccUsers, $fromUser)))
-				->setBody($body, empty($notification->getTemplateId()->getEmailContentType())?'text/html':$notification->getTemplateId()->getEmailContentType());
+				->setBody($body, empty($notification->getTemplate()->getEmailContentType())?'text/html':$notification->getTemplate()->getEmailContentType());
 			$notification->setEmailed(new \DateTime());
 		}
 		else{
 			//it's a notification
 			try {
-				$body = $this->twig->createTemplate($notification->getTemplateId()->getResponseTemplate())->render($params);
+				$body = $this->twig->createTemplate($notification->getTemplate()->getResponseTemplate())->render($params);
 			}
 			catch (\Exception $e) {
 				$body = "Error in response template: ".$e->getMessage();
 			}
 			
 			//it's a reminder
-			$message->setSubject($notification->getTemplateId().' for '.$notification->getRevisionId().' has been '.$notification->getStatus())
+			$message->setSubject($notification->getTemplate().' for '.$notification->getRevision().' has been '.$notification->getStatus())
 				->setFrom($this->sender['address'], $this->sender['sender_name'])
 				->setTo($fromUser)
 				->setCc(array_unique(array_merge($ccUsers, $toUsers)))
