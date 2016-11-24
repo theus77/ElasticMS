@@ -30,8 +30,9 @@ class RebuildCommand extends EmsCommand
 	
 	/**@var ContentTypeService*/
 	private $contentTypeService;
+	private $instanceId;
 	
-	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, Container $container, Session $session)
+	public function __construct(Registry $doctrine, Logger $logger, Client $client, $mapping, Container $container, Session $session, $instanceId)
 	{
 		$this->doctrine = $doctrine;
 		$this->logger = $logger;
@@ -40,6 +41,7 @@ class RebuildCommand extends EmsCommand
 		$this->container = $container;
 		$this->contentTypeService = $container->get('ems.service.contenttype');
 		$this->session = $session;
+		$this->instanceId = $instanceId;
 		parent::__construct($logger, $client, $session);
 	}
 	
@@ -78,6 +80,13 @@ class RebuildCommand extends EmsCommand
 		$environment = $envRepo->findBy(['name' => $name, 'managed' => true]);
 		if($environment && count($environment) == 1) {
 			$environment = $environment[0];
+			if($environment->getAlias() != $this->instanceId.$environment->getName()) {
+				$environment->setAlias($this->instanceId.$environment->getName());
+				$em->persist($environment);
+				$em->flush();				
+				$output->writeln("Alias has been aligned to ".$environment->getAlias());
+			}
+			
 			$indexName = $environment->getAlias().AppController::getFormatedTimestamp();
 				
 				
