@@ -383,7 +383,7 @@ services:
             -  { name: console.command }
     ems.environment.rebuild:
         class: AppBundle\Command\RebuildCommand
-        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container', '@session']
+        arguments: ['@doctrine', '@logger', '@app.elasticsearch', '@ems.service.mapping', '@service_container', '@session', '%instance_id%']
         tags:
             -  { name: console.command }
     ems.environment.align:
