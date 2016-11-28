@@ -108,7 +108,6 @@ class RebuildCommand extends EmsCommand
 			$progress = new ProgressBar($output, count($contentTypes));
 			// start and displays the progress bar
 			$progress->start();
-			$progressMessage = " creating content type's mappings in ".$indexName;
 			
 			/** @var ContentType $contentType */
 			foreach ($contentTypes as $contentType){
@@ -117,7 +116,6 @@ class RebuildCommand extends EmsCommand
 				}
 
 				$progress->advance();
-				$output->write($progressMessage);
 			}
 			$progress->finish();
 			$output->writeln($progressMessage);

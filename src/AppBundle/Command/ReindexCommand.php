@@ -80,7 +80,6 @@ class ReindexCommand extends EmsCommand
 			$progress = new ProgressBar($output, count($environment->getRevisions()));
 			// start and displays the progress bar
 			$progress->start();
-			$progressMessage = " reindexing in ".$environment->getName();
 			
 			/** @var \AppBundle\Entity\Revision $revision */
 			foreach ($environment->getRevisions() as $revision) {
@@ -117,7 +116,6 @@ class ReindexCommand extends EmsCommand
 					}
 				}
 				$progress->advance();
-				$output->write($progressMessage);
 			}
 			$progress->finish();
 			$output->writeln($progressMessage);

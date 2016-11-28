@@ -110,8 +110,6 @@ class DeleteCommand extends ContainerAwareCommand
 
 						// advance the progress bar 1 unit
 						$progress->advance();
-
-						$output->write(" deleting content type ".$name);
 						$em->flush();
 // 						$em->clear($revision);
 					}
