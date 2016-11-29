@@ -55,19 +55,21 @@ class RebuildCommand extends EmsCommand
                 InputArgument::REQUIRED,
                 'Environment name'
             )
-//             ->addOption(
-//                 'force',
-//                 null,
-//                 InputOption::VALUE_NONE,
-//                 'If set, the task will yell in uppercase letters'
-//             )
+            ->addOption(
+                'yellow-ok',
+                null,
+                InputOption::VALUE_NONE,
+                'Agree to rebuild on a yellow status cluster'
+            )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
 
-    	$this->waitForGreen($output);
+    	if( ! $input->getOption('yellow-ok') ){
+    		$this->waitForGreen($output);
+    	}
     	
 		/** @var EntityManager $em */
 		$em = $this->doctrine->getManager();
@@ -102,7 +104,9 @@ class RebuildCommand extends EmsCommand
 			]);
 		
 			$output->writeln('A new index '.$indexName.' has been created');
-			$this->waitForGreen($output);
+	    	if( ! $input->getOption('yellow-ok') ){
+	    		$this->waitForGreen($output);
+	    	}
 			
 			// create a new progress bar
 			$progress = new ProgressBar($output, count($contentTypes));
@@ -118,7 +122,7 @@ class RebuildCommand extends EmsCommand
 				$progress->advance();
 			}
 			$progress->finish();
-			$output->writeln($progressMessage);
+			$output->writeln('');
 			
 			$this->flushFlash($output);			
 			
@@ -136,7 +140,9 @@ class RebuildCommand extends EmsCommand
 				$output->writeln('Reindexed with return code: '.$returnCode);				
 			}
 			
-			$this->waitForGreen($output);
+	    	if( ! $input->getOption('yellow-ok') ){
+	    		$this->waitForGreen($output);
+	    	}
 			$this->switchAlias($environment->getAlias(), $indexName, true, $output);
 			$output->writeln('The alias <info>'.$environment->getName().'</info> is now pointing to '.$indexName);
 		}
