@@ -16,6 +16,7 @@ use AppBundle\Repository\FieldTypeRepository;
 use AppBundle\Repository\RevisionRepository;
 use AppBundle\Repository\TemplateRepository;
 use AppBundle\Repository\ViewRepository;
+use AppBundle\Entity\Revision;
 
 class CleanDeletedContentTypeCommand extends ContainerAwareCommand
 {
@@ -73,7 +74,6 @@ class CleanDeletedContentTypeCommand extends ContainerAwareCommand
 				'deleted'=> true	
 		]);
 		
-		
 		foreach ($contentTypes as $contentType) {
 			
 			
@@ -119,7 +119,23 @@ class CleanDeletedContentTypeCommand extends ContainerAwareCommand
 			
 			$em->remove($contentType);
 			$em->flush($contentType);		
-		}	
+		}
+		
+		
+
+		$output->writeln('Remove deleted revisions');
+		/** @var Revision $revision */
+		$revisions = $revisionRepo->findBy([
+				'deleted'=> true	
+		]);
+		foreach ($revisions as $revision){
+			$em->remove($revision);
+		}
+		$em->flush();
+		
+
+		$output->writeln('Done');
+		
     }
     
 

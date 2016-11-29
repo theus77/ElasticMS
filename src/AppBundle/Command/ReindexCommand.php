@@ -118,7 +118,7 @@ class ReindexCommand extends EmsCommand
 				$progress->advance();
 			}
 			$progress->finish();
-			$output->writeln($progressMessage);
+			$output->writeln('');
 
 			$output->writeln(' '.$count.' objects are reindexed in '.$index.' ('.$deleted.' not indexed as deleted, '.$error.' with indexing error)');
 			$this->flushFlash($output);

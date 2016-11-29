@@ -124,7 +124,7 @@ class NotificationController extends AppController
 		}
 		
 		
-		return $this->redirectToRoute('notifications.list');
+		return $this->redirectToRoute('notifications.inbox');
 	}
 	
 	
@@ -144,9 +144,12 @@ class NotificationController extends AppController
 	}
 	
 	/**
-	 * @Route("/notifications/list", name="notifications.list")
+	 * @Route("/notifications/list", name="notifications.list", defaults={"folder": "inbox"})
+	 * @Route("/notifications/inbox", name="notifications.inbox", defaults={"folder": "inbox"})
+	 * @Route("/notifications/sent", name="notifications.sent", defaults={"folder": "sent"})
+	 * @Route("/notifications/archives", name="notifications.archives", defaults={"folder": "archives"})
 	 */
-	public function listNotificationsAction(Request $request)
+	public function listNotificationsAction($folder, Request $request)
 	{
  		$filters = $request->query->get('notification_form');
 
@@ -174,7 +177,7 @@ class NotificationController extends AppController
 		$repositoryNotification = $em->getRepository('AppBundle:Notification');
 		$repositoryNotification->setAuthorizationChecker($this->get('security.authorization_checker'));
 	
- 		$count = $this->get('ems.service.notification')->menuNotification($filters);
+ 		$count = $this->getNotificationService()->menuNotification();
 		
 		// for pagination
 		$paging_size = $this->getParameter('paging_size');
@@ -186,8 +189,16 @@ class NotificationController extends AppController
 			$page = 1;
 		}
 		
-		$notifications = $this->get('ems.service.notification')->listNotifications(($page-1)*$paging_size, $paging_size, $filters);
-		
+		$notifications = [];
+		if($folder == 'sent') {
+			$notifications = $this->getNotificationService()->listSentNotifications(($page-1)*$paging_size, $paging_size, $filters);
+		}
+		else if($folder == 'archives') {
+			$notifications = $this->getNotificationService()->listArchivesNotifications(($page-1)*$paging_size, $paging_size, $filters);
+		}
+		else {
+			$notifications = $this->getNotificationService()->listInboxNotifications(($page-1)*$paging_size, $paging_size, $filters);
+		}
 
  		$treatNotification = new TreatNotifications();
 //  		$forForm = [];
@@ -207,11 +218,12 @@ class NotificationController extends AppController
 				'counter' => $count,
 				'notifications' => $notifications,
 				'lastPage' => $lastPage,
-				'paginationPath' => 'notifications.list',
+				'paginationPath' => 'notifications.'.$folder,
 				'page' => $page,
 				'form' => $form->createView(),
 				'treatform' => $treatform->createView(),
-				'currentFilters' => $request->query
+				'currentFilters' => $request->query,
+				'folder' => $folder,
 		));
 	}
 }

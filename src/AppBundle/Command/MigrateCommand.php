@@ -187,6 +187,18 @@ class MigrateCommand extends ContainerAwareCommand
 						$objectArray = $value['_source'];
 					}
 					
+					if($contentTypeTo->getCirclesField() &&  isset($newRevision->getRawData()[$contentTypeTo->getCirclesField()]) ){
+						if(is_array($newRevision->getRawData()[$contentTypeTo->getCirclesField()])){
+							$newRevision->setCircles($newRevision->getRawData()[$contentTypeTo->getCirclesField()]);					
+						}
+						else if(is_string($newRevision->getRawData()[$contentTypeTo->getCirclesField()])){
+							$newRevision->setCircles([$newRevision->getRawData()[$contentTypeTo->getCirclesField()]]);
+						}
+						else {
+							$output->write("Not supported circle type for ouuid ".$newRevision->getOuuid());
+						}
+					}
+					
 					$this->client->index([
 							'index' => $contentTypeTo->getEnvironment()->getAlias(),
 							'type' => $contentTypeNameTo,

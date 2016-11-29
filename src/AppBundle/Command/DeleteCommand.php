@@ -100,7 +100,7 @@ class DeleteCommand extends ContainerAwareCommand
 						}
 						++$counter;
 						$notifications = $notRepo->findBy([
-							'revisionId' => $revision,
+							'revision' => $revision,
 						]);
 						foreach ($notifications as $notification){
 							$em->remove($notification);

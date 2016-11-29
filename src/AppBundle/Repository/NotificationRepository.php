@@ -76,6 +76,61 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	}
 	
 	/**
+	 * Select sent notifications for logged user
+	 *
+	 * @param User $user
+	 * @return array Notification
+	 */
+	public function findByPendingAndRoleAndCircleForUserSent(User $user, $from, $limit, $contentTypes = null, $environments = null, $templates = null) {
+		$templateIds = $this->getTemplatesIdsForUserFrom($user, $contentTypes);
+	
+		
+		$qb = $this->createQueryBuilder('n')
+			->select('n')
+			->join('AppBundle:Revision', 'r')
+			->where('n.status = :status')
+			->andwhere('n.template IN (:ids)');
+		
+		$params = array(
+					'status' => "pending",
+					'ids' => $templateIds
+			);
+		
+		if($environments != null){
+			$qb->andWhere('n.environment IN (:envs)');
+			$params['envs'] = $environments;			
+		}
+		if($templates != null){
+			$qb->andWhere('n.template IN (:templates)');
+			$params['templates'] = $templates;
+		}
+		
+		
+		$orCircles = $qb->expr()->orX();
+		$orCircles->add('r.circles is null');
+		
+		$counter = 0;
+		foreach ($user->getCircles() as $circle) {
+			$orCircles->add('r.circles like :circle_'.$counter);
+			$params['circle_'.$counter] = '%'.$circle.'%';
+			++$counter;
+		}
+
+		
+		$qb->andWhere($orCircles);
+		
+		$qb->setParameters($params)
+			->setFirstResult($from)
+			->setMaxResults($limit);
+		$query = $qb->getQuery();
+		
+		$results = $query->getResult();
+		
+		return $results;
+	
+	}
+	
+	/**
 	 * Select notifications for logged user
 	 *
 	 * @param User $user
@@ -101,8 +156,8 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		}
 		
 		$qb->setParameters($params)
-		->setFirstResult($from)
-		->setMaxResults($limit);
+			->setFirstResult($from)
+			->setMaxResults($limit);
 		$query = $qb->getQuery();
 
 		$results = $query->getResult();
@@ -139,6 +194,37 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	 				if(!empty($commonCircle) || $this->authorizationChecker->isGranted('ROLE_ADMIN')) {
 	 					$templateIds[] = $template->getId();
 	 				}
+	 			}
+	 		}
+	 	}
+	 	return $templateIds;
+	 }
+	
+	/**
+	 * Limit template by user role and user circles
+	 * 
+	 * @param User $user
+	 * @return array() of templateId
+	 */
+	 private function getTemplatesIdsForUserFrom($user, $contentTypes = null) {
+	 	$circles = $user->getCircles();
+		 
+	 	/** @var EntityManager $em */
+		$em = $this->getEntityManager();
+		
+		/** @var TemplateRepository $templateRepoitory */
+	 	$templateRepoitory = $em->getRepository( 'AppBundle:Template' );
+	 	
+	 	$results = $templateRepoitory->findByRenderOptionAndContentType('notification', $contentTypes);
+	 	
+	  	$templateIds = array();
+	  	/**@var \AppBundle\Entity\Template $template*/
+	 	foreach ($results as $template) {
+	 		/**@var \AppBundle\Entity\Environment $environment*/
+	 		foreach ($template->getEnvironments() as $environment){
+	 			if(empty($environment->getCircles()) || count(array_intersect($environment->getCircles(), $user->getCircles())) > 0){
+	 				$templateIds[] = $template->getId();
+	 				break;
 	 			}
 	 		}
 	 	}

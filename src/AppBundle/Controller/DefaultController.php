@@ -15,7 +15,7 @@ class DefaultController extends Controller
     {
         // replace this example code with whatever you need
         
-    	return $this->redirectToRoute('notifications.list');
+    	return $this->redirectToRoute('notifications.inbox');
     	
 //         return $this->render('default/index.html.twig', [
 //             'base_dir' => realpath($this->container->getParameter('kernel.root_dir').'/..'),

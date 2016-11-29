@@ -229,7 +229,7 @@ class AppExtension extends \Twig_Extension
 		return $out;
 	}
 	
-	function dataLink($key){
+	function dataLink($key, $revisionId=false){
 		$out = $key;
 		$splitted = explode(':', $key);
 		if($splitted && count($splitted) == 2 && strlen($splitted[0]) > 0 && strlen($splitted[1]) > 0 ){
@@ -281,6 +281,7 @@ class AppExtension extends \Twig_Extension
 			$out = '<a class="btn btn-primary btn-sm" href="'.$this->router->generate('data.revisions', [
 					'type' =>$type,
 					'ouuid' => $ouuid,
+					'revisionId' => $revisionId,
 			]).'" '.$addAttribute.' >'.$out.'</a>';
 		}
 		return $out;

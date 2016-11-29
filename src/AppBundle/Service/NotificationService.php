@@ -181,7 +181,7 @@ class NotificationService {
 	 * 
 	 * @return array Notification
 	 */
-	public function listNotifications($from, $limit, $filters = null) {
+	public function listInboxNotifications($from, $limit, $filters = null) {
 		
 		$contentTypes = null;
 		$environments = null;
@@ -209,6 +209,80 @@ class NotificationService {
 			
 			$notification->setCounter($result);
 		}
+			
+		return $notifications;
+	}
+	
+	/**
+	 * Call to generate list of notifications
+	 * 
+	 * @return array Notification
+	 */
+	public function listArchivesNotifications($from, $limit, $filters = null) {
+		
+		$contentTypes = null;
+		$environments = null;
+		$templates = null;
+		
+		if($filters != null) {
+			if (isset($filters['contentType'])) {
+				$contentTypes = $filters['contentType'];
+			} else if(isset($filters['environment'])) {
+				$environments = $filters['environment'];
+			} else if(isset($filters['template'])) {
+				$templates = $filters['template'];
+			}
+		} 
+		
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		$notifications = $repository->findByPendingAndUserRoleAndCircle($this->userService->getCurrentUser(), $from, $limit, $contentTypes, $environments, $templates);
+		
+
+		/**@var Notification $notification*/
+		foreach ($notifications as $notification) {
+			$result = $repository->countNotificationByUuidAndContentType($notification->getRevision()->getOuuid(), $notification->getRevision()->getContentType());
+			
+			$notification->setCounter($result);
+		}
+			
+		return $notifications;
+	}
+	
+	/**
+	 * Call to generate list of notifications
+	 * 
+	 * @return array Notification
+	 */
+	public function listSentNotifications($from, $limit, $filters = null) {
+		
+		$contentTypes = null;
+		$environments = null;
+		$templates = null;
+		
+		if($filters != null) {
+			if (isset($filters['contentType'])) {
+				$contentTypes = $filters['contentType'];
+			} else if(isset($filters['environment'])) {
+				$environments = $filters['environment'];
+			} else if(isset($filters['template'])) {
+				$templates = $filters['template'];
+			}
+		} 
+		
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		$notifications = $repository->findByPendingAndRoleAndCircleForUserSent($this->userService->getCurrentUser(), $from, $limit, $contentTypes, $environments, $templates);
+		
+
+// 		/**@var Notification $notification*/
+// 		foreach ($notifications as $notification) {
+// 			$result = $repository->countNotificationByUuidAndContentType($notification->getRevision()->getOuuid(), $notification->getRevision()->getContentType());
+			
+// 			$notification->setCounter($result);
+// 		}
 			
 		return $notifications;
 	}
