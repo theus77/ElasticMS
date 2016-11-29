@@ -45,7 +45,10 @@ class NotificationFormType extends AbstractType {
 				return $er->createQueryBuilder('t')
 				->where("t.renderOption = 'notification'");
 				},
-			'choice_label' => 'name',
+			'choice_label' => function ($value, $key, $index) {
+				/**@var Template $value*/
+				return '<i class="'.$value->getContentType()->getIcon().' text-'.$value->getContentType()->getColor().'"></i>&nbsp;&nbsp;'.$value->getName().' for '.$value->getContentType()->getSingularName();
+			},
 			'multiple' => true,
 			'required' => false,
 			'choice_value' => function ($value) {

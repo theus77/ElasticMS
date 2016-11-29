@@ -11002,3 +11002,8 @@ table#CriteriaUpdateCustomViewTable > tbody > tr > td {
   max-height: 400px;
   overflow-y: scroll;
 }
+
+/* line 19, ../../sass/_ems.scss */
+div.table-responsive {
+  padding-bottom: 20px;
+}

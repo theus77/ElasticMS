@@ -67,6 +67,26 @@ class NotificationService {
 		$this->dryRun = $dryRun;
 	}
 	
+	
+	public function setStatus(Notification $notification, $status){
+		//TODO: tests rights to do it
+		$userName = $this->userService->getCurrentUser()->getUserName();
+		
+		$notification->setStatus($status);
+		if($status != 'acknowledged'){
+			$notification->setResponseBy($userName);			
+		}
+		
+		$em = $this->doctrine->getManager();
+		$em->persist($notification);		
+		$em->flush();
+		
+		$this->session->getFlashBag()->add('notice', 'A notification has been cancelled');
+		
+		return $this;
+	}
+	
+	
 	/**
 	 * Call addNotification when click on a request
 	 * 
@@ -172,8 +192,59 @@ class NotificationService {
 		$repository = $em->getRepository('AppBundle:Notification');
 		
 		$count = $repository->countPendingByUserRoleAndCircle($this->userService->getCurrentUser(), $contentTypes, $environments, $templates);
-
+		$count += $repository->countRejectedForUser($this->userService->getCurrentUser());
+		
 		return $count;
+	}
+	
+	public function countPending() {
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		
+		return $repository->countPendingByUserRoleAndCircle($this->userService->getCurrentUser());
+	}
+	
+	public function countSent() {
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		
+		return $repository->countForSent($this->userService->getCurrentUser());
+	}
+	
+	public function countRejected() {
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+	
+		return $repository->countRejectedForUser($this->userService->getCurrentUser());
+	}
+	
+	
+	
+	public function listRejectedNotifications($from, $limit, $filters = null) {
+		
+		$contentTypes = null;
+		$environments = null;
+		$templates = null;
+		
+		if($filters != null) {
+			if (isset($filters['contentType'])) {
+				$contentTypes = $filters['contentType'];
+			} else if(isset($filters['environment'])) {
+				$environments = $filters['environment'];
+			} else if(isset($filters['template'])) {
+				$templates = $filters['template'];
+			}
+		} 
+		
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		$notifications = $repository->findRejectedForUser($this->userService->getCurrentUser(), $from, $limit, $contentTypes, $environments, $templates);
+		
+		return $notifications;
 	}
 	
 	/**

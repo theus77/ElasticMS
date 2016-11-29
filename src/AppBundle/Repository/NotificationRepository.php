@@ -22,6 +22,25 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		$this->authorizationChecker = $authorizationChecker;
 	}
 	
+	
+	
+	
+	public function countRejectedForUser(User $user, $contentTypes = null, $environments = null, $templates = null) {
+		
+		$query = $this->createQueryBuilder('n')
+		->select('COUNT(n)')
+		->where('n.status = :status')
+		->andwhere('n.username =  :username');
+		$params = array('status' => "rejected", 'username' => $user->getUsername());
+		
+		
+		$query->setParameters($params);
+		$result = $query->getQuery()->getSingleScalarResult();
+		
+		return $result;
+	}
+	
+	
 	/**
 	 * Count notifications for logged user
 	 * 
@@ -87,9 +106,11 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		
 		$qb = $this->createQueryBuilder('n')
 			->select('n')
-			->join('AppBundle:Revision', 'r')
+			->join('n.revision', 'r')
 			->where('n.status = :status')
-			->andwhere('n.template IN (:ids)');
+			->andwhere('n.template IN (:ids)')
+			->andwhere('r.deleted = 0')
+			->andwhere('r.id = n.revision');
 		
 		$params = array(
 					'status' => "pending",
@@ -128,6 +149,72 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		
 		return $results;
 	
+	}
+
+	public function countForSent(User $user) {
+		$templateIds = $this->getTemplatesIdsForUserFrom($user);
+	
+	
+		$qb = $this->createQueryBuilder('n')
+			->select('COUNT(n)')
+			->join('n.revision', 'r')
+			->where('n.status = :status')
+			->andwhere('n.template IN (:ids)')
+			->andwhere('r.deleted = 0')
+			->andwhere('r.id = n.revision');
+	
+		$params = array(
+				'status' => "pending",
+				'ids' => $templateIds
+		);
+	
+		$orCircles = $qb->expr()->orX();
+		$orCircles->add('r.circles is null');
+	
+		$counter = 0;
+		foreach ($user->getCircles() as $circle) {
+			$orCircles->add('r.circles like :circle_'.$counter);
+			$params['circle_'.$counter] = '%'.$circle.'%';
+			++$counter;
+		}
+	
+	
+		$qb->andWhere($orCircles);
+	
+		$qb->setParameters($params);
+
+		$result = $qb->getQuery()->getSingleScalarResult();
+	
+		return $result;
+	
+	}
+	
+	
+	public function findRejectedForUser(User $user, $from, $limit, $contentTypes = null, $environments = null, $templates = null) {
+	
+		$qb = $this->createQueryBuilder('n')
+		->select('n')
+		->where('n.status = :status')
+		->andwhere('n.username = :username');
+		$params = array('status' => "rejected", 'username' => $user->getUsername());
+		
+		if($environments != null){
+			$qb->andWhere('n.environment IN (:envs)');
+			$params['envs'] = $environments;			
+		}
+		if($templates != null){
+			$qb->andWhere('n.template IN (:templates)');
+			$params['templates'] = $templates;
+		}
+		
+		$qb->setParameters($params)
+			->setFirstResult($from)
+			->setMaxResults($limit);
+		$query = $qb->getQuery();
+
+		$results = $query->getResult();
+	
+		return $results;
 	}
 	
 	/**

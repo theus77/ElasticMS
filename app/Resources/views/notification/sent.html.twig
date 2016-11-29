@@ -4,11 +4,22 @@
 		<h3 class="box-title">
 			<i class="fa fa-envelope-o"></i> Sent
 		</h3>
-
+		
+		
+	    {% include 'elements/pagination.html.twig' with {
+			'lastPage': lastPage,
+			'currentPage': page,
+			'currentFilters': app.request.query,
+			'paginationPath': paginationPath,
+			'showAlwaysFirstAndLast': false
+		} %}
 	</div>
 	<!-- /.box-header -->
 	<div class="box-body">
 	
+	{% if notifications|length <= 0  %}
+	<p>{{ 'No result to display'|trans }}: <a href="{{ url('notifications.sent') }}">{{ 'reset filters' }}</a></p>
+	{% else %}
 	<div class="table-responsive">
 					<table class="table table-condensed table-striped">
 						<tbody>
@@ -58,6 +69,12 @@
 			
 								<td>
 									<div class="btn-group">
+										{% include 'elements/post-button.html.twig' with {
+											'url':  path('notification.cancel', {'notification': notification.id} ),
+											'label': 'Cancel',
+											'icon': 'ban',
+											'message': 'Do you confirm?'
+										}%}
 										
 										{% include 'elements/object-views-button.html.twig' with { 
 											'object':  notification.revision.buildObject,
@@ -67,12 +84,11 @@
 											'currentTemplate': notification.template
 										}%}
 				                    </div>
-				         
 								</td>
 							</tr>
 						{% endfor %}
 					</table>
 					</div>
-	
+		{% endif %}
 	</div>
 </div>

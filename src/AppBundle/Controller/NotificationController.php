@@ -13,7 +13,6 @@ use AppBundle\Form\Form\NotificationFormType;
 use AppBundle\Form\Form\TreatNotificationsType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\EnvironmentRepository;
-use AppBundle\Service\NotificationService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -68,6 +67,28 @@ class NotificationController extends AppController
 		return $this->render( 'ajax/notification.json.twig', [
 				'success' => $success,
 		] );
+	}
+	
+	
+	/**
+	 * @Route("/notification/cancel/{notification}", name="notification.cancel"))
+     * @Method({"POST"})
+	 */
+	public function cancelNotificationsAction(Notification $notification, Request $request)
+	{
+		$this->getNotificationService()->setStatus($notification, 'cancelled');
+		return $this->redirectToRoute('notifications.sent');
+	}
+	
+	
+	/**
+	 * @Route("/notification/acknowledge/{notification}", name="notification.acknowledge"))
+     * @Method({"POST"})
+	 */
+	public function acknowledgeNotificationsAction(Notification $notification, Request $request)
+	{
+		$this->getNotificationService()->setStatus($notification, 'acknowledged');
+		return $this->redirectToRoute('notifications.inbox');
 	}
 	
 	
@@ -147,17 +168,10 @@ class NotificationController extends AppController
 	 * @Route("/notifications/list", name="notifications.list", defaults={"folder": "inbox"})
 	 * @Route("/notifications/inbox", name="notifications.inbox", defaults={"folder": "inbox"})
 	 * @Route("/notifications/sent", name="notifications.sent", defaults={"folder": "sent"})
-	 * @Route("/notifications/archives", name="notifications.archives", defaults={"folder": "archives"})
 	 */
 	public function listNotificationsAction($folder, Request $request)
 	{
  		$filters = $request->query->get('notification_form');
-
- 		//TODO: Why do we need to unset these fields ? 
-//  		if (is_array($filters)) {
-//  			unset($filters['filter']);
-//  			unset($filters['_token']);
-//  		}
  		
 		$notificationFilter = new NotificationFilter();
 		
@@ -176,12 +190,15 @@ class NotificationController extends AppController
 		$em = $this->getDoctrine()->getManager();
 		$repositoryNotification = $em->getRepository('AppBundle:Notification');
 		$repositoryNotification->setAuthorizationChecker($this->get('security.authorization_checker'));
-	
- 		$count = $this->getNotificationService()->menuNotification();
+
+		$countRejected = $this->getNotificationService()->countRejected();
+		$countPending = $this->getNotificationService()->countPending();
+		$countSent =  $this->getNotificationService()->countSent();
+ 		$count = $countRejected + $countPending;
 		
 		// for pagination
 		$paging_size = $this->getParameter('paging_size');
-		$lastPage = ceil($count/$paging_size);;
+		$lastPage = ceil($count/$paging_size);
 		if(null != $request->query->get('page')){
 			$page = $request->query->get('page');
 		}
@@ -190,14 +207,16 @@ class NotificationController extends AppController
 		}
 		
 		$notifications = [];
+		$rejectedNotifications = [];
 		if($folder == 'sent') {
 			$notifications = $this->getNotificationService()->listSentNotifications(($page-1)*$paging_size, $paging_size, $filters);
-		}
-		else if($folder == 'archives') {
-			$notifications = $this->getNotificationService()->listArchivesNotifications(($page-1)*$paging_size, $paging_size, $filters);
+			$lastPage = ceil($countSent/$paging_size);
 		}
 		else {
 			$notifications = $this->getNotificationService()->listInboxNotifications(($page-1)*$paging_size, $paging_size, $filters);
+			$rejectedNotifications = $this->getNotificationService()->listRejectedNotifications(($page-1)*$paging_size, $paging_size, $filters);
+			$lastPage = ceil(($countRejected > $countPending?$countRejected:$countPending)/$paging_size);
+				
 		}
 
  		$treatNotification = new TreatNotifications();
@@ -224,6 +243,10 @@ class NotificationController extends AppController
 				'treatform' => $treatform->createView(),
 				'currentFilters' => $request->query,
 				'folder' => $folder,
+				'countPending' => $countPending,
+				'countRejected' => $countRejected,
+				'rejectedNotifications' => $rejectedNotifications,
+				'countSent' => $countSent,
 		));
 	}
 }
