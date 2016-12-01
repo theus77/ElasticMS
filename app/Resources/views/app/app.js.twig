@@ -100,6 +100,48 @@ $(document).ready(function() {
 	    $(this).html(toggleTex);
 		$(this).data('toggle-contain', text);
 	});
+
+
+	function getUrlParameter(sParam) {
+	    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+	        sURLVariables = sPageURL.split('&'),
+	        sParameterName,
+	        i;
+
+	    for (i = 0; i < sURLVariables.length; i++) {
+	        sParameterName = sURLVariables[i].split('=');
+	        if (sParameterName[0] === sParam) {
+	            return sParameterName[1] === undefined ? true : sParameterName[1];
+	        }
+	    }
+	};
+
+    $('a[id*="menu-data-view"]').on('click', function() {
+    	// Get the id of the menu item
+        var pageNumber = $(this).attr('href').split("/");
+        pageNumber = pageNumber.pop();
+        
+        // SessionStorage allowed in browser
+        if (typeof sessionStorage != "undefined") {
+            sessionStorage.setItem("calbe_session", pageNumber);
+        }
+    });
+
+    // Item menu "By institutions" must be always active after we have choose an institution.
+    if( getUrlParameter('search_form[filters][0][field]') === 'institutions') {
+        if (typeof sessionStorage != "undefined") {
+            
+            if ("calbe_session" in sessionStorage) {
+                var currentPage = sessionStorage.getItem("calbe_session");
+	            if (typeof currentPage != 'undefined') {
+	            	$("ul.treeview-menu li").removeClass('active');
+	            	$("ul.treeview-menu").find( 'a[href*="/custom-index-view/' + currentPage +'"]').parent('li').addClass('active');
+	            }
+        	}
+        }
+    }
+
+   
 	
 });
 
