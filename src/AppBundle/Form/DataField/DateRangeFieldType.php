@@ -219,8 +219,8 @@ class DateRangeFieldType extends DataFieldType {
 		];
 		
 		if(!empty($current->getMappingOptions()['index'])) {
-			$current->getMappingOptions()['fromDateMachineName']['index'] = $current->getMappingOptions()['index'];
-			$current->getMappingOptions()['toDateMachineName']['index'] = $current->getMappingOptions()['index'];
+			$out[$current->getMappingOptions()['fromDateMachineName']]['index'] = $current->getMappingOptions()['index'];
+			$out[$current->getMappingOptions()['toDateMachineName']]['index'] = $current->getMappingOptions()['index'];
 		}
 		
 		if($current->getMappingOptions()['nested']){
