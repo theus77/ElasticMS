@@ -25,7 +25,7 @@
 						<li class="{% if folder == 'inbox' %}active{% endif %}">
 							<a href="{{ url('notifications.inbox') }}">
 								<i class="fa fa-inbox"></i> 
-								Inbox 
+								{{ 'Inbox'|trans }} 
 								{% if counter > 0 %}
 	     							<span class="label label-primary pull-right">{{ counter }}</span>
 	     						{% endif %}
@@ -34,7 +34,10 @@
 						<li class="{% if folder == 'sent' %}active{% endif %}">
 							<a href="{{ url('notifications.sent') }}">
 								<i class="fa fa-envelope-o"></i> 
-								Sent
+								{{ 'Outbox'|trans }}
+								{% if countSent > 0 %}
+	     							<span class="label label-default pull-right">{{ countSent }}</span>
+	     						{% endif %}
 							</a>
 						</li>
 					</ul>
@@ -44,7 +47,7 @@
 		</div>
 		
 		<div class="col-sm-6 col-md-12">
-			<div class="box box-solid">
+			<div class="box box-solid collapsed-box">
 				{{ form_start(form) }}
 				<div class="box-header with-border">
 					<h3 class="box-title">Filters</h3>
@@ -52,11 +55,11 @@
 					<div class="box-tools">
 						<button type="button" class="btn btn-box-tool"
 							data-widget="collapse">
-							<i class="fa fa-minus"></i>
+							<i class="fa fa-plus"></i>
 						</button>
 					</div>
 				</div>
-				<div class="box-body no-padding" style="display: block;">
+				<div class="box-body no-padding">
 	              	<div class="col-md-12">
 	              	{{ form_row(form.template) }}
 	              	</div>

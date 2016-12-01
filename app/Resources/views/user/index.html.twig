@@ -27,8 +27,8 @@
 							<th>email</th>
 							<th>Circles</th>
 							<th>Enabled</th>
-							<th>Locked</th>
-							<th>Expired</th>
+{# 							<th>Locked</th>#}
+{# 							<th>Expired</th>#}
 							<th>Roles</th>
 							<th>Last login</th>
 							<th>Action</th>
@@ -56,16 +56,16 @@
 										<i class="fa fa-check"></i>
 									{% endif %}
 								</td>
-								<td>
-									{% if user.locked %}
-										<i class="fa fa-warning"></i>
-									{% endif %}
-								</td>
-								<td>
-									{% if user.expired %}
-										<i class="fa fa-warning"></i>
-									{% endif %}
-								</td>
+{# 								<td>#}
+{# 									{% if user.locked %}#}
+{# 										<i class="fa fa-warning"></i>#}
+{# 									{% endif %}#}
+{# 								</td>#}
+{# 								<td>#}
+{# 									{% if user.expired %}#}
+{# 										<i class="fa fa-warning"></i>#}
+{# 									{% endif %}#}
+{# 								</td>#}
 								<td>
 									{% for role in user.roles %}
 										{% if not loop.first %}
@@ -107,27 +107,27 @@
 													'icon': 'user-plus'
 											}%}
 										{% endif %}
-										{% if user.locked %}
-											{% include 'elements/post-button.html.twig' with {
-												'url': path('user.locking', {'id': user.id}),
-													'message': 'Unlock the user ' ~ user.username ~ ' ?',
-													'label': 'Unlock',
-													'icon': 'unlock-alt'
-											}%}
-										{% else %}
-											{% include 'elements/post-button.html.twig' with {
-													'url': path('user.locking', {'id': user.id}),
-													'message': 'Lock the user ' ~ user.username ~ ' ?',
-													'label': 'Lock',
-													'icon': 'lock'
-											}%}
+{# 										{% if user.locked %}#}
+{# 											{% include 'elements/post-button.html.twig' with {#}
+{# 												'url': path('user.locking', {'id': user.id}),#}
+{# 													'message': 'Unlock the user ' ~ user.username ~ ' ?',#}
+{# 													'label': 'Unlock',#}
+{# 													'icon': 'unlock-alt'#}
+{# 											}%}#}
+{# 										{% else %}#}
+{# 											{% include 'elements/post-button.html.twig' with {#}
+{# 													'url': path('user.locking', {'id': user.id}),#}
+{# 													'message': 'Lock the user ' ~ user.username ~ ' ?',#}
+{# 													'label': 'Lock',#}
+{# 													'icon': 'lock'#}
+{# 											}%}#}
 											{% include 'elements/post-button.html.twig' with {
 													'url': path('user.apikey', {'user': user.id}),
 													'message': 'Generate API key for ' ~ user.username ~ ' ?',
 													'label': 'API key',
 													'icon': 'key'
 											}%}
-										{% endif %}
+{# 										{% endif %}#}
 				                    </div>
 								</td>
 							</tr>						
