@@ -13,11 +13,11 @@
 	    	{{ form_row(form.displayName) }}
 	    	{{ form_row(form.email) }}
 	    	{{ form_row(form.enabled) }}
-	    	{{ form_row(form.locked) }}
+{# 	    	{{ form_row(form.locked) }}#}
 	    	{% if form.circles is defined %}
 	    	    {{ form_row(form.circles) }}
 	    	{% endif %}
-	    	{{ form_row(form.expiresAt) }}
+{# 	    	{{ form_row(form.expiresAt) }}#}
 	    	{{ form_row(form.allowedToConfigureWysiwyg) }}
     		{% include "user/wysiwygOptions.html.twig" with {
 				form: form

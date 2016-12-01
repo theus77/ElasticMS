@@ -69,16 +69,16 @@ class UserController extends Controller
 				
 			]);
 		}
-		$form = $form->add('expiresAt', DateType::class, array(
-				'required' => FALSE,
-   				'widget' => 'single_text',
-				'format' => 'd/M/y',
- 				'html5' => FALSE,
-				'attr' => array(
-						'class' => 'datepicker',
-				),
-		))
-		->add('roles', ChoiceType::class, array('choices' => $this->getExistingRoles(),
+// 		$form = $form->add('expiresAt', DateType::class, array(
+// 				'required' => FALSE,
+//    				'widget' => 'single_text',
+// 				'format' => 'd/M/y',
+//  				'html5' => FALSE,
+// 				'attr' => array(
+// 						'class' => 'datepicker',
+// 				),
+// 		))
+		$form = $form->add('roles', ChoiceType::class, array('choices' => $this->getExistingRoles(),
 	        'label' => 'Roles',
 	        'expanded' => true,
 	        'multiple' => true,
@@ -147,22 +147,22 @@ class UserController extends Controller
 				
 		])
 		->add('enabled')
-		->add('locked')
-		->add('expiresAt', DateType::class, array(
-				'required' => FALSE,
-   				'widget' => 'single_text',
-				'format' => 'd/M/y',
- 				'html5' => FALSE,
-				'attr' => array('class' => 'datepicker',
- 					'data-date-format' => 'dd/mm/yyyy',
-					'data-today-highlight' => FALSE,
-					'data-week-start' => 1,
-					'data-days-of-week-highlighted' => true,
-					'data-days-of-week-disabled' => false,
-					'data-multidate' => FALSE,
+// 		->add('locked')
+// 		->add('expiresAt', DateType::class, array(
+// 				'required' => FALSE,
+//    				'widget' => 'single_text',
+// 				'format' => 'd/M/y',
+//  				'html5' => FALSE,
+// 				'attr' => array('class' => 'datepicker',
+//  					'data-date-format' => 'dd/mm/yyyy',
+// 					'data-today-highlight' => FALSE,
+// 					'data-week-start' => 1,
+// 					'data-days-of-week-highlighted' => true,
+// 					'data-days-of-week-disabled' => false,
+// 					'data-multidate' => FALSE,
 					
-				),
-		))
+// 				),
+// 		))
 		->add('allowedToConfigureWysiwyg', CheckboxType::class, [
 				'required' => false,
 		])
