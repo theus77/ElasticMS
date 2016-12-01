@@ -558,7 +558,7 @@ class DataService
 				}
 			}
 			if(!$isValid) {
-				$form->addError(new FormError("At least one child is not valid!"));				
+				$form->addError(new FormError("At least one field is not valid!"));				
 			}
 
 		}
