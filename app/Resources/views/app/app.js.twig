@@ -59,23 +59,13 @@ $(document).ready(function() {
 	
 	
 	//try to find wich sidemenu elements to activate
-	if (typeof side_menu_target !== 'undefined') { 
-		var currentUrl = window.location.pathname + window.location.search;
-		var links = $('.treeview-menu').find('a');
-		var activeItem = false;
-
-		links.each(function() {
-			if ($(this).attr('href') === currentUrl) {
-				//$('ul.sidebar-menu').find('li').removeClass('active');
-				$(this).parents('li').addClass('active');
-				activeItem = true;
-				return false;
-			}
-		});
-
-		if (false === activeItem) {
+	var currentMenuLink = $('section.sidebar ul.sidebar-menu a[href="'+window.location.pathname + window.location.search+'"]');
+	
+	if(currentMenuLink.length == 1){
+		currentMenuLink.parents('li').addClass('active');
+	}
+	else if (typeof side_menu_target !== 'undefined') { 
     		$('#'+side_menu_target).parents('li').addClass('active');
-    	}
 	} 
 	
 	/*$('input.datepicker').each(function( index ) {
