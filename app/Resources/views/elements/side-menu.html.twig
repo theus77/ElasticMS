@@ -102,12 +102,19 @@
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][operator]'):('term')}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][pattern]'):circle}) %}
 		            	{% endfor %}
-		            	
+
 		            	{% set label = contentType.circlesField %}
-		            	{% if app.user.circles|length > 1 %}
-			            	{% set label = (contentType.name|get_content_type).pluralName %}
-		            		}
-		            	{% endif %}
+						{% if (contentType.fieldType.getChildByPath(contentType.circlesField).options.displayOptions.type) is defined %}
+
+		            		{% set circleContenttype = (contentType.fieldType.getChildByPath(contentType.circlesField).options.displayOptions.type)|get_content_type %}
+		            		{% if circleContenttype %}
+								{% if app.user.circles|length > 1 %}
+					            	{% set label = circleContenttype.pluralName %}
+								{% else %}
+					            	{% set label = circleContenttype.singularName %}
+								{% endif %}
+							{% endif %}
+						{% endif %}
 
 	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}">In my {{ label }}</a></li>
 	            	{% endif %}
