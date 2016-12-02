@@ -95,6 +95,14 @@ class DataService
 	}
 	
 	
+	public function unlockRevision(Revision $revision){
+		$lockerUsername = $this->tokenStorage->getToken()->getUsername();
+		if($revision->getLockBy() === $lockerUsername && $revision->getLockUntil() > (new \DateTime())) { 
+			$this->revRepository->unlockRevision($revision->getId());
+		}
+	}
+	
+	
 	public function lockRevision(Revision $revision, $publishEnv=false, $super=false, $username=null){
 		
 		
@@ -328,6 +336,7 @@ class DataService
 					$this->lockRevision($item, false, false, $username);
 					$item->removeEnvironment($revision->getContentType()->getEnvironment());
 					$em->persist($item);
+					$this->unlockRevision($item);
 				}
 			}
 				
@@ -339,6 +348,7 @@ class DataService
 			$em->flush();
 			
 
+			$this->unlockRevision($revision);
 			$this->dispatcher->dispatch(RevisionFinalizeDraftEvent::NAME,  new RevisionFinalizeDraftEvent($revision));
 		
 		} else {

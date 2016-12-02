@@ -7,22 +7,16 @@ use AppBundle\Entity\Environment;
 
 /**
  */
-class RevisionPublishEvent extends Event
+class RevisionPublishEvent extends RevisionEvent
 {
 	const NAME = 'revision.publish';
 
-	protected $revision;
 	protected $environment;
 
 	public function __construct(Revision $revision, Environment $environment)
 	{
-		$this->revision = $revision;
+		parent::__construct($revision);
 		$this->environment = $environment;
-	}
-
-	public function getRevision()
-	{
-		return $this->revision;
 	}
 
 	public function getEnvironment()

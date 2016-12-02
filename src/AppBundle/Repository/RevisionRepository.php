@@ -206,6 +206,17 @@ class RevisionRepository extends \Doctrine\ORM\EntityRepository
 		return $out[0];
 	}
 	
+	public function unlockRevision($revisionId) {
+		$qb = $this->createQueryBuilder('r')->update() 
+			->set('r.lockBy', '?1') 
+			->set('r.lockUntil', '?2') 
+			->where('r.id = ?3')
+			->setParameter(1, null)
+			->setParameter(2, null)
+			->setParameter(3, $revisionId);
+		return $qb->getQuery()->execute();
+	}
+	
 	public function lockRevision($revisionId, $username,\DateTime $lockUntil) {
 		$qb = $this->createQueryBuilder('r')->update() 
 			->set('r.lockBy', '?1') 

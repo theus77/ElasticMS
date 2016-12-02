@@ -6,19 +6,7 @@ use AppBundle\Entity\Revision;
 
 /**
  */
-class RevisionFinalizeDraftEvent extends Event
+class RevisionFinalizeDraftEvent extends RevisionEvent
 {
 	const NAME = 'revision.finalize_draft';
-
-	protected $revision;
-
-	public function __construct(Revision $revision)
-	{
-		$this->revision = $revision;
-	}
-
-	public function getRevision()
-	{
-		return $this->revision;
-	}
 }
