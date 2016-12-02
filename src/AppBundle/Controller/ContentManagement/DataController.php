@@ -996,6 +996,36 @@ class DataController extends AppController
 				$revision->setLockBy( $this->getUser()->getUsername() );
 				$revision->setLockUntil(new \DateTime($this->getParameter('lock_time')));
 				
+				if($contentType->getCirclesField()) {
+					$fieldType = $contentType->getFieldType()->getChildByPath($contentType->getCirclesField());
+					if($fieldType) {
+						/**@var \AppBundle\Entity\User $user*/
+						$user = $this->getUser();
+						$options = $fieldType->getDisplayOptions();
+						if(isset($options['multiple']) && $options['multiple']){
+							//merge all my circles with the default value
+							$circles = [];
+							if(isset($options['defaultValue'])){
+								$circles = json_decode($options['defaultValue']);
+								if(!is_array($circles)){
+									$circles = [$circles];
+								}
+							}
+							$circles = array_merge($circles, $user->getCircles());
+							$revision->setRawData([$contentType->getCirclesField() => $circles]);
+							$revision->setCircles($circles);
+							
+						}
+						else{
+							//set first of my circles
+							if(!empty($user->getCircles())){
+								$revision->setRawData([$contentType->getCirclesField() => $user->getCircles()[0]]);
+								$revision->setCircles([$user->getCircles()[0]]);
+							}
+						}
+					}
+				}
+				
 				$em->persist($revision);
 				$em->flush();
 				

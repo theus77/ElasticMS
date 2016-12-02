@@ -122,7 +122,7 @@ class User extends BaseUser
     /**
      * Get circles
      *
-     * @return \ObjectPickerType
+     * @return array
      */
     public function getCircles()
     {
