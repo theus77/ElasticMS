@@ -5,7 +5,9 @@ namespace AppBundle\Service;
 
 use AppBundle\Entity\ContentType;
 use AppBundle\Entity\DataField;
+use AppBundle\Entity\Environment;
 use AppBundle\Entity\Revision;
+use AppBundle\Event\RevisionNewDraftEvent;
 use AppBundle\Exception\DataStateException;
 use AppBundle\Exception\LockedException;
 use AppBundle\Exception\PrivilegeException;
@@ -17,6 +19,7 @@ use AppBundle\Repository\RevisionRepository;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
+use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -27,11 +30,7 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use AppBundle\Entity\FieldType;
-use AppBundle\Entity\Environment;
-use AppBundle\Entity\Notification;
-use AppBundle\Event\RevisionNewDraftEvent;
-use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
+use AppBundle\Event\RevisionFinalizeDraftEvent;
 
 class DataService
 {
@@ -338,6 +337,9 @@ class DataService
 			
 			$em->persist($revision);
 			$em->flush();
+			
+
+			$this->dispatcher->dispatch(RevisionFinalizeDraftEvent::NAME,  new RevisionFinalizeDraftEvent($revision));
 		
 		} else {
  			$form->addError(new FormError("This Form is not valid!"));

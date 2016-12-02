@@ -15,6 +15,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Session\Session;
 use AppBundle\Event\RevisionNewDraftEvent;
+use Symfony\Component\Config\Tests\Definition\FinalizationTest;
+use AppBundle\Event\RevisionFinalizeDraftEvent;
+use AppBundle\Event\RevisionPublishEvent;
+use AppBundle\Event\RevisionUnpublishEvent;
 
 class NotificationService {
 	
@@ -61,6 +65,49 @@ class NotificationService {
 	} 
 	
 	
+	public function publishEvent(RevisionPublishEvent $event){
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		$notifications = $repository->findByRevionsionOuuidAndEnvironment($event->getRevision(), $event->getEnvironment());
+		
+		/**@var Notification $notification*/
+		foreach ($notifications as $notification){
+			if($notification->getRevision() !== $event->getRevision()){
+				$this->setStatus($notification, 'aborted', 'warning');				
+			}
+		}
+	}
+	
+	
+	public function unpublishEvent(RevisionUnpublishEvent $event){
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		$notifications = $repository->findByRevionsionOuuidAndEnvironment($event->getRevision(), $event->getEnvironment());
+		
+		/**@var Notification $notification*/
+		foreach ($notifications as $notification){
+			$this->setStatus($notification, 'aborted', 'warning');		
+		}
+	}
+	
+	
+	public function finalizeDraftEvent(RevisionFinalizeDraftEvent $event){
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		$notifications = $repository->findByRevionsionOuuidAndEnvironment($event->getRevision(), $event->getRevision()->getContentType()->getEnvironment());
+		
+		/**@var Notification $notification*/
+		foreach ($notifications as $notification){
+			if($notification->getRevision() !== $event->getRevision()){
+				$this->setStatus($notification, 'aborted', 'warning');
+			}
+		}
+	}
+	
+	
 	public function newDraftEvent(RevisionNewDraftEvent $event){
 		$em = $this->doctrine->getManager();
 		/** @var NotificationRepository $repository */
@@ -81,7 +128,7 @@ class NotificationService {
 	}
 	
 	
-	public function setStatus(Notification $notification, $status){
+	public function setStatus(Notification $notification, $status, $level='notice'){
 		//TODO: tests rights to do it
 		$userName = $this->userService->getCurrentUser()->getUserName();
 		
@@ -94,7 +141,7 @@ class NotificationService {
 		$em->persist($notification);		
 		$em->flush();
 		
-		$this->session->getFlashBag()->add('notice', 'A notification has been cancelled');
+		$this->session->getFlashBag()->add($level, 'A "'.$notification->getTemplate()->getName().'" notification has been '.$status.' for a "'.$notification->getRevision()->getContentType()->getSingularName().'" object ('.$notification->getRevision()->getOuuid().')');
 		
 		return $this;
 	}

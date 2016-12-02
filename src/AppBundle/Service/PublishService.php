@@ -12,6 +12,9 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Entity\Environment;
 use AppBundle\Repository\RevisionRepository;
+use AppBundle\Event\RevisionPublishEvent;
+use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
+use AppBundle\Event\RevisionUnpublishEvent;
 
 
 class PublishService
@@ -51,6 +54,9 @@ class PublishService
 	/**@var UserService $userService*/
 	protected $userService;
 	
+	/**@var TraceableEventDispatcherInterface*/
+	protected $dispatcher;
+	
 	
 	public function __construct(
 			Registry $doctrine, 
@@ -66,7 +72,8 @@ class PublishService
 			EnvironmentService $environmentService,
 			DataService $dataService,
 			AuditService $auditService,
-			UserService $userService)
+			UserService $userService,
+			TraceableEventDispatcherInterface $dispatcher)
 	{
 		$this->twigExtension = $twigExtension;
 		$this->doctrine = $doctrine;
@@ -84,6 +91,7 @@ class PublishService
 		$this->dataService = $dataService;
 		$this->auditService = $auditService;
 		$this->userService = $userService;
+		$this->dispatcher= $dispatcher;
 	}
 	
 	public function alignRevision($type, $ouuid, $envirronmentSource, $envirronmentTarget) {
@@ -177,6 +185,8 @@ class PublishService
 			if(!$command){
 				$this->session->getFlashBag()->add('notice', 'Revision '.$revision.' has been published in '.$environment);				
 			}
+
+			$this->dispatcher->dispatch(RevisionPublishEvent::NAME,  new RevisionPublishEvent($revision, $environment));
 		}
 
 		if(!$command){
@@ -222,6 +232,8 @@ class PublishService
 					'type' => $revision->getContentType()->getName(),
 			]);
 			$this->session->getFlashBag()->add('notice', 'The object '.$revision.' has been unpublished from environment '.$environment->getName());
+
+			$this->dispatcher->dispatch(RevisionUnpublishEvent::NAME,  new RevisionUnpublishEvent($revision, $environment));
 		}
 		catch(\Exception $e){
 			if(!$revision->getDeleted()) {
