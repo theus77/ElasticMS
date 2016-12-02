@@ -389,7 +389,7 @@
         	<span class="progress-text">&nbsp;</span>
 			<span class="progress-number">&nbsp;</span>
 			<div class="progress sm">
-				<div class="progress-bar" style="width: 0%"></div>
+				<div class="progress-bar" style="width: {% if form.children.sha1.vars.value %}100{% else %}0{% endif %}%"></div>
 			</div>
 		</div>
 	</div>

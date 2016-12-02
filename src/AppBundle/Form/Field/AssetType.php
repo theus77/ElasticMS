@@ -5,6 +5,7 @@ namespace AppBundle\Form\Field;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 
 class AssetType extends AbstractType {
 
@@ -16,7 +17,7 @@ class AssetType extends AbstractType {
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		
-		$builder->add ( 'sha1', TextType::class, [
+		$builder->add ( 'sha1', HiddenType::class, [
 			'attr' => [
 					'class' => 'sha1'
 			],
