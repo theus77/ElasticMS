@@ -105,7 +105,8 @@
 		            	
 		            	{% set label = contentType.circlesField %}
 		            	{% if app.user.circles|length > 1 %}
-			            	{% set label = (circles_object|get_content_type).pluralName %}
+			            	{% set label = (contentType.name|get_content_type).pluralName %}
+		            		}
 		            	{% endif %}
 
 	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}">In my {{ label }}</a></li>
