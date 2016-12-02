@@ -271,7 +271,13 @@
 {% endblock %}
 
 {% block javascripts %}
-	{% include 'app/menu.html.twig' with {
-		'item':  'data-index-' ~ revision.contentType.id
-	}%}
+	{% if revision.draft %}
+		{% include 'app/menu.html.twig' with {
+			'item':  'data-draft-' ~ revision.contentType.id
+		}%}
+	{% else %}
+		{% include 'app/menu.html.twig' with {
+			'item':  'data-index-' ~ revision.contentType.id
+		}%}
+	{% endif %}
 {% endblock %}	
