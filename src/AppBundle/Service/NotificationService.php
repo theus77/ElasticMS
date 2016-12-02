@@ -14,6 +14,7 @@ use Monolog\Logger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Session\Session;
+use AppBundle\Event\RevisionNewDraftEvent;
 
 class NotificationService {
 	
@@ -59,6 +60,18 @@ class NotificationService {
 		$this->sender = $sender;
 	} 
 	
+	
+	public function newDraftEvent(RevisionNewDraftEvent $event){
+		$em = $this->doctrine->getManager();
+		/** @var NotificationRepository $repository */
+		$repository = $em->getRepository('AppBundle:Notification');
+		$notifications = $repository->findByRevionsionOuuidAndEnvironment($event->getRevision(), $event->getRevision()->getContentType()->getEnvironment());
+		
+		/**@var Notification $notification*/
+		foreach ($notifications as $notification){
+			$this->session->getFlashBag()->add('warning', 'An "'.$notification->getTemplate()->getName().'" notification will be lost for this '.$event->getRevision()->getContentType()->getSingularName().' object ('.$event->getRevision()->getOuuid().' ) on finalize');
+		}
+	}
 
 	public function setOutput($output){
 		$this->output = $output;

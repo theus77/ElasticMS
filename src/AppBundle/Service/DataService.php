@@ -29,6 +29,9 @@ use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInt
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Entity\FieldType;
 use AppBundle\Entity\Environment;
+use AppBundle\Entity\Notification;
+use AppBundle\Event\RevisionNewDraftEvent;
+use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
 
 class DataService
 {
@@ -57,6 +60,8 @@ class DataService
 	protected $appTwig;
 	/**@var FormRegistryInterface*/
 	protected $formRegistry;
+	/**@var TraceableEventDispatcherInterface*/
+	protected $dispatcher;
 	
 	public function __construct(
 			Registry $doctrine, 
@@ -69,7 +74,8 @@ class DataService
 			Session $session,
 			FormFactoryInterface $formFactory,
 			$container,
-			FormRegistryInterface $formRegistry)
+			FormRegistryInterface $formRegistry,
+			TraceableEventDispatcherInterface $dispatcher)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
@@ -86,6 +92,7 @@ class DataService
 		$this->twig = $container->get('twig');
 		$this->appTwig = $container->get('app.twig_extension');
 		$this->formRegistry = $formRegistry;
+		$this->dispatcher= $dispatcher;
 	}
 	
 	
@@ -393,6 +400,7 @@ class DataService
 		
 		/** @var ContentTypeRepository $contentTypeRepo */
 		$contentTypeRepo = $em->getRepository('AppBundle:ContentType');
+		/** @var ContentType $contentType */
 		$contentType = $contentTypeRepo->findOneBy([
 				'name' => $type,
 				'deleted' => false,
@@ -440,6 +448,9 @@ class DataService
 			$em->persist($revision);
 			$em->persist($newDraft);
 			$em->flush();
+			
+			$this->dispatcher->dispatch(RevisionNewDraftEvent::NAME,  new RevisionNewDraftEvent($newDraft));
+			
 			return $newDraft;
 		}
 		return $revision;

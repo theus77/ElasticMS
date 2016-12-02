@@ -332,7 +332,7 @@ services:
         arguments: ['@ems.form.fieldtype.fieldtypetype']
     ems.service.data:
         class: AppBundle\Service\DataService
-        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory', '@service_container', '@form.registry']
+        arguments: ['@doctrine', '@security.authorization_checker', '@security.token_storage', '%lock_time%', '@app.elasticsearch', '@ems.service.mapping', '%instance_id%', '@session', '@form.factory', '@service_container', '@form.registry', '@event_dispatcher']
     ems.service.environment:
         class: AppBundle\Service\EnvironmentService
         arguments: ['@doctrine', '@session', '@ems.service.user', '@security.authorization_checker']
@@ -354,6 +354,8 @@ services:
     ems.service.notification:
         class: AppBundle\Service\NotificationService
         arguments: ['%audit_index%', '@doctrine', '@ems.service.user', '@logger', '@ems.service.audit', '@session', '@service_container', '@ems.service.data', '%from_email%', '@twig']
+        tags:
+            - { name: kernel.event_listener, event: revision.new_draft, method: newDraftEvent, priority: 0 }
     ems.service.i18n:
         class: AppBundle\Service\I18nService
         arguments: ['@doctrine']

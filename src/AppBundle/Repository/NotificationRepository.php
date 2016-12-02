@@ -7,6 +7,8 @@ use AppBundle\Entity\Notification;
 use AppBundle\Entity\User;
 use AppBundle\Repository\TemplateRepository;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
+use AppBundle\Entity\Revision;
+use AppBundle\Entity\Environment;
 /**
  * NotificationRepository
  *
@@ -23,6 +25,29 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	}
 	
 	
+	
+	public function findByRevionsionOuuidAndEnvironment(Revision $revision, Environment $environment){
+		$qb = $this->createQueryBuilder('n')
+			->select('n')
+			->innerJoin('AppBundle:Revision', 'r')
+			->where('r.ouuid = :ouuid')
+			->andWhere('r.contentType = :contentType')
+			->andwhere('r.deleted = 0')
+			->andwhere('n.status = :status')
+			->andwhere('n.environment = :environment');
+		
+		$qb->setParameters([
+				'status' => "pending",
+				'contentType' => $revision->getContentType(),
+				'ouuid' => $revision->getOuuid(),
+				'environment' => $environment,
+		]);
+		
+		$query = $qb->getQuery();
+		
+		return $query->getResult();
+
+	}
 	
 	
 	public function countRejectedForUser(User $user, $contentTypes = null, $environments = null, $templates = null) {
