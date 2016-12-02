@@ -32,8 +32,6 @@
 								<td class="text-center">{{ loop.index }}.</td>
 								<td>{{ revision.ouuid }}</td>
 								<td>
-								{# //TODO: revision.dataField seems to be empty at all times for drafts ! #}
-								{{ revision|dump }}
 								{% if revision.contentType.labelField is defined and revision.rawData and attribute(revision.rawData, revision.contentType.labelField) is defined %}
 									{{ attribute(revision.rawData, revision.contentType.labelField) }}
 								{% endif %}
