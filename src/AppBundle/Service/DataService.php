@@ -19,7 +19,6 @@ use AppBundle\Repository\RevisionRepository;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
-use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -31,6 +30,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use AppBundle\Event\RevisionFinalizeDraftEvent;
+use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DataService
 {
@@ -59,7 +60,7 @@ class DataService
 	protected $appTwig;
 	/**@var FormRegistryInterface*/
 	protected $formRegistry;
-	/**@var TraceableEventDispatcherInterface*/
+	/**@var EventDispatcherInterface*/
 	protected $dispatcher;
 	
 	public function __construct(
@@ -74,7 +75,7 @@ class DataService
 			FormFactoryInterface $formFactory,
 			$container,
 			FormRegistryInterface $formRegistry,
-			TraceableEventDispatcherInterface $dispatcher)
+			EventDispatcherInterface $dispatcher)
 	{
 		$this->doctrine = $doctrine;
 		$this->authorizationChecker = $authorizationChecker;
