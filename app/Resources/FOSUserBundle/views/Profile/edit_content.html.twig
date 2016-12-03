@@ -16,6 +16,11 @@
               	{{ form_row(form.email) }}
               	{{ form_row(form.current_password) }}
               	{{ form_row(form.current_password) }}
+              	
+              	{{ form_row(form.layoutBoxed) }}
+              	{{ form_row(form.sidebarMini) }}
+              	{{ form_row(form.sidebarCollapse) }}
+              	
               	{% if form.wysiwygProfile is defined %}
 		    		{% include "user/wysiwygOptions.html.twig" with {
 						form: form
