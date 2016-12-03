@@ -92,7 +92,7 @@
 						}) %}
 					{% endif %}
 					
-	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm) }}">Search {{ contentType.pluralName }}</a></li>
+	            	<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm) }}"><i class="fa fa-search"></i> Search {{ contentType.pluralName }}</a></li>
 	          		
 	          		{% if contentType.circlesField and app.user.circles|length > 0 %}
 		            	
@@ -116,26 +116,36 @@
 							{% endif %}
 						{% endif %}
 
-	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}">In my {{ label }}</a></li>
+	            		<li class=""><a id="menu-data-index-{{ contentType.id }}" href="{{ path('elasticsearch.search', searchForm ) }}"><i class="{{ circleContenttype.icon }}"></i> In my {{ label }}</a></li>
 	            	{% endif %}
 	            	{% for view in contentType.views %}
 	            		<li>
 	            			<a id="menu-data-view-{{ contentType.id }}-{{ view.id }}" href="{{ path('data.customindexview', { viewId: view.id }) }}">
+	            				<i class="{{ view.icon }}"></i>
 	            				{{ view.name }}
 	            			</a>
 	            		</li>
 	            	{% endfor %}
 	            	{% if draftCounterGroupedByContentType[contentType.id] is defined %}
-	          			<li class=""><a id="menu-data-draft-{{ contentType.id }}" href="{{ path('data.draft_in_progress', { contentTypeId: contentType.id } ) }}"><span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span></a></li>
+	          			<li class=""><a id="menu-data-draft-{{ contentType.id }}" href="{{ path('data.draft_in_progress', { contentTypeId: contentType.id } ) }}">
+	          				<i class="fa fa-fire"></i>
+	          				<span>Drafts in progress</span> <span class="label {% if contentType.color %}bg-{{ contentType.color }}{% else %}label-primary{% endif %} pull-right">{{ draftCounterGroupedByContentType[contentType.id] }}</span>
+	          			</a></li>
 	            	{% endif %}
 	            	{% if contentType.environment.managed %}
 	            	
 	            	{% if contentType.orderField and (contentType.fieldType.__get('ems_'~contentType.orderField).options.restrictionOptions.minimum_role is not defined or is_granted(contentType.fieldType.__get('ems_'~contentType.orderField).options.restrictionOptions.minimum_role)) %}
-	          			<li class=""><a id="menu-data-reorder-{{ contentType.id }}" href="{{ path('nature.reorder', { contentType: contentType.id } ) }}"><span>Reorder</span></a></li>
+	          			<li class=""><a id="menu-data-reorder-{{ contentType.id }}" href="{{ path('nature.reorder', { contentType: contentType.id } ) }}">
+	          				<i class="fa fa-sort"></i>
+	          				<span>Reorder</span>
+	          			</a></li>
 	            	{% endif %}
 	            	
 	            	{% if not contentType.createRole or is_granted(contentType.createRole) %}
-						<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">New {{ contentType.singularName }}</a></li>
+						<li class=""><a id="menu-data-add-{{ contentType.id }}" href="{{ path('data.add', { contentType: contentType.id }) }}">
+							<i class="fa fa-plus"></i>
+	          				New {{ contentType.singularName }}
+						</a></li>
 					{% endif %}
 	            	
 	            	
