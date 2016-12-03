@@ -78,6 +78,27 @@ class User extends BaseUser
      * @ORM\Column(name="wysiwyg_options", type="text", nullable=true)
      */
     private $wysiwygOptions;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="layout_boxed", type="boolean")
+     */
+    private $layoutBoxed;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="sidebar_mini", type="boolean")
+     */
+    private $sidebarMini;
+
+    /**
+     * @var bool
+     *
+     * @ORM\Column(name="sidebar_collapse", type="boolean")
+     */
+    private $sidebarCollapse;
     
 
     
@@ -301,5 +322,77 @@ class User extends BaseUser
     public function getWysiwygOptions()
     {
         return $this->wysiwygOptions;
+    }
+
+    /**
+     * Set layoutBoxed
+     *
+     * @param boolean $layoutBoxed
+     *
+     * @return User
+     */
+    public function setLayoutBoxed($layoutBoxed)
+    {
+        $this->layoutBoxed = $layoutBoxed;
+
+        return $this;
+    }
+
+    /**
+     * Get layoutBoxed
+     *
+     * @return boolean
+     */
+    public function getLayoutBoxed()
+    {
+        return $this->layoutBoxed;
+    }
+
+    /**
+     * Set sidebarMini
+     *
+     * @param boolean $sidebarMini
+     *
+     * @return User
+     */
+    public function setSidebarMini($sidebarMini)
+    {
+        $this->sidebarMini = $sidebarMini;
+
+        return $this;
+    }
+
+    /**
+     * Get sidebarMini
+     *
+     * @return boolean
+     */
+    public function getSidebarMini()
+    {
+        return $this->sidebarMini;
+    }
+
+    /**
+     * Set sidebarCollapse
+     *
+     * @param boolean $sidebarCollapse
+     *
+     * @return User
+     */
+    public function setSidebarCollapse($sidebarCollapse)
+    {
+        $this->sidebarCollapse = $sidebarCollapse;
+
+        return $this;
+    }
+
+    /**
+     * Get sidebarCollapse
+     *
+     * @return boolean
+     */
+    public function getSidebarCollapse()
+    {
+        return $this->sidebarCollapse;
     }
 }

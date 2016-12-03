@@ -12,6 +12,7 @@ use Elasticsearch\Client;
 use AppBundle\Service\SearchService;
 use Monolog\Logger;
 use AppBundle\Service\NotificationService;
+use AppBundle\Service\UserService;
 
 class AppController extends Controller
 {
@@ -32,7 +33,16 @@ class AppController extends Controller
 	}
 
 	
-		/**
+	/**
+	 * @return UserService
+	 */
+	protected function getUserService()
+	{
+		return $this->get('ems.service.user');
+	}
+
+	
+	/**
 	 * @return NotificationService
 	 */
 	protected function getNotificationService()

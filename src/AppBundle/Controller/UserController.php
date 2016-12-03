@@ -16,7 +16,7 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
 
-class UserController extends Controller
+class UserController extends AppController
 {
 	/**
 	 * @Route("/user", name="user.index"))
@@ -324,6 +324,26 @@ class UserController extends Controller
 		$this->addFlash('notice', 'Here is a new API key for user '.$user->getUsername().' '.$random);
 		
 		return $this->redirectToRoute('user.index');
+	}
+	
+	/**
+	 *
+	 * @Route("/profile/sidebar-collapse/{collapsed}", name="user.sidebar-collapse")
+     * @Method({"POST"})
+	 */
+	public function sidebarCollapseAction($collapsed, Request $request)
+	{
+		$user = $this->getUserService()->getUser($this->getUserService()->getCurrentUser()->getUsername(), false);
+		$user->setSidebarCollapse($collapsed);
+		
+		/** @var EntityManager $em */
+		$em = $this->getDoctrine()->getManager();
+		$em->persist($user);
+		$em->flush();
+		
+		return $this->render( 'ajax/notification.json.twig', [
+				'success' => true,
+		] );
 	}
 	
 	/**

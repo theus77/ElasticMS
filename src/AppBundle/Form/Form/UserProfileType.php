@@ -25,7 +25,12 @@ class UserProfileType extends AbstractType {
 	 */
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 
-		$builder->add ('displayName')->remove('username');
+		$builder
+			->add ('displayName')
+			->add ('layoutBoxed')
+			->add ('sidebarMini')
+			->add ('sidebarCollapse')
+			->remove('username');
 		
 		if($this->tokenStorage->getToken()->getUser()->getAllowedToConfigureWysiwyg()){
 			$builder->add('wysiwygProfile', ChoiceType::class, [
