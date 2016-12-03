@@ -15,6 +15,7 @@ use AppBundle\Repository\RevisionRepository;
 use AppBundle\Event\RevisionPublishEvent;
 use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
 use AppBundle\Event\RevisionUnpublishEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 
 class PublishService
@@ -54,7 +55,7 @@ class PublishService
 	/**@var UserService $userService*/
 	protected $userService;
 	
-	/**@var TraceableEventDispatcherInterface*/
+	/**@var EventDispatcherInterface*/
 	protected $dispatcher;
 	
 	
@@ -73,7 +74,7 @@ class PublishService
 			DataService $dataService,
 			AuditService $auditService,
 			UserService $userService,
-			TraceableEventDispatcherInterface $dispatcher)
+			EventDispatcherInterface $dispatcher)
 	{
 		$this->twigExtension = $twigExtension;
 		$this->doctrine = $doctrine;
