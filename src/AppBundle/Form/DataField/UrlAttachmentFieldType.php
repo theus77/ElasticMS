@@ -4,12 +4,11 @@ namespace AppBundle\Form\DataField;
 
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\FieldType;
-use AppBundle\Form\Field\AssetType;
 use AppBundle\Form\Field\IconPickerType;
+use AppBundle\Form\Field\IconTextType;
 use AppBundle\Service\FileService;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Form\Field\IconTextType;
 	
 /**
  * Defined a Container content type.

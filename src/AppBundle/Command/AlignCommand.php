@@ -4,24 +4,20 @@
 namespace AppBundle\Command;
 
 use AppBundle\Entity\Environment;
-use AppBundle\Repository\JobRepository;
-use Doctrine\ORM\EntityManager;
+use AppBundle\Entity\Revision;
+use AppBundle\Service\ContentTypeService;
+use AppBundle\Service\DataService;
+use AppBundle\Service\EnvironmentService;
+use AppBundle\Service\PublishService;
+use Doctrine\Bundle\DoctrineBundle\Registry;
 use Elasticsearch\Client;
 use Monolog\Logger;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Doctrine\Bundle\DoctrineBundle\Registry;
-use Symfony\Component\Console\Helper\ProgressBar;
-use AppBundle\Entity\Revision;
-use AppBundle\Repository\RevisionRepository;
-use AppBundle\Service\DataService;
-use AppBundle\Entity\ContentType;
-use AppBundle\Service\ContentTypeService;
-use AppBundle\Service\EnvironmentService;
-use AppBundle\Service\PublishService;
 
 class AlignCommand extends ContainerAwareCommand
 {

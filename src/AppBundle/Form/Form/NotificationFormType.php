@@ -2,17 +2,16 @@
 
 namespace AppBundle\Form\Form;
 
+use AppBundle\Entity\Template;
 use AppBundle\Form\Field\SubmitEmsType;
+use AppBundle\Service\EnvironmentService;
+use Doctrine\ORM\EntityRepository;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use AppBundle\Entity\Template;
-use Doctrine\ORM\EntityRepository;
-use AppBundle\Service\EnvironmentService;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use AppBundle\Form\Field\SelectPickerType;
 
 class NotificationFormType extends AbstractType {
 	

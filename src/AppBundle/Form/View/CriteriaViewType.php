@@ -3,19 +3,18 @@
 namespace AppBundle\Form\View;
 
 use AppBundle\Entity\DataField;
+use AppBundle\Entity\Form\CriteriaUpdateConfig;
 use AppBundle\Entity\View;
+use AppBundle\Form\View\Criteria\CriteriaFilterType;
 use AppBundle\Form\View\ViewType;
 use Elasticsearch\Client;
+use Symfony\Bundle\FrameworkBundle\Routing\Router;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormFactoryInterface;
-use AppBundle\Form\View\Criteria\CriteriaFilterType;
-use AppBundle\Entity\Form\CriteriaUpdateConfig;
-use Symfony\Bundle\FrameworkBundle\Routing\Router;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
 /**
  * It's the mother class of all specific DataField used in eMS
