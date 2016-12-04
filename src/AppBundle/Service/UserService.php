@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use AppBundle\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use AppBundle\Entity\AuthToken;
 
 class UserService {
 	/**@var Registry $doctrine */
@@ -32,16 +33,16 @@ class UserService {
 	public function findUsernameByApikey($apiKey){
 		$em = $this->doctrine->getManager();
 		/**@var \Doctrine\ORM\EntityRepository */
-		$repository = $em->getRepository('AppBundle:User');
+		$repository = $em->getRepository('AppBundle:AuthToken');
 		
-		/**@var User $user*/
-		$user = $repository->findOneBy([
-				'apiKey' => $apiKey
+		/**@var AuthToken $token*/
+		$token = $repository->findOneBy([
+				'value' => $apiKey
 		]);
-		if(empty($user)){
+		if(empty($token)){
 			return null;
 		}
-		return $user->getUsername();
+		return $token->getUser()->getUsername();
 		
 	}
 	

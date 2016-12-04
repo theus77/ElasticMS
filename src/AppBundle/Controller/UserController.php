@@ -15,6 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Request;
+use AppBundle\Entity\AuthToken;
 
 class UserController extends AppController
 {
@@ -313,15 +314,14 @@ class UserController extends AppController
 	 */
 	public function apiKeyAction(User $user, Request $request)
 	{
-		$random = bin2hex(random_bytes(30));
-		$user->setApiKey($random);
+		$authToken = new AuthToken($user);
 
 		/** @var EntityManager $em */
 		$em = $this->getDoctrine()->getManager();
-		$em->persist($user);
+		$em->persist($authToken);
 		$em->flush();
 		
-		$this->addFlash('notice', 'Here is a new API key for user '.$user->getUsername().' '.$random);
+		$this->addFlash('notice', 'Here is a new API key for user '.$user->getUsername().' '.$authToken->getValue());
 		
 		return $this->redirectToRoute('user.index');
 	}

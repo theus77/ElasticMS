@@ -48,15 +48,6 @@ class User extends BaseUser
      * @ORM\Column(name="display_name", type="string", length=255, nullable=true)
      */
     private $displayName;
-
-    /**
-     * API authentication key
-     *
-     * @var string
-     * 
-     * @ORM\Column(name="api_key", type="string", length=60, nullable=true)
-     */
-    private $apiKey;
     
     /**
      * @var bool
@@ -99,7 +90,12 @@ class User extends BaseUser
      * @ORM\Column(name="sidebar_collapse", type="boolean")
      */
     private $sidebarCollapse;
-    
+
+    /**
+     * @ORM\OneToMany(targetEntity="AuthToken", mappedBy="user", cascade={"remove"})
+     * @ORM\OrderBy({"orderKey" = "created"})
+     */
+    private $authTokens;
 
     
     public function __construct()
@@ -226,30 +222,6 @@ class User extends BaseUser
     	if(empty($this->displayName))
     		return $this->getUsername();
         return $this->displayName;
-    }
-
-    /**
-     * Set apiKey
-     *
-     * @param string $apiKey
-     *
-     * @return User
-     */
-    public function setApiKey($apiKey)
-    {
-        $this->apiKey = $apiKey;
-
-        return $this;
-    }
-
-    /**
-     * Get apiKey
-     *
-     * @return string
-     */
-    public function getApiKey()
-    {
-        return $this->apiKey;
     }
 
     /**
@@ -394,5 +366,39 @@ class User extends BaseUser
     public function getSidebarCollapse()
     {
         return $this->sidebarCollapse;
+    }
+
+    /**
+     * Add authToken
+     *
+     * @param \AppBundle\Entity\AuthToken $authToken
+     *
+     * @return User
+     */
+    public function addAuthToken(\AppBundle\Entity\AuthToken $authToken)
+    {
+        $this->authTokens[] = $authToken;
+
+        return $this;
+    }
+
+    /**
+     * Remove authToken
+     *
+     * @param \AppBundle\Entity\AuthToken $authToken
+     */
+    public function removeAuthToken(\AppBundle\Entity\AuthToken $authToken)
+    {
+        $this->authTokens->removeElement($authToken);
+    }
+
+    /**
+     * Get authTokens
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getAuthTokens()
+    {
+        return $this->authTokens;
     }
 }

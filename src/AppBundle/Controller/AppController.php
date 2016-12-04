@@ -13,6 +13,7 @@ use AppBundle\Service\SearchService;
 use Monolog\Logger;
 use AppBundle\Service\NotificationService;
 use AppBundle\Service\UserService;
+use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 
 class AppController extends Controller
 {
@@ -32,6 +33,16 @@ class AppController extends Controller
 		return $this->get('app.elasticsearch');
 	}
 
+	
+	
+	/**
+	 * 
+	 * @return EncoderFactoryInterface
+	 */
+	protected function getSecurityEncoder()
+	{
+		return $this->get('security.encoder_factory');
+	}
 	
 	/**
 	 * @return UserService
