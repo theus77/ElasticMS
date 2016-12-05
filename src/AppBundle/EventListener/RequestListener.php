@@ -51,7 +51,7 @@ class RequestListener
 	public function onKernelRequest(GetResponseEvent $event)
 	{
 		if($event->getRequest()->get('_route') === 'fos_user_registration_register' && !$this->allowUserRegistration) {
-			$response = new RedirectResponse($this->router->generate('fos_user_login', [
+			$response = new RedirectResponse($this->router->generate('fos_user_security_login', [
 			]));
 			$event->setResponse($response);
 		}
