@@ -101,6 +101,10 @@ class User extends BaseUser
     public function __construct()
     {
         parent::__construct();
+        
+        $this->layoutBoxed = false;
+        $this->sidebarCollapse = false;
+        $this->sidebarMini = true;
         // your own logic
     }
 
