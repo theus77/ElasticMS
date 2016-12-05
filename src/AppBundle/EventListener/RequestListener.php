@@ -23,6 +23,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 
 class RequestListener
 {
@@ -33,8 +34,9 @@ class RequestListener
 	protected $container;
 	protected $authorizationChecker;
 	protected $session;
+	protected $allowUserRegistration;
 	
-	public function __construct(\Twig_Environment $twig, Registry $doctrine, Logger $logger, Router $router, Container $container, AuthorizationCheckerInterface $authorizationChecker, Session $session)
+	public function __construct(\Twig_Environment $twig, Registry $doctrine, Logger $logger, Router $router, Container $container, AuthorizationCheckerInterface $authorizationChecker, Session $session, $allowUserRegistration)
 	{
 		$this->twig = $twig;
 		$this->doctrine = $doctrine;
@@ -43,6 +45,16 @@ class RequestListener
 		$this->container = $container;
 		$this->authorizationChecker = $authorizationChecker;
 		$this->session = $session;
+		$this->allowUserRegistration = $allowUserRegistration;
+	}
+
+	public function onKernelRequest(GetResponseEvent $event)
+	{
+		if($event->getRequest()->get('_route') === 'fos_user_registration_register' && !$this->allowUserRegistration) {
+			$response = new RedirectResponse($this->router->generate('fos_user_login', [
+			]));
+			$event->setResponse($response);
+		}
 	}
 	
 	public function onKernelException(GetResponseForExceptionEvent $event)
