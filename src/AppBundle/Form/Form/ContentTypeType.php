@@ -121,13 +121,14 @@ class ContentTypeType extends AbstractType {
 		$builder->add ( 'indexTwig', TextareaType::class, [
 				'required' => false,
 				'attr' => [
-						'class' => $options['twigWithWysiwyg']?'ckeditor':''
+						'class' => $options['twigWithWysiwyg']?'ckeditor':'',
+						'rows' => 10,
 				]
 		] );
 		$builder->add ( 'extra', TextareaType::class, [
 				'required' => false,
 				'attr' => [
-						'rows' => 8,
+						'rows' => 10,
 				]
 		] );
 		

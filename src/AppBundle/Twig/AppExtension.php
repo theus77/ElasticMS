@@ -88,11 +88,15 @@ class AppExtension extends \Twig_Extension
 				new \Twig_SimpleFilter('displayname', array($this, 'displayname')),			
 				new \Twig_SimpleFilter('date_difference', array($this, 'dateDifference')),	
 				new \Twig_SimpleFilter('debug', array($this, 'debug')),			
+				new \Twig_SimpleFilter('search', array($this, 'search')),			
 				
 				
 		);
 	}
 
+	function search(array $params){
+		return $this->client->search($params);
+	}
 
 	function debug($message, array $context=[]){
 		$context['twig'] = 'twig';
