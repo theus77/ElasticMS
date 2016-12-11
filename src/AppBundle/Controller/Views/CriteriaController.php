@@ -17,7 +17,7 @@ use AppBundle\Form\Field\ObjectChoiceListItem;
 use AppBundle\Form\View\Criteria\CriteriaFilterType;
 use AppBundle\Repository\ContentTypeRepository;
 use AppBundle\Repository\RevisionRepository;
-use AppBundle\Service\DataService;
+use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
@@ -31,14 +31,17 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 
 class CriteriaController extends AppController
 {
+	
+	/**@var ObjectManager*/
+	private $manager;
+	
+	
 	/**
 	 * @Route("/views/criteria/align/{view}", name="views.criteria.align"))
 	 * @Method({"POST"})
 	 */
 	public function alignAction(View $view, Request $request)
 	{
-		/**@var DataService $dataService*/
-		$this->dataService = $this->get('ems.service.data');
 				
 		$criteriaUpdateConfig = new CriteriaUpdateConfig($view, $request->getSession());
 		$form = $this->createForm(CriteriaFilterType::class, $criteriaUpdateConfig, [
@@ -98,7 +101,7 @@ class CriteriaController extends AppController
 									$ouuid = $structuredTarget[1];
 									
 									/**@var Revision $revision*/
-									$revision = $this->dataService->getNewestRevision($type, $ouuid);							
+									$revision = $this->getDataService()->getNewestRevision($type, $ouuid);							
 								}
 								
 								if($revision = $this->removeCriteria($filters, $revision, $criteriaField)) {
@@ -157,7 +160,7 @@ class CriteriaController extends AppController
 									$ouuid = $structuredTarget[1];
 									
 									/**@var Revision $revision*/
-									$revision = $this->dataService->getNewestRevision($type, $ouuid);							
+									$revision = $this->getDataService()->getNewestRevision($type, $ouuid);							
 								}
 								
 								if($revision = $this->addCriteria($filters, $revision, $criteriaField)) {
@@ -191,10 +194,11 @@ class CriteriaController extends AppController
 		
 		foreach ($itemToFinalize as $revision) {
 			
-			$this->dataService->finalizeDraft($revision);
+			$this->getDataService()->finalizeDraft($revision);
 		}
 		sleep(2);
 		$this->getDataService()->waitForGreen();
+
 		return $this->redirect($request->request->all()['source_url']);
 	}
 	
@@ -508,8 +512,6 @@ class CriteriaController extends AppController
 		//TODO securtity test
 		
 		if($view->getOptions()['criteriaMode'] == 'internal'){
-			/**@var DataService $dataService*/
-			$this->dataService = $this->get('ems.service.data');
 			
 			$structuredTarget = explode(":", $target);
 			
@@ -520,7 +522,7 @@ class CriteriaController extends AppController
 			$session = $this->get('session');
 			
 			/**@var Revision $revision*/
-			$revision = $this->dataService->getNewestRevision($type, $ouuid);	
+			$revision = $this->getDataService()->getNewestRevision($type, $ouuid);	
 			
 			if($revision->getDraft()) {
 				$this->addFlash('warning', 'Impossible to update '.$revision. ' has there is a draft in progress');
@@ -533,7 +535,7 @@ class CriteriaController extends AppController
 			try {
 				
 				if($revision = $this->addCriteria($filters, $revision, $criteriaField)){
-					$this->dataService->finalizeDraft($revision);
+					$this->getDataService()->finalizeDraft($revision);
 				}
 	
 			} catch (LockedException $e) {
@@ -639,6 +641,9 @@ class CriteriaController extends AppController
 						
 				}
 			}
+
+			$revision = $this->getDataService()->finalizeDraft($revision);
+			
 			$this->addFlash('notice', 'A new criteria has been created for '.$targetFieldName.':'.$rawData[$targetFieldName]. ' ('.$message.')');
 			return $revision;
 		}
@@ -714,7 +719,7 @@ class CriteriaController extends AppController
 				if($multipleField && FALSE === array_search($filters[$multipleField], $criteriaSet[$multipleField]) ){
 					$criteriaSet[$multipleField][] = $filters[$multipleField];
 					if(!$revision->getDraft()){
-						$revision = $this->dataService->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
+						$revision = $this->getDataService()->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
 					}
 					$revision->setRawData($rawData);
 					$this->addFlash('notice', '<b>Added</b> '.$multipleField.' with value '.$filters[$multipleField].' to '.$revision);
@@ -739,7 +744,7 @@ class CriteriaController extends AppController
 			}
 			$rawData[$criteriaField][] = $newCriterion;
 			if(!$revision->getDraft()){
-				$revision = $this->dataService->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
+				$revision = $this->getDataService()->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
 			}
 			$revision->setRawData($rawData);
 			
@@ -766,8 +771,6 @@ class CriteriaController extends AppController
 		//TODO securtity test
 
 		if($view->getOptions()['criteriaMode'] == 'internal'){
-			/**@var DataService $dataService*/
-			$this->dataService = $this->get('ems.service.data');
 			
 			$structuredTarget = explode(":", $target);
 			
@@ -778,7 +781,7 @@ class CriteriaController extends AppController
 			$session = $this->get('session');
 			
 			/**@var Revision $revision*/
-			$revision = $this->dataService->getNewestRevision($type, $ouuid);
+			$revision = $this->getDataService()->getNewestRevision($type, $ouuid);
 			
 			if($revision->getDraft()) {
 				$this->addFlash('warning', 'Impossible to update '.$revision. ' has there is a draft in progress');
@@ -789,7 +792,7 @@ class CriteriaController extends AppController
 	
 			try {
 				if($revision = $this->removeCriteria($filters, $revision, $criteriaField)){
-					$this->dataService->finalizeDraft($revision);				
+					$this->getDataService()->finalizeDraft($revision);				
 				}
 	
 	
@@ -904,6 +907,13 @@ class CriteriaController extends AppController
 		return NULL;
 	}
 	
+	private function getManager(){
+		if(empty($this->manager)) {
+			$this->manager = $this->getDoctrine()->getManager();
+		}
+		return $this->manager;
+	}
+	
 	
 	public function removeCriteria($filters, Revision $revision, $criteriaField)
 	{		
@@ -940,7 +950,7 @@ class CriteriaController extends AppController
 						}
 
 						if(!$revision->getDraft()){
-							$revision = $this->dataService->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);							
+							$revision = $this->getDataService()->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);							
 						}
 						$revision->setRawData($rawData);
 						$this->addFlash('notice', '<b>Remove</b> '.$multipleField.' with value '.$filters[$multipleField].' from '.$revision);
@@ -952,7 +962,7 @@ class CriteriaController extends AppController
 					$rawData[$criteriaField][$index] = array_values($rawData[$criteriaField][$index]);
 					
 					if(!$revision->getDraft()){
-						$revision = $this->dataService->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
+						$revision = $this->getDataService()->initNewDraft($revision->getContentType()->getName(), $revision->getOuuid(), $revision);
 					}
 					$revision->setRawData($rawData);
 					$this->addFlash('notice', '<b>Remove</b> from '.$revision);	
