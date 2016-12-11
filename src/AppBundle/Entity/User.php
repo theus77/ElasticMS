@@ -93,7 +93,7 @@ class User extends BaseUser
 
     /**
      * @ORM\OneToMany(targetEntity="AuthToken", mappedBy="user", cascade={"remove"})
-     * @ORM\OrderBy({"orderKey" = "created"})
+     * @ORM\OrderBy({"created" = "ASC"})
      */
     private $authTokens;
 
