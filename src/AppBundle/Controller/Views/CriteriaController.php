@@ -46,7 +46,6 @@ class CriteriaController extends AppController
 		$criteriaUpdateConfig = new CriteriaUpdateConfig($view, $request->getSession());
 		$form = $this->createForm(CriteriaFilterType::class, $criteriaUpdateConfig, [
 				'view' => $view,
-				'hidden' => true,
 		]);
 		
 		$form->handleRequest($request);
@@ -199,7 +198,7 @@ class CriteriaController extends AppController
 		sleep(2);
 		$this->getDataService()->waitForGreen();
 
-		return $this->redirect($request->request->all()['source_url']);
+		return $this->forward('AppBundle:Views\Criteria:generateCriteriaTable', ['view' => $view]);
 	}
 	
 	private function isAuthorized(FieldType $criteriaField) {
@@ -220,7 +219,7 @@ class CriteriaController extends AppController
 	
 	/**
 	 * @Route("/views/criteria/table/{view}", name="views.criteria.table"))
-     * @Method({"GET"})
+      * @Method({"GET", "POST"})
 	 */
 	public function generateCriteriaTableAction(View $view, Request $request)
 	{
@@ -242,7 +241,10 @@ class CriteriaController extends AppController
 		
 		$form = $this->createForm(CriteriaFilterType::class, $criteriaUpdateConfig, [
 				'view' => $view,
-				'method' => 'GET',
+				'attr' => [
+					'id' =>  'criteria_filter',
+					'action' => $this->generateUrl('data.customindexview', ['viewId'=>$view->getId()]),
+				],
 		]);
 		
 		$form->handleRequest($request);
@@ -314,15 +316,6 @@ class CriteriaController extends AppController
 		
 		}
 		
-		$hiddenform = $this->createForm(CriteriaFilterType::class, $criteriaUpdateConfig, [
-				'view' => $view,
-				'hidden' => true,
-				'action' => $this->get('router')->generate('views.criteria.align', ['view' => $view->getId()]),
-				'attr' => [
-						'id' =>  'hiddenFilterForm'
-				]
-		]);
-		
 		$tables = $this->generateCriteriaTable($view, $criteriaUpdateConfig, $request);
 		
 		return $this->render( 'view/custom/criteria_table.html.twig',[
@@ -337,7 +330,7 @@ class CriteriaController extends AppController
 			'categoryChoiceList' => $tables['categoryChoiceList'],
 			'targetContentType' => $tables['targetContentType'],
 			'authorized' => $authorized,
-			'hiddenForm' => $hiddenform->createView(),
+			'form' => $form->createView(),
 		]);
 	}
 	

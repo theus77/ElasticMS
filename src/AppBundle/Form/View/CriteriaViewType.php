@@ -109,7 +109,6 @@ class CriteriaViewType extends ViewType {
 		
 		$form = $formFactoty->create(CriteriaFilterType::class, $criteriaUpdateConfig, [
 				'view' => $view,
-				'method' => 'GET',
 				'action' => $this->router->generate('views.criteria.table', [
 					'view' => 	$view->getId(),
 				]),

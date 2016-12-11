@@ -4,14 +4,12 @@ namespace AppBundle\Form\View\Criteria;
 
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\View;
+use AppBundle\Form\Field\SubmitEmsType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use AppBundle\Form\Field\SubmitEmsType;
-use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use AppBundle\Form\DataField\HiddenFieldType;
 
 /**
  * It's the mother class of all specific DataField used in eMS
@@ -61,35 +59,28 @@ class CriteriaFilterType extends AbstractType {
 				}
 			}
 
-			if($options['hidden']) {
-				$builder->add('columnCriteria', HiddenType::class);
-				$builder->add('rowCriteria', HiddenType::class);
-			}
-			else {
-				$builder->add('columnCriteria', ChoiceType::class, array(
-						'choices'  => $choices,
-						'data' => $defaultColumn,
-						'attr' => [
-								'class' => 'criteria-filter-columnrow'
-						]
-				));
-				
-				$builder->add('rowCriteria', ChoiceType::class, array(
-						'choices'  => $choices,
-						'data' => $defaultRow,
-						'attr' => [
-								'class' => 'criteria-filter-columnrow'
-						],
-				));
-				
-				$builder->add('manage', SubmitEmsType::class, [
-						'icon'  => 'fa fa-table',
-						'attr' => [
-								'class' => 'btn-primary',
-						]
-				]);
-				
-			}
+			$builder->add('columnCriteria', ChoiceType::class, array(
+					'choices'  => $choices,
+					'data' => $defaultColumn,
+					'attr' => [
+							'class' => 'criteria-filter-columnrow'
+					]
+			));
+			
+			$builder->add('rowCriteria', ChoiceType::class, array(
+					'choices'  => $choices,
+					'data' => $defaultRow,
+					'attr' => [
+							'class' => 'criteria-filter-columnrow'
+					],
+			));
+			
+			$builder->add('manage', SubmitEmsType::class, [
+					'icon'  => 'fa fa-table',
+					'attr' => [
+							'class' => 'btn-primary',
+					]
+			]);
 			
 			
 			
@@ -111,12 +102,7 @@ class CriteriaFilterType extends AbstractType {
 					if(isset($displayOptions['dynamicLoading'])){
 						$displayOptions['dynamicLoading'] = false;					
 					}
-					if($options['hidden']) {
-						$builder->add('category', HiddenFieldType::class, ['metadata' => $categoryField, 'required' => false]);
-					}
-					else {
-						$builder->add ( 'category', $categoryField->getType(), $displayOptions);
-					}
+					$builder->add ( 'category', $categoryField->getType(), $displayOptions);
 					
 				}
 			}
@@ -152,12 +138,7 @@ class CriteriaFilterType extends AbstractType {
 					
 					$displayOptions['multiple'] = true;//($child->getName() == $defaultRow || $child->getName() == $defaultColumn);
 
-					if($options['hidden']) {
-						$criterion->add ( $child->getName(), HiddenFieldType::class, ['metadata' => $child, 'required' => false]);
-					}
-					else {
-						$criterion->add ( $child->getName(), $child->getType(), $displayOptions);			
-					}
+					$criterion->add ( $child->getName(), $child->getType(), $displayOptions);	
 				}
 			}
 			
@@ -178,7 +159,6 @@ class CriteriaFilterType extends AbstractType {
 		/* set the default option value for this kind of compound field */
 		parent::configureOptions ( $resolver );
 		$resolver->setDefault ( 'view', null );
-		$resolver->setDefault ( 'hidden', false );
 	}
 	
 	

@@ -26,6 +26,9 @@
 				my_tb.name='source_url';
 				my_tb.value={{ url|json_encode }};
 				f.appendChild(my_tb);
+				{% if action is defined %}
+					f.action={{ action|json_encode }};
+				{% endif %}
 			{% else %}
 			 	var f=document.createElement('form'); 
 				f.style.display='none'; 
@@ -50,13 +53,36 @@
 {% else %}
 	<a  class="btn btn-sm btn-danger" href="{{ url }}"
 		onclick=" 
-		 	var f=document.createElement('form'); 
-			f.style.display='none'; 
-			this.parentNode.appendChild(f); 
-			f.method='post'; 
-			f.action=this.href;
-			f.submit(); 
-			return false;">
+		{% if destinationFormName is defined %}
+		var f = document.getElementById('{{ destinationFormName }}');
+		var my_tb=document.createElement('INPUT');
+		my_tb.style.display='none'; 
+		my_tb.type='TEXT';
+		my_tb.name='source_url';
+		my_tb.value={{ url|json_encode }};
+		f.appendChild(my_tb);
+		{% if action is defined %}
+			f.action={{ action|json_encode }};
+		{% endif %}
+	{% else %}
+	 	var f=document.createElement('form'); 
+		f.style.display='none'; 
+		this.parentNode.appendChild(f); 
+		f.method='post'; 
+		f.action=this.href;
+	{% endif %}
+	
+	{% if value is defined and name is defined %}
+		var my_tb=document.createElement('INPUT');
+		my_tb.style.display='none'; 
+		my_tb.type='TEXT';
+		my_tb.name={{ name|json_encode }};
+		my_tb.value={{ value|json_encode }};
+		f.appendChild(my_tb);
+	{% endif %}
+	f.submit(); 
+	
+	return false;">
 		
 		{% if icon is defined %}
 			{% if icon|slice(0,9) == 'glyphicon'  %}

@@ -7,6 +7,13 @@
 
 {% block body %}
 		{% set criteriaFilters = {} %}
+		
+		
+		<div style="display: none;">
+			{{ form_start(form) }}
+			{{ form_end(form) }}
+		</div>
+		
 	 	<form role="form" id="criteria-form">
 		<div class="box">
 			<div class="box-header">
@@ -36,7 +43,11 @@
 				</h3>
 				
 				<div class="btn-group  pull-right">
-					<a class="btn btn-xs btn-primary" href="{{ url('data.customindexview', app.request.query.all|merge({viewId: view.id})) }}"><i class="fa fa-sliders"></i> Update filters</a>
+					{% include 'elements/post-button.html.twig' with { 
+						'url': app.request.requestUri,
+						'label': 'Update filters',
+						'icon': 'sliders',
+						'destinationFormName': 'criteria_filter' }%}
 				</div>
 				
 			</div>
@@ -58,7 +69,8 @@
 												{% if authorized %}
 													{% include 'elements/post-button.html.twig' with { 
 														'url': app.request.requestUri,
-														'destinationFormName': 'hiddenFilterForm',
+														'destinationFormName': 'criteria_filter',
+														'action': url('views.criteria.align', {view: view.id}),
 														'name': 'alignOn',
 														'value': 'col:'~columnIdx,
 														'rawlabel': attribute(columns, columnIdx).label,
@@ -92,7 +104,8 @@
 												{% include 'elements/post-button.html.twig' with { 
 													'url': app.request.requestUri, 
 													'rawlabel': attribute(rows, rowIdx).label|raw,
-													'destinationFormName': 'hiddenFilterForm',
+													'destinationFormName': 'criteria_filter',
+													'action': url('views.criteria.align', {view: view.id}),
 													'name': 'alignOn',
 													'value': 'row:'~rowIdx,
 													'message': 'Align table based on this line?' }%}
@@ -118,7 +131,8 @@
 													{% include 'elements/post-button.html.twig' with { 
 														'url': app.request.requestUri, 
 														'rawlabel': attribute(rows, rowIdx).label|raw,
-														'destinationFormName': 'hiddenFilterForm',
+														'destinationFormName': 'criteria_filter',
+														'action': url('views.criteria.align', {view: view.id}),
 														'name': 'alignOn',
 														'value': 'row:'~rowIdx,
 														'message': 'Align table based on this line?' }%}
@@ -140,7 +154,8 @@
 												{% if authorized %}
 													{% include 'elements/post-button.html.twig' with { 
 														'url': app.request.requestUri,
-														'destinationFormName': 'hiddenFilterForm',
+														'destinationFormName': 'criteria_filter',
+														'action': url('views.criteria.align', {view: view.id}),
 														'name': 'alignOn',
 														'value': 'col:'~columnIdx,
 														'rawlabel': attribute(columns, columnIdx).label,
@@ -161,8 +176,6 @@
 		</div>
 	</form>
 	
-				{{ form_start(hiddenForm) }}
-				{{ form_end(hiddenForm) }}
 {% endblock %} 
 
 
