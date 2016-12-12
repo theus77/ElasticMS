@@ -112,12 +112,12 @@ class NotificationController extends AppController
 		$repositoryNotification = $em->getRepository('AppBundle:Notification');
 		
 		$publishIn = $this->get('ems.service.environment')->getAliasByName($treatNotification->getPublishTo());
-		$unpublishFrom  = $this->get('ems.service.environment')->getAliasByName($treatNotification->getUnpublishfrom());
+// 		$unpublishFrom  = $this->get('ems.service.environment')->getAliasByName($treatNotification->getUnpublishfrom());
 		
-		if(!empty($publishIn) && !empty($unpublishFrom) && $publishIn == $unpublishFrom) {
-			$this->addFlash('error', 'You can\'t publish in and unpublish from the same environment '.$unpublishFrom.' !');
-		}
-		else {
+// 		if(!empty($publishIn) && !empty($unpublishFrom) && $publishIn == $unpublishFrom) {
+// 			$this->addFlash('error', 'You can\'t publish in and unpublish from the same environment '.$unpublishFrom.' !');
+// 		}
+// 		else {
 			foreach( $treatNotification->getNotifications() as $notificationId => $true ){
 				/**@var Notification $notification*/
 				$notification = $repositoryNotification->find($notificationId);
@@ -130,9 +130,9 @@ class NotificationController extends AppController
 					$this->getPublishService()->publish($notification->getRevision(), $publishIn);
 				}
 				
-				if(!empty($unpublishFrom)) {
-					$this->getPublishService()->unpublish($notification->getRevision(), $unpublishFrom);
-				}
+// 				if(!empty($unpublishFrom)) {
+// 					$this->getPublishService()->unpublish($notification->getRevision(), $unpublishFrom);
+// 				}
 				
 				if($treatNotification->getAccept()){
 					$this->get('ems.service.notification')->accept($notification, $treatNotification);
@@ -142,7 +142,7 @@ class NotificationController extends AppController
 					$this->get('ems.service.notification')->reject($notification, $treatNotification);
 				}
 			}
-		}
+// 		}
 		
 		
 		return $this->redirectToRoute('notifications.inbox');

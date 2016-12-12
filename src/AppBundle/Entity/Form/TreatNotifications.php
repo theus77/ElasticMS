@@ -14,7 +14,7 @@ class TreatNotifications{
 	
 	private $response;
 	
-	private $unpublishFrom;
+// 	private $unpublishFrom;
 	
 	private $publishTo;
 	
@@ -24,9 +24,9 @@ class TreatNotifications{
 	function __construct() {
 	}
 
-	public function getUnpublishFrom() {
-		return $this->unpublishFrom;
-	}
+// 	public function getUnpublishFrom() {
+// 		return $this->unpublishFrom;
+// 	}
 	
 	public function getPublishTo() {
 		return $this->publishTo;
@@ -48,10 +48,10 @@ class TreatNotifications{
 		return $this->notifications;
 	}
 	
-	public function setUnpublishFrom($unpublishFrom) {
-		$this->unpublishFrom = $unpublishFrom;
-		return $this;
-	}
+// 	public function setUnpublishFrom($unpublishFrom) {
+// 		$this->unpublishFrom = $unpublishFrom;
+// 		return $this;
+// 	}
 	
 	public function setPublishTo($publishTo) {
 		$this->publishTo = $publishTo;

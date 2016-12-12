@@ -35,10 +35,10 @@ class TreatNotificationsType extends AbstractType {
 					'multiple' => false,
 					'required' => false,
 			] )
-			->add('unpublishFrom', EnvironmentPickerType::class, [
-					'multiple' => false,
-					'required' => false,
-			] )
+// 			->add('unpublishFrom', EnvironmentPickerType::class, [
+// 					'multiple' => false,
+// 					'required' => false,
+// 			] )
 			->add('response', TextareaType::class, [
 					'attr' => [
 							'class' => 'ckeditor'
