@@ -516,6 +516,16 @@ class CriteriaController extends AppController
 			/**@var Revision $revision*/
 			$revision = $this->getDataService()->getNewestRevision($type, $ouuid);	
 			
+			
+			$authorized = $this->getAuthorizationChecker()->isGranted($view->getContentType()->getEditRole());
+			if(!$authorized) {
+				$this->addFlash('warning', 'You are not authorized to update '.$revision);
+				return $this->render( 'ajax/notification.json.twig', [
+						'success' => false,
+				] );
+			}
+			
+			
 			if($revision->getDraft()) {
 				$this->addFlash('warning', 'Impossible to update '.$revision. ' has there is a draft in progress');
 				return $this->render( 'ajax/notification.json.twig', [
