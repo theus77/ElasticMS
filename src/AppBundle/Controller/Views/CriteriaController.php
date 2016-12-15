@@ -202,8 +202,7 @@ class CriteriaController extends AppController
 	}
 	
 	private function isAuthorized(FieldType $criteriaField) {
-		/**@var AuthorizationChecker $security*/
-		$security = $this->get('security.authorization_checker');
+		$security = $this->getAuthorizationChecker();
 		
 		$authorized = $security->isGranted($criteriaField->getMinimumRole());
 		if($authorized) {
@@ -295,7 +294,7 @@ class CriteriaController extends AppController
 		$fieldPaths = preg_split("/\\r\\n|\\r|\\n/", $view->getOptions()['criteriaFieldPaths']);
 			
 		
-		$authorized = $this->isAuthorized($criteriaField);
+		$authorized = $this->isAuthorized($criteriaField) && $this->getAuthorizationChecker()->isGranted($view->getContentType()->getEditRole());
 		
 		foreach ($fieldPaths as $path){
 			/**@var \AppBundle\Entity\FieldType $child*/

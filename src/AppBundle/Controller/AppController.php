@@ -14,6 +14,7 @@ use Monolog\Logger;
 use AppBundle\Service\NotificationService;
 use AppBundle\Service\UserService;
 use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 
 class AppController extends Controller
 {
@@ -33,7 +34,12 @@ class AppController extends Controller
 		return $this->get('app.elasticsearch');
 	}
 
-	
+	/**
+	 * @return AuthorizationChecker
+	 */
+	protected function getAuthorizationChecker(){
+		return $this->get('security.authorization_checker');
+	}
 	
 	/**
 	 * 
