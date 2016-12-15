@@ -204,10 +204,10 @@ class CriteriaController extends AppController
 	private function isAuthorized(FieldType $criteriaField) {
 		$security = $this->getAuthorizationChecker();
 		
-		$authorized = $security->isGranted($criteriaField->getMinimumRole());
+		$authorized = empty($criteriaField->getMinimumRole()) || $security->isGranted($criteriaField->getMinimumRole());
 		if($authorized) {
 			foreach ($criteriaField->getChildren() as $child){
-				$authorized = $this->isGranted($child);
+				$authorized = $this->isAuthorized($child);
 				if(!$authorized){
 					break;
 				}
