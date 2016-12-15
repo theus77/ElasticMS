@@ -123,6 +123,8 @@ class ContainerFieldType extends DataFieldType {
 		$optionsForm = $builder->get ( 'options' );
 		// container aren't mapped in elasticsearch
 		$optionsForm->remove ( 'mappingOptions' );
+		$optionsForm->remove ( 'migrationOptions' );
+		$optionsForm->get ( 'restrictionOptions' )->remove('mandatory');
 		// an optional icon can't be specified ritgh to the container label
 		$optionsForm->get ( 'displayOptions' )->add ( 'icon', IconPickerType::class, [ 
 				'required' => false 

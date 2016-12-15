@@ -106,6 +106,8 @@ class TabsFieldType extends DataFieldType {
 		$optionsForm = $builder->get ( 'options' );
 		// tabs aren't mapped in elasticsearch
 		$optionsForm->remove ( 'mappingOptions' );
+		$optionsForm->remove ( 'migrationOptions' );
+		$optionsForm->get ( 'restrictionOptions' )->remove('mandatory');
 	}
 
 

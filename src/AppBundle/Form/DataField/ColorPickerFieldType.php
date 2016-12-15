@@ -32,6 +32,19 @@ use Symfony\Component\Form\FormBuilderInterface;
 	public static function getIcon(){
 		return 'fa fa-paint-brush';
 	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getDefaultOptions($name) {
+		$out = parent::getDefaultOptions($name);
+		
+		$out['mappingOptions']['index'] = 'not_analyzed';
+	
+		return $out;
+	}
 	
 	/**
 	 *

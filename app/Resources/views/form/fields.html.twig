@@ -64,34 +64,41 @@
 {%- block data_field_options_widget -%}
 
 	<div class="tab-content">
-		<div class="tab-pane active" id="tab_display_{{ seed }}">
-			{{- form_widget(form.displayOptions) -}}
-		</div>
-		<!-- /.tab-pane -->
-		{% if form.mappingOptions is defined %}
-			<div class="tab-pane" id="tab_mapping_{{ seed }}">
-				{{- form_widget(form.mappingOptions) -}}
+		{% set active='active' %}
+		{% if form.displayOptions is defined %}
+			<div class="tab-pane {{ active }}" id="tab_display_{{ seed }}">
+				{{- form_widget(form.displayOptions) -}}
 			</div>
+			{% set active='' %}
 		{% endif %}
 		<!-- /.tab-pane -->
-    {% if form.restrictionOptions is defined %}
-      <div class="tab-pane" id="tab_restriction_{{ seed }}">
-        {{- form_widget(form.restrictionOptions) -}}
-      </div>
-    {% endif %}
-    <!-- /.tab-pane -->
-    {% if form.migrationOptions is defined %}
-      <div class="tab-pane" id="tab_migration_{{ seed }}">
-        {{- form_widget(form.migrationOptions) -}}
-      </div>
-    {% endif %}
-    <!-- /.tab-pane -->
-    {% if form.extraOptions is defined %}
-      <div class="tab-pane" id="tab_extra_{{ seed }}">
-        {{- form_widget(form.extraOptions) -}}
-      </div>
-    {% endif %}
-    <!-- /.tab-pane -->
+		{% if form.mappingOptions is defined %}
+			<div class="tab-pane {{ active }}" id="tab_mapping_{{ seed }}">
+				{{- form_widget(form.mappingOptions) -}}
+			</div>
+			{% set active='' %}
+		{% endif %}
+		<!-- /.tab-pane -->
+	    {% if form.restrictionOptions is defined %}
+	      <div class="tab-pane {{ active }}" id="tab_restriction_{{ seed }}">
+	        {{- form_widget(form.restrictionOptions) -}}
+	      </div>
+		  {% set active='' %}
+	    {% endif %}
+	    <!-- /.tab-pane -->
+	    {% if form.migrationOptions is defined %}
+	      <div class="tab-pane {{ active }}" id="tab_migration_{{ seed }}">
+	        {{- form_widget(form.migrationOptions) -}}
+	      </div>
+		  {% set active='' %}
+	    {% endif %}
+	    <!-- /.tab-pane -->
+	    {% if form.extraOptions is defined %}
+	      <div class="tab-pane {{ active }}" id="tab_extra_{{ seed }}">
+	        {{- form_widget(form.extraOptions) -}}
+	      </div>
+	    {% endif %}
+	    <!-- /.tab-pane -->
 	</div>
 	<!-- /.tab-content -->
 
@@ -509,19 +516,27 @@
 		
 						<div class="nav-tabs-custom">
 							<ul class="nav nav-tabs">
-								<li class="active"><a href="#tab_display_{{ form.vars.id }}" data-toggle="tab" aria-expanded="true">Display</a></li>
-								{% if form.options.mappingOptions is defined %}
-									<li class=""><a href="#tab_mapping_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Mapping</a></li>
+								{% set active='active' %}
+								{% if form.options.displayOptions is defined %}
+									<li class="{{ active }}"><a href="#tab_display_{{ form.vars.id }}" data-toggle="tab" aria-expanded="true">Display</a></li>
+									{% set active='' %}
 								{%  endif %}
-                {% if form.options.restrictionOptions is defined %}
-                  <li class=""><a href="#tab_restriction_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Restriction</a></li>
-                {%  endif %}
-                {% if form.options.migrationOptions is defined %}
-                  <li class=""><a href="#tab_migration_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Migration</a></li>
-                {%  endif %}
-                {% if form.options.extraOptions is defined %}
-                  <li class=""><a href="#tab_extra_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Extra</a></li>
-                {%  endif %}
+								{% if form.options.mappingOptions is defined %}
+									<li class="{{ active }}"><a href="#tab_mapping_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Mapping</a></li>
+									{% set active='' %}
+								{%  endif %}
+				                {% if form.options.restrictionOptions is defined %}
+				                  <li class="{{ active }}"><a href="#tab_restriction_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Restriction</a></li>
+									{% set active='' %}
+				                {%  endif %}
+				                {% if form.options.migrationOptions is defined %}
+				                  <li class="{{ active }}"><a href="#tab_migration_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Migration</a></li>
+									{% set active='' %}
+				                {%  endif %}
+				                {% if form.options.extraOptions is defined %}
+				                  <li class="{{ active }}"><a href="#tab_extra_{{ form.vars.id }}" data-toggle="tab" aria-expanded="false">Extra</a></li>
+									{% set active='' %}
+				                {%  endif %}
 							</ul>
 							{{- form_widget(form.options, {'seed': form.vars.id} ) -}}
 						</div>

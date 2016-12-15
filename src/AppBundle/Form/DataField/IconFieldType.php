@@ -48,4 +48,17 @@ use Symfony\Component\Form\FormBuilderInterface;
 				'required' => false,
 		] );
 	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getDefaultOptions($name) {
+		$out = parent::getDefaultOptions($name);
+		
+		$out['mappingOptions']['index'] = 'not_analyzed';
+	
+		return $out;
+	}
 }

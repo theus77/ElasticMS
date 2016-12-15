@@ -118,4 +118,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 		}
 	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getDefaultOptions($name) {
+		$out = parent::getDefaultOptions($name);
+		
+		$out['mappingOptions']['index'] = 'not_analyzed';
+	
+		return $out;
+	}
 }

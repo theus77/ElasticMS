@@ -142,6 +142,21 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		$resolver->setDefault ( 'required', false );
 		$resolver->setDefault ( 'dynamicLoading', true );
 	}
+
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getDefaultOptions($name) {
+		$out = parent::getDefaultOptions($name);
+
+		$out['displayOptions']['dynamicLoading'] = true;
+		$out['mappingOptions']['index'] = 'not_analyzed';
+	
+		return $out;
+	}
 	
 	/**
 	 *
@@ -180,8 +195,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 		
 		// String specific display options
 		$optionsForm->get ( 'displayOptions' )->add ( 'multiple', CheckboxType::class, [ 
-				'required' => false,
-		] )->add ( 'required', CheckboxType::class, [ 
 				'required' => false,
 		] )->add ( 'dynamicLoading', CheckboxType::class, [ 
 				'required' => false,

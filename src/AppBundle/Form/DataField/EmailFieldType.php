@@ -33,6 +33,20 @@ use Symfony\Component\Form\FormBuilderInterface;
 	public function getLabel(){
 		return 'Email field';
 	}
+
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getDefaultOptions($name) {
+		$out = parent::getDefaultOptions($name);
+	
+		$out['mappingOptions']['index'] = 'not_analyzed';
+	
+		return $out;
+	}
 	
 	/**
 	 *

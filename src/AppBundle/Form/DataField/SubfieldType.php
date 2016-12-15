@@ -46,7 +46,8 @@ class SubfieldType extends DataFieldType {
 	public function buildOptionsForm(FormBuilderInterface $builder, array $options) {
 		parent::buildOptionsForm ( $builder, $options );
 		$optionsForm = $builder->get ( 'options' );
-	
+		$optionsForm->remove( 'displayOptions' )->remove( 'migrationOptions' )->remove( 'restrictionOptions' );
+		
 		// String specific mapping options
 		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);
 	}	

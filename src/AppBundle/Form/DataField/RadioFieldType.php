@@ -96,4 +96,17 @@ class RadioFieldType extends DataFieldType {
 		// String specific mapping options
 		$optionsForm->get ( 'mappingOptions' )->add ( 'analyzer', AnalyzerPickerType::class);
 	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function getDefaultOptions($name) {
+		$out = parent::getDefaultOptions($name);
+		
+		$out['mappingOptions']['index'] = 'not_analyzed';
+	
+		return $out;
+	}
 }

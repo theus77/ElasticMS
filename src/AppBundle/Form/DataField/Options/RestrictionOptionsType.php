@@ -24,9 +24,6 @@ class RestrictionOptionsType extends AbstractType {
 		->add ( 'mandatory', CheckboxType::class, [
 				'required' => false,
 		])
-		->add ( 'unique', CheckboxType::class, [
-				'required' => false,
-		])
 		->add ( 'minimum_role', RolePickerType::class, [
 				'required' => false,
 		])
