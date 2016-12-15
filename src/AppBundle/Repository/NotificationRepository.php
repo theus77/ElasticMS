@@ -132,6 +132,7 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		$qb = $this->createQueryBuilder('n')
 			->select('n')
 			->join('n.revision', 'r')
+			->join('n.environment', 'e')
 			->where('n.status = :status')
 			->andwhere('n.template IN (:ids)')
 			->andwhere('r.deleted = 0')
@@ -153,11 +154,11 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		
 		
 		$orCircles = $qb->expr()->orX();
-		$orCircles->add('r.circles is null');
+		$orCircles->add('e.circles is null');
 		
 		$counter = 0;
 		foreach ($user->getCircles() as $circle) {
-			$orCircles->add('r.circles like :circle_'.$counter);
+			$orCircles->add('e.circles like :circle_'.$counter);
 			$params['circle_'.$counter] = '%'.$circle.'%';
 			++$counter;
 		}
@@ -183,6 +184,7 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		$qb = $this->createQueryBuilder('n')
 			->select('COUNT(n)')
 			->join('n.revision', 'r')
+			->join('n.environment', 'e')
 			->where('n.status = :status')
 			->andwhere('n.template IN (:ids)')
 			->andwhere('r.deleted = 0')
@@ -194,11 +196,11 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		);
 	
 		$orCircles = $qb->expr()->orX();
-		$orCircles->add('r.circles is null');
+		$orCircles->add('e.circles is null');
 	
 		$counter = 0;
 		foreach ($user->getCircles() as $circle) {
-			$orCircles->add('r.circles like :circle_'.$counter);
+			$orCircles->add('e.circles like :circle_'.$counter);
 			$params['circle_'.$counter] = '%'.$circle.'%';
 			++$counter;
 		}
