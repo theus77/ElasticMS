@@ -7,6 +7,10 @@ use AppBundle\Entity\Form\TreatNotifications;
 use AppBundle\Entity\Notification;
 use AppBundle\Entity\Template;
 use AppBundle\Entity\User;
+use AppBundle\Event\RevisionFinalizeDraftEvent;
+use AppBundle\Event\RevisionNewDraftEvent;
+use AppBundle\Event\RevisionPublishEvent;
+use AppBundle\Event\RevisionUnpublishEvent;
 use AppBundle\Repository\NotificationRepository;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use FOS\UserBundle\Mailer\Mailer;
@@ -14,11 +18,6 @@ use Monolog\Logger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Session\Session;
-use AppBundle\Event\RevisionNewDraftEvent;
-use Symfony\Component\Config\Tests\Definition\FinalizationTest;
-use AppBundle\Event\RevisionFinalizeDraftEvent;
-use AppBundle\Event\RevisionPublishEvent;
-use AppBundle\Event\RevisionUnpublishEvent;
 
 class NotificationService {
 	

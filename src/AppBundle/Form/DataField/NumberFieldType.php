@@ -8,6 +8,7 @@ use AppBundle\Form\Field\AnalyzerPickerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 class NumberFieldType extends DataFieldType {
 
@@ -29,18 +30,18 @@ class NumberFieldType extends DataFieldType {
 		return 'glyphicon glyphicon-sort-by-order';
 	}
 	
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function importData(DataField $dataField, $sourceArray, $isMigration) {
-		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
-		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
-			$dataField->setFloatValue($sourceArray);
-		}
-		return [$dataField->getFieldType()->getName()];
-	}
+// 	/**
+// 	 *
+// 	 * {@inheritdoc}
+// 	 *
+// 	 */
+// 	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+// 		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+// 		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+// 			$dataField->setFloatValue($sourceArray);
+// 		}
+// 		return [$dataField->getFieldType()->getName()];
+// 	}
 	
 	/**
 	 *
@@ -52,11 +53,28 @@ class NumberFieldType extends DataFieldType {
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
 	
-		$builder->add ( 'float_value', NumberType::class, [
+		$builder->add ( 'text_value', TextType::class, [
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
 				'required' => false,
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
 		] );
+	}
+
+	/**
+	 *
+	 * {@inheritdoc}
+	 *
+	 */
+	public function isValid(DataField &$dataField){
+		$isValid = parent::isValid($dataField);
+		
+		$rawData = $dataField->getRawData();
+		if(! empty($rawData) && !is_numeric($rawData)) {
+			$isValid = FALSE;
+			$dataField->addMessage("Not a number");
+		}
+		
+		return $isValid;
 	}
 	
 	/**
@@ -70,7 +88,7 @@ class NumberFieldType extends DataFieldType {
 			 * by default it serialize the text value.
 			 * It must be overrided.
 			 */
-			$out [$data->getFieldType ()->getName ()] = $data->getFloatValue();
+			$out [$data->getFieldType ()->getName ()] = $data->getRawData();
 		}
 	}
 	

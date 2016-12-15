@@ -3,19 +3,18 @@
 namespace AppBundle\Service;
 
 
+use AppBundle\Entity\Environment;
 use AppBundle\Entity\Revision;
+use AppBundle\Event\RevisionPublishEvent;
+use AppBundle\Event\RevisionUnpublishEvent;
+use AppBundle\Repository\RevisionRepository;
 use AppBundle\Twig\AppExtension;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Elasticsearch\Client;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use AppBundle\Entity\Environment;
-use AppBundle\Repository\RevisionRepository;
-use AppBundle\Event\RevisionPublishEvent;
-use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcherInterface;
-use AppBundle\Event\RevisionUnpublishEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 
 class PublishService

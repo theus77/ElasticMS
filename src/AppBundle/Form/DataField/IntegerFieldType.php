@@ -29,17 +29,38 @@ class IntegerFieldType extends DataFieldType {
 		return 'glyphicon glyphicon-sort-by-order';
 	}
 	
+// 	/**
+// 	 *
+// 	 * {@inheritdoc}
+// 	 *
+// 	 */
+// 	public function importData(DataField $dataField, $sourceArray, $isMigration) {
+// 		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
+// 		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
+// 			$dataField->setIntegerValue($sourceArray);
+// 		}
+// 		return [$dataField->getFieldType()->getName()];
+// 	}
+	
+	
+	
+
+
 	/**
 	 *
 	 * {@inheritdoc}
 	 *
 	 */
-	public function importData(DataField $dataField, $sourceArray, $isMigration) {
-		$migrationOptions = $dataField->getFieldType()->getMigrationOptions();
-		if(!$isMigration || empty($migrationOptions) || !$migrationOptions['protected']) {
-			$dataField->setIntegerValue($sourceArray);
+	public function isValid(DataField &$dataField){
+		$isValid = parent::isValid($dataField);
+		
+		$rawData = $dataField->getRawData();
+		if(! empty($rawData) && !is_numeric($rawData)) {
+			$isValid = FALSE;
+			$dataField->addMessage("Not a integer");
 		}
-		return [$dataField->getFieldType()->getName()];
+		
+		return $isValid;
 	}
 	
 	/**
@@ -52,7 +73,7 @@ class IntegerFieldType extends DataFieldType {
 		/** @var FieldType $fieldType */
 		$fieldType = $builder->getOptions () ['metadata'];
 	
-		$builder->add ( 'integer_value', TextType::class, [
+		$builder->add ( 'text_value', TextType::class, [
 				'label' => (isset($options['label'])?$options['label']:$fieldType->getName()),
 				'required' => false,
 				'disabled'=> !$this->authorizationChecker->isGranted($fieldType->getMinimumRole()),
@@ -62,21 +83,21 @@ class IntegerFieldType extends DataFieldType {
 		] );
 	}
 
-	/**
-	 *
-	 * {@inheritdoc}
-	 *
-	 */
-	public function isValid(DataField &$dataField){
-		$isValid = parent::isValid ( $dataField );
+// 	/**
+// 	 *
+// 	 * {@inheritdoc}
+// 	 *
+// 	 */
+// 	public function isValid(DataField &$dataField){
+// 		$isValid = parent::isValid ( $dataField );
 
-		if($dataField->getRawData() !== null && (!intval($dataField->getRawData()) || $dataField->getRawData() === '0' || $dataField->getRawData() === 0 )){
-			$dataField->addMessage("Misformated integer ".$dataField->getRawData());
-			return FALSE;
-		}
+// 		if($dataField->getRawData() !== null && (!intval($dataField->getRawData()) || $dataField->getRawData() === '0' || $dataField->getRawData() === 0 )){
+// 			$dataField->addMessage("Misformated integer ".$dataField->getRawData());
+// 			return FALSE;
+// 		}
 		
-		return $isValid;
-	}
+// 		return $isValid;
+// 	}
 	
 	/**
 	 *

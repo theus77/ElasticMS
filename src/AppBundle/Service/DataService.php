@@ -7,6 +7,7 @@ use AppBundle\Entity\ContentType;
 use AppBundle\Entity\DataField;
 use AppBundle\Entity\Environment;
 use AppBundle\Entity\Revision;
+use AppBundle\Event\RevisionFinalizeDraftEvent;
 use AppBundle\Event\RevisionNewDraftEvent;
 use AppBundle\Exception\DataStateException;
 use AppBundle\Exception\LockedException;
@@ -19,6 +20,7 @@ use AppBundle\Repository\RevisionRepository;
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityManager;
 use Elasticsearch\Client;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -29,9 +31,6 @@ use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use AppBundle\Event\RevisionFinalizeDraftEvent;
-use Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class DataService
 {
