@@ -46,7 +46,7 @@
 			  	{% if attribute(types, result._type) is defined %}
 			  		<span class="text-{{ attribute(types, result._type).color }}">
 					  	<i class="{{ attribute(types, result._type).icon }}"></i> 
-					  	{{ result._type|humanize }} | 
+					  	{{ attribute(types, result._type).singularName|humanize }} | 
 					  	
 					  	
 					  	{% set contentType=attribute(types, result._type) %}
@@ -143,7 +143,11 @@
 						{% if attribute(types, index.key) is defined %}
 								<a href="{{ path(paginationPath, cleanedFilters|merge({'search_form[contentTypes][0]': index.key, page: 1})) }}" class="text-{{ attribute(types, index.key).color }}">
 									<i class="{{ attribute(types, index.key).icon }}"></i>
-									{{ index.key|humanize }} 
+									{% if index.doc_count >1  %}
+										{{ attribute(types, index.key).pluralName }} 
+									{% else %}
+										{{ attribute(types, index.key).singularName }} 
+									{% endif %}
 									<span class=" badge pull-right bg-{{ attribute(types, index.key).color }}">{{ index.doc_count }}</span>
 								</a>
 						{% else %}
