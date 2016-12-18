@@ -29,9 +29,10 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	public function findByRevionsionOuuidAndEnvironment(Revision $revision, Environment $environment){
 		$qb = $this->createQueryBuilder('n')
 			->select('n')
-			->innerJoin('AppBundle:Revision', 'r')
+			->join('AppBundle:Revision', 'r', 'WITH', 'n.revision = r.id')
 			->where('r.ouuid = :ouuid')
 			->andWhere('r.contentType = :contentType')
+// 			->andWhere('n.contentType = :contentType')
 			->andwhere('r.deleted = 0')
 			->andwhere('n.status = :status')
 			->andwhere('n.environment = :environment');
@@ -101,7 +102,7 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	public function countNotificationByUuidAndContentType($ouuid, ContentType $contentType){
 		$qb = $this->createQueryBuilder('n')
 		->select('count(n)')
-		->leftJoin('AppBundle:Revision', 'r', 'WITH', 'n.revision = r.id')
+		->join('AppBundle:Revision', 'r', 'WITH', 'n.revision = r.id')
 		->where('n.status = :status')
 		->andWhere('r.contentType = :contentType')
 		->andwhere('r.ouuid = :ouuid');
@@ -131,8 +132,8 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 		
 		$qb = $this->createQueryBuilder('n')
 			->select('n')
-			->join('n.revision', 'r')
-			->join('n.environment', 'e')
+			->join('n.revision', 'r', 'WITH', 'n.revision = r.id')
+			->join('n.environment', 'e', 'WITH', 'n.environment = e.id')
 			->where('n.status = :status')
 			->andwhere('n.template IN (:ids)')
 			->andwhere('r.deleted = 0')
@@ -183,8 +184,8 @@ class NotificationRepository extends \Doctrine\ORM\EntityRepository
 	
 		$qb = $this->createQueryBuilder('n')
 			->select('COUNT(n)')
-			->join('n.revision', 'r')
-			->join('n.environment', 'e')
+			->join('n.revision', 'r', 'WITH', 'n.revision = r.id')
+			->join('n.environment', 'e', 'WITH', 'n.environment = e.id')
 			->where('n.status = :status')
 			->andwhere('n.template IN (:ids)')
 			->andwhere('r.deleted = 0')
