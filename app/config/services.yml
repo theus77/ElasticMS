@@ -77,13 +77,13 @@ services:
         tags:
             - { name: ems.form.datafieldtype, alias: computed }
             - { name: form.type }
-    #ems.fieldtype.json:
-    #    class: AppBundle\Form\DataField\JSONFieldType
-    #    calls:
-    #        - [setAuthorizationChecker, ['@security.authorization_checker']]
-    #    tags:
-    #        - { name: ems.form.datafieldtype, alias: json }
-    #        - { name: form.type }
+    ems.fieldtype.json:
+        class: AppBundle\Form\DataField\JSONFieldType
+        calls:
+            - [setAuthorizationChecker, ['@security.authorization_checker']]
+        tags:
+            - { name: ems.form.datafieldtype, alias: json }
+            - { name: form.type }
     ems.fieldtype.dataLink:
         class: AppBundle\Form\DataField\DataLinkFieldType
         calls:

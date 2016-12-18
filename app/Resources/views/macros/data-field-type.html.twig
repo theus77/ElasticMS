@@ -350,6 +350,26 @@
 	{{ _self.messages(dataField) }}
 {% endmacro %}
 
+{% macro AppBundle_Form_DataField_JSONFieldType(dataField) %}
+	<dl>
+		<dt>
+			{% if dataField.fieldType.displayOptions.label is defined %}
+				{{ dataField.fieldType.displayOptions.label }} ({{ dataField.fieldType.name }})
+			{% else %}
+				{{ dataField.fieldType.name }}
+			{% endif %}
+		</dt>
+		<dd>
+			<div class="panel panel-default">
+				<div class="panel-body">
+					{{ dataField.rawData|json_encode }}
+				</div>
+			</div>
+		</dd>
+	</dl>
+	{{ _self.messages(dataField) }}
+{% endmacro %}
+
 {% macro AppBundle_Form_DataField_WysiwygFieldType(dataField) %}
 	<dl>
 		<dt>
