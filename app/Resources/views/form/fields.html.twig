@@ -122,6 +122,16 @@
 {% endblock datafieldtype_widget %}
 
 {# Labels #}
+
+{% block datafieldtype_label %}
+	{% if data.fieldType.options.displayOptions is defined and data.fieldType.options.displayOptions.label %}
+		<label class="control-label {% if data.fieldType.options.restrictionOptions is defined and data.fieldType.options.restrictionOptions.mandatory %}required{% endif %}"> 
+			{% if data.fieldType.options.displayOptions.icon %}<i class="{{ data.fieldType.options.displayOptions.icon }}"></i>{%  endif %}
+			{{ data.fieldType.options.displayOptions.label }}
+		</label>
+	{% endif %}
+{% endblock datafieldtype_label %}
+
 {% block container_label -%}
 	{% if data.fieldType.displayOptions.label is defined  %}
 		<div class="panel-heading">
@@ -245,11 +255,12 @@
 {%- endblock container_row %}
 
 {% block tabsfieldtype_row -%}
-		<div class="nav-tabs-custom{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}">
+	<div class="{% if class %}{{ class }}{% else %}col-xs-12 {% endif %}">
+		<div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
               {% for tab in  form.iterator %}
 	              <li id="{{ tab.vars.id}}__label" class="form-group{% if tab.vars.errors|length %} has-error{% endif %} {% if loop.index == 1%} active{% endif %}">
-	              	<a href="#{{ tab.vars.id}}__tab" data-toggle="tab" aria-expanded="false">{{- form_label(tab) -}}</a>
+	              	<a href="#{{ tab.vars.id}}__tab" data-toggle="tab" aria-expanded="{% if loop.index == 1%}true{%else%}false{% endif %}">{{- form_label(tab) -}}</a>
 	              </li>
               {% endfor %}
             </ul>
@@ -271,42 +282,50 @@
             </div>
             <!-- /.tab-content -->
          </div>             
+	</div>
 {%- endblock tabsfieldtype_row %}
 
 
-{% block collectionfieldtype_row -%}
-<div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
-	<div class="panel panel-default collection-panel" 
+{% block collectionfieldtype_widget -%}
+	<div class="collection-panel" 
 		data-prototype="{{ form_row(attribute(form, form.vars.name).vars.prototype)|e }}"
 		{% if (attribute(form, form.vars.name)|last).vars is defined  %}
 			data-index="{{ (attribute(form, form.vars.name)|last).vars.name + 1 }}"
 		{% else %}
 			data-index="0"
 		{% endif %}>
-		<div class="panel-heading">
-	  		{{- form_label(form) -}}
-	  		<div class="btn-group pull-right">
-	  			{% set widget_button = form_widget(form.add_nested) %}
-	  			{{ widget_button|raw }}
+		{% set tempId = form.vars.name~'_'~random() %}
 
-				{% set tempId = form.vars.name~'_'~random() %}
+		<div 
+		  	class="panel-body{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %} collapse{% endif %}{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.sortable is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.sortable %} ems-sortable{% endif %}" 
+		  	id="{{ tempId }}">
+		    {{- form_widget(attribute(form, form.vars.name)) -}}
+		</div>
+		
+		<div class="">
+	  		<div class="btn-group">
+	  			{{ form_widget(form.add_nested) }}
 				{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %}
 					<a class="toggle-button pull-right btn btn-primary btn-sm" role="button" data-toggle="collapse" href="#{{ tempId }}" 
-						aria-expanded="false" aria-controls="{{ tempId }}" data-toggle-contain="Hide {{ '<i class="fa fa-chevron-down"></i>'|e }}">
+						aria-expanded="false" aria-controls="{{ tempId }}" data-toggle-contain="Hide {{ '<i class="fa fa-chevron-up"></i>'|e }}">
 						Show <i class="fa fa-chevron-right"></i>
 					</a>
 				{% endif %}
 			</div>
+		</div>
+	</div>
+{%- endblock collectionfieldtype_widget %}
+
+{% block collectionfieldtype_row -%}
+<div class="form-group{% if class %} {{ class }}{% else %} col-xs-12 {% endif %}{% if (not compound or force_error|default(false)) and not valid %} has-error{% endif %}">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+	  		{{- form_label(form) -}}
 	  	</div>
-	  <div 
-	  	class="panel-body{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.collapsible %} collapse{% endif %}{% if attribute(form, form.vars.name).vars.value.fieldType.displayOptions.sortable is defined and attribute(form, form.vars.name).vars.value.fieldType.displayOptions.sortable %} ems-sortable{% endif %}" 
-	  	id="{{ tempId }}">
-	    {{- form_widget(attribute(form, form.vars.name)) -}}
-	  </div>
-	  <div class="panel-footer">
-	  		{{ widget_button|raw }}
-	  </div>
-	  {{- form_errors(form) -}}
+	  	<div  class="panel-body">
+			{{- form_widget(form) -}}
+		</div>
+		{{- form_errors(form) -}}
 	</div>               
 </div>
 {% endblock collectionfieldtype_row %}
@@ -335,7 +354,6 @@
 	{% if isContainer and form.vars.data.fieldType.options.displayOptions.label %}
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				{% if icon %}<i class="{{ icon }}"></i>&nbsp;{% endif %}
 		  		{{- form_label(form) -}}
 		  	</div>
 		  <div class="panel-body">
