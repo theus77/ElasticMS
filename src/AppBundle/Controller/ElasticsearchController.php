@@ -201,10 +201,10 @@ class ElasticsearchController extends AppController
 			if(empty($environments)){
 				/**@var EnvironmentService $service*/
 				foreach ($types as $type){
-					/**@var \AppBundle\Entity\ContentType $ct*/
+					
 					$ct = $contentTypeRepository->findByName($type);
-					if(!empty($ct)) {
-						$alias = $service->getAliasByName($ct[0]->getEnvironment()->getName());
+					if($ct) {
+						$alias = $service->getAliasByName($ct->getEnvironment()->getName());
 						if($alias){
 							$aliases[] =  $alias->getAlias();
 						}						
@@ -234,7 +234,6 @@ class ElasticsearchController extends AppController
 					]
 			
 			];
-			
 			
 			$matches = [];
 			if(preg_match('/^[a-z][a-z0-9\-_]*:/i', $pattern, $matches)){

@@ -2,6 +2,8 @@
 
 namespace AppBundle\Repository;
 
+use AppBundle\Entity\ContentType;
+
 /**
  * ContentTypeRepository
  *
@@ -24,7 +26,19 @@ class ContentTypeRepository extends \Doctrine\ORM\EntityRepository
 		
 		return $out;
 	}
-	
+
+
+	/**
+	 * 
+	 * @param string $name
+	 * @return ContentType
+	 */
+	public function findByName($name) {
+		return $this->findOneBy([
+				'deleted' => false,
+				'name' => $name,
+		]);
+	}
 	
 	public function countContentType() {
 		return $this->createQueryBuilder('a')
