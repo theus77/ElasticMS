@@ -97,7 +97,7 @@
 	          		{% if contentType.circlesField and app.user.circles|length > 0 %}
 		            	
 	          			{% for circle in  app.user.circles%}
-	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][booleanClause]'):('must')}) %}
+	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][booleanClause]'):('should')}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][field]'):contentType.circlesField}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][operator]'):('term')}) %}
 	          				{% set searchForm = searchForm|merge({('search_form[filters]['~loop.index0~'][pattern]'):circle}) %}
